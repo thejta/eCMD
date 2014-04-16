@@ -23,6 +23,8 @@
  *                          mjjones     04/16/2012  Add FAPI_RC_INVALID_CHIP_EC_FEATURE_GET
  *                          mjjones     05/02/2012  Add FAPI_RC_PLAT_ERR_ADU_LOCKED
  *                          mjjones     11/14/2012  Add FAPI_RC_UNRECOGNIZED_SBE_ERROR
+ *                          mjjones     03/26/2014  Remove FAPI_RC_UNRECOGNIZED_SBE_ERROR
+ *                          whs         04/14/2014  Remove FAPI_RC_INVALID_PARAM
  */
 
 #ifndef FAPIRETURNCODES_H_
@@ -61,11 +63,8 @@ enum ReturnCodes
     // HWP requested a chip EC feature with an invalid attribute ID
     FAPI_RC_INVALID_CHIP_EC_FEATURE_GET = FAPI_RC_FAPI_MASK | 0x02,
 
-    // HWP attempted to create an unrecognized SBE error
-    FAPI_RC_UNRECOGNIZED_SBE_ERROR      = FAPI_RC_FAPI_MASK | 0x03,
-
-    // Invalid parameters passed to a FAPI interface
-    FAPI_RC_INVALID_PARAM               = FAPI_RC_FAPI_MASK | 0x04,
+    // Invalid multiscom parameters
+    FAPI_RC_INVALID_MULTISCOM_LENGTH    = FAPI_RC_FAPI_MASK | 0x03,
 
     //--------------------------------------------------------------------------
     // PLAT generated return codes. Additional details may be contained in
@@ -77,6 +76,9 @@ enum ReturnCodes
 
     // Operation to AlterDisplay unit failed because it is locked
     FAPI_RC_PLAT_ERR_ADU_LOCKED = FAPI_RC_PLAT_MASK | 0x02,
+
+    // Operation not supported by HB runtime
+    FAPI_RC_PLAT_NOT_SUPPORTED_AT_RUNTIME = FAPI_RC_PLAT_MASK | 0x03,
 };
 
 }

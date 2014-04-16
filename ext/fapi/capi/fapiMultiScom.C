@@ -14,6 +14,7 @@
  * ------   --------------  ----------  ----------- -------------------------
  *          F883863         atendolk    05/16/2013  Created intial draft
  *          F883863         atendolk    06/05/2013  Review rework
+ *          D923348         whs         04/14/2014  Remove FAPI_RC_INVALID_PARAM
  */
 #include <fapi.H>
 #include <fapiUtil.H>
@@ -253,7 +254,8 @@ ReturnCode MultiScom::sanityCheck (
         {
             FAPI_ERR("MultiScom::sanityCheck - invalid input length %d",
                      i_lenInBits);
-            l_rc.setFapiError (FAPI_RC_INVALID_PARAM);
+            l_rc.setFapiError (FAPI_RC_INVALID_MULTISCOM_LENGTH);
+            l_rc.addEIFfdc(0, &i_lenInBits, sizeof(i_lenInBits));
             break;
         }
 
@@ -286,7 +288,10 @@ ReturnCode MultiScom::sanityCheck (
                          "Scom Mode: 0x%.8X",
                          i_lenInBits, io_data.getBitLength (),
                          i_scomMode);
-                l_rc.setFapiError (FAPI_RC_INVALID_PARAM);
+                l_rc.setFapiError (FAPI_RC_INVALID_MULTISCOM_LENGTH);
+                l_rc.addEIFfdc(0, &i_lenInBits, sizeof(i_lenInBits));
+                uint32_t l_io_data_bitlen = io_data.getBitLength();
+                l_rc.addEIFfdc(0, &l_io_data_bitlen, sizeof(l_io_data_bitlen));
                 break;
             }
         }
@@ -307,7 +312,10 @@ ReturnCode MultiScom::sanityCheck (
                          "does not match expected length %d bits for "
                          "Scom Mode: 0x%.8X", i_pMask->getBitLength (),
                          i_lenInBits, i_scomMode);
-                l_rc.setFapiError (FAPI_RC_INVALID_PARAM);
+                l_rc.setFapiError (FAPI_RC_INVALID_MULTISCOM_LENGTH);
+                l_rc.addEIFfdc(0, &i_lenInBits, sizeof(i_lenInBits));
+                uint32_t l_i_pMask_bitlen = i_pMask->getBitLength();
+                l_rc.addEIFfdc(0, &l_i_pMask_bitlen, sizeof(l_i_pMask_bitlen));
                 break;
             }
         }
