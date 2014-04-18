@@ -958,10 +958,16 @@ uint32_t readScomDefFile(uint64_t address, std::ifstream &scomdefFile) {
     }
     if((curLine[0] == 'A') && (curLine.substr(0, 10) == "Address = ")) {
       ecmdParseTokens(curLine, " \t\n={},", curArgs);
-      sscanf(curArgs[1].c_str(),"%llX",&addrFromFile);
-      if ((curArgs.size() >= 2) && addrFromFile == address) {
-        done = true;
-      }
+      //Don't just check for the first address for a match.  This could be a chipunit address that has multiple addresses on this line
+      for (std::vector<std::string>::iterator it = curArgs.begin(); it != curArgs.end(); ++it)
+      {
+	//sscanf(curArgs[1].c_str(),"%llX",&addrFromFile);
+	sscanf(it->c_str(),"%llX",&addrFromFile);
+	if ((curArgs.size() >= 2) && addrFromFile == address) {
+	  done = true;
+	  break;
+	}
+      }     
     }
   }
   if (done) {
