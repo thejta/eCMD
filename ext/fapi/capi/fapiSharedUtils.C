@@ -93,6 +93,10 @@ void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapi
       {
          o_fapiTarget.setType(fapi::TARGET_TYPE_PROC_CHIP);
       } 
+      else if (i_ecmdTarget.chipType == "n1") 
+      {
+         o_fapiTarget.setType(fapi::TARGET_TYPE_PROC_CHIP);
+      } 
       else if (i_ecmdTarget.chipType == "centaur") 
       {
          o_fapiTarget.setType(fapi::TARGET_TYPE_MEMBUF_CHIP);
