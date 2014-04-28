@@ -3666,6 +3666,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_MSS_DISABLE1_REG_FIXED, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_MSS_DISABLE1_RDCLK_REG_FIXED)
+    {
+        ATTR_MSS_DISABLE1_RDCLK_REG_FIXED_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_MSS_DISABLE1_RDCLK_REG_FIXED, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CENTAUR_EC_ECID_CONTAINS_PORT_LOGIC_BAD_INDICATION)
     {
         ATTR_CENTAUR_EC_ECID_CONTAINS_PORT_LOGIC_BAD_INDICATION_Type l_attr;

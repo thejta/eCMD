@@ -170,6 +170,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_MSS_DISABLE1_RDCLK_REG_FIXED:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc >= 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CENTAUR_EC_ECID_CONTAINS_PORT_LOGIC_BAD_INDICATION:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
