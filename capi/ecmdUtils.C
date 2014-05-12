@@ -753,6 +753,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Artemis (zGr+)\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_STRADALE) {
     printed += "Stradale\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_OPENPOWER) {
+    printed += "OpenPower\n";
   } else {
     printed += "Unknown\n";
   }
