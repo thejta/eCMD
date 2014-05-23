@@ -78,13 +78,16 @@ Syntax: ecmdquery <Mode> [Mode Options]
 
                         -a#  [optional] Operate on all levels of targeting with same value.
 
-        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall                                         to act on all cages (-kall is default for mode value 'chips'). 
-                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall                                         to act on all nodes (-nall is default for mode value 'chips'). 
-                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall                                         to act on all slots (-sall is default for mode value 'chips'). 
-                        -p#  [optional] Specify which chip position to act on (0 is default !). Specify                                         -pall to act on all chips (-pall is default for mode value 'chips').
-
-                        -c#  [optional] Specify which processor core to act on (0 is default !). Specify                                         -call to act on all cores.
-
+        -k#  [optional] Specify which cage to act on (0 is default !). Specify -kall
+                                         to act on all cages (-kall is default for mode value 'chips'). 
+                        -n#  [optional] Specify which node to act on (0 is default !). Specify -nall
+                                         to act on all nodes (-nall is default for mode value 'chips'). 
+                        -s#  [optional] Specify which slot to act on (0 is default !). Specify -sall
+                                         to act on all slots (-sall is default for mode value 'chips'). 
+                        -p#  [optional] Specify which chip position to act on (0 is default !). Specify
+                                         -pall to act on all chips (-pall is default for mode value 'chips').
+                        -c#  [optional] Specify which processor core to act on (0 is default !). Specify
+                                         -call to act on all cores.
                         -all [optional] Shortcut for -kall -nall -sall -pall [-call]. e.g. -all -p0 is not allowed.
 
         --------------------------------------------------------------------------------
