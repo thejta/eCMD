@@ -1301,7 +1301,7 @@ uint32_t ecmdGenB32FromHexRight (uint32_t * o_numPtr, const char * i_hexChars, i
   /* Can't figure out if this case is bad...                           */
   /* ----------------------------------------------------------------- */
   if (expectBits<(stringSize*4)) 
-    expectBits = (4-(expectBits & 0x3))+expectBits+(stringSize*4-expectBits&0xFFFC);
+    expectBits = (4-(expectBits & 0x3))+expectBits+((stringSize*4-expectBits)&0xFFFC);
 
   expectBits = (expectBits - stringSize*4)>>2; 
 
