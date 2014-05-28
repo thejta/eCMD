@@ -391,7 +391,7 @@ if ($ARGV[1] =~ /DllCapi.H/ || $genAll) {
 
   print OUT "#include <inttypes.h>\n";
   print OUT "#include <vector>\n";
-  print OUT "#include <string>\n\n";
+  print OUT "#include <string.h>\n\n";
 
   print OUT "#include <ecmdDefines.H>\n";
   print OUT "#include <ecmdStructs.H>\n";

@@ -100,17 +100,28 @@ CFLAGS    := -g -I.
 # The x86 Linux Setup stuff
 # *****************************************************************************
 ifeq (${OS},x86)
-  GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
   CC_VER   := 4.1.2
-  CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
+#  Adding 4.4.7 values on 5/28/14, but not going live with them yet.
+#  CC_VER   := 4.4.7
+  ifeq (${CC_VER},4.4.7)
+    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+    CC       := /usr/bin/g++
+    CFLAGS   := ${CFLAGS} -m32
+    LDFLAGS  := -m32 ${LDFLAGS}
+    AR       := /usr/bin/ar
+    SLDFLAGS := -shared -m32
+  else ifeq (${CC_VER},4.1.2)
+    GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
+    CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
+    LDFLAGS  := ${LDFLAGS}
+    AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
+    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
+    SLDFLAGS := -shared
+  endif
   CC_R     := ${CC}
-  CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
   LD       := ${CC}
-  LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS}
-  SLDFLAGS := -shared
+  LD_R     := ${CC_R} 
   GPATH    := ${OBJDIR}
-  AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
 endif
 
 # *****************************************************************************

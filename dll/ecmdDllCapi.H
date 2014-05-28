@@ -4,7 +4,7 @@
 
 #include <inttypes.h>
 #include <vector>
-#include <string>
+#include <string.h>
 
 #include <ecmdDefines.H>
 #include <ecmdStructs.H>
