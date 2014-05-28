@@ -109,7 +109,7 @@ void sedcLatchLine::reset() {
 
 void sedcLatchLine::setName(std::string newLatchName) {
   latchName = newLatchName;
-  hashKey = ecmdHashString32(latchName.c_str(), 0);
+  hashKey = ecmdHashString64(latchName.c_str(), 0);
 }
 
 /************************************************************************************/
