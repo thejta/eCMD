@@ -44,6 +44,25 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdStructs.H>
 
+#ifndef AIX
+  #include <byteswap.h>
+  #ifndef htonll
+    #if BYTE_ORDER == BIG_ENDIAN
+      #define htonll(x) (x)
+    #else
+      #define htonll(x) bswap_64(x)
+    #endif
+  #endif
+
+  #ifndef ntohll
+    #if BYTE_ORDER == BIG_ENDIAN
+      #define ntohll(x) (x)
+    #else
+      #define ntohll(x) ((((uint64_t)ntohl(x)) << 32) + ntohl(x >> 32))
+    #endif
+  #endif
+#endif
+
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
@@ -2409,6 +2428,7 @@ bool ecmdSpyData::isChipUnitMatch(std::string &i_chipUnitType) {
 uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
+	uint64_t tmpData64 = 0;
         uint32_t enumsListSize  = 0;
         uint32_t epCheckersListSize  = 0;
         uint32_t rc     = ECMD_SUCCESS;
@@ -2438,8 +2458,8 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 	    i_len -= spyName.size() + 1;
 
 	    // spyId
-	    tmpData32 = htonl(spyId);
-	    memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+	    tmpData64 = htonll(spyId);
+	    memcpy(l_ptr, &tmpData64, sizeof(tmpData64));
 	    l_ptr += sizeof(spyId);
 	    i_len -= sizeof(spyId);
 
@@ -2584,7 +2604,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
 	    // spyId
 	    memcpy(&spyId, l_ptr, sizeof(spyId));
-	    spyId = ntohl(spyId);
+	    spyId = ntohll(spyId);
 	    l_ptr += sizeof(spyId);
 	    l_left -= sizeof(spyId);
 
@@ -2786,7 +2806,7 @@ void  ecmdSpyData::printStruct() {
 
         // Print non-list data.
         printf("\tSpy Name:  %s\n", spyName.c_str());
-        printf("\tSpy ID: 0x%08x\n", spyId);
+        printf("\tSpy ID: 0x%016llx\n", spyId);
         printf("\tBit Length: 0x%08x\n", (uint32_t) bitLength);
         printf("\tSpy Type: 0x%08x\n", (uint32_t) spyType);
         printf("\tisEccChecked: 0x%08x\n", (uint32_t) isEccChecked);
@@ -3025,6 +3045,7 @@ bool ecmdRingData::isChipUnitMatch(std::string &i_chipUnitType) {
 uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint32_t tmpData32 = 0;
+        uint64_t tmpData64 = 0;
         uint32_t ringNamesListSize  = 0;
         uint32_t ringIdListSize = 0;
         uint32_t rc     = ECMD_SUCCESS;
@@ -3032,7 +3053,7 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
         uint8_t *l_ptr = o_buf;
 
         std::list<std::string>:: iterator ringNamesIter;
-        std::list<uint32_t>::iterator ringIdIter;
+        std::list<uint64_t>::iterator ringIdIter;
 
 
         do {    // Single entry ->
@@ -3143,8 +3164,8 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
             // Store each ring ID (won't loop if list is empty)
             for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ringIdIter)
             {
-               tmpData32 = htonl(*ringIdIter);
-               memcpy(l_ptr, &tmpData32, sizeof(tmpData32));
+               tmpData64 = htonll(*ringIdIter);
+               memcpy(l_ptr, &tmpData64, sizeof(tmpData64));
                l_ptr += sizeof(*ringIdIter);
                i_len -= sizeof(*ringIdIter);
             }
@@ -3275,9 +3296,9 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         // Re-create the list of ring IDs
         for (loop = 0; loop < ringIdListSize; ++loop)
         {
-            uint32_t l_ringId = 0;
+            uint64_t l_ringId = 0;
             memcpy(&l_ringId, l_ptr, sizeof(l_ringId));
-            l_ringId = ntohl(l_ringId);
+            l_ringId = ntohll(l_ringId);
 
             ringIds.push_back(l_ringId);
 
@@ -3377,7 +3398,7 @@ void  ecmdRingData::printStruct() {
         uint32_t ringNamesListSize  = ringNames.size();
 
         std::list<std::string>:: iterator ringNamesIter;
-        std::list<uint32_t>::iterator ringIdIter;
+        std::list<uint64_t>::iterator ringIdIter;
 
 
         printf("\n\t--- Ring Data Structure ---\n");
@@ -3414,7 +3435,7 @@ void  ecmdRingData::printStruct() {
             // Display each ring ID entry
             printf("\tList of ringId entries:\n");
             for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ ringIdIter) {
-                printf("\t\t0x%08x\n", *ringIdIter);
+                printf("\t\t0x%016llx\n", *ringIdIter);
             }
         }
 

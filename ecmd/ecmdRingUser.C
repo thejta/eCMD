@@ -33,6 +33,17 @@
 #include <ecmdInterpreter.H>
 #include <ecmdSharedUtils.H>
 
+#ifndef AIX
+  #include <byteswap.h>
+  #ifndef htonll
+    #if BYTE_ORDER == BIG_ENDIAN
+      #define htonll(x) (x)
+    #else
+      #define htonll(x) bswap_64(x)
+    #endif
+  #endif
+#endif
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -2598,12 +2609,14 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   std::string scandefHashFile;                  ///< Full path to scandefhash file
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
-  uint32_t i_ringkey;
-  
+  uint32_t i_ringkey32;
+  uint64_t i_ringkey64;
+
   if (i_ringName != NULL) {
     i_ring = i_ringName;
     transform(i_ring.begin(), i_ring.end(), i_ring.begin(), (int(*)(int)) tolower);
-    i_ringkey = ecmdHashString32(i_ring.c_str(), 0);
+    i_ringkey32 = ecmdHashString32(i_ring.c_str(), 0);
+    i_ringkey64 = ecmdHashString64(i_ring.c_str(), 0);
   }
   else {
     rc = ECMD_INVALID_RING;
@@ -2612,44 +2625,80 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
     return rc;
   }
 
+
+
   //Try looking for the offset in scandef hash  
   bool ringOffsetFound = false;
-  uint32_t curRingKey;
-  uint32_t ringBeginOffset = 0;
   bool foundRing = false;
   std::string l_version = "default";    
-      
+  bool l_scandefHash64 = false;
+  std::ifstream insh;
+  uint32_t ringBeginOffset = 0;
+  uint32_t numRings =0;
+
   while(1) {
     /* Find the ring offset from the scandefhash file */
     rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile, l_version);
     if (rc) {
-      break;
+        break;
     }
 
-    std::ifstream insh(scandefHashFile.c_str());
+    if ( scandefHashFile.rfind("hash.64") != std::string::npos )
+    {
+      l_scandefHash64 = true;
+    }
+
+    insh.open(scandefHashFile.c_str());
     if (insh.fail()) {
       break;
     }
-      
-    uint32_t numRings =0;
-    insh.read((char *)& numRings, 4);
-    numRings = htonl(numRings);
-      
-    //Seek to the ring area in the hashfile
-    insh.seekg ( 8 );
-      
-    while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-      insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
-      insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-      curRingKey = htonl(curRingKey);
-      ringBeginOffset = htonl(ringBeginOffset);
-	
-      if (i_ringkey == curRingKey) {
-	foundRing = true;
-	break;
-      }
-      insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
-	  
+
+    if (l_scandefHash64)
+    {
+        //need to do the 64 bit stuff here
+        uint64_t curRingKey64;
+        insh.read((char *)& numRings, 4);
+        numRings = htonl(numRings);
+
+        //Seek to the ring area in the hashfile
+        insh.seekg ( 8 );
+
+        while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
+            insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+            curRingKey64 = htonll(curRingKey64);
+            ringBeginOffset = htonl(ringBeginOffset);
+
+            if (i_ringkey64 == curRingKey64) {
+                foundRing = true;
+                break;
+            }
+            insh.seekg (12, std::ios::cur); //Skip the ringKey-end offset pair
+
+        }
+    }
+    else
+    {
+        uint32_t curRingKey32;
+        insh.read((char *)& numRings, 4);
+        numRings = htonl(numRings);
+
+        //Seek to the ring area in the hashfile
+        insh.seekg ( 8 );
+
+        while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+            insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+            curRingKey32 = htonl(curRingKey32);
+            ringBeginOffset = htonl(ringBeginOffset);
+
+            if (i_ringkey32 == curRingKey32) {
+                foundRing = true;
+                break;
+            }
+            insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
+
+        }
     }
       
     if (foundRing) {

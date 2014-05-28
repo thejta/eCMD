@@ -90,7 +90,7 @@ class sedcLatchLine
     std::string   latchName;   ///< The latch being worked on out of the scandef/scomdef
     std::string   latchExtras; ///< Contains the ()'s as well as any comments on the line
     std::string   comment;     ///< Contains any comment that was on the line
-    uint32_t  hashKey;     ///< A hashKey generated off the latchName, used for look ups.
+    uint64_t  hashKey;     ///< A hashKey generated off the latchName, used for look ups.
     uint32_t  holderID;     ///< It's location in the spylines once built - only used in edc mode
 
   private:  // functions
@@ -132,12 +132,17 @@ class sedcFileLine
 /**
  * @brief Hold in the info necessary to read/write the filepos to the spy hash file
  */
-struct sedcHashEntry {
+struct sedcHash32Entry {
   unsigned int key;             ///< 32 bit hash key generated off the spy name
   unsigned int filepos;         ///< Position in the spy file where this spy is at
-  int operator<(const sedcHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
+  int operator<(const sedcHash32Entry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
 };
 
+struct sedcHash64Entry {
+  unsigned long long key;             ///< 64 bit hash key generated off the spy name
+  unsigned int filepos;         ///< Position in the spy file where this spy is at
+  int operator<(const sedcHash64Entry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
+};
 
 /**
  * @brief return type from sedcStringToClkState() function

@@ -128,7 +128,7 @@ void sedcParseLatchLine(sedcLatchLine &returnLatchLine, sedcFileLine &myLine, un
   }
 
   /* Finally, generate the hashKey for the latchName */
-  returnLatchLine.hashKey = ecmdHashString32(returnLatchLine.latchName.c_str(), 0);
+  returnLatchLine.hashKey = ecmdHashString64(returnLatchLine.latchName.c_str(), 0);
 }
 
 sedcClockState sedcStringToClkState(const std::string& clkStateString)

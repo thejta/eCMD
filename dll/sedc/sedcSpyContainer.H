@@ -93,7 +93,7 @@ class sedcSpyContainer
      bool valid;  ///< Is this DC valid?
      SPY_CONTAINER_TYPES type; ///< The type of Data Container this is
      std::string name;          ///< The name associated with the Data Container
-     unsigned int hashKey;      ///< A hashKey based off the name - used for lookup
+     uint64_t hashKey;      ///< A hashKey based off the name - used for lookup
 
      // Operators
      int operator=(const sedcSpyContainer &rhs);  ///< Used for copies

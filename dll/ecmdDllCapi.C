@@ -43,6 +43,17 @@
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>
 
+#ifndef AIX
+  #include <byteswap.h>
+  #ifndef htonll
+    #if BYTE_ORDER == BIG_ENDIAN
+      #define htonll(x) (x)
+    #else
+      #define htonll(x) bswap_64(x)
+    #endif
+  #endif
+#endif
+
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
@@ -62,7 +73,7 @@ struct ecmdLatchHashInfo {
 struct ecmdLatchBufferEntry {
   std::list<ecmdLatchEntry> entry;       ///< Data from Scandef
   std::string latchName;                 ///< Latch name used to search for this data
-  uint32_t    latchNameHashKey;          ///< Latch name used to search for this data
+  uint64_t    latchNameHashKey;          ///< Latch name used to search for this data
   std::string ringName;                  ///< Ring name used to search for this data (empty string if == NULL)
 
   inline int operator==(const ecmdLatchBufferEntry &rhs) const {
@@ -75,7 +86,7 @@ struct ecmdLatchBufferEntry {
 };
 
 struct ecmdLatchCacheEntry {
-  uint32_t scandefHashKey;
+  uint64_t scandefHashKey;
   std::list<ecmdLatchBufferEntry> latches;
 
   inline int operator==(const ecmdLatchCacheEntry &rhs) const {
@@ -2980,18 +2991,14 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
   std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
   std::string curRing;                          ///< Current ring being read in
-  uint32_t latchHashKey;                        ///< Hash Key for i_latchName
-  uint32_t ringHashKey;                         ///< Hash Key for i_ringName
+  uint64_t latchHashKey64;                        ///< Hash Key for i_latchName
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
 
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
-  latchHashKey = ecmdHashString32(latchName.c_str(), 0);
-
-  /* Transform to lower case for case-insensitive comparisons */
-  transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
-  ringHashKey = ecmdHashString32(latchName.c_str(), 0);
+  //used to set ecmdLatchBufferEntry's latchNameHashKey in * and that is only used in comparsion 
+  latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
   /* single exit point */
   std::string l_version = "default";
@@ -3011,7 +3018,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
     searchCacheIter = latchCache.end();
 
     /* Set the hashkey for the lookup and then do it */
-    searchCache.scandefHashKey = ecmdHashString32(scandefFile.c_str(), 0);
+    searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
 
     searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
 
@@ -3022,7 +3029,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
       /* Level two */
       /* We found the proper scandef entry, now actually search for the latch we need */
       ecmdLatchBufferEntry searchLatch;
-      searchLatch.latchNameHashKey = latchHashKey;
+      searchLatch.latchNameHashKey = latchHashKey64;
       std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
 
 
@@ -3222,7 +3229,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
         o_latchdata.ringName = "";
       }
       o_latchdata.latchName = latchName;
-      o_latchdata.latchNameHashKey = latchHashKey;
+      o_latchdata.latchNameHashKey = latchHashKey64;
       o_latchdata.entry.sort();
 
       /* Now insert it in proper order */
@@ -3254,8 +3261,10 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   bool foundit;                                 ///< Did I find the latch info that I have already looked up
   std::string latchName = i_latchName;          ///< Store our latchname in a stl string
   std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
-  uint32_t latchHashKey;                        ///< Hash Key for i_latchName
-  uint32_t ringHashKey;                         ///< Hash Key for i_ringName
+  uint32_t latchHashKey32;                        ///< Hash Key for i_latchName
+  uint32_t ringHashKey32;                         ///< Hash Key for i_ringName
+  uint64_t latchHashKey64;                        ///< Hash Key for i_latchName
+  uint64_t ringHashKey64;                         ///< Hash Key for i_ringName
   std::string curRing;                          ///< Current ring being read in
   std::string curLine;                          ///< Current line in the scandef
   std::vector<std::string> curArgs;             ///< for tokenizing
@@ -3264,11 +3273,13 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::string l_version = "default";
   /* Transform to upper case for case-insensitive comparisons */
   transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
-  latchHashKey = ecmdHashString32(latchName.c_str(), 0);
-      
+  latchHashKey32 = ecmdHashString32(latchName.c_str(), 0);
+  latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
+
   /* Transform to lower case for case-insensitive comparisons */
   transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
-  ringHashKey = ecmdHashString32(ringName.c_str(), 0);
+  ringHashKey32 = ecmdHashString32(ringName.c_str(), 0);
+  ringHashKey64 = ecmdHashString64(ringName.c_str(), 0);
 
   /* single exit point */
   while (1) {
@@ -3286,7 +3297,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
     searchCacheIter = latchCache.end();
 
     /* Set the hashkey for the lookup and then do it */
-    searchCache.scandefHashKey = ecmdHashString32(scandefFile.c_str(), 0);
+    searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
 
     searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
 
@@ -3297,7 +3308,8 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
       /* Level two */
       /* We found the proper scandef entry, now actually search for the latch we need */
       ecmdLatchBufferEntry searchLatch;
-      searchLatch.latchNameHashKey = latchHashKey;
+      //lets always use the 64 bit because this will only be used for comparison
+      searchLatch.latchNameHashKey = latchHashKey64;
       std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
 
 
@@ -3343,14 +3355,35 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
         return rc;
       }
 
-      std::ifstream insh(scandefHashFile.c_str());
+      std::ifstream insh;
+      bool l_scandefHash64 = false;
+      insh.open(scandefHashFile.c_str());
       if (insh.fail()) {
-        rc = ECMD_UNABLE_TO_OPEN_SCANDEFHASH;
-        dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured opening scandef file: " + scandefHashFile + "\n").c_str());
-        break;
+	insh.close();
+ 
+	rc = ECMD_UNABLE_TO_OPEN_SCANDEFHASH;
+	dllRegisterErrorMsg(rc, "readScandefHash", ("Error occured opening scandef hash file: " + scandefHashFile + "\n").c_str());
+	break;	    
       }
       
-      uint32_t curRingKey;
+      if ( scandefHashFile.rfind("hash.64") != std::string::npos )
+      {
+	l_scandefHash64  = true;
+      }
+      else
+      {
+	l_scandefHash64 = false;
+      }
+
+      //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+      uint32_t curRingKey32;
+      uint64_t curRingKey64;
       uint32_t ringBeginOffset, ringEndOffset;
       bool ringFound = false;	
       bool foundLatch = false;
@@ -3363,50 +3396,100 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 	//Get Offset of the end of file
         insh.seekg (0, std::ios::end); 
         std::streamoff end = insh.tellg(); 
-      
-	uint32_t curLKey; //LatchKey 
-	uint32_t curLOffset; //LatchOffset
 
-	//Binary Search through the latches
-	//Index-low,mid,high
-	//Latch Section
-        std::streamoff low=(std::streamoff)(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END
-	std::streamoff mid=0;
-	std::streamoff high = end/8-1;
-	while(low <= high) {
-	  mid = (low + high) / 2;
-	  insh.seekg ( mid*8 );
-	  insh.read( (char *)& curLKey, 4);
-	  curLKey = htonl(curLKey); 
-	  if(latchHashKey == curLKey) {
-	    //Goto the first occurence of this latch
-	    while(latchHashKey == curLKey) {
-              insh.seekg(-12, std::ios::cur);
-	      insh.read( (char *)& curLKey, 4);
-	      curLKey = htonl(curLKey); 
-	    }
-	    //Go back to the matching latch
-            insh.seekg(4, std::ios::cur);
-	    insh.read( (char *)& curLKey, 4);
-	    curLKey = htonl(curLKey); 
-	    while(latchHashKey == curLKey) {
-	      insh.read( (char *)& curLOffset, 4 );
-	      curLOffset = htonl(curLOffset);
-	      curLatchHashInfo.latchOffset = curLOffset;
-	      curLatchHashInfo.ringFound = false;
-	      latchHashDet.push_back(curLatchHashInfo);
-	      foundLatch = true;
-	      //Read next latch
-	      insh.read( (char *)& curLKey, 4);
-	      curLKey = htonl(curLKey); 
-	    }
-	    break;
-	  }
-	  if (latchHashKey < curLKey)
-	    high = mid - 1;
-	  else
-	    low  = mid + 1;
-	}
+        if(l_scandefHash64)
+        {
+            uint64_t curLKey64; //LatchKey 
+            uint32_t curLOffset; //LatchOffset
+
+            //Binary Search through the latches
+            //Index-low,mid,high
+            //Latch Section
+            //because of 64 bit hash, we are going to do a different alorithm where we don't include the number of rings(first 4 bytes) from the numbers, but we are just going to adjust the seek and the end
+            std::streamoff low=(std::streamoff)((numRings * 12) * 2)/12;//Each ring is repeated twice - One for BEGIN offset and One for END 
+            std::streamoff mid=0;
+            std::streamoff high = ((end - 8 - 8)/12);//end pos - 8 for the #rings, -8 for the random end)
+            while(low <= high) {
+                mid = (low + high) / 2;
+                insh.seekg ( (mid*12)+8 );//each ring section is 12, need to account for the 8 bit numrings at the start of the file
+                insh.read( (char *)& curLKey64, 8);
+                curLKey64 = htonll(curLKey64); 
+                if(latchHashKey64 == curLKey64) {
+                    //Goto the first occurence of this latch
+                    while(latchHashKey64 == curLKey64) {
+                        insh.seekg(-20, std::ios::cur);// go back 20, 8 for the hash we just read, and for the entire previous latch
+                        insh.read( (char *)& curLKey64, 8);
+                        curLKey64 = htonll(curLKey64); 
+                    }
+                    //Go back to the matching latch
+                    insh.seekg(4, std::ios::cur); // don't adjust this because this is the size of the location
+                    insh.read( (char *)& curLKey64, 8);
+                    curLKey64 = htonll(curLKey64); 
+                    while(latchHashKey64 == curLKey64) {
+                        insh.read( (char *)& curLOffset, 4 );
+                        curLOffset = htonl(curLOffset);
+                        curLatchHashInfo.latchOffset = curLOffset;
+                        curLatchHashInfo.ringFound = false;
+                        latchHashDet.push_back(curLatchHashInfo);
+                        foundLatch = true;
+                        //Read next latch
+                        insh.read( (char *)& curLKey64, 8);
+                        curLKey64 = htonll(curLKey64); 
+                    }
+                    break;
+                }
+                if (latchHashKey64 < curLKey64)
+                    high = mid - 1;
+                else
+                    low  = mid + 1;
+            }
+        }
+        else
+        {
+            uint32_t curLKey32; //LatchKey 
+            uint32_t curLOffset; //LatchOffset
+
+            //Binary Search through the latches
+            //Index-low,mid,high
+            //Latch Section
+            std::streamoff low=(std::streamoff)(((numRings * 8) * 2) + 8)/8;//Each ring is repeated twice - One for BEGIN offset and One for END  // this points to the pos of the first latch / 8
+            std::streamoff mid=0;
+            std::streamoff high = end/8-1; // this points to the start of the last latch /8
+            while(low <= high) {
+                mid = (low + high) / 2;
+                insh.seekg ( mid*8 );
+                insh.read( (char *)& curLKey32, 4);
+                curLKey32 = htonl(curLKey32); 
+                if(latchHashKey32 == curLKey32) {
+                    //Goto the first occurence of this latch
+                    while(latchHashKey32 == curLKey32) {
+                        insh.seekg(-12, std::ios::cur);
+                        insh.read( (char *)& curLKey32, 4);
+                        curLKey32 = htonl(curLKey32); 
+                    }
+                    //Go back to the matching latch
+                    insh.seekg(4, std::ios::cur);
+                    insh.read( (char *)& curLKey32, 4);
+                    curLKey32 = htonl(curLKey32); 
+                    while(latchHashKey32 == curLKey32) {
+                        insh.read( (char *)& curLOffset, 4 );
+                        curLOffset = htonl(curLOffset);
+                        curLatchHashInfo.latchOffset = curLOffset;
+                        curLatchHashInfo.ringFound = false;
+                        latchHashDet.push_back(curLatchHashInfo);
+                        foundLatch = true;
+                        //Read next latch
+                        insh.read( (char *)& curLKey32, 4);
+                        curLKey32 = htonl(curLKey32); 
+                    }
+                    break;
+                }
+                if (latchHashKey32 < curLKey32)
+                    high = mid - 1;
+                else
+                    low  = mid + 1;
+            }
+        }
 
 
 	if (!foundLatch) {
@@ -3465,59 +3548,115 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 	      }
 	    }
 	  }
-	  else {
-	    while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-	      insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
-	      insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-	      insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
-	      insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
-	
-	      curRingKey = htonl(curRingKey);
-	      ringBeginOffset = htonl(ringBeginOffset);
-	      ringEndOffset = htonl(ringEndOffset);
-	
-	
- 
-	      if((latchHashDetIter->latchOffset > ringBeginOffset) && (latchHashDetIter->latchOffset < ringEndOffset)) {
-		if ((ringName != "") && (ringHashKey != curRingKey)) {
-		  //The ring user specified does not match the one looked up in the scandefhash for this latch
-		  latchHashDetIter->ringFound = false;
-		  break;
-		}
-		latchHashDetIter->ringBeginOffset = ringBeginOffset;
-		latchHashDetIter->ringEndOffset = ringEndOffset;
-		latchHashDetIter->ringFound = true;
-		latchIter = latchHashDetIter; 
-		ringFound = true;
-	      }
-	    } // end while loop
-	    if (!ringFound) latchHashDetIter->ringFound = false;
-	  }
+          else {
+              if (l_scandefHash64)
+              {
+                  while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
+                      insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                      insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                      insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                      insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
+
+                      curRingKey64 = htonll(curRingKey64);
+                      ringBeginOffset = htonl(ringBeginOffset);
+                      ringEndOffset = htonl(ringEndOffset);
+
+
+
+                      if((latchHashDetIter->latchOffset > ringBeginOffset) && (latchHashDetIter->latchOffset < ringEndOffset)) {
+                          if ((ringName != "") && (ringHashKey64 != curRingKey64)) {
+                              //The ring user specified does not match the one looked up in the scandefhash for this latch
+                              latchHashDetIter->ringFound = false;
+                              break;
+                          }
+                          latchHashDetIter->ringBeginOffset = ringBeginOffset;
+                          latchHashDetIter->ringEndOffset = ringEndOffset;
+                          latchHashDetIter->ringFound = true;
+                          latchIter = latchHashDetIter; 
+                          ringFound = true;
+                      }
+                  } // end while loop
+              }
+              else
+              {
+                  while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+                      insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                      insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                      insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                      insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
+
+                      curRingKey32 = htonl(curRingKey32);
+                      ringBeginOffset = htonl(ringBeginOffset);
+                      ringEndOffset = htonl(ringEndOffset);
+
+
+
+                      if((latchHashDetIter->latchOffset > ringBeginOffset) && (latchHashDetIter->latchOffset < ringEndOffset)) {
+                          if ((ringName != "") && (ringHashKey32 != curRingKey32)) {
+                              //The ring user specified does not match the one looked up in the scandefhash for this latch
+                              latchHashDetIter->ringFound = false;
+                              break;
+                          }
+                          latchHashDetIter->ringBeginOffset = ringBeginOffset;
+                          latchHashDetIter->ringEndOffset = ringEndOffset;
+                          latchHashDetIter->ringFound = true;
+                          latchIter = latchHashDetIter; 
+                          ringFound = true;
+                      }
+                  } // end while loop
+              }
+              if (!ringFound) latchHashDetIter->ringFound = false;
+          }
 	}  
 	ins.close(); 
       }  
       else { //ringname != NULL and latchname == NULL, Skip Latch Lookup
         //Seek to the ring area in the hashfile
         insh.seekg ( 8 ); 
-	while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-	  insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
-	  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-	  insh.read( (char *)& curRingKey, 4 ); //Read the ringKey
-	  insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
+        if(l_scandefHash64)
+        {
+            while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
+                insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
 
-	  curRingKey = htonl(curRingKey);
-	  ringBeginOffset = htonl(ringBeginOffset);
-	  ringEndOffset = htonl(ringEndOffset);
-	
-	  if (ringHashKey == curRingKey) {
-	    curLatchHashInfo.ringBeginOffset = ringBeginOffset;
-	    curLatchHashInfo.ringEndOffset = ringEndOffset;
-	    curLatchHashInfo.ringFound = true;
-	    latchHashDet.push_back(curLatchHashInfo);
-	    ringFound = true;
-	    break;
-	  }
-	}
+                curRingKey64 = htonll(curRingKey64);
+                ringBeginOffset = htonl(ringBeginOffset);
+                ringEndOffset = htonl(ringEndOffset);
+
+                if (ringHashKey64 == curRingKey64) {
+                    curLatchHashInfo.ringBeginOffset = ringBeginOffset;
+                    curLatchHashInfo.ringEndOffset = ringEndOffset;
+                    curLatchHashInfo.ringFound = true;
+                    latchHashDet.push_back(curLatchHashInfo);
+                    ringFound = true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+                insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                insh.read( (char *)& ringEndOffset, 4 ); //Read the end offset
+
+                curRingKey32 = htonl(curRingKey32);
+                ringBeginOffset = htonl(ringBeginOffset);
+                ringEndOffset = htonl(ringEndOffset);
+
+                if (ringHashKey32 == curRingKey32) {
+                    curLatchHashInfo.ringBeginOffset = ringBeginOffset;
+                    curLatchHashInfo.ringEndOffset = ringEndOffset;
+                    curLatchHashInfo.ringFound = true;
+                    latchHashDet.push_back(curLatchHashInfo);
+                    ringFound = true;
+                    break;
+                }
+            }
+        }
       }
       
       insh.close();
@@ -3677,7 +3816,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
         o_latchdata.ringName = "";
       }
       o_latchdata.latchName = latchName;
-      o_latchdata.latchNameHashKey = latchHashKey;
+      o_latchdata.latchNameHashKey = latchHashKey64;
       o_latchdata.entry.sort();
 
       /* Now insert it in proper order */

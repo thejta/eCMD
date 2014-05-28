@@ -288,5 +288,5 @@ void sedcSpyContainer::setEccfuncEntry(sedcEccfuncEntry newEccfuncEntry) {
 
 void sedcSpyContainer::setName(std::string newName) {
   name = newName;
-  hashKey = ecmdHashString32(name.c_str(), 0);
+  hashKey = ecmdHashString64(name.c_str(), 0);
 }

@@ -1326,7 +1326,7 @@ struct ecmdRingData {
 
   // Members
   std::list<std::string> ringNames;              ///< (Detail: Low)  Names used to reference this ring
-  std::list<uint32_t>    ringIds;                ///< (Detail: Low)  Hashed ring IDs
+  std::list<uint64_t>    ringIds;                ///< (Detail: Low)  Hashed ring IDs
   uint32_t               address;                ///< (Detail: Low)  Address modifier
   uint32_t               bitLength;              ///< (Detail: Low)  length of ring
   bool                   hasInversionMask;       ///< (Detail: High) Ring has an inversion mask applied before scanning
@@ -2076,7 +2076,7 @@ struct ecmdSpyData {
 
   // Members
   std::string   spyName;                   ///< Names used to reference this spy
-  uint32_t      spyId;                     ///< (Detail: Low)  Hashed spy ID
+  uint64_t      spyId;                     ///< (Detail: Low)  Hashed spy ID
   uint32_t      bitLength;                 ///< length of spy
   ecmdSpyType_t spyType;                   ///< Type of spy
   bool          isEccChecked;              ///< This spy affects some ECC groupings
