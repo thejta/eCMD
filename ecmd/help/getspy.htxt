@@ -17,9 +17,11 @@ Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-exp <value>] [-
 
         SpyName         Desired spy name. (case insensitive)  
 
-        Start     [opt] Starting bit position within the spy. Specify with Numbits.                         Only valid with non-enumerated spy's
+        Start     [opt] Starting bit position within the spy. Specify with Numbits.
+                        Only valid with non-enumerated spy's
 
-        Numbits   [opt] Number of bits to get. Specify along with Start.                         Only valid with non-enumerated spy's
+        Numbits   [opt] Number of bits to get. Specify along with Start.
+                        Only valid with non-enumerated spy's
         
         -exp [optional] Provides an expected value as the last argument. Returns error
                         only if miscompare.
