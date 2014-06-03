@@ -95,7 +95,7 @@
 }
 */
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);
-int getSymAddr(char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr);
+int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr);
 void closeSharedLib(void * i_pLibHandle);
 
 

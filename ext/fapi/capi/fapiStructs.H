@@ -103,7 +103,7 @@ inline AttributeData::AttributeData():
 // mask
 faValidMask(0x0), 
 // char * 
-faString("blah"),   
+faString(NULL),   
 // integers
 faUint8(0x0),         faUint32(0x0),       faUint64(0x0),  
 // arrays

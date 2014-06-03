@@ -17,6 +17,7 @@
 #ifndef FAPIPLATATTRIBUTESERVICE_H_
 #define FAPIPLATATTRIBUTESERVICE_H_
 #include <stdint.h>
+#include <stdio.h>
 #include <fapiAttributeIds.H>
 #include <fapiClientCapi.H>
 #include <fapiStructs.H>
