@@ -1221,6 +1221,8 @@ fapi::ReturnCode platPutSpyImage(const fapi::Target& i_target,
     if (errorString.size()) ecmdOutput(errorString.c_str());
   }
 
+  io_imageData = l_ecmd_buffer_image_data;
+
   return rc;
 
 }
