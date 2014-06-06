@@ -54,7 +54,7 @@
 //--------------------------------------------------------------------
 
 
-#define ECMD_CAPI_VERSION "13.4"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "14.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
