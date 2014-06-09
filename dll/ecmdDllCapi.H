@@ -173,9 +173,7 @@ uint32_t dllQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomai
 
 uint32_t dllStartClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState); 
 
-uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState); 
-
-uint32_t dllStopClocksHidden(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState, uint32_t i_mode); 
+uint32_t dllStopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState, uint32_t i_mode); 
 
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
@@ -239,23 +237,15 @@ uint32_t dllMpiplForceWinkle(const ecmdChipTarget & i_target);
 
 #endif // ECMD_REMOVE_MPIPL_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
-uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data); 
+uint32_t dllGetTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntry & o_data); 
 
 uint32_t dllGetTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data); 
 
-uint32_t dllGetTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntryHidden & o_data); 
-
-uint32_t dllGetTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data); 
-
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 #ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
-uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
+uint32_t dllGetMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode); 
 
-uint32_t dllGetMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode); 
-
-uint32_t dllPutMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data); 
-
-uint32_t dllPutMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode); 
+uint32_t dllPutMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode); 
 
 uint32_t dllGetMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data); 
 

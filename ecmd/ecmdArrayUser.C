@@ -705,12 +705,12 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   uint32_t doStopStart = 0x0;              ///< Do we StopStart trace arrays ?
   std::list<ecmdTraceArrayData> queryTraceData; ///< Trace Data
   std::list<ecmdTraceArrayData>::iterator queryIt; ///< Trace Data Ietrator
-  std::map< std::string, std::list<ecmdNameVectorEntryHidden> > cuArrayMap;        ///< Array data fetched
-  std::map< std::string, std::list<ecmdNameVectorEntryHidden> >::iterator cuArrayMapIter;        ///< Array data fetched
-  std::list<ecmdNameVectorEntryHidden> nestArrayList;        ///< Array data fetched
-  ecmdNameVectorEntryHidden entry;                       ///< Entry to populate the list
+  std::map< std::string, std::list<ecmdNameVectorEntry> > cuArrayMap;        ///< Array data fetched
+  std::map< std::string, std::list<ecmdNameVectorEntry> >::iterator cuArrayMapIter;        ///< Array data fetched
+  std::list<ecmdNameVectorEntry> nestArrayList;        ///< Array data fetched
+  ecmdNameVectorEntry entry;                       ///< Entry to populate the list
   bool haveItrs = false;                 ///< Do we have any iteration values passed in?
-  std::vector<uint32_t> itrVals;         ///< Iteration values to pass into ecmdNameVectorEntryHidden.iteration
+  std::vector<uint32_t> itrVals;         ///< Iteration values to pass into ecmdNameVectorEntry.iteration
   
   /* get format flag, if it's there */
   std::string format;
@@ -950,9 +950,9 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
 
     if (nestArrayList.size() > 0) {
 
-      rc = getTraceArrayMultipleHidden(target,  doStopStart, nestArrayList);
+      rc = getTraceArrayMultiple(target,  doStopStart, nestArrayList);
       if (rc) {
-        printed = "gettracearray - Error occured performing getTraceArrayMultipleHidden on ";
+        printed = "gettracearray - Error occured performing getTraceArrayMultiple on ";
         printed += ecmdWriteTarget(target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;                                           //@02
@@ -961,7 +961,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         validPosFound = true;
       }
 
-      for (std::list<ecmdNameVectorEntryHidden>::iterator lit = nestArrayList.begin(); lit != nestArrayList.end(); lit++ ) {
+      for (std::list<ecmdNameVectorEntry>::iterator lit = nestArrayList.begin(); lit != nestArrayList.end(); lit++ ) {
         printedHeader = false;
         for(loop =0; loop < lit->buffer.size() ; loop++) {
           if (!printedHeader) {
@@ -1019,10 +1019,10 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
         while (ecmdLooperNext(cuTarget, cuLooper) && (!coeRc || coeMode)) {
 
           //Clear the chipUnit List
-          for (std::list<ecmdNameVectorEntryHidden>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             lit->buffer.clear();
           }
-          rc = getTraceArrayMultipleHidden(cuTarget,  doStopStart, cuArrayMapIter->second);
+          rc = getTraceArrayMultiple(cuTarget,  doStopStart, cuArrayMapIter->second);
           if (rc) {
             printed = "gettracearray - Error occured performing getTraceArray on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1033,7 +1033,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
-          for (std::list<ecmdNameVectorEntryHidden>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
+          for (std::list<ecmdNameVectorEntry>::iterator lit = cuArrayMapIter->second.begin(); lit != cuArrayMapIter->second.end(); lit++ ) {
             printedHeader = false;
             for(loop =0; loop < lit->buffer.size() ; loop++) {
               if (!printedHeader) {

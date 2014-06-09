@@ -1368,27 +1368,6 @@ uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
  @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
-
- * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
-          If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
-            documented in the eCMD system spec for your particular product.<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
- TARGET STATES : Must be Initialized<br>
-
-*/
-uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
-
-/**
- @brief Stop the clocks in the domain specified
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_INVALID_CLOCK_DOMAIN An invalid clock domain name was specified
- @retval ECMD_CLOCKS_ALREADY_OFF The clocks in the specified domain are already off
- @retval ECMD_CLOCKS_IN_INVALID_STATE The clock in the specified domain are in an unknown state (not all on/off)
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_clockDomain Clock domain to stop - as defined in scandef - use "ALL" to stop all domains
- @param i_forceState Force the clocks into the appropriate state - ignore if not in correct state to start
  @param i_mode Bit-field for new options
 
  * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
@@ -1398,7 +1377,7 @@ uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool 
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t stopClocksHidden(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false, uint32_t i_mode = 0x0);
+uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false, uint32_t i_mode = 0x0);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 /**
@@ -1955,7 +1934,7 @@ uint32_t mpiplForceWinkle(const ecmdChipTarget & i_target);
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of trace array - names may vary for each product/chip
  @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
- @param o_data Vector of trace array data retrieved
+ @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
@@ -1964,13 +1943,13 @@ uint32_t mpiplForceWinkle(const ecmdChipTarget & i_target);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, std::vector <ecmdDataBuffer> & o_data);
+uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntry & o_data);
 
 /**
  @brief Dump all entries of specified trace array
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
- @param o_data List of trace array data retrieved
+ @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
@@ -1985,42 +1964,6 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i
 
 */
 uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
-
-/**
- @brief Dump all entries of specified trace array
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_name Name of trace array - names may vary for each product/chip
- @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
- @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARRAY Invalid trace array name specified
- @retval ECMD_SUCCESS if successful
-
- TARGET DEPTH  : pos, core/chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getTraceArrayHidden(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntryHidden & o_data);
-
-/**
- @brief Dump all entries of specified trace array
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_doTraceStopStart If ECMD_TRACE_ARRAY_STOP is set disable trace arrays before logging and if ECMD_TRACE_ARRAY_START is set renable after completion of all trace arrays dumped
- @param o_data List of trace array data retrieved.  Optional name and iteration members can be assigned.
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_ARRAY Invalid trace array name specified
- @retval ECMD_SUCCESS if successful
-
- The return value of this function is set to the first non-zero return code found when
-  retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
-  the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
-
- TARGET DEPTH  : pos, core/chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntryHidden> & o_data);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
 
@@ -2041,51 +1984,13 @@ uint32_t getTraceArrayMultipleHidden(ecmdChipTarget & i_target, uint32_t i_doTra
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
-
-/**
- @brief Reads System Mainstore through the processor chip using a real address
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_address Starting address to read from
- @param i_bytes Number of bytes to write
- @param o_data DataBuffer object that holds data read from memory
  @param i_mode Bit-field for new options
 
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t getMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
-
-/**
- @brief Writes System Mainstore through the processor chip using a real address
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_address Starting address to write to
- @param i_bytes Number of bytes to write
- @param i_data DataBuffer object that holds data to write into memory
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Writes System Mainstore through the processor chip using a real address
@@ -2105,7 +2010,7 @@ uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  TARGET STATES : Unused<br>
 
 */
-uint32_t putMemProcHidden(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 0x0);
+uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address

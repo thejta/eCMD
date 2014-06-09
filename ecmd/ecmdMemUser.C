@@ -293,7 +293,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     } else if (memMode == ECMD_MEM_MEMCTRL) {
       rc = getMemMemCtrl(target, address, numBytes, returnData);
     } else if (memMode == ECMD_MEM_PROC) {
-      rc = getMemProcHidden(target, address, numBytes, returnData, mode);
+      rc = getMemProc(target, address, numBytes, returnData, mode);
     } else if (memMode == ECMD_SRAM) {
       rc = getSram(target, channel, address, numBytes, returnData);
     }
@@ -592,7 +592,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       } else if (memMode == ECMD_MEM_MEMCTRL) {
         rc = putMemMemCtrl(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       } else if (memMode == ECMD_MEM_PROC) {
-        rc = putMemProcHidden(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data, mode);
+        rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data, mode);
       } else if (memMode == ECMD_SRAM) {
         rc = putSram(target, channel, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
