@@ -467,7 +467,7 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {     //@02
 
-    rc = stopClocksHidden(target, clockDomain, force, mode);
+    rc = stopClocks(target, clockDomain, force, mode);
     if (rc == ECMD_INVALID_CLOCK_DOMAIN) {
       printed = "stopclocks - An invalid clock domain " + (std::string)clockDomain+ " was specified for target ";
       printed += ecmdWriteTarget(target) + "\n";

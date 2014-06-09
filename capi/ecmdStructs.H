@@ -1739,7 +1739,7 @@ inline ecmdNameEntry::~ecmdNameEntry() { }
 #endif
 
 /**
- @brief Used by getTraceArrayMultiple function to pass data
+ @brief Used by getTraceArrayMultiple and getTraceArray functions to pass data
 */
 struct ecmdNameVectorEntry {
 #ifndef DOCUMENTATION
@@ -1760,7 +1760,8 @@ struct ecmdNameVectorEntry {
 
   // Members
   std::string    name;                  ///< Name of entry 
-  std::vector<ecmdDataBuffer> buffer;   ///< Vector of data to/from entry
+  std::vector< std::vector<ecmdDataBuffer> > buffer;   ///< Vector of data to/from entry
+  std::vector<uint32_t> iteration;      ///< Vector of iteration values to retrieve
   uint32_t       rc;                    ///< Error code in retrieving this entry
 };
 
@@ -1773,44 +1774,6 @@ rc(0)
 
 // ecmdNameVectorEntry Destructor
 inline ecmdNameVectorEntry::~ecmdNameVectorEntry() { }
-#endif
-
-/**
- @brief Used by getTraceArrayMultipleHidden and getTraceArrayHidden functions to pass data
-*/
-struct ecmdNameVectorEntryHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdNameVectorEntryHidden();
-
-  // Destructor
-  ~ecmdNameVectorEntryHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef REMOVE_SIM
-  void printStruct(void);
-#endif
-#endif
-
-  // Members
-  std::string    name;                  ///< Name of entry 
-  std::vector< std::vector<ecmdDataBuffer> > buffer;   ///< Vector of data to/from entry
-  std::vector<uint32_t> iteration;      ///< Vector of iteration values to retrieve
-  uint32_t       rc;                    ///< Error code in retrieving this entry
-};
-
-#ifndef DOCUMENTATION
-// ecmdNameVectorEntryHidden Constructor
-inline ecmdNameVectorEntryHidden::ecmdNameVectorEntryHidden():
-rc(0)
-{
-}
-
-// ecmdNameVectorEntryHidden Destructor
-inline ecmdNameVectorEntryHidden::~ecmdNameVectorEntryHidden() { }
 #endif
 
 /**
@@ -2274,7 +2237,7 @@ std::string ecmdGetSharedLibVersion();
 #define ECMD_CHIP_CLEANUP_PM        0x00000002
 
 /**
- Defines for stopClocksHidden
+ Defines for stopClocks
 */
 #define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
 
@@ -2291,7 +2254,7 @@ struct ecmdDTSData{
 };
 
 /**
- Defines for getMemProcHidden and putMemProcHidden
+ Defines for getMemProc and putMemProc
 */
 #define MEMPROC_CACHE_INHIBIT  0x00000001
 
