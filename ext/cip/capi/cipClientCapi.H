@@ -164,6 +164,23 @@ uint32_t cipStopAllInstructions ();
 
 */
 uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_thread = 0xFFFFFFFF);
+
+/**
+ @brief Call Special Wakeup
+ @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_enable Set and check special wakeup with True. Clear special wakeup with False
+ @param i_mode Future use variable
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+
+ TARGET DEPTH  : chipUnit/core<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipSpecialWakeup (ecmdChipTarget & i_target, bool i_enable, uint32_t i_mode = 0x0);
 #endif // CIP_REMOVE_INSTRUCTION_FUNCTIONS
 #ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 /**
