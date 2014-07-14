@@ -62,6 +62,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   ecmdChipTarget subTarget;        ///< Current target
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   bool threadFound = false;     ///< Did we find a thread for the position ?
+  bool firstThreadLoop = true;  ///< Is this the first thread command for this core ?
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperData;            ///< Store internal Looper data
   ecmdLooperData subLooperData;            ///< Store internal Looper data
@@ -237,6 +238,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       while (ecmdLooperNext(target, looperData)) {
 
         threadFound = false;
+        firstThreadLoop = true;
         /* On P7, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
         /* This code will accomplish that by looping over cores in order above, but threads in reverse below */
         /* And, of course, we don't loop over threads in P6, so this stays the same - JTA 01/17/09 */
@@ -259,6 +261,21 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         if (rc) return rc;
 
         while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
+
+          if (firstThreadLoop) {
+            if (!strcasecmp(argv[0 + argOffset],"start") || !strcasecmp(argv[0 + argOffset],"sreset")) {
+              uint32_t specialWakeupMode = 0;
+              rc = cipSpecialWakeup(target, true, specialWakeupMode);
+              if (rc) {
+                printed = "cipinstruct - Error occured performing special wakeup on ";
+                printed += ecmdWriteTarget(target) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+              }
+            }
+            firstThreadLoop = false;
+          }
 
           if (!strcasecmp(argv[0 + argOffset],"start")) {
             rc = cipStartInstructions(subTarget, thread);
