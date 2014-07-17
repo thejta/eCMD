@@ -425,14 +425,14 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       //last word
       if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
         lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
-        sprintf(tempstr,"%016llX: %08X %08X %08X %s", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
         i=0;
         while (i < (4-numLastBytes)) {
           strcat(tempstr, "  "); i++;
         }
       }
       else {
-        sprintf(tempstr,"%016llX: %08X %08X %08X %08X", (unsigned long long)myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
       }
       printed += tempstr;
       // Text printing additions
@@ -465,7 +465,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     if ((i_data.getWordLength() - wordsDone) != 0) {
       wordsDonePrev = wordsDone;
       // Print the address
-      sprintf(tempstr,"%016llX:", (unsigned long long)myAddr);
+      sprintf(tempstr,UINT64_HEX16_FORMAT ":", myAddr);
       printed += tempstr;
       // Now throw on the words
       while ((uint32_t) wordsDone < i_data.getWordLength()) {
@@ -539,7 +539,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
        }
        y += 2;
        */
-      sprintf(tempstr,"D %016llX %08X%08X\n", (unsigned long long)myAddr, i_data.getWord(y), i_data.getWord(y+1));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
       y += 2;
       printed += tempstr;
       myAddr += 8;
@@ -554,7 +554,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
        else {
        sprintf(tempstr,"D %016X %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
        }*/
-      sprintf(tempstr,"D %016llX %08X00000000\n", (unsigned long long)myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
       printed += tempstr;
     }
   }
@@ -964,7 +964,7 @@ uint32_t readScomDefFile(uint64_t address, std::ifstream &scomdefFile) {
       for (std::vector<std::string>::iterator it = curArgs.begin(); it != curArgs.end(); ++it)
       {
 	//sscanf(curArgs[1].c_str(),"%llX",&addrFromFile);
-	sscanf(it->c_str(),"%llX",&addrFromFile);
+	sscanf(it->c_str(),UINT64_HEX_FORMAT,&addrFromFile);
 	if ((curArgs.size() >= 2) && addrFromFile == address) {
 	  done = true;
 	  break;
@@ -1465,7 +1465,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       dataLooper = 0;
       for (std::list<ecmdScomData>::iterator entit = dummy->begin(); entit != dummy->end(); entit ++) {
         sprintf(tempIntStr,"%s\t \t entry : %d\n",frontFPPTxt, dataLooper++); debugFunctionOuput(tempIntStr);
-        sprintf(tempIntStr,"%s\t \t \t value : uint64_t           address  = 0x%llX\n",frontFPPTxt, entit->address);
+        sprintf(tempIntStr,"%s\t \t \t value : uint64_t           address  = 0x" UINT64_HEX_FORMAT "\n",frontFPPTxt, entit->address);
         debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : BOOL      isChipUnitRelated  = ",frontFPPTxt);
@@ -1671,7 +1671,7 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       if(dummy == NULL) {
         sprintf(tempIntStr,"d=0 0x0");
       } else {
-        sprintf(tempIntStr,"0x%016llX",(unsigned long long)(*dummy));
+        sprintf(tempIntStr,"0x" UINT64_HEX16_FORMAT,*dummy);
       }
       printed += tempIntStr;
       printed += "\n";
@@ -2307,7 +2307,7 @@ void debugFunctionOuput(const char* outbuf) {
   if (ecmdDebugOutput) {
     ecmdOutput(outbuf);
   } else {
-    printf(outbuf);
+    printf("%s", outbuf);
   }
 }
 #endif /* strip_debug */

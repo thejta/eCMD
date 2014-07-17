@@ -1,86 +1,77 @@
-# Makefile for the ecmd Capi
-# Written by Chris Engel
+# Makefile for a very simple DLL.  Can be used to test builds
 
-# $Header$
-
-OS           := $(shell uname)
-
-VPATH        := ../dll:../dll/sedc
-INCLUDES     := ecmdDataBuffer.H  ecmdReturnCodes.H
-INT_INCLUDES := ecmdDllCapi.H 
-SOURCE       := ecmdDllCapiTest.C ecmdDllCapi.C ecmdDllSpy.C sedcDataContainer.C sedcParser.C sedcSpyClasses.C sedcSynonymClasses.C
-DEFINES      := -DUSE_ECMD_COMMON_SPY
-CFLAGS       := -I. -I../capi -I../dll -I../dll/sedc -g
-LDFLAGS      := 
-
+# Base info and default build rules
+SUBDIR     := dllStub/
+include ../makefile.rules
 
 # *****************************************************************************
-# The Linux Setup stuff
+# The Common Setup stuff
 # *****************************************************************************
-ifeq (${OS},Linux)
-  SUBDIR   := linux/
-  CC := g++
-  LD := ${CC}
-  TARGET = ecmdDllStub_x86.so
-  LDFLAGS := ${LDFLAGS} -shared  -L../capi/export -lecmd_x86
-  GPATH   := ${SUBDIR}
-endif
+TARGET       := stub.dll
+CFLAGS       := ${CFLAGS} -I ../capi -I ../dll
+VPATH        := ${VPATH}:../capi:../dll
 
 # *****************************************************************************
-# The Aix Setup stuff
+# Setup all the files going into the build
 # *****************************************************************************
-ifeq (${OS},AIX)
-  SUBDIR  := aix/
-  CC := xlC -+
-  LD := makeC++SharedLib
-  TARGET = ecmdDllStub_aix.so
-  LDFLAGS := ${LDFLAGS} -brtl -L../capi/export -lecmd_aix -p 0
-  CFLAGS  := ${CFLAGS} -qstaticinline
-endif
 
-VPATH     := ${VPATH}:${SUBDIR}
+# The ECMD_INCLUDES are files provided by eCMD that if changed, we would want to recompile on
+ECMD_INCLUDES := ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
 
+# The source files and includes in our local dirs that are going into the build
+TGT_INCLUDES  := ecmdDllCapi.H
+TGT_SOURCE    := ecmdDllCapi.C ecmdDllStub.C ecmdDllStubInfo.C
+
+# Combine all the includes into one variable for the build
+INCLUDES      := ${ECMD_INCLUDES} ${TGT_INCLUDES}
+
+# Pull the sim functions out of the stub DLL
+DEFINES := ${DEFINES} -DREMOVE_SIM
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 all: dir ${TARGET}
-	@touch t.o t.so
-	@mv *.o *.so  ${SUBDIR}
-	@echo "Exporting eCMD Dll Stub to export/ ..."
-	@cp ${SUBDIR}${TARGET} export/
-ifeq (${OS},AIX)
-#	@cp ecmdDllStub_aix.export export/
-endif
+        # Remove the object after each build to force a rebuild to update the date
+	@rm ${OBJPATH}/ecmdDllStubInfo.o
 
-clean:
-	rm -rf ${SUBDIR}
+clean: objclean
+
+install:
+  # Do nothing
+
+objclean:
+	rm -rf ${OBJPATH} 
 
 dir:
-	@mkdir -p ${SUBDIR}
-	@mkdir -p export
-
-
+	@mkdir -p ${OBJPATH}
 
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************
-SOURCE_OBJS  = $(basename $(SOURCE))
-SOURCE_OBJS := $(addsuffix .o, $(SOURCE_OBJS))
+TGT_SOURCE_OBJS  = $(basename ${TGT_SOURCE})
+TGT_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${TGT_SOURCE_OBJS})
+TGT_SOURCE_OBJS := $(addsuffix .o, ${TGT_SOURCE_OBJS})
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(SOURCE_OBJS): %.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-
+${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
+	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
-# Create the Client Archive
+# Create the Target
 # *****************************************************************************
-${TARGET}: ${SOURCE_OBJS}
-	$(LD) ${LDFLAGS} -o $@ $^ 
+${TARGET}: ${TGT_SOURCE_OBJS}
+	${LD} ${SLDFLAGS} -o ${OBJPATH}${TARGET} $^ ../capi/obj_${TARGET_ARCH}/ecmdClientCapi.a -L../capi/obj_${TARGET_ARCH} -lecmd
+
+# *****************************************************************************
+# Debug rule for any makefile testing 
+# *****************************************************************************
+debug:
+	@echo ${OBJROOT}
+	@echo ${VPATH}
 
 

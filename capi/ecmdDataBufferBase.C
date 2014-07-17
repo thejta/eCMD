@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips770 src/ecmd/import/ecmdDataBufferBase.C 1.1 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2012 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -577,7 +560,7 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
     i_value &= bitMask;
   }
 
-#if defined (i386)
+#if defined (_LITTLE_ENDIAN)
   ((uint8_t*)(this->iv_Data))[i_byteOffset^3] = i_value;
 #else
   ((uint8_t*)(this->iv_Data))[i_byteOffset] = i_value;
@@ -592,7 +575,7 @@ uint8_t ecmdDataBufferBase::getByte(uint32_t i_byteOffset) const {
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
-#if defined (i386)
+#if defined (_LITTLE_ENDIAN)
   return ((uint8_t*)(this->iv_Data))[i_byteOffset^3];
 #else
   return ((uint8_t*)(this->iv_Data))[i_byteOffset];
@@ -2655,7 +2638,11 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
 
   /* Error check the length */
   if (uncompressedBuffer.getByteLength() != uncompressedSize) {
-    ETRAC2("**** ERROR : Expected byte length of %d, got back %d", uncompressedBuffer.getByteLength(), uncompressedSize);
+#ifdef _LP64
+    ETRAC2("*** ERROR : Expected byte length of %d, got back %ld", uncompressedBuffer.getByteLength(), uncompressedSize);
+#else
+    ETRAC2("*** ERROR : Expected byte length of %d, got back %d", uncompressedBuffer.getByteLength(), uncompressedSize);
+#endif
     RETURN_ERROR(ECMD_DBUF_MISMATCH); 
   }
 
@@ -2683,7 +2670,7 @@ bool ecmdDataBufferBase::isBufferCompressed() {
 } 
 
 void * ecmdBigEndianMemCopy(void * dest, const void *src, size_t count) {
-#if defined (i386)
+#if defined (_LITTLE_ENDIAN)
   char *tmp = (char *) dest, *s = (char *) src;
   int remainder = 0;
   uint32_t whole_num = 0;

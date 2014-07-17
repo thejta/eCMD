@@ -1,6 +1,6 @@
 // Copyright **********************************************************
 //                                                                      
-// File ecmdDllCapi.H                                               
+// File ecmdDllStub.C                                               
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -29,6 +29,11 @@
 //  Forward References                                                
 //--------------------------------------------------------------------
 
+//--------------------------------------------------------------------
+//  Function Definitions                                               
+//--------------------------------------------------------------------
+/* For use by dllQueryConfig and dllQueryExist */
+uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
 
 // Change Log *********************************************************
 //                                                                      
@@ -58,6 +63,8 @@ uint32_t dllSpecificCommandArgs(int* argc, char** argv[]) {
   return ECMD_SUCCESS;
 }
 
+/* Dll Specific Return Codes */
+std::string dllSpecificParseReturnCode(uint32_t i_returnCode) { return ""; }
 
 uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
@@ -76,20 +83,19 @@ uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t 
 
 uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
-uint32_t dllQueryDllInfo(ecmdDllInfo & o_dllInfo) {
-  char tmp[100];
-  o_dllInfo.dllType = ECMD_DLL_STUB;
-  o_dllInfo.dllProduct = ECMD_DLL_PRODUCT_UNKNOWN;
-  o_dllInfo.dllEnv = ECMD_DLL_ENV_SIM;  
-  sprintf(tmp,"%s %s",__DATE__,__TIME__);
-  o_dllInfo.dllBuildDate = tmp;
-  o_dllInfo.dllCapiVersion = ECMD_CAPI_VERSION;
-  return ECMD_SUCCESS;
+/* ##################################################################### */
+/* Query Functions - Query Functions - Query Functions - Query Functions */
+/* ##################################################################### */
+uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+  return queryConfigExist(i_target, o_queryData, i_detail, false);
 }
 
-uint32_t dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+  return queryConfigExist(i_target, o_queryData, i_detail, true);
+}
 
-  ecmdCoreData coreData;
+uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
+  ecmdChipUnitData chipUnitData;
   ecmdChipData chipData;
   ecmdNodeData nodeData;
   ecmdSlotData slotData;
@@ -99,18 +105,19 @@ uint32_t dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQ
   threadData.threadId = 0;
 
   /* Let's return some dummy info , we will return a proc with cores and threads */
-  coreData.coreId = 0;
-  coreData.numProcThreads = 2;
-  coreData.threadData.push_front(threadData);
+  chipUnitData.chipUnitType = "core";
+  chipUnitData.chipUnitNum = 0;
+  chipUnitData.numThreads = 2;
+  chipUnitData.threadData.push_front(threadData);
 
-  chipData.coreData.push_front(coreData);
-  chipData.chipType = "gr";
+  chipData.chipUnitData.push_front(chipUnitData);
+  chipData.chipType = "pu";
   chipData.pos = 0;
   slotData.chipData.push_front(chipData);
 
   ecmdChipData cd2;
-  cd2.coreData.clear();
-  cd2.chipType = "gr";
+  cd2.chipUnitData.clear();
+  cd2.chipType = "pu";
   cd2.pos = 1;
   slotData.chipData.push_back(cd2);
 
@@ -132,14 +139,13 @@ uint32_t dllQueryConfig(ecmdChipTarget & target,ecmdQueryData & queryData, ecmdQ
   queryData.cageData.push_front(cageData);
   
   return ECMD_SUCCESS;
-
 } 
 
-uint32_t dllQueryRing(ecmdChipTarget & target, std::list<ecmdRingData> & queryData, const char * ringName ){ return ECMD_SUCCESS; }
+uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail){ return ECMD_SUCCESS; }
 
 uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & target, ecmdFileType_t fileType, std::string & fileLocation){ return ECMD_SUCCESS; } 
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version){ return ECMD_SUCCESS; } 
 
 
 uint32_t dllFlushSys () { return ECMD_SUCCESS; } 
@@ -156,18 +162,82 @@ void dllOutputWarning(const char* message) {
 }
 
 void dllOutput(const char* message) {
-  printf(message);
+  printf("%s", message);
 }
 
-void dllEnableRingCache() { return ; }
+uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) { return ECMD_SUCCESS; }
 
-uint32_t dllDisableRingCache() { return ECMD_SUCCESS; }
+uint32_t dllEnableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
 
-uint32_t dllFlushRingCache() { return ECMD_SUCCESS; }
+uint32_t dllDisableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+
+uint32_t dllFlushRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+
+bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) { return false; }
 
 uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
 
 uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
 
+/* ################################################################# */
+/* Misc Functions - Misc Functions - Misc Functions - Misc Functions */
+/* ################################################################# */
+uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode) {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipData chipData;
 
+  /* Just get the chip data, we get extra data but this has never been a performance problem for us */
+  rc = dllGetChipData(i_target, chipData);
+  if (rc) return rc;
 
+  o_mode = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
+
+  return rc;
+}
+
+void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable) {
+  dllOutputError("Not supported: dllSetTraceMode");
+}
+
+bool dllQueryTraceMode(ecmdTraceType_t i_type) {
+  return false;
+}
+
+/* ######################################################################### */
+/* UnitID Functions - UnitID Functions - UnitID Functions - UnitID Functions */
+/* ######################################################################### */
+/* Added to fix symbol errors - JTA 06/28/14 */
+uint32_t dllTargetToUnitId(ecmdChipTarget & io_target) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllUnitIdStringToTarget(std::string i_unitId, std::list<ecmdChipTarget> & o_target) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllUnitIdToTarget(uint32_t i_unitId, std::list<ecmdChipTarget> & o_target) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllUnitIdToString(uint32_t i_unitId, std::string & o_unitIdStr) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_target, uint32_t i_thread_seq_num) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}

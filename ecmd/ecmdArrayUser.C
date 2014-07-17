@@ -751,7 +751,7 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
     
     std::vector<std::string> tokens;
     std::vector<std::string>::iterator tokit;
-    uint32_t l_find = 0;
+    size_t l_find = 0;
     std::string l_tmp_string;
 
     haveItrs = true;

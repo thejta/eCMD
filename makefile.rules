@@ -7,25 +7,49 @@ ifeq (${MAKEFILE_RULES},)
 MAKEFILE_RULES   := y
 
 # Build all extension if not otherwise specified
-ifeq ($(strip $(EXTENSIONS)),)
+ifeq ($(strip ${EXTENSIONS}),)
   EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi
   export EXTENSIONS
 endif
 
 # Figure out the OS
-OS := $(shell uname)
-# We need to do extra for Linux
-ifeq (${OS},Linux)
+ifeq ($(shell uname),Linux)
+  DEFINES := ${DEFINES} -DLINUX
+  # It's linux, figure out the type and arch
   ifneq ($(strip $(shell uname -a |grep ppc)),)
-    OS := ppc
+    HOST_OS := ppc
+    ifneq ($(strip $(shell uname -a |grep ppc64)),)
+      HOST_ARCH := ppc64
+    else
+      HOST_ARCH := ppc
+    endif
+#  else ifneq ($(strip $(shell uname -a |grep x86)),)
   else
-    OS := x86
-    DEFINES := ${DEFINES} -DLINUX
+    HOST_OS := x86
+    ifneq ($(strip $(shell uname -a |grep x86_64)),)
+      HOST_ARCH := x86_64
+    else
+      HOST_ARCH := x86
+    endif
   endif
 else
-    OS := aix
     DEFINES := ${DEFINES} -DAIX
+    HOST_OS := aix
+    # It's AIX, just support 32 bit (for now)
+    HOST_ARCH := aix
 endif
+
+# See if the TARGET_ARCH was passed in.  If not, use the HOST_ARCH
+ifeq (${TARGET_ARCH},)
+  TARGET_ARCH := ${HOST_ARCH}
+endif
+
+# The TARGET_OS is the first 3 characters of the TARGET_ARCH (just by luck)
+TARGET_OS := $(shell echo ${TARGET_ARCH} | cut -c1-3)
+
+# Logic should be put in here to check that the TARGET_ARCH is compatible with the HOST_ARCH
+# For example, aix can't build ppc or x86 code.
+# Leaving a TODO for now, JTA 06/24/2014
 
 # Setup the ECMD_ROOT
 # Strip the subdir off the end of the path so it points to the root of the repository
@@ -47,45 +71,16 @@ space := ${empty} ${empty}
 # SLDFLAGS = flags to pass to the linker when linking shared libs
 # AR = the archive creator
 
-######## Creating These defines for compiler so that we can track when they change ########
-######## Please add dated comments whenever the compilers get updated and ########
-######## comment out (not delete) the previous values  ########
-# Linux x86
-#  Added 03/09/09 - when section was created
-#  CC_VER   := 3.4.6
-#  CC       := ${CTEPATH}/tools/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
-#  CC_R     := ${CC}
-#  LD       := ${CC}
-#  LD_R     := ${CC_R}
-#  AR       := ${CTEPATH}/tools/ecmd/utils/gcc-3.4.6-glibc-2.3.4/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
-
-# Linux ppc:
-#  Added 03/09/09 - when section was created
-#  CC       := g++
-#  CC_R     := ${CC}
-#  LD       := ${CC}
-#  LD_R     := ${CC_R}
-#  AR       := ar
-
-# AIX:
-#  Added 03/09/09 - when section was created
-#  CC_VER   := 6.0.0.8
-#  CC       := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC.6008
-#  CC_R     := /gsa/rchgsa-p1/01/ecmd/utils/vacpp.6008/usr/vacpp/bin/xlC_r.6008
-#  LD       := ${CC}
-#  LD_R     := ${CC_R}
-#  AR       := ar
-
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
 # If the user didn't give a dir to place the objects, just do it in their eCMD dirs
-ifeq ($(strip $(OBJROOT)),)
+ifeq ($(strip ${OBJROOT}),)
   OBJROOT  := ${ECMD_ROOT}
 endif
 # Remove any trailing slashes at the end
 OBJROOT   := $(shell echo ${OBJROOT} | sed 's@/*$$@@g')
-OBJDIR    := obj_${OS}
+OBJDIR    := obj_${TARGET_ARCH}
 OBJPATH   := ${OBJROOT}/${SUBDIR}/${OBJDIR}/
 # Cleanup multiple //'s in the path built above
 OBJPATH   := $(shell echo ${OBJPATH} | sed 's@/\+@/@g')
@@ -97,64 +92,87 @@ export OBJPATH
 CFLAGS    := -g -I.
 
 # *****************************************************************************
-# The x86 Linux Setup stuff
+# The x86 linux setup stuff
 # *****************************************************************************
-ifeq (${OS},x86)
-  CC_VER   := 4.1.2
-#  Adding 4.4.7 values on 5/28/14, but not going live with them yet.
-#  CC_VER   := 4.4.7
-  ifeq (${CC_VER},4.4.7)
-    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-    CC       := /usr/bin/g++
-    CFLAGS   := ${CFLAGS} -m32
-    LDFLAGS  := -m32 ${LDFLAGS}
-    AR       := /usr/bin/ar
-    SLDFLAGS := -shared -m32
-  else ifeq (${CC_VER},4.1.2)
-    GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
+ifeq (${TARGET_OS},x86)
+  GPATH    := ${OBJDIR}
+  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+  ifeq (${TARGET_ARCH},x86)
+    CC_VER := $(shell gcc --version | cut -d " " -f 3 | grep "\.")
+    ifeq (${CC_VER},4.1.2)
+      GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
+    else
+      GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+    endif
     CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
-    LDFLAGS  := ${LDFLAGS}
+    CC_R     := ${CC}
+    LD       := ${CC}
+    LD_R     := ${CC_R} 
     AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
-    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
-    SLDFLAGS := -shared
+    CFLAGS   := ${CFLAGS} -m32 -fPIC -I/gsa/${GSACELL}/projects/e/ecmd/utils/x86/include
+    LDFLAGS  := ${LDFLAGS} -m32 -fPIC
+    SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
+  else
+    CC       := /opt/rh/devtoolset-2/root/usr/bin/g++
+    CC_R     := ${CC}
+    LD       := ${CC}
+    LD_R     := ${CC_R} 
+    AR       := /opt/rh/devtoolset-2/root/usr/bin/ar
+    CFLAGS   := ${CFLAGS} -m64 -fPIC
+    LDFLAGS  := ${LDFLAGS} -m64 -fPIC
+    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
   endif
+endif
+
+# *****************************************************************************
+# The ppc linux setup stuff
+# *****************************************************************************
+ifeq (${TARGET_OS},ppc)
+  CC       := /usr/bin/g++
   CC_R     := ${CC}
   LD       := ${CC}
   LD_R     := ${CC_R} 
-  GPATH    := ${OBJDIR}
-endif
-
-# *****************************************************************************
-# The ppc Linux Setup stuff
-# *****************************************************************************
-ifeq (${OS},ppc)
-  CC       := g++
-  CC_R     := ${CC}
-  CFLAGS   := ${CFLAGS} -fPIC
-  LD       := ${CC}
-  LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS}
-  SLDFLAGS := -shared
-  GPATH    := ${OBJDIR}
-  AR       := ar
-endif
-
-# *****************************************************************************
-# The Aix Setup stuff
-# *****************************************************************************
-ifeq (${OS},aix)
-  GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-#CC_VER   := 7.0.0.2
-CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
-CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
-#CC       := /bin/xlC
-#CC_R     := /bin/xlC_r
-  CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/include
-  LD       := ${CC}
-  LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS}
-  SLDFLAGS := -qmkshrobj -brtl
   AR       := /usr/bin/ar
+  GPATH    := ${OBJDIR}
+  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+  ifeq (${TARGET_ARCH},ppc)
+    CFLAGS   := ${CFLAGS} -m32 -fPIC
+    LDFLAGS  := ${LDFLAGS} -m32 -fPIC
+    SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
+  else
+    CFLAGS   := ${CFLAGS} -m64 -fPIC
+    LDFLAGS  := ${LDFLAGS} -m64 -fPIC
+    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
+  endif
+endif
+
+# *****************************************************************************
+# The aix setup stuff
+# *****************************************************************************
+ifeq (${TARGET_OS},aix)
+  ifeq (${TARGET_ARCH},aix)
+    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+    CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
+    CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
+    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
+    LD       := ${CC}
+    LD_R     := ${CC_R}
+    LDFLAGS  := ${LDFLAGS}
+    SLDFLAGS := -qmkshrobj -brtl
+  else
+    CC       := /bin/xlC
+    CC_R     := /bin/xlC_r
+    CFLAGS   := ${CFLAGS} -I/usr/include -+ -qstaticinline -qnoinline
+    LD       := ${CC}
+    LD_R     := ${CC_R}
+    LDFLAGS  := ${LDFLAGS}
+    SLDFLAGS := -qmkshrobj -brtl
+    AR       := /usr/bin/ar
+    CFLAGS   := ${CFLAGS} -q64
+    LDFLAGS  := ${LDFLAGS} -q64
+    SLDFLAGS := ${SLDFLAGS} -q64
+    ARFLAGS   := -X64
+  endif
 endif
 
 # Include the makefile.confg if the config script was run, this will override anything above
@@ -170,14 +188,14 @@ endif
 
 
 # Setup the install path if the user didn't specify one in the config
-ifeq ($(strip $(INSTALL_PATH)),)
+ifeq ($(strip ${INSTALL_PATH}),)
   INSTALL_PATH := $(shell pwd)
   INSTALL_PATH := ${INSTALL_PATH}/install
   export INSTALL_PATH
 endif
 
 # Figure out how many gmake threads to run
-ifeq (${OS},aix)
+ifeq (${TARGET_OS},aix)
   ifeq ($(strip $(shell /bin/ls /etc/lsdev 2>&1)),/etc/lsdev)
     #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
     GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)

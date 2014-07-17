@@ -33,7 +33,7 @@ my $version = shift(@ARGV);
 system("mkdir -p $outputDirectory");
 
 # Set the environment for the script to have the latex install in CTE at the front of the path
-$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/$OS/bin:" . $ENV{"PATH"};
+#$ENV{"PATH"} = "/gsa/rchgsa/projects/e/ecmd/utils/$OS/bin:" . $ENV{"PATH"};
 
 # Do the C-API
 printf("Creating C-API Documentation (html)...\n\n");
@@ -56,8 +56,22 @@ $rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 
 # Now copy over all of the extension file headers that are available
-my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
+# Filter the list down based upon the environment variable if it is set
+my @extensions;
+if ($ENV{"EXTENSIONS"} ne "") {
+  @extensions = split(/\s+/, $ENV{"EXTENSIONS"})
+} else {
+  @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
+}
+
+# Create the list of extension defines to be fed into doxygen
+# We'll use the loop below to create it so we don't do two loops in a row
+my $extensionDefines;
+
 for (my $x = 0; $x <= $#extensions; $x++) {
+  
+  # Create the extension define
+  $extensionDefines .= "ECMD_" . uc($extensions[$x]) . "_EXTENSION_SUPPORT ";
 
   $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
@@ -101,6 +115,10 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
+# Update extension defines
+$rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Capi/ecmdDoxygen.config");
+if ($rc) { return $rc; }
+
 $rc = system("cd $outputDirectory/Capi; doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
@@ -136,7 +154,6 @@ $rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClie
 if ($rc) { return $rc; }
 
 # Now copy over all of the extension file headers that are available
-my @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
 for (my $x = 0; $x <= $#extensions; $x++) {
   if ($extensions[$x] ne "fapi"){
     $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;$cvsBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
@@ -144,6 +161,9 @@ for (my $x = 0; $x <= $#extensions; $x++) {
     # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
     # in the comments that is different from the actual file
     $rc = system("cat $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
+    if ($rc) { return $rc; }
+    # Grab the structs files too
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Perlapi/.");
     if ($rc) { return $rc; }
   } else {
     printf("fapi extension found - skipping perl stuff\n"); 
@@ -199,6 +219,10 @@ for (my $x = 0; $x <= $#files; $x++) {
 # Update the version strings
 #system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
 $rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
+if ($rc) { return $rc; }
+
+# Update extension defines
+$rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 $rc = system("cd $outputDirectory/Perlapi; doxygen ecmdDoxygenPm.config");

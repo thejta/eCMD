@@ -93,6 +93,8 @@ my $release;
 my $prevRelease;
 my $plugin;
 my $product;
+my $bits = 32;
+my $arch;
 my $temp;
 my $shortcut = 0;
 my $localInstall = 1;  # Assume it's a local install and then disprove it by comparing ctepaths to CTEPATH
@@ -178,9 +180,9 @@ sub main {
 
   $release = shift(@ARGV);
 
-  # Here is where we put in the magic to allow the user to just put a period to cover all three ecmd parms
+  # Here is where we put in the magic to allow the user to just put a period to cover all four ecmd parms
   if ($release eq ".") {
-    if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "") {
+    if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "" || $ENV{"ECMD_ARCH"} eq "") {
       ecmd_print("You can't specify the '.' shortcut without having specified the release, product and plugin previously!");
       return 1;
     } else {
@@ -246,11 +248,64 @@ sub main {
       $cleanup = 1;
       ecmd_print("Removing eCMD and Plugin settings from environment");
       splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "64") {   
+	$bits = 64;
+	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "32") {   
+	$bits = 32;
+	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } else {
       # We have to walk the array here because the splice shortens up the array
       $x++;
     }
   }
+
+  ##########################################################################
+  # Determine the desired architecture for $ECMD_ARCH
+  #
+  if ($shortcut) {
+    $arch = $ENV{"ECMD_ARCH"};
+  } else {
+      # AIX
+      if (`uname` eq "AIX\n") {
+	  if ($bits eq "32") {
+	      $arch = "aix";
+	  }
+	  elsif ($bits eq "64") {
+	      $arch = "aix64";
+	  }
+	  else {
+	      ecmd_print("'$bits' is not a valid bit value!");
+	      return 1;
+	  }
+	  # PPC
+      } elsif (`uname -a|grep ppc` ne "") {
+	  if ($bits eq "32") {
+	      $arch = "ppc";
+	  }
+	  elsif ($bits eq "64") {
+	      $arch = "ppc64";
+	  }
+	  else {
+	      ecmd_print("'$bits' is not a valid bit value!");
+	      return 1;
+	  }
+	  # X86
+      } else {
+	  if ($bits eq "32") {
+	      $arch = "x86";
+	  }
+	  elsif ($bits eq "64") {
+	      $arch = "x86_64";
+	  }
+	  else {
+	      ecmd_print("'$bits' is not a valid bit value!");
+	      return 1;
+	  }    
+      }
+  }
+
+
 
 
   ##########################################################################
@@ -259,8 +314,10 @@ sub main {
   # Pull out any of the matching cases
   # This expression matches anything after a : up to /tools/ecmd/<anything>/bin and then a : or end of line
   if ($localInstall) {
+    $ENV{"PATH"} =~ s!$installPath/$arch/bin!:!g;
     $ENV{"PATH"} =~ s!$installPath/bin!:!g;
   } else {
+    $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/$arch/bin(:|$)!:!g;
     $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/bin(:|$)!:!g;
   }
   # We might have left a : on the front, remove it
@@ -314,11 +371,14 @@ sub main {
     $modified{"ECMD_PLUGIN"} = 1;
     $ENV{"ECMD_PRODUCT"} = $product;
     $modified{"ECMD_PRODUCT"} = 1;
+    $ENV{"ECMD_ARCH"} = $arch;
+    $modified{"ECMD_ARCH"} = 1;
   }
   if ($cleanup) {
     $modified{"ECMD_RELEASE"} = -1;
     $modified{"ECMD_PLUGIN"} = -1;
     $modified{"ECMD_PRODUCT"} = -1;
+    $modified{"ECMD_ARCH"} = -1;
   }
 
   ##########################################################################
@@ -326,7 +386,7 @@ sub main {
   #
   if (!$cleanup) {
     if ($plugin eq "cro" && $croUse) {
-      $rc = $cro->setup(\%modified, $localInstall, $product, "ecmd", @ARGV);
+      $rc = $cro->setup(\%modified, $localInstall, $arch, $product, "ecmd", @ARGV);
       if ($rc) {
         return $rc;
       }
@@ -357,8 +417,10 @@ sub main {
   if (!$cleanup) {
     if ($localInstall) {
       $ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
+      $ENV{"PATH"} = $installPath . "/" . $arch . "/bin:" . $ENV{"PATH"};
     } else {
       $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
+      $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/" . $arch . "/bin:" . $ENV{"PATH"};
     }
     $modified{"PATH"} = 1;
   }
@@ -416,10 +478,11 @@ sub main {
 
 #  Umm.. yeah.. I'm going to need you to work this weekend on the help text.  Mkay..
 sub help {
-  ecmd_print("ecmdsetup <release> <plugin> <product> [copylocal] [cleanup] <plugin options>");
+  ecmd_print("ecmdsetup <release> <plugin> <product> [32|64] [copylocal] [cleanup] <plugin options>");
   ecmd_print("<release> - Any eCMD Version currently supported in CVS (ex rel, ver5, ver4-3)");
   ecmd_print("<plugin> - cro|scand|gip|mbo");
   ecmd_print("<product> - eclipz, etc..");
+  ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 32.");
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
   ecmd_print("<plugin options> - anything else passed into the script is passed onto the plugin");

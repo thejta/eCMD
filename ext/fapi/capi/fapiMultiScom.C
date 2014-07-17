@@ -19,6 +19,7 @@
 #include <fapi.H>
 #include <fapiUtil.H>
 #include <fapiMultiScom.H>
+#include <ecmdUtils.H>
 
 #ifdef FAPI_SUPPORT_MULTI_SCOM
 namespace fapi
@@ -37,8 +38,8 @@ MultiScom::SingleScomInfo::SingleScomInfo ( const ScomMode      i_mode,
                                             pGetScomDataBuffer(NULL),
                                             putScomMask(i_mask)
 {
-    FAPI_DBG ("SingleScomInfo: mode %d i_addr 0x%.16llX "
-                       "mask 0x%.16llX", i_mode, i_addr, i_mask);
+    FAPI_DBG ("SingleScomInfo: mode %d i_addr 0x"UINT64_HEX16_PRESC_FORMAT" "
+                       "mask 0x"UINT64_HEX16_PRESC_FORMAT, i_mode, i_addr, i_mask);
 
     switch (scomMode)
     {
@@ -99,7 +100,7 @@ ReturnCode MultiScom::addGetScom ( const uint64_t            i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addGetScom failed - i_addr: 0x%.16llX, o_data "
+        FAPI_ERR ("MultiScom::addGetScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", o_data "
         "length: %d double words", i_addr, o_data.getDoubleWordLength());
     }
 
@@ -127,7 +128,7 @@ ReturnCode MultiScom::addPutScom ( const uint64_t            i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutScom failed - i_addr: 0x%.16llX, i_data "
+        FAPI_ERR ("MultiScom::addPutScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", i_data "
         "length: %d double words", i_addr, i_data.getDoubleWordLength());
     }
 
@@ -158,7 +159,7 @@ ReturnCode MultiScom::addPutScomUnderMask (const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutScomUnderMask failed - i_addr: 0x%.16llX, "
+        FAPI_ERR ("MultiScom::addPutScomUnderMask failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", "
         "i_data length: %d double words i_mask length: %d double words",
         i_addr, i_data.getDoubleWordLength(), i_mask.getDoubleWordLength());
     }
@@ -189,8 +190,8 @@ ReturnCode MultiScom::addGetBulkScom ( const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addGetBulkScom failed - i_addr: 0x%.16llX, o_data"
-        " length: %d bits, expected len: %d bits, i_lenInDoubleWords: %d",
+        FAPI_ERR ("MultiScom::addGetBulkScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", o_data"
+        " length: %d bits, expected len: %zd bits, i_lenInDoubleWords: %zd",
         i_addr, o_data.getBitLength(), l_lenInBits, i_lenInDoubleWords);
     }
 
@@ -221,8 +222,8 @@ ReturnCode MultiScom::addPutBulkScom ( const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutBulkScom failed - i_addr: 0x%.16llX, i_data"
-        " length: %d bits, expected len: %d bits, i_lenInDoubleWords: %d",
+        FAPI_ERR ("MultiScom::addPutBulkScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", i_data"
+        " length: %d bits, expected len: %zd bits, i_lenInDoubleWords: %zd",
         i_addr, i_data.getBitLength(), l_lenInBits, i_lenInDoubleWords);
     }
 
@@ -242,8 +243,8 @@ ReturnCode MultiScom::sanityCheck (
 {
     ReturnCode l_rc;
 
-    FAPI_INF ("MultiScom::sanityCheck - i_addr: 0x%.16llX i_scomMode:"
-              " 0x%.8X i_lenInBits: %d io_data len: %d bits Mask len: %d bits",
+    FAPI_INF ("MultiScom::sanityCheck - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT" i_scomMode:"
+             " 0x%.8X i_lenInBits: %zd io_data len: %d bits Mask len: %d bits",
               i_addr, i_scomMode, i_lenInBits, io_data.getBitLength(),
               ((NULL == i_pMask) ? (0) : (i_pMask->getBitLength())));
 
@@ -252,7 +253,7 @@ ReturnCode MultiScom::sanityCheck (
         // even a single scom operation has to be at least 64 bit wide
         if (FAPI_DWORD_BIT_LEN > i_lenInBits)
         {
-            FAPI_ERR("MultiScom::sanityCheck - invalid input length %d",
+            FAPI_ERR("MultiScom::sanityCheck - invalid input length %zd",
                      i_lenInBits);
             l_rc.setFapiError (FAPI_RC_INVALID_MULTISCOM_LENGTH);
             l_rc.addEIFfdc(0, &i_lenInBits, sizeof(i_lenInBits));
@@ -274,7 +275,7 @@ ReturnCode MultiScom::sanityCheck (
                 if (ECMD_DBUF_SUCCESS != l_ecmdRc)
                 {
                     FAPI_ERR("MultiScom::sanityCheck - error from "
-                             "ecmdDataBuffer setBitLength() - len %d rc 0x%.8X",
+                             "ecmdDataBuffer setBitLength() - len %zd rc 0x%.8X",
                              i_lenInBits, l_ecmdRc);
                     l_rc.setEcmdError(l_ecmdRc);
                     break;
@@ -283,7 +284,7 @@ ReturnCode MultiScom::sanityCheck (
 
             else
             {   // for all other SCOM write operations, buf len -must- match
-                FAPI_ERR("MultiScom::sanityCheck: Input length %d bits does not"
+                FAPI_ERR("MultiScom::sanityCheck: Input length %zd bits does not"
                          " match ecmdDataBuffer length %d bits! "
                          "Scom Mode: 0x%.8X",
                          i_lenInBits, io_data.getBitLength (),
@@ -309,7 +310,7 @@ ReturnCode MultiScom::sanityCheck (
             if (i_lenInBits != i_pMask->getBitLength ())
             {
                 FAPI_ERR("MultiScom::sanityCheck - Mask buffer length %d bits"
-                         "does not match expected length %d bits for "
+                         "does not match expected length %zd bits for "
                          "Scom Mode: 0x%.8X", i_pMask->getBitLength (),
                          i_lenInBits, i_scomMode);
                 l_rc.setFapiError (FAPI_RC_INVALID_MULTISCOM_LENGTH);

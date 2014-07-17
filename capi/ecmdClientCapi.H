@@ -3966,7 +3966,7 @@ std::string simCallFusionCommand(const char* i_fusionObject, const char* i_repli
   if not specified, each this client will get a unique instance of the class
  @retval Random number
  */
-uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = ~0UL, const char* i_fusionRandObject = NULL);
+uint32_t simFusionRand32(uint32_t i_min = 0, uint32_t i_max = 0xFFFFFFFF, const char* i_fusionRandObject = NULL);
 
 /**
  @brief Returns a random 64 bit number in the range [min,max] using the Fusion MasterSeed;
@@ -4206,14 +4206,14 @@ To compile client code to use the C++ API, the following header files are requir
 @section link Link objects
 To link the client code on AIX, the following is required:
 <ul>
-<li>ecmdClientCapi_aix.a
-<li>libecmd_aix.so
+<li>ecmdClientCapi.a
+<li>libecmd.so
 <li>xlC 9.0.0.0
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
-<li>ecmdClientCapi_x86.a
-<li>libecmd_x86.so
+<li>ecmdClientCapi.a
+<li>libecmd.so
 <li>g++ 4.1.2
 </ul>
 
@@ -4222,6 +4222,7 @@ To create Linux x86 binaries, the following is required:
 These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
 To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>
 
+\if ECMD_CMD_EXTENSION_SUPPORT
 @subsection cmd CMD Command line Extension
 This extension provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
 
@@ -4229,82 +4230,119 @@ Include files :
 <ul>
 <li> cmdClientCapi.H</li>
 <li> cmdStructs.H</li>
-<li> Library : cmdClientCapi_aix.a / cmdClientCapi_x86.a</li>
+<li> Library : cmdClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_CIP_EXTENSION_SUPPORT
 @subsection cip CIP (Cronus/IP) Extension
 This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+
 Include files :
 <ul>
 <li> cipClientCapi.H</li>
 <li> cipStructs.H</li>
-<li> Library : cipClientCapi_aix.a / cipClientCapi_x86.a</li>
+<li> Library : cipClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_GIP_EXTENSION_SUPPORT
 @subsection gip GIP GFW IP-Series Extension
 This extension provides IP Series GFW only interfaces.<br>
+
 Include files :
 <ul>
 <li> gipClientCapi.H</li>
 <li> gipStructs.H</li>
-<li> Library : gipClientCapi_aix.a / gipClientCapi_x86.a</li>
+<li> Library : gipClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_CRO_EXTENSION_SUPPORT
 @subsection cronus Cronus Extension
 This extension provides Cronus only interfaces.<br>
+
 Include files :
 <ul>
 <li> croClientCapi.H</li>
 <li> croStructs.H</li>
-<li> Library : croClientCapi_aix.a / croClientCapi_x86.a</li>
+<li> Library : croClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_ZSE_EXTENSION_SUPPORT
 @subsection zse Z Series Extension
 This extension provides Z-Series only interfaces.<br>
+
 Include files :
 <ul>
 <li> zseClientCapi.H</li>
 <li> zseStructs.H</li>
-<li> Library : zseClientCapi_aix.a / zseClientCapi_x86.a</li>
+<li> Library : zseClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_EIP_EXTENSION_SUPPORT
 @subsection eip EIP (Eclipz I/P) Extension
 This extension provides Eclipz only interfaces.<br>
+
 Include files :
 <ul>
 <li> eipClientCapi.H</li>
 <li> eipStructs.H</li>
-<li> Library : eipClientCapi_aix.a / eipClientCapi_x86.a</li>
+<li> Library : eipClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_AIP_EXTENSION_SUPPORT
 @subsection aip AIP (Apollo I/P) Extension
 This extension provides Apollo only interfaces.<br>
+
 Include files :
 <ul>
 <li> aipClientCapi.H</li>
 <li> aipStructs.H</li>
-<li> Library : aipClientCapi_aix.a / aipClientCapi_x86.a</li>
+<li> Library : aipClientCapi.a</li>
 </ul>
+\endif
 
+\if ECMD_SCAND_EXTENSION_SUPPORT
+@subsection scand ScanD Extension
+This extension provides ScanD only interfaces.<br>
+
+Include files :
+<ul>
+<li> scandClientCapi.H</li>
+<li> scandStructs.H</li>
+<li> Library : scandClientCapi.a</li>
+</ul>
+\endif
+
+\if ECMD_BML_EXTENSION_SUPPORT
 @subsection bml BML Extension
 This extension provides BML only interfaces and is only available running eCMD in a BML environment.<br>
+
 Include files :
 <ul>
 <li> bmlClientCapi.H</li>
 <li> bmlStructs.H</li>
 <li> Library : bmlClientCapi_ppc.a </li>
 </ul>
+\endif
 
+\if ECMD_MBO_EXTENSION_SUPPORT
 @subsection mbo MBO (Mambo) Extension
 This extension provides Mambo Simulator only interfaces.<br>
+
 Include files :
 <ul>
 <li> mboClientCapi.H</li>
 <li> mboStructs.H</li>
-<li> Library : mboClientCapi_aix.a / mboClientCapi_x86.a</li>
+<li> Library : mboClientCapi.a</li>
 </ul>
+\endif
 
-
+\if ECMD_FAPI_EXTENSION_SUPPORT
 @subsection fapi FAPI (Hardware Procedure Framework) Extension
 This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found here (link will be added later).
 <ul>
@@ -4333,10 +4371,10 @@ This extension provides HWPF fapi only interfaces.  More information about writi
        <li>ecmdDataBufferBase.H</li>
        </ul>
     </ul>
-<li> Library : fapiClientCapi_x86.a</li>
-<li> Library : libfapi_x86.so</li>
+<li> Library : fapiClientCapi.a</li>
+<li> Library : libfapi.so</li>
 </ul>
-
+\endif
 
 <hr>
 @section dllv DLL Version

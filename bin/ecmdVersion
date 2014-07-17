@@ -1,7 +1,8 @@
 #!/usr/bin/perl
-
+# This wrapper can be removed when create_links is removed from makefiles
 
 my $osname = `uname -a`;
+
 
 if ($osname =~ /AIX/) {
     system("ecmdVersion_aix @ARGV");

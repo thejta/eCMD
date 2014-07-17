@@ -855,7 +855,8 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
   std::string chipUnitType;                     ///< Purely for error checking
   std::string clocktype;                        ///< the clock type to change the speed on
   std::string clockspeed;                       ///< Speed - frequency or cycle time
-  uint32_t endOffet = 0;                         ///< The location where the required args in the arg list end
+  //Commenting endOffet out to avoid compiler warnings.  Nothing was being done with the values.
+  //  uint32_t endOffet = 0;                         ///< The location where the required args in the arg list end
   ecmdClockFreqMode_t freqmode = ECMD_CLOCK_SINGLE_FREQ_MODE;///< Frequency mode set on the specified target
   uint32_t freqMin= 0;                           ///< Minimum frequency value set for the target 
   uint32_t freqMax= 0;                           ///< Maximum frequency value set for the target
@@ -893,12 +894,12 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     ecmdParseChipField(argv[0], chipType, chipUnitType);
     clocktype = argv[1];
     clockspeed = argv[2];
-    endOffet = 2;
+    //endOffet = 2;
   } else {
     /* We had a clock in the very first arg, assume no chip was given */
     clocktype = argv[0];
     clockspeed = argv[1];
-    endOffet = 1;
+    //endOffet = 1;
   }
 
   //Setup the target that will be used to query the system config

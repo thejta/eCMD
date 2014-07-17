@@ -858,11 +858,8 @@ uint32_t ecmdCipGetMemProcUser(int argc, char * argv[]) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-#ifdef _LP64
-  match = sscanf(argv[0], "%lx", &address);
-#else
-  match = sscanf(argv[0], "%llx", &address);
-#endif
+
+  match = sscanf(argv[0], UINT64_HEX_FORMAT, &address);
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
@@ -902,7 +899,7 @@ uint32_t ecmdCipGetMemProcUser(int argc, char * argv[]) {
 
     // Handle whole 64 bit blocks
     while ((memoryData.getWordLength() - wordsDone) > 2) {
-      sprintf(tempstr,"%016llX: %08X %08X %s %s %s", (uint64_t)myAddr, memoryData.getWord(wordsDone), memoryData.getWord(wordsDone+1), memoryTags.genBinStr((wordsDone/2),1).c_str(), memoryEcc.genBinStr(((wordsDone/2) * 8), 8).c_str(), memoryEccError.genBinStr((wordsDone/2),1).c_str());
+      sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %s %s %s", (uint64_t)myAddr, memoryData.getWord(wordsDone), memoryData.getWord(wordsDone+1), memoryTags.genBinStr((wordsDone/2),1).c_str(), memoryEcc.genBinStr(((wordsDone/2) * 8), 8).c_str(), memoryEccError.genBinStr((wordsDone/2),1).c_str());
       printLine += tempstr;
 
       printLine += "\n";
@@ -914,7 +911,7 @@ uint32_t ecmdCipGetMemProcUser(int argc, char * argv[]) {
     if (memoryData.getByteLength() > (wordsDone * 4)) {
       uint32_t byteCount = 0;
       /* The address */
-      sprintf(tempstr,"%016llX: ", (uint64_t)myAddr);
+      sprintf(tempstr,UINT64_HEX16_FORMAT ": ", (uint64_t)myAddr);
       printLine += tempstr;
       /* Put on the remaining data */
       for (uint32_t byte = wordsDone * 4; byte < memoryData.getByteLength(); byte++, byteCount++) {
@@ -1018,11 +1015,7 @@ uint32_t ecmdCipPutMemProcUser(int argc, char * argv[]) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-#ifdef _LP64
-  match = sscanf(argv[0], "%lx", &address);
-#else
-  match = sscanf(argv[0], "%llx", &address);
-#endif
+  match = sscanf(argv[0], UINT64_HEX_FORMAT, &address);
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
@@ -1250,11 +1243,8 @@ uint32_t cipGetMemPbaUser(int argc, char * argv[]) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
-#ifdef _LP64
-  match = sscanf(argv[0], "%lx", &address);
-#else
-  match = sscanf(argv[0], "%llx", &address);
-#endif
+
+  match = sscanf(argv[0], UINT64_HEX_FORMAT, &address);
   if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
@@ -1483,11 +1473,8 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
      ecmdOutputError(printLine.c_str());
      return ECMD_INVALID_ARGS;
    }
-#ifdef _LP64
-   match = sscanf(argv[0], "%lx", &address);
-#else
-   match = sscanf(argv[0], "%llx", &address);
-#endif
+
+   match = sscanf(argv[0], UINT64_HEX_FORMAT, &address);
    if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
@@ -1922,7 +1909,8 @@ uint32_t cipRWReadCacheUser(int argc, char * argv[])
 
     ecmdChipTarget l_target;        ///< Current target
     ecmdLooperData l_looperdata;    ///< Store internal Looper data
-    bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
+    // Commenting l_validPosFound out as it was causing compiler warnings.  Nothing was actually being done with the value.
+    //bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
     std::list<cipRWCacheRec> l_records; ///< Cache records from the occ
     std::string printed;
 
@@ -2024,7 +2012,7 @@ uint32_t cipRWReadCacheUser(int argc, char * argv[])
         }
         else
         {
-            l_validPosFound = true;
+	  //l_validPosFound = true;
             std::list<cipRWCacheRec>::iterator l_recordsIter = l_records.begin();
             while (l_recordsIter != l_records.end())
             {
@@ -2050,7 +2038,8 @@ uint32_t cipRWReadTLBUser(int argc, char * argv[])
 
     ecmdChipTarget l_target;        ///< Current target
     ecmdLooperData l_looperdata;    ///< Store internal Looper data
-    bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
+    //Commenting l_validPosFound out to avoid compiler warnings.  Nothing was actually being checked with the value.
+    //bool l_validPosFound = false;   ///< Did we find something to actually execute on ?
     std::list<cipRWTLBRec> l_records; ///< Cache records from the occ
     std::string printed;
 
@@ -2134,7 +2123,7 @@ uint32_t cipRWReadTLBUser(int argc, char * argv[])
         }
         else
         {
-            l_validPosFound = true;
+	  //l_validPosFound = true;
             std::list<cipRWTLBRec>::iterator l_recordsIter = l_records.begin();
             while (l_recordsIter != l_records.end())
             {
@@ -2954,7 +2943,8 @@ uint32_t cipRWPutDcrUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   uint32_t entry;               ///< Index entry to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
-  uint32_t numBits = 0;         ///< Number of bits to insert data
+  // Commenting numBits out to avoid compiler warnings.  Nothing was actually being done with the values.
+  //uint32_t numBits = 0;         ///< Number of bits to insert data
   std::string function;         ///< Current function being run based on daType
   std::string sprName;
   char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
@@ -3039,7 +3029,7 @@ uint32_t cipRWPutDcrUser(int argc, char * argv[]) {
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2 + idx]);
+    //numBits = (uint32_t)atoi(argv[2 + idx]);
     
     rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
     if (rc) {
@@ -3338,7 +3328,6 @@ uint32_t cipGetPmcVoltageUser(int argc, char * argv[])
         ecmdOutputError("cipgetpmcvoltage - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
     }
-    bool l_chipWildcardFound = false;
 
     if (l_chipUnitType != "")
     {
@@ -3349,7 +3338,6 @@ uint32_t cipGetPmcVoltageUser(int argc, char * argv[])
     if (l_chipType == "x")
     {
         l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-        l_chipWildcardFound = true;
     }
     else
     {
@@ -3602,7 +3590,6 @@ uint32_t cipPutPmcVoltageUser(int argc, char * argv[])
         ecmdOutputError("cipputpmcvoltage - Wildcard character detected however it is not being used correctly.\n");
         return l_rc;
     }
-    bool l_chipWildcardFound = false;
 
     if (l_chipUnitType != "")
     {
@@ -3613,7 +3600,6 @@ uint32_t cipPutPmcVoltageUser(int argc, char * argv[])
     if (l_chipType == "x")
     {
         l_target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-        l_chipWildcardFound = true;
     }
     else
     {

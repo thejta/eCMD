@@ -34,6 +34,7 @@
  */
 #include <fapi.H>
 #include <fapiPlatHwAccess.H>
+#include <ecmdUtils.H>
 
 extern "C"
 {
@@ -53,13 +54,13 @@ fapi::ReturnCode fapiGetScom(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiGetScom failed - Target %s, Addr %.16llX",
+        FAPI_ERR("fapiGetScom failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSCOM     : %s : %.16llX %.16llX",
+        FAPI_SCAN( "TRACE : GETSCOM     : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT ,
                    i_target.toEcmdString(),
                    i_address,
                    o_data.getDoubleWord( 0 ) );
@@ -84,13 +85,13 @@ fapi::ReturnCode fapiPutScom(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutScom failed - Target %s, Addr %.16llX",
+        FAPI_ERR("fapiPutScom failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSCOM     : %s : %.16llX %.16llX",
+        FAPI_SCAN( "TRACE : PUTSCOM     : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_address,
                    i_data.getDoubleWord( 0 )  );
@@ -115,13 +116,13 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutScomUnderMask failed - Target %s, Addr %.16llX",
+        FAPI_ERR("fapiPutScomUnderMask failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : %.16llX %.16llX %.16llX",
+        FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT,
                i_target.toEcmdString(),
                i_address,
                i_data.getDoubleWord(0),
@@ -139,7 +140,7 @@ fapi::ReturnCode fapiMultiScom (
                     const   fapi::Target&       i_target,
                             fapi::MultiScom&    io_multiScomObj)
 {
-    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %d",
+    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %zd",
               i_target.toEcmdString (), io_multiScomObj.iv_ScomList.size ());
 
     fapi::ReturnCode l_rc;
@@ -152,13 +153,13 @@ fapi::ReturnCode fapiMultiScom (
         uint32_t l_retCode = l_rc;
 
         FAPI_ERR ("fapiMultiScom Failed with RC: 0x%.8X! i_target: %s, "
-                  "# input ops: %d, # ops complete: %d", l_retCode,
+                  "# input ops: %zd, # ops complete: %d", l_retCode,
                   i_target.toEcmdString (),
                   io_multiScomObj.iv_ScomList.size (),
                   io_multiScomObj.iv_NumOfCompletes);
     }
 
-    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %d, "
+    FAPI_DBG ("fapiMultiScom - i_target: %s, # input ops: %zd, "
               "#ops complete: %d", i_target.toEcmdString (),
               io_multiScomObj.iv_ScomList.size (),
               io_multiScomObj.iv_NumOfCompletes);
@@ -301,7 +302,7 @@ fapi::ReturnCode fapiGetRing(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETRING     : %s : %.8X %.16llX", 
+        FAPI_SCAN( "TRACE : GETRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT, 
                    i_target.toEcmdString(),
                    i_address,
                    o_data.getDoubleWord( 0 ) );
@@ -331,7 +332,7 @@ fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X %.16llX",
+        FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_address,
                    i_data.getDoubleWord(0));
@@ -383,7 +384,7 @@ fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
             l_pMode = "?";
         }
 
-        FAPI_SCAN( "TRACE : MODRING     : %s : %.8X %.16llX %s",
+        FAPI_SCAN( "TRACE : MODRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT" %s",
                i_target.toEcmdString(),
                i_address,
                i_data.getDoubleWord(0),
@@ -419,7 +420,7 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSPY      : %s : %.16llX %.16llX", 
+        FAPI_SCAN( "TRACE : GETSPY      : %s : %.16llX "UINT64_HEX16_PRESC_FORMAT, 
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -448,7 +449,7 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSPY      : %s : %s %.16llX",
+        FAPI_SCAN( "TRACE : GETSPY      : %s : %s "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -479,7 +480,7 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSPY      : %s : %.16llX %.16llX",
+        FAPI_SCAN( "TRACE : PUTSPY      : %s : %.16llX "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));
@@ -510,7 +511,7 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSPY      : %s : %s %.16llX",
+        FAPI_SCAN( "TRACE : PUTSPY      : %s : %s "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));
@@ -542,7 +543,7 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-      FAPI_SCAN( "TRACE : GETSPYIMAGE : %s : %s %.16llX",
+      FAPI_SCAN( "TRACE : GETSPYIMAGE : %s : %s "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -573,7 +574,7 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN("TRACE : PUTSPYIMG : %s : %s %.16llX",
+        FAPI_SCAN("TRACE : PUTSPYIMG : %s : %s "UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));

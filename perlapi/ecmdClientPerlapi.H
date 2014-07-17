@@ -161,55 +161,121 @@ This Document Last Approved: March 22nd, 2006
  <li>ecmdSharedUtils.H</li>
  </ul>
 
-@subsection ext Api Extensions
+<hr>
+@section ext eCMD Extensions
+These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
 
- CIP (Cronus/IP) Extension<br>
- <ul>
- <li> cipClientPerlapi.H </li>
- </ul>
+\if ECMD_CMD_EXTENSION_SUPPORT
+@subsection cmd CMD Command line Extension
+This extension provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
 
- CMD (Command Line) Extension<br>
- <ul>
- <li> cmdClientPerlapi.H </li>
- </ul>
+Include files :
+<ul>
+<li> cmdClientPerlapi.H</li>
+<li> cmdStructs.H</li>
+</ul>
+\endif
 
- GIP (GFW IP Series) Extension<br>
- <ul>
- <li> gipClientPerlapi.H </li>
- </ul>
+\if ECMD_CIP_EXTENSION_SUPPORT
+@subsection cip CIP (Cronus/IP) Extension
+This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
 
- CRO (Cronus) Extension<br>
- <ul>
- <li> croClientPerlapi.H </li>
- </ul>
+Include files :
+<ul>
+<li> cipClientPerlapi.H </li>
+<li> cipStructs.H</li>
+</ul>
+\endif
 
- Z Series Extension<br>
- <ul>
- <li> zseClientPerlapi.H </li>
- </ul>
+\if ECMD_GIP_EXTENSION_SUPPORT
+@subsection gip GIP GFW IP-Series Extension
+This extension provides IP Series GFW only interfaces.<br>
 
- BML Extension<br>
- <ul>
- <li> bmlClientPerlapi.H </li>
- </ul>
+Include files :
+<ul>
+<li> gipClientPerlapi.H </li>
+<li> gipStructs.H</li>
+</ul>
+\endif
 
- EIP Extension<br>
- <ul>
- <li> eipClientPerlapi.H </li>
- </ul>
+\if ECMD_CRO_EXTENSION_SUPPORT
+@subsection cronus Cronus Extension
+This extension provides Cronus only interfaces.<br>
 
- AIP Extension<br>
- <ul>
- <li> aipClientPerlapi.H </li>
- </ul>
+Include files :
+<ul>
+<li> croClientPerlapi.H </li>
+<li> croStructs.H</li>
+</ul>
+\endif
 
- MBO (Mambo) Extension<br>
- <ul>
- <li> mboClientPerlapi.H </li>
- </ul>
+\if ECMD_ZSE_EXTENSION_SUPPORT
+@subsection zse Z Series Extension
+This extension provides Z-Series only interfaces.<br>
 
+Include files :
+<ul>
+<li> zseClientPerlapi.H </li>
+<li> zseStructs.H</li>
+</ul>
+\endif
 
- <br><br>
+\if ECMD_EIP_EXTENSION_SUPPORT
+@subsection eip EIP (Eclipz I/P) Extension
+This extension provides Eclipz only interfaces.<br>
+
+Include files :
+<ul>
+<li> eipClientPerlapi.H </li>
+<li> eipStructs.H</li>
+</ul>
+\endif
+
+\if ECMD_AIP_EXTENSION_SUPPORT
+@subsection aip AIP (Apollo I/P) Extension
+This extension provides Apollo only interfaces.<br>
+
+Include files :
+<ul>
+<li> aipClientPerlapi.H </li>
+<li> aipStructs.H</li>
+</ul>
+\endif
+
+\if ECMD_SCAND_EXTENSION_SUPPORT
+@subsection scand ScanD Extension
+This extension provides ScanD only interfaces.<br>
+
+Include files :
+<ul>
+<li> scandClientPerlapi.H</li>
+<li> scandStructs.H</li>
+</ul>
+\endif
+
+\if ECMD_BML_EXTENSION_SUPPORT
+@subsection bml BML Extension
+This extension provides BML only interfaces and is only available running eCMD in a BML environment.<br>
+
+Include files :
+<ul>
+<li> bmlClientPerlapi.H </li>
+<li> bmlStructs.H</li>
+</ul>
+\endif
+
+\if ECMD_MBO_EXTENSION_SUPPORT
+@subsection mbo MBO (Mambo) Extension
+This extension provides Mambo Simulator only interfaces.<br>
+
+Include files :
+<ul>
+<li> mboClientPerlapi.H </li>
+<li> mboStructs.H</li>
+</ul>
+\endif
+
+<br><br>
 
  <hr>
  @section perlv Perl Version
@@ -222,10 +288,17 @@ This Document Last Approved: March 22nd, 2006
  eval '
  if [ "X$ECMDPERLBIN" = "X" ] ; then
   if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
-  export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-  export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-  export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/perlapi/`uname`/:$CTEPERLLIB;
+  if [[ "$ECMD_ARCH" =~ "64" ]]; then
+   export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
+   export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+   export CTEPERLLIB=$CTEPERLPATH/lib64/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/$ECMD_ARCH/perl/:$CTEPERLLIB;
+  else
+   export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
+   export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+   export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/$ECMD_ARCH/perl:$CTEPERLLIB;
+  fi 
  fi
+
  exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
  '
  if 0;

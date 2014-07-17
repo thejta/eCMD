@@ -36,7 +36,7 @@ typedef scalarref scalarref;
  @brief An array that is passed by reference in perl.
  <p>
  Example:
- somefunction(\@variable);
+ somefunction(\\@variable);
  </p>
 */
 typedef arrayref arrayref;

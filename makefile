@@ -28,7 +28,7 @@ ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
 endif
 
 # Now create our build targets
-BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} ${PERLAPI_BUILD}
+BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD}
 
 # *****************************************************************************
 # The Main Targets
@@ -45,18 +45,18 @@ objclean: ${BUILD_TARGETS} ecmdutils
 
 # The core eCMD pieces
 ecmdcapi:
-	@echo "eCMD Core Client C-API ..."
+	@echo "eCMD Core Client C-API ${TARGET_ARCH} ..."
 	@cd capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdcmd: ecmdcapi $(subst cmd,,${EXTENSIONS})
-	@echo "eCMD Core Command line Client ..."
+	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
 	@cd ecmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 
 ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
-	@echo "eCMD Perl Module ..."
+	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
 	@cd perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -67,13 +67,13 @@ ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
 cip: cipcapi cipperlapi
 
 cipcapi: ecmdcapi
-	@echo "Cronus/IP Extension C-API ..."
+	@echo "Cronus/IP Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/cip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 cipperlapi:
-	@echo "Cronus/IP Extension Perl-API ..."
+	@echo "Cronus/IP Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/cip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -83,13 +83,13 @@ cipperlapi:
 cro: crocapi croperlapi
 
 crocapi: ecmdcapi
-	@echo "Cronus Extension C-API ..."
+	@echo "Cronus Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/cro/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/cro/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 croperlapi:
-	@echo "Cronus Extension Perl-API ..."
+	@echo "Cronus Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/cro/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -99,12 +99,12 @@ croperlapi:
 scand: scandcapi scandperlapi
 
 scandcapi: ecmdcapi
-	@echo "Scand Extension C-API ..."
+	@echo "Scand Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/scand/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 scandperlapi:
-	@echo "Scand Extension Perl-API ..."
+	@echo "Scand Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/scand/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -114,13 +114,13 @@ scandperlapi:
 eip: eipcapi eipperlapi
 
 eipcapi: ecmdcapi
-	@echo "Eclipz IP Extension C-API ..."
+	@echo "Eclipz IP Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/eip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/eip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 eipperlapi:
-	@echo "Eclipz IP Extension Perl-API ..."
+	@echo "Eclipz IP Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/eip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -130,13 +130,13 @@ eipperlapi:
 aip: aipcapi aipperlapi
 
 aipcapi: ecmdcapi
-	@echo "Apollo IP Extension C-API ..."
+	@echo "Apollo IP Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/aip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/aip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 aipperlapi:
-	@echo "Apollo IP Extension Perl-API ..."
+	@echo "Apollo IP Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/aip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -146,13 +146,13 @@ aipperlapi:
 gip: gipcapi gipperlapi
 
 gipcapi: ecmdcapi
-	@echo "GFW IP Extension C-API ..."
+	@echo "GFW IP Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/gip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/gip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 gipperlapi:
-	@echo "GFW IP Extension Perl-API ..."
+	@echo "GFW IP Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/gip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -162,13 +162,13 @@ gipperlapi:
 zse: zsecapi zseperlapi
 
 zsecapi: ecmdcapi
-	@echo "Z Series Extension C-API ..."
+	@echo "Z Series Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/zse/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/zse/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 zseperlapi:
-	@echo "Z Series Extension Perl-API ..."
+	@echo "Z Series Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/zse/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -178,13 +178,13 @@ zseperlapi:
 mbo: mbocapi mboperlapi
 
 mbocapi: ecmdcapi
-	@echo "Mambo Extension C-API ..."
+	@echo "Mambo Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/mbo/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/mbo/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 mboperlapi:
-	@echo "Mambo Extension Perl-API ..."
+	@echo "Mambo Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/mbo/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -194,13 +194,13 @@ mboperlapi:
 bml: bmlcapi bmlperlapi
 
 bmlcapi: ecmdcapi
-	@echo "BML Extension C-API ..."
+	@echo "BML Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/bml/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/bml/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 bmlperlapi:
-	@echo "BML Extension Perl-API ..."
+	@echo "BML Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/bml/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -210,13 +210,13 @@ bmlperlapi:
 fapi: fapicapi fapiperlapi
 
 fapicapi: ecmdcapi
-	@echo "FAPI Extension C-API ..."
+	@echo "FAPI Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@cd ext/fapi/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 fapiperlapi:
-	@echo "FAPI Extension Perl-API ..."
+	@echo "FAPI Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/fapi/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -226,12 +226,12 @@ fapiperlapi:
 cmd: cmdcapi cmdperlapi
 
 cmdcapi: ecmdcmd
-	@echo "Command line Extension C-API ..."
+	@echo "Command line Extension C-API ${TARGET_ARCH} ..."
 	@cd ext/cmd/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 cmdperlapi:
-	@echo "Command line Extension Perl-API ..."
+	@echo "Command line Extension Perl-API ${TARGET_ARCH} ..."
 	@cd ext/cmd/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
@@ -239,8 +239,16 @@ cmdperlapi:
 # Utils
 ########################
 ecmdutils:
-	@echo "eCMD Utilities ..."
+	@echo "eCMD Utilities ${TARGET_ARCH} ..."
 	@cd utils && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
+# DLL Stub
+########################
+dllstub:
+	@echo "eCMD DLL Stub ${TARGET_ARCH} ..."
+	@cd dllStub && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # Runs the install routines for all targets
@@ -256,6 +264,18 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/bin
 	@cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
 	@cp -R `find $(foreach ext, ${EXTENSIONS},ext/${ext}/bin/*) | grep -v CVS | grep -v ecmdWrapper` ${INSTALL_PATH}/bin/.
+	@echo " "
+
+	@echo "Creating ${TARGET_ARCH}/bin dir ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/bin
+	@echo " "
+
+	@echo "Creating ${TARGET_ARCH}/lib dir ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/lib
+	@echo " "
+
+	@echo "Creating ${TARGET_ARCH}/perl dir ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/perl
 	@echo " "
 
 	@echo "Setting up ecmdaliases files ..."
@@ -295,12 +315,11 @@ ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo " "
 endif
 
-	@echo "Copying over supplemental libraries ... "
-	@mkdir -p ${INSTALL_PATH}/lib/x86/3.4.6/
-	@cp `find lib/x86/3.4.6/* | grep -v CVS`  ${INSTALL_PATH}/lib/x86/3.4.6/
-
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
+
+	@echo "Fixing ${TARGET_ARCH}/bin dir file permissions ..."
+	@chmod 775 ${INSTALL_PATH}/${TARGET_ARCH}/bin/*
 
 	@echo ""
 	@echo "*** Install Done! ***"
