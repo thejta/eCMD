@@ -52,25 +52,39 @@ typedef u_int8_t u8 ;
 #undef void
 #endif // ECMD_USE_MCP
 
-// Determine endianess for ecmdHashString64
-#include <sys/param.h>
-#ifdef linux
-# include <endian.h>
+// Determine endianness of the machine we are building for
+// Since AIX and Linux do it different, we are creating our own defines
+// _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
+#ifdef LINUX
+#include <endian.h>
+#  if __BYTE_ORDER == __LITTLE_ENDIAN
+#    ifndef _LITTLE_ENDIAN
+#      define _LITTLE_ENDIAN
+#    endif
+#  elif __BYTE_ORDER == __BIG_ENDIAN
+#    ifndef _BIG_ENDIAN
+#      define _BIG_ENDIAN
+#    endif
+#  endif
+#endif
+#ifdef AIX
+#include <sys/machine.h>
+#  if BYTE_ORDER == LITTLE_ENDIAN
+#    ifndef _LITTLE_ENDIAN
+#      define _LITTLE_ENDIAN
+#    endif
+#  elif BYTE_ORDER == BIG_ENDIAN
+#    ifndef _BIG_ENDIAN
+#      define _BIG_ENDIAN
+#    endif
+#  endif
 #endif
 
-#if (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && \
-     __BYTE_ORDER == __LITTLE_ENDIAN) || \
-    (defined(BYTE_ORDER) && defined(LITTLE_ENDIAN) && \
-     BYTE_ORDER == LITTLE_ENDIAN) || \
-    (defined(i386) || defined(__i386__) || defined(__i486__) || \
-     defined(__i586__) || defined(__i686__) || defined(vax) || defined(MIPSEL))
+// Determine endianess for ecmdHashString64
+#if (defined(_LITTLE_ENDIAN))
 # define HASH_LITTLE_ENDIAN 1
 # define HASH_BIG_ENDIAN 0
-#elif (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && \
-       __BYTE_ORDER == __BIG_ENDIAN) || \
-      (defined(BYTE_ORDER) && defined(BIG_ENDIAN) && \
-       BYTE_ORDER == BIG_ENDIAN) || \
-      (defined(sparc) || defined(POWERPC) || defined(mc68000) || defined(sel))
+#elif (defined(_BIG_ENDIAN))
 # define HASH_LITTLE_ENDIAN 0
 # define HASH_BIG_ENDIAN 1
 #else
@@ -602,7 +616,8 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   std::vector<std::string> tokens;
   bool allFound = false;
   bool naFound = false;
-  bool numFound = false;
+  //Commenting numFound out to resolve compiler errors.  Nothing is ever being checked against it.
+  //bool numFound = false;
   int num = 0;  //fix beam error
   bool l_alt_format_used = false;
 
@@ -634,7 +649,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   for (uint32_t x = 0; x < tokens.size(); x++) {
     allFound = false;
     naFound = false;
-    numFound = false;
+    //numFound = false;
     if (tokens[x].substr(1,tokens[x].length()) == "all") {
       allFound = true;
     } else if (tokens[x].substr(1,tokens[x].length()) == "-") {
@@ -642,7 +657,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
     }
     else if (tokens[x].find_first_not_of("0123456789",1) == std::string::npos) {
       sscanf(tokens[x].substr(1,tokens[x].length()).c_str(), "%d", &num);
-      numFound = true;
+      //numFound = true;
     }
 
     switch (x) {
@@ -1051,8 +1066,9 @@ std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i
   /* For the default display modes, there are a couple extra things we want to do */
   if (i_displayMode == ECMD_DISPLAY_TARGET_DEFAULT || i_displayMode == ECMD_DISPLAY_TARGET_HEX_DEFAULT) {
     /* If the generated string is was shorter than 18 characters, pad output with whitespace */
-    if (subPrinted.length() < 18) {
-      sprintf(util, "%*s", (18 - subPrinted.length()) , "");
+    int subPrintedLength = subPrinted.length();
+    if (subPrintedLength < 18) {
+      sprintf(util, "%*s", (18 - subPrintedLength) , "");
       printed += util;
     }
 
@@ -1069,8 +1085,8 @@ uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, st
   /* See if the chipUnit separator (the period) is found.  If it is, then break up the input field.
      if it is not, then just return the chipType 
   */
-  uint32_t dotLinePos = i_chipField.find(".");
-  uint32_t wildcardLinePos = i_chipField.find("x");
+  size_t dotLinePos = i_chipField.find(".");
+  size_t wildcardLinePos = i_chipField.find("x");
 
   if (dotLinePos == std::string::npos) {
     /* chipType was specified without a chipUnitType */

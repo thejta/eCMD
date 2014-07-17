@@ -29,6 +29,8 @@
 //----------------------------------------------------------------------
 #include <stdlib.h>
 #include <stdio.h>
+#include <sstream>
+#include <iomanip>
 
 #include <ecmdDefines.H>
 #include <ecmdBit64.H>
@@ -68,14 +70,14 @@ void ecmdBit64::setValue(uint32_t hiValue, uint32_t loValue) {
 }
 
 std::string ecmdBit64::getHexValue(uint32_t i_alignLen) {
-  char tmp[100];
-  sprintf(tmp,"0x%0*llX",i_alignLen, iv_value);
-  return (tmp);
+  std::ostringstream tmp;
+  tmp << "0x" << std::hex << std::setw(i_alignLen) << std::setfill('0') << std::uppercase << iv_value;
+  return tmp.str();
 }
 std::string ecmdBit64::getDecimalValue() {
-  char tmp[100];
-  sprintf(tmp,"%llu",iv_value);
-  return (tmp);
+  std::ostringstream tmp;
+  tmp << std::dec << iv_value;
+  return tmp.str();
 }
 void ecmdBit64::getValue(uint32_t & hiValue, uint32_t & loValue) {
   hiValue = (uint32_t)(iv_value >> 32);

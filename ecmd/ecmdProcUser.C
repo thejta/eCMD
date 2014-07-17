@@ -372,7 +372,8 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
-  uint32_t numBits = 0;         ///< Number of bits to insert data
+  //Commenting numBits out to avoid compiler warnings.  Nothing was being done with the value.
+  //uint32_t numBits = 0;         ///< Number of bits to insert data
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
@@ -445,7 +446,7 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       ecmdOutputError("putspr - Non-decimal numbers detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2 + idx]);
+    //numBits = (uint32_t)atoi(argv[2 + idx]);
 
 
     rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3 + idx], inputformat);
@@ -790,7 +791,8 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   std::string printed;          ///< Print Buffer
   uint32_t entry;               ///< Index entry to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
-  uint32_t numBits = 0;         ///< Number of bits to insert data
+  //Commenting numBits out to avoid compiler warnings.  Nothing was being done with this value.
+  //uint32_t numBits = 0;         ///< Number of bits to insert data
   std::string function;         ///< Current function being run based on daType
   std::string sprName;
   char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
@@ -880,7 +882,7 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2 + idx]);
+    //numBits = (uint32_t)atoi(argv[2 + idx]);
     
     rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);
     if (rc) {

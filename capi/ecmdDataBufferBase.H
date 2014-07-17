@@ -43,6 +43,34 @@
 #include <fapiPlatTrace.H>
 #endif
 
+// Determine endianness of the machine we are building for
+// Since AIX and Linux do it different, we are creating our own defines
+// _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
+#ifdef LINUX
+#include <endian.h>
+#  if __BYTE_ORDER == __LITTLE_ENDIAN
+#    ifndef _LITTLE_ENDIAN
+#      define _LITTLE_ENDIAN
+#    endif
+#  elif __BYTE_ORDER == __BIG_ENDIAN
+#    ifndef _BIG_ENDIAN
+#      define _BIG_ENDIAN
+#    endif
+#  endif
+#endif
+#ifdef AIX
+#include <sys/machine.h>
+#  if BYTE_ORDER == LITTLE_ENDIAN
+#    ifndef _LITTLE_ENDIAN
+#      define _LITTLE_ENDIAN
+#    endif
+#  elif BYTE_ORDER == BIG_ENDIAN
+#    ifndef _BIG_ENDIAN
+#      define _BIG_ENDIAN
+#    endif
+#  endif
+#endif
+
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
@@ -648,6 +676,7 @@ public:
    */
   uint32_t reverse();
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Apply an inversion mask to data inside buffer
    * @param i_invMask Buffer that stores inversion mask
@@ -655,6 +684,7 @@ public:
    * @retval ECMD_DBUF_SUCCESS on success
    */
   uint32_t applyInversionMask(const uint32_t * i_invMask, uint32_t i_invByteLen);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Apply an inversion mask to data inside buffer
@@ -678,6 +708,7 @@ public:
    */
   virtual uint32_t insert(const ecmdDataBufferBase & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy part of a uint32_t array into this DataBuffer
    * @param i_data uint32_t array to copy into this DataBuffer - data is taken left aligned
@@ -690,6 +721,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   virtual uint32_t insert(const uint32_t * i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Copy part of a uint32_t into the DataBuffer
@@ -704,6 +736,7 @@ public:
    */
   uint32_t insert(uint32_t i_data, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy a right aligned (decimal) uint32_t array into this DataBuffer
    * @param i_data uint32_t array to copy into this DataBuffer - data is taken right aligned
@@ -717,6 +750,7 @@ public:
    * NOTE : Data is assumed to be aligned on the word boundary of i_len
    */
   uint32_t insertFromRight(const uint32_t * i_data, uint32_t i_start, uint32_t i_len);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Copy a right aligned (decimal) uint32_t into the DataBuffer
@@ -857,6 +891,7 @@ public:
    */
   uint32_t extract(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a uint32_t buffer
    * @param o_data uint32_t buffer to copy into - data is placed left aligned - must be pre-allocated
@@ -868,7 +903,6 @@ public:
    */
   uint32_t extract(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
-#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
    * @param o_data uint16_t buffer to copy into - data is placed left aligned - must be pre-allocated
@@ -904,6 +938,7 @@ public:
    */
   uint32_t extractPreserve(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const;
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer
    * @param o_data Array of data to write into, must be pre-allocated
@@ -917,7 +952,6 @@ public:
    */
   uint32_t extractPreserve(uint32_t * o_data, uint32_t i_start, uint32_t i_len, uint32_t i_targetStart = 0) const; 
 
-#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a generic output buffer at a given offset, preserving the size and other data in the output buffer 
    * @param o_data Array of data to write into, must be pre-allocated
@@ -956,7 +990,8 @@ public:
    */
   uint32_t extractToRight(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
 
-  /**
+ #ifndef ECMD_PERLAPI
+ /**
    * @brief Copy data from this DataBuffer into a uint32_t buffer
    * @param o_data uint32_t buffer to copy into - data is placed right aligned - must be pre-allocated
    * @param i_start Start bit of data in DataBuffer to copy
@@ -967,7 +1002,6 @@ public:
    */
   uint32_t extractToRight(uint32_t * o_data, uint32_t i_start, uint32_t i_len) const;
 
-#ifndef ECMD_PERLAPI
   /**
    * @brief Copy data from this DataBuffer into a uint16_t buffer
    * @param o_data uint16_t buffer to copy into - data is placed right aligned - must be pre-allocated
@@ -1022,6 +1056,7 @@ public:
    */
   virtual uint32_t setOr(const ecmdDataBufferBase & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief OR data into DataBuffer
    * @param i_data uint32_t buffer to OR data from - data is taken left aligned
@@ -1032,6 +1067,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t setOr(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief OR data into DataBuffer
@@ -1065,6 +1101,7 @@ public:
    */
   uint32_t setXor(const ecmdDataBufferBase & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief XOR data into DataBuffer
    * @param i_data uint32_t buffer to XOR data from - data is taken left aligned
@@ -1075,6 +1112,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t setXor(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief XOR data into DataBuffer
@@ -1099,6 +1137,7 @@ public:
    */
   uint32_t setAnd(const ecmdDataBufferBase & i_bufferIn, uint32_t i_startbit, uint32_t i_len);
 
+#ifndef ECMD_PERLAPI
   /**
    * @brief AND data into DataBuffer
    * @param i_data uint32_t buffer to AND data from - data is taken left aligned
@@ -1109,6 +1148,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t setAnd(const uint32_t * i_data, uint32_t i_startbit, uint32_t i_len);
+#endif //ECMD_PERLAPI
 
   /**
    * @brief AND data into DataBuffer
@@ -1136,7 +1176,6 @@ public:
    * @post this DataBuffer is allocated, is an exact duplicate of the other
    */
   ecmdDataBufferBase& operator=(const ecmdDataBufferBase & i_master);
-#endif
 
   /* These are only to be used to apply a buffer to the entire ecmdDataBufferBase, not just sections */
   /**
@@ -1150,7 +1189,7 @@ public:
    */
   virtual uint32_t memCopyIn(const uint32_t * i_buf, uint32_t i_bytes); /* Does a memcpy from supplied buffer into ecmdDataBufferBase */
 
-  /**
+ /**
    * @brief Copy DataBuffer into supplied uint32_t buffer
    * @param o_buf Buffer to copy into - must be pre-allocated
    * @param i_bytes Byte length to copy
@@ -1201,6 +1240,7 @@ public:
    * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
    */
   uint32_t memCopyOut(uint8_t * o_buf, uint32_t i_bytes) const; /* Does a memcpy from ecmdDataBufferBase into supplied buffer */
+#endif //ECMD_PERLAPI
 
   /**
    * @brief Flatten all the object data into a uint8_t buffer

@@ -142,7 +142,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
         printed = "";
 
+#ifdef _LP64
+        sprintf(addrStr, "%16.16lX", scomit->address);
+#else
         sprintf(addrStr, "%16.16llX", scomit->address);
+#endif
         printed += addrStr;
 
         for (size_t i = printed.length(); i <= 13; i++) { 
@@ -1865,7 +1869,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         printed =     "Chip Unit        : NONE\n"; ecmdOutput(printed.c_str());
       }
       for (groupScomEntriesItr = groupScomEntries.begin(); groupScomEntriesItr != groupScomEntries.end(); groupScomEntriesItr++) {
-        sprintf(buf,  "Chip Addr        : 0x%016llX\n", groupScomEntriesItr->address); ecmdOutput(buf);
+        sprintf(buf,  "Chip Addr        : 0x" UINT64_HEX16_FORMAT "\n", groupScomEntriesItr->address); ecmdOutput(buf);
       }
       ecmdOutput(   "*******************************************************\n");
     }

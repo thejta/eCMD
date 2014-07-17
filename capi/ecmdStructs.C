@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips760 src/ecmd/import/ecmdStructs.C 1.34.1.27 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2004,2012 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -2806,7 +2789,11 @@ void  ecmdSpyData::printStruct() {
 
         // Print non-list data.
         printf("\tSpy Name:  %s\n", spyName.c_str());
+#ifdef _LP64
+        printf("\tSpy ID: 0x%016lx\n", spyId);
+#else
         printf("\tSpy ID: 0x%016llx\n", spyId);
+#endif
         printf("\tBit Length: 0x%08x\n", (uint32_t) bitLength);
         printf("\tSpy Type: 0x%08x\n", (uint32_t) spyType);
         printf("\tisEccChecked: 0x%08x\n", (uint32_t) isEccChecked);
@@ -3435,7 +3422,11 @@ void  ecmdRingData::printStruct() {
             // Display each ring ID entry
             printf("\tList of ringId entries:\n");
             for (ringIdIter = ringIds.begin(); ringIdIter != ringIds.end(); ++ ringIdIter) {
+#ifdef _LP64
+                printf("\t\t0x%016lx\n", *ringIdIter);
+#else
                 printf("\t\t0x%016llx\n", *ringIdIter);
+#endif
             }
         }
 
@@ -4674,7 +4665,11 @@ void  ecmdScomData::printStruct()
 
         printf("\n\t--- Scom Data Structure ---\n");
 
+#ifdef _LP64
+        printf("\tAddress: 0x%016lx\n", address );
+#else
         printf("\tAddress: 0x%016llx\n", address );
+#endif
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
         printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
@@ -6046,7 +6041,11 @@ void ecmdScomEntry::printStruct() {
 
     printf("\n\t\teCMD Scom Entry:\n");
 
+#ifdef _LP64
+    printf("\t\t\taddress: 0x%lx\n", address );
+#else
     printf("\t\t\taddress: 0x%llx\n", address );
+#endif
 
     printf("\t\t\tdata bitlength: %d\n", data.getBitLength() );
     printf("\t\t\tdata wordlength: %d\n", data.getWordLength() );

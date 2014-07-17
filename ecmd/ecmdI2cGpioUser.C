@@ -668,12 +668,10 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
   uint32_t rc = ECMD_SUCCESS;
   std::string inputformat = "xl";       // format of input data 
   std::string printed; 
-  bool inputformatflag = false;
   // get format flag, if it's there 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     inputformat = formatPtr;
-    inputformatflag = true;
   }
   
   o_cmd.busSpeed = ECMD_I2C_BUSSPEED_400KHZ; // bus speed to run i2c in khz.This is default if not specified on cmdLine 
@@ -821,7 +819,6 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   ecmdChipTarget target;                // Current target operating on
   ecmdDataBuffer data;                  // I2C Data from the specified engine/port/device
   bool validPosFound = false;           // Did the looper find anything to execute on
-  bool outputformatflag = false;
   ecmdChipTarget target1;               // Current target operating on-for second looper
   ecmdLooperData looperdata1;           // looper to do the real work
   int targetCount=0;                    // counts the number of targets user specified
@@ -837,7 +834,6 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     outputformat = formatPtr;
-    outputformatflag = true;
   }
 
   std::string printed;  

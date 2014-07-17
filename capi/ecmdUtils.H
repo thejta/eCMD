@@ -50,6 +50,18 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 // Macros
 //--------------------------------------------------------------------
 
+#ifdef _LP64
+#define UINT64_HEX_FORMAT "%lX"
+#define UINT64_HEX16_FORMAT "%016lX"
+#define UINT64_HEX16_PRESC_FORMAT "%.16lX"
+#define UINT64_DEC_FORMAT "%ld"
+#else
+#define UINT64_HEX_FORMAT "%llX"
+#define UINT64_HEX16_FORMAT "%016llX"
+#define UINT64_HEX16_PRESC_FORMAT "%.16llX"
+#define UINT64_DEC_FORMAT "%lld"
+#endif
+
 #ifndef ECMD_PERLAPI
 
 #ifdef FIPSODE

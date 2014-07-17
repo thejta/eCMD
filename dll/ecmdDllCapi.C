@@ -2373,12 +2373,12 @@ bool isValidTargetString(std::string &str) {
 
   while (startPos != std::string::npos) {
     endPos = str.find_first_of(",.", startPos);  // These are the special seperators
-    matches = sscanf(str.substr((startPos+2),endPos).c_str(),"%x",&decimalNum);
+    matches = sscanf(str.substr((startPos+2),endPos).c_str(),"%zx",&decimalNum);
     if (!matches) { // sscanf didn't find anything
       return false;
     }
     /* Turn our number into a string and stick it back into the target string */
-    sprintf(decimalString,"%d",decimalNum);
+    sprintf(decimalString,"%zd",decimalNum);
     str.replace(startPos, (endPos - startPos), decimalString);
 
     /* Find the next one, starting at the end of our replace */

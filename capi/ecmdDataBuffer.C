@@ -1,20 +1,3 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fips810 src/ecmd/import/ecmdDataBuffer.C 1.61.1.1 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2004,2012 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
 /* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
@@ -1770,8 +1753,9 @@ uint32_t ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { 
     ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstate's enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
-  if (strlen(i_buf) < i_bits) {
-    ETRAC2("**** ERROR : ecmdDataBuffer::memCopyInXstate: supplied buffer(%x) shorter than i_bits(%x)", strlen(i_buf), i_bits);
+  uint32_t buf_len = strlen(i_buf);
+  if (buf_len < i_bits) {
+    ETRAC2("**** ERROR : ecmdDataBuffer::memCopyInXstate: supplied buffer(%x) shorter than i_bits(%x)", buf_len, i_bits);
     RETURN_ERROR(ECMD_DBUF_INVALID_DATA_FORMAT);
   }
 

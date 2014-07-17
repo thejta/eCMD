@@ -53,7 +53,6 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-
 #define ECMD_CAPI_VERSION "14.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
@@ -206,7 +205,7 @@ typedef enum {
 typedef enum {
   ECMD_UNKNOWN_ENDIAN,                  ///< Unable to determine the endianness of the data
   ECMD_BIG_ENDIAN,                      ///< The data for this chip is big endian
-  ECMD_LITTLE_ENDIAN,                   ///< The data for this ch is little endian
+  ECMD_LITTLE_ENDIAN,                   ///< The data for this chip is little endian
 } ecmdEndianMode_t;
 
 /**

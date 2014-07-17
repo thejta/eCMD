@@ -683,7 +683,8 @@ uint32_t cipPorePutSprUser(int argc, char * argv[]) {
   std::string printed;          ///< Print Buffer
   std::string sprName;          ///< Name of spr to write 
   uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
-  uint32_t numBits = 0;         ///< Number of bits to insert data
+  // commenting out numBits to avoid compiler warnings.  Nothing was being done with the resultant value.
+  //uint32_t numBits = 0;         ///< Number of bits to insert data
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
   ecmdChipTarget threadTarget;        ///< Current thread target
   ecmdLooperData threadLooperData;    ///< Store internal thread Looper data
@@ -788,7 +789,7 @@ uint32_t cipPorePutSprUser(int argc, char * argv[]) {
       ecmdOutputError("cipporeputspr - Non-decimal numbers detected in numbits field\n");
       return ECMD_INVALID_ARGS;
     }
-    numBits = (uint32_t)atoi(argv[2]);
+    //numBits = (uint32_t)atoi(argv[2]);
 
 
     rc = ecmdReadDataFormatted(cmdlineBuffer, argv[3], inputformat);

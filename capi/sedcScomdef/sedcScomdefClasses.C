@@ -233,7 +233,11 @@ void sedcScomdefContainer::scomdefDumper() {
   std::list<sedcScomdefEntry>::iterator entryIter;
 
   for (entryIter = scomdefEntries.begin(); entryIter != scomdefEntries.end(); entryIter++) {
+#ifdef _LP64
+    printf("\n\nValid: %d, States: %#08X, Address: %#016lX\n", entryIter->valid, entryIter->states, entryIter->addresses[0]);
+#else
     printf("\n\nValid: %d, States: %#08X, Address: %#016llX\n", entryIter->valid, entryIter->states, entryIter->addresses[0]);
+#endif
     printf("Name: %s\n",entryIter->name.c_str());
     printf("ClockDomain: %s, State: %d\n", entryIter->clkdomain.c_str(), entryIter->clkstate);
     printf("Description:\n");

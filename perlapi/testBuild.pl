@@ -1,19 +1,28 @@
 #!/bin/sh 
 #! -*- perl -*-
 
-# Couldn't use $CC_VER here for some reason, so just hardocded to 3.4.6
 eval '
 if [ "X$ECMDPERLBIN" = "X" ]; then
- if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
- export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
- export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
- if [[ `uname` = "Linux" ]]; then
-  export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OBJROOT/perlapi/obj_x86/;
-  export LD_LIBRARY_PATH="ENV{"OBJROOT"}/lib/x86/3.4.6/:$OBJROOT/capi/obj_x86/";
- else
-  export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OBJROOT/perlapi/obj_aix/;
-  export LIBPATH="$OBJROOT/capi/obj_aix";
- fi
+ if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi     
+     if [[ "$ECMD_ARCH" =~ "64" ]]; then
+     export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
+     export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib64/5.8.1:$OBJROOT/perlapi/obj_$ECMD_ARCH/;
+     if [[ `uname` = "Linux" ]]; then
+       export LD_LIBRARY_PATH="$OBJROOT/capi/obj_$ECMD_ARCH/";
+     else
+       export LIBPATH="$OBJROOT/capi/obj_$ECMD_ARCH";
+     fi
+   else
+     export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
+     export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
+     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OBJROOT/perlapi/obj_$ECMD_ARCH/;
+     if [[ `uname` = "Linux" ]]; then
+       export LD_LIBRARY_PATH="$OBJROOT/capi/obj_$ECMD_ARCH/";
+     else
+       export LIBPATH="$OBJROOT/capi/obj_$ECMD_ARCH";
+     fi
+   fi
 fi
 
 exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
@@ -37,14 +46,16 @@ my $data2 = new ecmd::ecmdDataBuffer(8);
 my $data3 = new ecmd::ecmdDataBuffer(8);
 
 $data1->setByte(0,0xF8);
+printf("data1 = %s\n", $data1->genHexLeftStr());
 $data2->setByte(0,0x1F);
+printf("data2 = %s\n", $data2->genHexLeftStr());
 
 $data3 = $data1 & $data2;
 
 if ($data3->genHexLeftStr() eq "18") {
-  printf("Quick Databuffer check PASSED!\n");
+  printf("Quick Databuffer check PASSED! - %s\n", $data3->genHexLeftStr());
 } else {
-  printf("Quick Databuffer check FAILED!\n");
+  printf("Quick Databuffer check FAILED! - %s\n", $data1->genHexLeftStr());
   exit(1);
 }
 

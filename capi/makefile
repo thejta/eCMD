@@ -24,35 +24,15 @@ GENERATED_SOURCE   := ecmdClientCapiFunc.C
 GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H
 
 # Variables for install
-SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, $(SEDC_INCLUDES))
+SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, ${SEDC_INCLUDES})
 
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-TARGET   := ecmdClientCapi_${OS}.a
-SLIB     := libecmd_${OS}.so
-
-# *****************************************************************************
-# The x86 Linux Setup stuff
-# *****************************************************************************
-ifeq (${OS},x86)
-  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-# CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall -Werror -Wno-write-strings
-endif
-
-# *****************************************************************************
-# The ppc Linux Setup stuff
-# *****************************************************************************
-ifeq (${OS},ppc)
-  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-endif
-
-# *****************************************************************************
-# The Aix Setup stuff
-# *****************************************************************************
-ifeq (${OS},aix)
-  CFLAGS  := ${CFLAGS} -+ -qstaticinline -qnoinline
-endif
+#TARGET   := ecmdClientCapi_${TARGET_ARCH}.a
+#SLIB     := libecmd_${TARGET_ARCH}.so
+TARGET   := ecmdClientCapi.a
+SLIB     := libecmd.so
 
 VPATH := ${VPATH}:${OBJPATH}
 
@@ -63,21 +43,30 @@ all: dir ${TARGET} ${SLIB}
 	-@cp -p ecmdDllCapi.H ../dll/
 
 clean: objclean
-	rm -f $(GENERATED_SOURCE)
-	rm -f $(GENERATED_INCLUDES)
+	rm -f ${GENERATED_SOURCE}
+	rm -f ${GENERATED_INCLUDES}
 
 objclean:
 	rm -rf ${OBJPATH} 
 
-install:
-	@echo "Installing eCMD Client Api to ${INSTALL_PATH}/capi/ ..."
+#Remove create_links after fair warning has been given to users to update paths
+install: create_links
+	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/capi/.
+	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
-	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/lib/ ..."
+	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
+	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+
+create_links:
+  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
+	@echo "Creating temporary symlinks for eCMD Client API and Shared Lib"
+	@mkdir -p ${INSTALL_PATH}/capi/
+	@ln -sf ../${TARGET_ARCH}/lib/${TARGET} ${INSTALL_PATH}/capi/ecmdClientCapi_${TARGET_ARCH}.a
 	@mkdir -p ${INSTALL_PATH}/lib/
-	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/lib/.
+	@ln -sf ../${TARGET_ARCH}/lib/${SLIB} ${INSTALL_PATH}/lib/libecmd_${TARGET_ARCH}.so	
+  endif
 
 dir:
 	@mkdir -p ${OBJPATH}
@@ -85,46 +74,48 @@ dir:
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************
-CAPI_SOURCE_OBJS  = $(basename $(CAPI_SOURCE))
-CAPI_SOURCE_OBJS := $(addprefix ${OBJPATH}, $(CAPI_SOURCE_OBJS))
-CAPI_SOURCE_OBJS := $(addsuffix .o, $(CAPI_SOURCE_OBJS))
-SLIB_SOURCE_OBJS  = $(basename $(SLIB_SOURCE))
-SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, $(SLIB_SOURCE_OBJS))
-SLIB_SOURCE_OBJS := $(addsuffix .o, $(SLIB_SOURCE_OBJS))
+CAPI_SOURCE_OBJS := $(basename ${CAPI_SOURCE})
+CAPI_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${CAPI_SOURCE_OBJS})
+CAPI_SOURCE_OBJS := $(addsuffix .o, ${CAPI_SOURCE_OBJS})
+SLIB_SOURCE_OBJS := $(basename ${SLIB_SOURCE})
+SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${SLIB_SOURCE_OBJS})
+SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-$(CAPI_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(SLIB_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
-	@echo "Creating Static client library ..."
+	@echo "Creating static client library ..."
 	${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
-	@echo "Linking Shared Library ..."
-ifeq (${OS},ppc)
-	$(LD) ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /usr/lib/libz.a
-else
-	$(LD) ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/${OS}/lib/libz.a
-endif
+	@echo "Linking shared library ..."
+  ifeq (${TARGET_ARCH},aix)
+	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/aix/lib/libz.a
+  else ifeq (${TARGET_ARCH},x86)
+	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/x86/lib/libz.a
+  else
+	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ -lz
+  endif
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
-$(GENERATED_SOURCE) $(GENERATED_INCLUDES): ecmdClientCapi.H makedll.pl
+${GENERATED_SOURCE} ${GENERATED_INCLUDES}: ecmdClientCapi.H makedll.pl
 	@echo "==== Auto Generating $@"
 	@chmod 777 makedll.pl
 	@./makedll.pl ecmd $@
@@ -136,3 +127,7 @@ debug:
 	@echo ${ECMD_ROOT}
 	@echo ${OBJROOT}
 	@echo ${SUBDIR}
+	@echo ${TARGET_ARCH}
+	@echo ${TARGET_OS}
+	@echo ${HOST_ARCH}
+	@echo ${HOST_OS}

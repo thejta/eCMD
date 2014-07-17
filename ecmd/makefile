@@ -30,34 +30,38 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/cmd -I../
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-TARGET     := ecmd_${OS}
-VER_TARGET := ecmdVersion_${OS}
-LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi_${OS}.a
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi_${OS}.a ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/${ext}CmdInterpreter_${OS}.a)
+TARGET     := ecmd
+VER_TARGET := ecmdVersion
+LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
+LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.a ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/${ext}CmdInterpreter.a)
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},x86)
-  LDFLAGS    := ${LDFLAGS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd_x86
-  CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
+ifeq (${TARGET_OS},x86)
+  ifeq (${TARGET_ARCH},x86)
+    LDLIBS    := ${LDLIBS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd
+  else
+    LDLIBS    := ${LDLIBS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd -lz
+  endif
 endif
 
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${OS},ppc)
-  LDFLAGS    := ${LDFLAGS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd_ppc
-  CFLAGS     := ${CFLAGS} -ftemplate-depth-30 -Wall
-  GPATH      := ${OBJDIR}
+ifeq (${TARGET_OS},ppc)
+  LDLIBS    := ${LDLIBS} -ldl -L${OBJROOT}/capi/${OBJDIR} -lecmd
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${OS},aix)
-  LDFLAGS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd_aix
-  CFLAGS     := ${CFLAGS} -+ -qstaticinline -qnoinline
+ifeq (${TARGET_OS},aix)
+  ifeq (${TARGET_ARCH},aix)
+    LDLIBS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd
+  else
+    LDLIBS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd -lz
+  endif
 endif
 
 VPATH     := ${VPATH}:${OBJPATH}
@@ -75,9 +79,17 @@ objclean:
 dir:
 	@mkdir -p ${OBJPATH}
 
-install:
-	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/bin/
-	cp ${OBJPATH}/${VER_TARGET} ${INSTALL_PATH}/bin/
+#Remove create_links after fair warning has been given to users to update paths
+install: create_links
+	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OBJPATH}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+
+create_links:
+  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
+	@echo "Creating temporary symlinks for ecmd and ecmdVersion"
+	@ln -sf ../${TARGET_ARCH}/bin/${TARGET} ${INSTALL_PATH}/bin/${TARGET}_${TARGET_ARCH}
+	@ln -sf ../${TARGET_ARCH}/bin/${VER_TARGET} ${INSTALL_PATH}/bin/${VER_TARGET}_${TARGET_ARCH}	
+  endif
 
 # Build the extensions
 extensions:
@@ -118,17 +130,13 @@ $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES}
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${TARGET}
+	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${TARGET} ${LDLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
-ifeq (${OS},aix)
-	${LD} ${LDFLAGS}  -brtl -w $^ -o ${OBJPATH}${VER_TARGET}
-endif
-ifeq (${OS},x86)
-	${LD} ${LDFLAGS} -ldl $^ -o ${OBJPATH}${VER_TARGET}
-endif
-ifeq (${OS},ppc)
-	${LD} ${LDFLAGS} -ldl $^ -o ${OBJPATH}${VER_TARGET}
+ifeq (${TARGET_OS},aix)
+	${LD} ${LDFLAGS} -brtl -w $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+else
+	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
 endif
 
 

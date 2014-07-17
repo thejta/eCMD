@@ -474,7 +474,6 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
     ecmdOutputError("getcfam - Wildcard character detected however it is not being used correctly.\n");
     return rc;
   }
-  bool chipWildcardFound = false;
 
   if (chipUnitType != "") {
     ecmdOutputError("getcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
@@ -483,7 +482,6 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
   if (chipType == "x") {
     target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-    chipWildcardFound = true;
   } else {
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -672,7 +670,6 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
     ecmdOutputError("putcfam - Wildcard character detected however it is not being used correctly.\n");
     return rc;
   }
-  bool chipWildcardFound = false;
 
   if (chipUnitType != "") {
     ecmdOutputError("putcfam - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
@@ -681,7 +678,6 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
   if (chipType == "x") {
     target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-    chipWildcardFound = true;
   } else {
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -946,7 +942,6 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
       ecmdOutputError("deconfig - Wildcard character detected however it is not being used correctly.\n");
       return rc;
     }
-    bool chipWildcardFound = false;
 
     /* Error check */
     if (depth) {
@@ -969,7 +964,6 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
 
     if (chipType == "x") {
       target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-      chipWildcardFound = true;
     } else {
       target.chipType = chipType;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -1071,7 +1065,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
       ecmdOutputError("reconfig - Wildcard character detected however it is not being used correctly.\n");
       return rc;
     }
-    bool chipWildcardFound = false;
 
     /* Error check */
     if (depth) {
@@ -1094,7 +1087,6 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
     
     if (chipType == "x") {
       target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-      chipWildcardFound = true;
     } else {
       target.chipType = chipType;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -1231,7 +1223,6 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
     ecmdOutputError("getgpreg - Wildcard character detected however it is not being used correctly.\n");
     return rc;
   }
-  bool chipWildcardFound = false;
 
   if (chipUnitType != "") {
     ecmdOutputError("getgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
@@ -1240,7 +1231,6 @@ uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
 
   if (chipType == "x") {
     target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-    chipWildcardFound = true;
   } else {
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -1411,7 +1401,6 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
     ecmdOutputError("putgpreg - Wildcard character detected however it is not being used correctly.\n");
     return rc;
   }
-  bool chipWildcardFound = false;
 
   if (chipUnitType != "") {
     ecmdOutputError("putgpreg - chipUnit specified on the command line, this function doesn't support chipUnits.\n");
@@ -1419,7 +1408,6 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
   }
   if (chipType == "x") {
     target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-    chipWildcardFound = true;
   } else {
     target.chipType = chipType;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
@@ -2257,7 +2245,7 @@ uint32_t ecmdGetSensorUser(int argc, char* argv[])
         }
         for (int i = 0; i < o_dtsReadings.num_of_sensors; i++) {
           if ( o_dtsReadings.validity_of_sensor_reading[i] ) {
-            sprintf(temperature,"%lld",o_dtsReadings.temp_of_sensors[i]);
+            sprintf(temperature,UINT64_DEC_FORMAT,o_dtsReadings.temp_of_sensors[i]);
             switch (  o_dtsReadings.tripLevel_of_reading[i] ) {
               case 0 : tripLevelStr = "(no trip)"; break;
               case 1 : tripLevelStr = "(warning)"; break;
@@ -2522,7 +2510,6 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
         ecmdOutputError("getecid - Wildcard character detected however it is not being used correctly.\n");
         return rc;
     }
-    bool chipWildcardFound = false;
 
     if (chipUnitType != "")
     {
@@ -2533,7 +2520,6 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
     if (chipType == "x")
     {
         target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-        chipWildcardFound = true;
     }
     else
     {
@@ -2693,7 +2679,6 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
         ecmdOutputError("mpiplclearcheckstop - Wildcard character detected however it is not being used correctly.\n");
         return rc;
     }
-    bool chipWildcardFound = false;
 
     if (chipUnitType != "")
     {
@@ -2704,7 +2689,6 @@ uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
     if (chipType == "x")
     {
         target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-        chipWildcardFound = true;
     }
     else
     {
@@ -2824,7 +2808,6 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
         ecmdOutputError("mpiplforcewinkle - Wildcard character detected however it is not being used correctly.\n");
         return rc;
     }
-    bool chipWildcardFound = false;
 
     if (chipUnitType != "")
     {
@@ -2835,7 +2818,6 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
     if (chipType == "x")
     {
         target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-        chipWildcardFound = true;
     }
     else
     {
@@ -3001,14 +2983,12 @@ uint32_t ecmdChipCleanupUser(int argc, char * argv[]) {
         ecmdOutputError("ecmdchipcleanup - Wildcard character detected however it is not being used correctly.\n");
         return rc;
     }
-    bool chipWildcardFound = false;
 
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
     
     if (chipType == "x") {
       target.chipTypeState = ECMD_TARGET_FIELD_WILDCARD;
-      chipWildcardFound = true;
     } else {
       target.chipType = chipType;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;

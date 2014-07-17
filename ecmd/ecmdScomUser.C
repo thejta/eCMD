@@ -374,7 +374,7 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
      	 //@ make this stuff sprintf'd
      	 char outstr[100];
      	 printed = ecmdWriteTarget(cuTarget);
-     	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: %llX\n", address);
+     	 sprintf(outstr, "\ngetscom - Data miscompare occured at address: " UINT64_HEX_FORMAT "\n", address);
      	 printed += outstr;
      	 ecmdOutputError( printed.c_str() );
 
@@ -981,7 +981,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
      timerStart = time(NULL);
 
      printed = ecmdWriteTarget(cuTarget);
-     sprintf(outstr, "Polling address %llX...\n", address);
+     sprintf(outstr, "Polling address " UINT64_HEX_FORMAT "...\n", address);
      printed += outstr;
      ecmdOutput( printed.c_str()) ;
 
@@ -1035,7 +1035,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
              printed += ecmdWriteDataFormatted(expected, outputformat);
 
              if (done) {
-               sprintf(outstr, "pollscom - Data miscompare occured at address: %llX\n", address);
+               sprintf(outstr, "pollscom - Data miscompare occured at address: " UINT64_HEX_FORMAT "\n", address);
                printed = outstr + printed;
                ecmdOutputError( printed.c_str() );
                coeRc = ECMD_EXPECT_FAILURE;
@@ -1057,7 +1057,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
            done = 1; //found a mismatch
            if (verboseFlag){
              printed = "";
-             sprintf(outstr, "pollscom - Data mismatch occurred at 0x%llX\n", address);
+             sprintf(outstr, "pollscom - Data mismatch occurred at 0x" UINT64_HEX_FORMAT "\n", address);
              printed = outstr + printed;
              ecmdOutput( printed.c_str() );
              return 0;
@@ -1071,7 +1071,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
            }
 
            if (done){
-             sprintf(outstr, "pollscom - Mismatch never occurred at address 0x%llX\n", address);
+             sprintf(outstr, "pollscom - Mismatch never occurred at address 0x" UINT64_HEX_FORMAT "\n", address);
              printed = outstr + printed;
              ecmdOutputError( printed.c_str() );
              coeRc = ECMD_EXPECT_FAILURE;
