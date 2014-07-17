@@ -4,7 +4,8 @@
 eval '
 if [ "X$ECMDPERLBIN" = "X" ]; then
  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi     
-     if [[ "$ECMD_ARCH" =~ "64" ]]; then
+     echo $ECMD_ARCH | grep -q 64;
+     if [ $? -eq 0 ]; then
      export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
      export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
      export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib64/5.8.1:$OBJROOT/perlapi/obj_$ECMD_ARCH/;
