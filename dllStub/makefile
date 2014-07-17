@@ -65,7 +65,7 @@ ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 # Create the Target
 # *****************************************************************************
 ${TARGET}: ${TGT_SOURCE_OBJS}
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${TARGET} $^ ../capi/obj_${TARGET_ARCH}/ecmdClientCapi.a -L../capi/obj_${TARGET_ARCH} -lecmd
+	${LD} ${SLDFLAGS} -o ${OBJPATH}${TARGET} $^ ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a -L${OBJROOT}/capi/${OBJDIR} -lecmd
 
 # *****************************************************************************
 # Debug rule for any makefile testing 
