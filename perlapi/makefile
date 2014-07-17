@@ -121,7 +121,7 @@ test: ${SO_TARGET}
 	@slibclean
         endif
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
-	@ECMD_DLL_FILE=../dllStub/obj_${TARGET_ARCH}/stub.dll PERL5LIB=obj_${TARGET_ARCH} LD_LIBRARY_PATH=../capi/obj_${TARGET_ARCH} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
+	@ECMD_DLL_FILE=${OBJROOT}/dllStub/${OBJDIR}/stub.dll PERL5LIB=${OBJPATH} LD_LIBRARY_PATH=${OBJROOT}/capi/${OBJDIR} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
 
 
 # *****************************************************************************
