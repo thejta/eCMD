@@ -1257,7 +1257,7 @@ sedcEccfuncEntry sedcEccfuncParser(std::ifstream &spyFile, std::vector<std::stri
 
 void sedcCreateSpyTokens(std::string line, const char* seperators, sedcFileLine &myLine) {
 
-  unsigned int curStart = 0, curEnd = 0, subEnd = 0;
+  size_t curStart = 0, curEnd = 0, subEnd = 0;
   std::string token;
 
   myLine.realLine = line;
