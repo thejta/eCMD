@@ -55,7 +55,11 @@ ifeq (${TARGET_OS},x86)
     PERLINC ?= -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
   else
     PERLINC ?= -I${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/amd64_linux26_RH6-64/CORE
-    DEFINES := ${DEFINES} -DHAS_MODFL_PROTO=1
+    # If the PERLINC above didn't get redefined and we're building using CTE, the extra define below is required
+    # If we are building using the local install of perl (such as /usr/lib64/perl5/CORE), it's not needed
+    ifneq ($(strip $(shell echo ${PERLINC} | grep amd64_linux26_RH6-64)),)
+      DEFINES := ${DEFINES} -DHAS_MODFL_PROTO=1
+    endif
   endif
 endif
 
@@ -87,7 +91,6 @@ endif
 all: dir ${SO_TARGET} test
 
 clean: objclean
-#	rm -f ${SWIG_SOURCE}
 	rm -f ${GENERATED_SOURCE}
 	rm -f ${GENERATED_INCLUDES}
 
