@@ -150,25 +150,19 @@ endif
 # The aix setup stuff
 # *****************************************************************************
 ifeq (${TARGET_OS},aix)
+  CC       := /bin/xlC
+  CC_R     := /bin/xlC_r
+  CFLAGS   := ${CFLAGS} -+ -qstaticinline -qnoinline
+  LD       := ${CC}
+  LD_R     := ${CC_R}
+  LDFLAGS  := ${LDFLAGS}
+  SLDFLAGS := -qmkshrobj -brtl
+  AR       := /usr/bin/ar
   ifeq (${TARGET_ARCH},aix)
     GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-    CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC
-    CC_R     := /gsa/${GSACELL}/projects/e/ecmd/utils/vacpp.7002/usr/vacpp/bin/xlC_r
     CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
-    LD       := ${CC}
-    LD_R     := ${CC_R}
-    LDFLAGS  := ${LDFLAGS}
-    SLDFLAGS := -qmkshrobj -brtl
   else
-    CC       := /bin/xlC
-    CC_R     := /bin/xlC_r
-    CFLAGS   := ${CFLAGS} -I/usr/include -+ -qstaticinline -qnoinline
-    LD       := ${CC}
-    LD_R     := ${CC_R}
-    LDFLAGS  := ${LDFLAGS}
-    SLDFLAGS := -qmkshrobj -brtl
-    AR       := /usr/bin/ar
-    CFLAGS   := ${CFLAGS} -q64
+    CFLAGS   := ${CFLAGS} -q64 -I/usr/include
     LDFLAGS  := ${LDFLAGS} -q64
     SLDFLAGS := ${SLDFLAGS} -q64
     ARFLAGS   := -X64
