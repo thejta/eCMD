@@ -207,6 +207,16 @@ void fapiOutputDebug(const char* i_message);
 */
 void fapiOutputScanTrace(const char* i_message);
 
+/**
+ @brief Dynamically update the format flags to be compatible with 64-bit architectures.
+ @param i_message Original string to check
+ @param o_message String with modified format strings, if they were found
+ @param i_num Maximum number of characters to be copied from i_message
+ @retval value of o_message
+
+*/
+char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num);
+
 #endif // #ifndef ECMD_PERLAPI
 
 } //extern c

@@ -770,3 +770,55 @@ void fapiOutputScanTrace(const char* i_message) {
    (*Function)(i_message);
 #endif
 }
+
+char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num){
+
+  char * rc = NULL;
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiFixOutputFormat%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &o_message);
+     args.push_back((void*) &i_message);
+     args.push_back((void*) &i_num);
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapiFixOutputFormat");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapiFixOutputFormat(o_message, i_message, i_num);
+#else
+  if (fapiDllFnTable[ECMD_FAPIFIXOUTPUTFORMAT] == NULL) {
+     fapiDllFnTable[ECMD_FAPIFIXOUTPUTFORMAT] = (void*)dlsym(dlHandle, "dllFapiFixOutputFormat");
+     if (fapiDllFnTable[ECMD_FAPIFIXOUTPUTFORMAT] == NULL) {
+       fprintf(stderr,"dllFapiFixOutputFormat%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  char* (*Function)(char*, const char*, size_t) = 
+      (char*(*)(char*, const char*, size_t))fapiDllFnTable[ECMD_FAPIFIXOUTPUTFORMAT];
+  rc = (*Function)(o_message, i_message, i_num);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     args.push_back((void*) &rc);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num)",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapiFixOutputFormat");
+   }
+#endif
+
+  return rc;
+}
