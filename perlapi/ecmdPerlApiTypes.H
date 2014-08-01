@@ -75,7 +75,7 @@ typedef arrayref arrayref;
  </table>
  <br>
 
- Loading datascalaro a list :
+ Loading data into a list :
  <pre>
    my $isteps = new ecmd::listString();
    my $step = "proc_cfaminit";

@@ -36,7 +36,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
-void ECMDPERLAPI::ecmdUnloadDll()  {
+void ECMDPERLAPI::ecmdUnloadDll() {
   ::ecmdUnloadDll();
 }
 
@@ -71,7 +71,7 @@ uint32_t ECMDPERLAPI::ecmdLoadDll (const char * i_dllName, const char * i_client
 
 }
 
-uint32_t ECMDPERLAPI::ecmdCommandArgs(char** i_argv){
+uint32_t ECMDPERLAPI::ecmdCommandArgs(char** i_argv) {
 
   uint32_t rc = 0;
   int looper = 0;
@@ -115,7 +115,7 @@ uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName
 }
 #endif
 
-bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
+bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option) {
 
   int looper = 0;
 
@@ -125,7 +125,7 @@ bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option){
 
 }
 
-char * ECMDPERLAPI::ecmdParseOptionWithArgs(char ** io_argv, const char * i_option){
+char * ECMDPERLAPI::ecmdParseOptionWithArgs(char ** io_argv, const char * i_option) {
 
   char * ret = NULL;
   int looper = 0;

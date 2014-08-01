@@ -101,7 +101,7 @@
 %template(listEcmdNodeData)          std::list<ecmdNodeData>;
 %template(listEcmdCageData)          std::list<ecmdCageData>;
 %template(listString)                std::list<std::string>;
-%template(vectorEcmdDataBufferBase)      std::vector<ecmdDataBufferBase>;
+%template(vectorEcmdDataBufferBase)  std::vector<ecmdDataBufferBase>;
 %template(vectorEcmdDataBuffer)      std::vector<ecmdDataBuffer>;
 %template(listEcmdMemoryEntry)       std::list<ecmdMemoryEntry>;
 %template(listEcmdRingData)          std::list<ecmdRingData>;
@@ -172,4 +172,3 @@
 /*********** End Files to swigify ***********/
 
 %pragma(perl5) include="ecmdClientPerlapi.pl"
-
