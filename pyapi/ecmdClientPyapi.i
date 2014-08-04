@@ -1,5 +1,10 @@
 %module ecmd
 
+// Header file needed to compile with newer gcc
+%{
+#include <stddef.h>
+%}
+
 /*********** Start Typemaps ***********/
 %include typemaps.i
 %include std_string.i
