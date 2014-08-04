@@ -206,7 +206,7 @@ for (my $x = 0; $x <= $#files; $x++) {
       # vars to convert to scalar
       $fileLine =~ s/(const\s*)?(uint32_t|uint16_t|uint8_t|bool|std::string)/scalar/g;
 
-      # uint64_t to scalar
+      # uint64_t to ecmdBit64
       $fileLine =~ s/uint64_t/ecmdBit64/g;
 
       print OUTFILE $fileLine;
@@ -232,3 +232,113 @@ printf("Creating Perl-API Documentation (pdf)...\n\n");
 $rc = system("cd $outputDirectory/Perlapi/latex; gmake; mv refman.pdf ecmdClientPerlapi.pdf");
 if ($rc) { return $rc; }
 
+# Do the Python API
+printf("Creating Python API Documentation (html)...\n\n");
+system("mkdir -p $outputDirectory/Pythonapi");
+
+# Copy over the header files we are going to process
+$rc = system("cp $cvsBase/pyapi/ecmdPyApiTypes.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdDataBuffer.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdDataBufferBase.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdReturnCodes.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdUtils.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdClientCapi.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+# The one additional python file that is needed
+$rc = system("cp $cvsBase/pyapi/ecmdClientPyapi.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+
+# Combine ecmdClientCapi.H and ecmdClientPyApi.H into one file
+$rc = system("cat $cvsBase/pyapi/ecmdClientPyapi.H $cvsBase/capi/ecmdClientCapi.H > $outputDirectory/Pythonapi/ecmdClientPyapi.H");
+if ($rc) { return $rc; }
+
+
+for (my $x = 0; $x <= $#extensions; $x++) {
+  
+  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Pythonapi/.");
+  if ($rc) { return $rc; }
+
+  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Pythonapi/.");
+  if ($rc) { return $rc; }
+
+  # fapi specific stuff
+  if ($extensions[$x] eq "fapi"){
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]HwAccess.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SystemConfig.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Target.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCode.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCodes.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x].H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Util.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatTrace.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatHwpExecutor.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SharedUtils.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]AttributeService.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MvpdAccess.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MultiScom.H $outputDirectory/Pythonapi/.");
+    if ($rc) { return $rc; }
+  }
+}
+
+# Open up all the .H files and modify source to change the C variables to pthon variables
+my @files = split(/\s+/,`ls $outputDirectory/Pythonapi/`);
+for (my $x = 0; $x <= $#files; $x++) {
+  if (-f "$outputDirectory/Pythonapi/$files[$x]") {
+    open (INFILE, "<$outputDirectory/Pythonapi/$files[$x]") or die "Couldn't open the file $files[$x] for input\n";
+    my @fileLines = <INFILE>;
+    my $fileLine;
+    close INFILE;
+
+    open (OUTFILE, ">$outputDirectory/Pythonapi/$files[$x]") or die "Couldn't open the file $files[$x] for output\n";
+
+    foreach $fileLine (@fileLines) {
+
+      # std::list<ecmdXXX> to ecmdXXXList
+      $fileLine =~ s/std::list\s*<\s*([^\s]*?)\s*>/$1List/g;
+
+      # std::vector<ecmdXXX> to ecmdXXXVector
+      $fileLine =~ s/std::vector\s*<\s*([^\s]*?)\s*>/$1Vector/g;
+
+      print OUTFILE $fileLine;
+    }
+
+    close OUTFILE;
+  }
+}
+
+# Update the version strings
+#system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
+$rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPython.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Pythonapi!g\" > $outputDirectory/Pythonapi/ecmdDoxygenPython.config");
+if ($rc) { return $rc; }
+
+# Update extension defines
+$rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Pythonapi/ecmdDoxygenPython.config");
+if ($rc) { return $rc; }
+
+$rc = system("cd $outputDirectory/Pythonapi; doxygen ecmdDoxygenPython.config");
+if ($rc) { return $rc; }
+
+printf("Creating Python API Documentation (pdf)...\n\n");
+$rc = system("cd $outputDirectory/Pythonapi/latex; gmake; mv refman.pdf ecmdClientPythonapi.pdf");
+if ($rc) { return $rc; }
