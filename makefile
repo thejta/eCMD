@@ -27,8 +27,32 @@ ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
   PERLAPI_BUILD := ecmdperlapi
 endif
 
+# Only do the pyapi if it's checked out
+ifneq ($(findstring pyapi,$(shell /bin/ls -d *)),)
+  PYAPI_BUILD := ecmdpyapi
+endif
+
+# Only do the pyapi if not x86 and not aix
+ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
+  PYAPI_BUILD := 
+else
+  PYAPI_BUILD := ecmdpyapi
+endif
+
+# Only do the py3api if it's checked out
+ifneq ($(findstring py3api,$(shell /bin/ls -d *)),)
+  PY3API_BUILD := ecmdpy3api
+endif
+
+# Only do the py3api if python3 is on the box
+ifneq ($(findstring python3,$(shell /bin/ls /usr/bin)),)
+  PY3API_BUILD := ecmdpy3api
+else
+  PY3API_BUILD := 
+endif
+
 # Now create our build targets
-BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD}
+BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
 
 # *****************************************************************************
 # The Main Targets
@@ -58,6 +82,16 @@ ecmdcmd: ecmdcapi $(subst cmd,,${EXTENSIONS})
 ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
 	@cd perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+ecmdpyapi: ecmdcmd ${CMD_EXT_BUILD}
+	@echo "eCMD Python Module ${TARGET_ARCH} ..."
+	@cd pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+ecmdpy3api: ecmdcmd ${CMD_EXT_BUILD}
+	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
+	@cd py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # All of the individual extensions

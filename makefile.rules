@@ -4,7 +4,14 @@
 
 ifeq (${MAKEFILE_RULES},)
 
-MAKEFILE_RULES   := y
+MAKEFILE_RULES := y
+
+# Turn off implicit source checkout rules in gmake to speed it up
+%: %,v
+%: RCS/%,v
+%: RCS/%
+%: s.%
+%: SCCS/s.%
 
 # Build all extension if not otherwise specified
 ifeq ($(strip ${EXTENSIONS}),)
@@ -88,6 +95,24 @@ OBJPATH   := $(shell echo ${OBJPATH} | sed 's@/\+@/@g')
 export OBJROOT
 export OBJDIR
 export OBJPATH
+
+# Right now the SRC paths are only used by Perl/Python SWIG
+# It could be extended for the other generated source
+# If the user didn't give a dir to place the generated source, just do it in their eCMD dirs
+ifeq ($(strip ${SRCROOT}),)
+  SRCROOT  := ${ECMD_ROOT}
+endif
+# Remove any trailing slashes at the end
+SRCROOT   := $(shell echo ${SRCROOT} | sed 's@/*$$@@g')
+SRCDIR    := src_${TARGET_ARCH}
+SRCPATH   := ${SRCROOT}/${SUBDIR}/${SRCDIR}/
+# Cleanup multiple //'s in the path built above
+SRCPATH   := $(shell echo ${SRCPATH} | sed 's@/\+@/@g')
+# Now export it all so it can be used in scripts, etc..
+export SRCROOT
+export SRCDIR
+export SRCPATH
+
 # Common compile flags
 CFLAGS    := -g -I.
 
@@ -114,10 +139,12 @@ ifeq (${TARGET_OS},x86)
     SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
   else
     CC       := /opt/rh/devtoolset-2/root/usr/bin/g++
+    #CC       := /usr/bin/g++
     CC_R     := ${CC}
     LD       := ${CC}
     LD_R     := ${CC_R} 
     AR       := /opt/rh/devtoolset-2/root/usr/bin/ar
+    #AR       := /usr/bin/ar
     CFLAGS   := ${CFLAGS} -m64 -fPIC
     LDFLAGS  := ${LDFLAGS} -m64 -fPIC
     SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
@@ -188,15 +215,27 @@ ifeq ($(strip ${INSTALL_PATH}),)
   export INSTALL_PATH
 endif
 
-# Figure out how many gmake threads to run
-ifeq (${TARGET_OS},aix)
-  ifeq ($(strip $(shell /bin/ls /etc/lsdev 2>&1)),/etc/lsdev)
-    #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
-    GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
+# Add any additional options you want added to a make go inside this conditional
+# This is only done the first time make is invoked
+# Any submakes invoked by the makefile don't execute this logic
+# That is to prevent options from being repeated on the command line
+# This is particularly troublesome for multiple -j options, which cause jobserver warnings
+ifneq (${DIDGMAKEFLAGS},yes)
+
+  # Figure out how many gmake threads to run
+  ifeq (${TARGET_OS},aix)
+    ifeq ($(strip $(shell /bin/ls /etc/lsdev 2>&1)),/etc/lsdev)
+      #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell /etc/lsdev -Cc processor | grep -c Processor)
+      GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `/etc/lsdev -Cc processor | grep -c Processor` \* 2)
+    endif
+  else
+    #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell cat /proc/cpuinfo | grep -c processor)
+    GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `cat /proc/cpuinfo | grep -c processor` \* 2)
   endif
-else
-  #GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell cat /proc/cpuinfo | grep -c processor)
-  GMAKEFLAGS := ${GMAKEFLAGS} -j$(shell expr `cat /proc/cpuinfo | grep -c processor` \* 2)
+
+  # All done with the flags.  Set a variable to indicate that and export it down to any submakes
+  DIDGMAKEFLAGS := yes
+  export DIDGMAKEFLAGS
 endif
 
 endif
