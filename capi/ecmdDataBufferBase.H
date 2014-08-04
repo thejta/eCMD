@@ -1169,14 +1169,16 @@ public:
    */
   uint32_t copy(ecmdDataBufferBase & o_copyBuffer) const;
 
-#ifndef ECMD_PERLAPI
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
   /**
    * @brief Copy Constructor
    * @param i_master DataBuffer to copy from
    * @post this DataBuffer is allocated, is an exact duplicate of the other
    */
   ecmdDataBufferBase& operator=(const ecmdDataBufferBase & i_master);
+#endif // ECMD_PERLAPI && ECMD_PYAPI
 
+#ifndef ECMD_PERLAPI
   /* These are only to be used to apply a buffer to the entire ecmdDataBufferBase, not just sections */
   /**
    * @brief Copy buffer into this ecmdDataBufferBase

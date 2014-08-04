@@ -720,7 +720,8 @@ struct ecmdChipTarget {
   // We need to define these variables without the union so that the perl module interface is generated correctly
   // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
   // This also now pulled from doxygen because it can't represent unions properly
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
+  // Union also not supported by python module - JTA 7/29/14
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
     /**
@@ -772,7 +773,7 @@ struct ecmdChipTarget {
      @see chipUnitType
      */
     uint8_t     chipUnitNum;
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
@@ -783,7 +784,7 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
     /**
@@ -835,7 +836,7 @@ struct ecmdChipTarget {
      @see chipUnitTypeState
      */
     ecmdChipTargetState_t chipUnitNumState;
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION)
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
 #endif
   ecmdChipTargetState_t threadState;          ///< thread field state
