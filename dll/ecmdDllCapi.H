@@ -320,6 +320,10 @@ uint32_t dllSyncPluginState(ecmdChipTarget & i_target);
 
 uint32_t dllSyncIplMode(int i_unused); 
 
+uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
+
+uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 
+
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
 uint32_t dllGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData); 
@@ -555,10 +559,6 @@ uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
 std::string dllGetCurrentCmdline(); 
 
 void dllSetCurrentCmdline(int argc, char* argv[]); 
-
-uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
-
-uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 
 
 } //extern C
 
