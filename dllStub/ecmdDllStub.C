@@ -71,12 +71,12 @@ uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuf
 uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
-uint32_t dllGetScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) {
+uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
 
   return ECMD_SUCCESS;
 }
 
-uint32_t dllPutScom (ecmdChipTarget & target, uint32_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllPutScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
 
 
 uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
@@ -141,7 +141,30 @@ uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ec
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail){ return ECMD_SUCCESS; }
+uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
+
+  ecmdRingData ringData;
+
+  ringData.ringNames.push_back("ring1");
+  ringData.address = 0x80000001;
+  ringData.bitLength = 100;
+  ringData.isCheckable = false;
+  ringData.clockState = ECMD_CLOCKSTATE_ON;
+
+  o_queryData.push_back(ringData);
+
+  ringData.ringNames.clear();
+  ringData.ringNames.push_back("ring2");
+  ringData.ringNames.push_back("ring2long");
+  ringData.address = 0x80000002;
+  ringData.bitLength = 2000;
+  ringData.isCheckable = true;
+  ringData.clockState = ECMD_CLOCKSTATE_NA;
+
+  o_queryData.push_back(ringData);
+
+  return ECMD_SUCCESS;
+}
 
 uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
