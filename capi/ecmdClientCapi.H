@@ -28,9 +28,9 @@
 extern "C" {
 #endif
 
-#ifndef ECMD_PERLAPI
 /** @name Load/Unload Functions */
 //@{
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 /**
  @brief Load the eCMD DLL
  @param i_dllName Specify the full path and name of the dll to load, 
@@ -47,7 +47,9 @@ extern "C" {
        - Errors in loading are printed to STDERR.
 */
 uint32_t ecmdLoadDll(std::string i_dllName);
+#endif
 
+#ifndef ECMD_PERLAPI
 /**
  @brief Unload the eCMD DLL
  @retval ECMD_SUCCESS if successful unload
@@ -58,7 +60,9 @@ uint32_t ecmdLoadDll(std::string i_dllName);
  - Errors in unloading are printed to STDERR
 */
 uint32_t ecmdUnloadDll(); 
+#endif
 
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 /**
  @brief Pass any unknown command line paramaters to the DLL for processing (ex. -p#, Cronus -debug)
  @retval ECMD_SUCCESS if successful
@@ -74,6 +78,7 @@ uint32_t ecmdUnloadDll();
  NOTE : This function does not affect ring caching
 */
 uint32_t ecmdCommandArgs(int* i_argc, char** i_argv[]); 
+#endif
 
 /**
  @brief Set the eCMD environment variables
@@ -96,7 +101,6 @@ uint32_t ecmdSetup(const char* i_args);
 void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
 #endif
 //@}
-#endif // ifndef ECMD_PERLAPI
 
 /** @name Looper Functions */
 //@{
@@ -2488,6 +2492,32 @@ uint32_t syncPluginState(ecmdChipTarget & i_target);
 */
 uint32_t syncIplMode(int i_unused);
 
+/**
+ @brief Cleans up the chip to enable DA of memory after a checkstop
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that contains cage information 
+ @param i_mode The cleanup mode to run 
+
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
+
+/**
+   @brief  Converts zero chip unit address into chip unit address that is being passed
+   @retval returns ECMD_SUCCESS if successful
+   @retval returns ECMD_FUNCTION_NOT_SUPPORTED if it is no supported
+   @retval nonzero if unsuccessful
+   @param  i_target Struct that contains cage information
+   @param  i_address conains zero chip unit address
+   @param  o_address contains the corresponding address of the chip unit
+*/
+uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
 
 //@}
 
@@ -4142,40 +4172,13 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 //@}
 #endif
 
-/**
- @brief Cleans up the chip to enable DA of memory after a checkstop
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that contains cage information 
- @param i_mode The cleanup mode to run 
-
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
-
-/**
-   @brief  Converts zero chip unit address into chip unit address that is being passed
-   @retval returns ECMD_SUCCESS if successful
-   @retval returns ECMD_FUNCTION_NOT_SUPPORTED if it is no supported
-   @retval nonzero if unsuccessful
-   @param  i_target Struct that contains cage information
-   @param  i_address conains zero chip unit address
-   @param  o_address contains the corresponding address of the chip unit
-*/
-uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
-
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif
 
 #endif /* ecmdClientCapi_H */
 
-#ifndef ECMD_PERLAPI
+#if! defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 /*** -------------------------------------- ***/
 /*** The following is doxygen documentation ***/
 /*** -------------------------------------- ***/
@@ -4394,4 +4397,4 @@ The ecmdDataBuffer maintains data both as unsigned integers and as a character s
 For Makefile and Client examples please go to 'Use eCMD' on the eCMD web page : http://rhea.rch.stglabs.ibm.com/eCMD/
 
 */
-#endif
+#endif // ECMD_PERLAPI && ECMD_PYAPI

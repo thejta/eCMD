@@ -55,7 +55,7 @@ typedef enum {
 //  Forward References
 //--------------------------------------------------------------------
 /* The following two functions are overridden in ecmdClientPerlapi.H to remove io_argc */
-#ifndef ECMD_PERLAPI
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 
 /** @name Command Line Parsing Functions */
 //@{
