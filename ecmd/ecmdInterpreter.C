@@ -401,10 +401,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getsram")) {
           rc = ecmdGetMemUser(argc - 1, argv + 1, ECMD_SRAM);
 #endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+#if !defined(ECMD_REMOVE_LATCH_FUNCTIONS) && !defined(ECMD_REMOVE_RING_FUNCTIONS)
         } else if (!strcmp(argv[0], "getringdump")) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS && ECMD_REMOVE_RING_FUNCTIONS
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscomgroup")) {
