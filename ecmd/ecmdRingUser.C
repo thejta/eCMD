@@ -121,7 +121,7 @@ bool operator!= (const ecmdLatchDataEntry & lhs, const ecmdLatchDataEntry & rhs)
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+#if !defined(ECMD_REMOVE_LATCH_FUNCTIONS) && !defined(ECMD_REMOVE_RING_FUNCTIONS)
 uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   time_t curTime = time(NULL);
@@ -498,7 +498,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
 
   return rc;
 }
+#endif //ECMD_REMOVE_LATCH_FUNCTIONS && ECMD_REMOVE_RING_FUNCTIONS
 
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
