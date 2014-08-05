@@ -32,23 +32,18 @@ ifneq ($(findstring pyapi,$(shell /bin/ls -d *)),)
   PYAPI_BUILD := ecmdpyapi
 endif
 
-# Only do the pyapi if not x86 and not aix
-ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
-  PYAPI_BUILD := 
-else
-  PYAPI_BUILD := ecmdpyapi
-endif
-
 # Only do the py3api if it's checked out
 ifneq ($(findstring py3api,$(shell /bin/ls -d *)),)
   PY3API_BUILD := ecmdpy3api
 endif
 
-# Only do the py3api if python3 is on the box
-ifneq ($(findstring python3,$(shell /bin/ls /usr/bin)),)
-  PY3API_BUILD := ecmdpy3api
-else
+# Only do the pyapi and py3api if not x86 and not aix
+ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
+  PYAPI_BUILD := 
   PY3API_BUILD := 
+else
+  PYAPI_BUILD := ${PYAPI_BUILD}
+  PY3API_BUILD := ${PY3API_BUILD}
 endif
 
 # Now create our build targets
