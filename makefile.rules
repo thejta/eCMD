@@ -100,7 +100,7 @@ export OBJPATH
 # It could be extended for the other generated source
 # If the user didn't give a dir to place the generated source, just do it in their eCMD dirs
 ifeq ($(strip ${SRCROOT}),)
-  SRCROOT  := ${ECMD_ROOT}
+  SRCROOT  := ${OBJROOT}
 endif
 # Remove any trailing slashes at the end
 SRCROOT   := $(shell echo ${SRCROOT} | sed 's@/*$$@@g')
