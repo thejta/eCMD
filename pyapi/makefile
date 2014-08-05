@@ -2,7 +2,8 @@
 # Makefile for the ecmd Python Module
 
 # Base info and default build rules
-SUBDIR     := pyapi/
+PYTHON_NAME ?= python2
+SUBDIR      := pyapi/
 include ../makefile.rules
 
 VPATH        := ${VPATH}:../capi:${SRCDIR}
@@ -103,11 +104,12 @@ objclean:
 	rm -rf ${SRCPATH}
 	rm -f *.o
 
-#Remove create_links after fair warning has been given to users to update paths
-install: create_links
-	@echo "Installing eCMD Python API ${INSTALL_PATH}/${TARGET_ARCH}/python.."
-	cp ${OBJPATH}${PM_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python/.
-	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python/.
+install:
+	@echo "Creating ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME} dir ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}
+	@echo "Installing eCMD Python API ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}.."
+	cp ${OBJPATH}${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
 test: ${SO_TARGET}
         ifeq (${TARGET_OS},aix)
