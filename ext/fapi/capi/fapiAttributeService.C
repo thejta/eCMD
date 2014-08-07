@@ -168,6 +168,12 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         l_rc = FAPI_ATTR_GET(ATTR_OSCSWITCH_CTL2, i_pTarget, l_attr);
         o_val = l_attr;
     }
+    else if (i_id == ATTR_TARGET_SCOMABLE)
+    {
+        ATTR_TARGET_SCOMABLE_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_TARGET_SCOMABLE, i_pTarget, l_attr);
+        o_val = l_attr;
+    }
     else if (i_id == ATTR_CHIP_EC_FEATURE_TEST1)
     {
         ATTR_CHIP_EC_FEATURE_TEST1_Type l_attr;
@@ -3827,6 +3833,54 @@ ReturnCode fapiGetInitFileAttr(const AttributeId i_id,
         ATTR_MSS_VDDR_OVERIDE_SPD_Type l_attr;
         l_rc = FAPI_ATTR_GET(ATTR_MSS_VDDR_OVERIDE_SPD, i_pTarget, l_attr);
         o_val = l_attr;
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQ_P0)
+    {
+        ATTR_ISDIMMTOC4DQ_P0_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQ_P0, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQ_P1)
+    {
+        ATTR_ISDIMMTOC4DQ_P1_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQ_P1, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQ_P2)
+    {
+        ATTR_ISDIMMTOC4DQ_P2_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQ_P2, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQ_P3)
+    {
+        ATTR_ISDIMMTOC4DQ_P3_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQ_P3, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQS_P0)
+    {
+        ATTR_ISDIMMTOC4DQS_P0_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQS_P0, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQS_P1)
+    {
+        ATTR_ISDIMMTOC4DQS_P1_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQS_P1, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQS_P2)
+    {
+        ATTR_ISDIMMTOC4DQS_P2_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQS_P2, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
+    }
+    else if (i_id == ATTR_ISDIMMTOC4DQS_P3)
+    {
+        ATTR_ISDIMMTOC4DQS_P3_Type l_attr;
+        l_rc = FAPI_ATTR_GET(ATTR_ISDIMMTOC4DQS_P3, i_pTarget, l_attr);
+        o_val = l_attr[i_arrayIndex1];
     }
     else if (i_id == ATTR_MSS_DATABUS_UTIL_PER_MBA)
     {

@@ -5823,6 +5823,34 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
   RC.addErrorInfo(l_objects, l_entries, 5); \
 }
 
+#define RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
+#define RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
+#define RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_ADD_ERROR_INFO(RC) \
+{ \
+  const void * l_objects[] = {&CT, &EC}; \
+  fapi::ReturnCode::ErrorInfoEntry l_entries[7]; \
+  l_entries[0].iv_type = fapi::ReturnCode::EI_TYPE_COLLECT_TRACE; \
+  l_entries[0].collect_trace.iv_eieTraceId =  fapi::CollectTraces::FSI; \
+  l_entries[1].iv_type = fapi::ReturnCode::EI_TYPE_COLLECT_TRACE; \
+  l_entries[1].collect_trace.iv_eieTraceId =  fapi::CollectTraces::SCOM; \
+  l_entries[2].iv_type = fapi::ReturnCode::EI_TYPE_COLLECT_TRACE; \
+  l_entries[2].collect_trace.iv_eieTraceId =  fapi::CollectTraces::SCAN; \
+  l_entries[3].iv_type = fapi::ReturnCode::EI_TYPE_COLLECT_TRACE; \
+  l_entries[3].collect_trace.iv_eieTraceId =  fapi::CollectTraces::MBOX; \
+  l_entries[4].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[4].ffdc.iv_ffdcObjIndex = 0; \
+  l_entries[4].ffdc.iv_ffdcId = fapi::RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_CT; \
+  l_entries[4].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(CT); \
+  l_entries[5].iv_type = fapi::ReturnCode::EI_TYPE_FFDC; \
+  l_entries[5].ffdc.iv_ffdcObjIndex = 1; \
+  l_entries[5].ffdc.iv_ffdcId = fapi::RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_EC; \
+  l_entries[5].ffdc.iv_ffdcSize = fapi::ReturnCodeFfdc::getErrorInfoFfdcSize(EC); \
+  l_entries[6].iv_type = fapi::ReturnCode::EI_TYPE_PROCEDURE_CALLOUT; \
+  l_entries[6].proc_callout.iv_procedure = fapi::ProcedureCallouts::CODE; \
+  l_entries[6].proc_callout.iv_calloutPriority = fapi::CalloutPriorities::HIGH; \
+  RC.addErrorInfo(l_objects, l_entries, 7); \
+}
+
 #define RC_PROCPM_POREBAR_IMAGE_BRANCH_VALUE_ERROR_CALL_FUNCS_TO_COLLECT_FFDC(RC) 
 #define RC_PROCPM_POREBAR_IMAGE_BRANCH_VALUE_ERROR_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) 
 #define RC_PROCPM_POREBAR_IMAGE_BRANCH_VALUE_ERROR_ADD_ERROR_INFO(RC) \
@@ -13053,7 +13081,7 @@ fapi::fapiCheckType<const fapi::Target *>(&MEMBUF_CHIP); \
 }
 
 #define RC_PROC_EXTRACT_PORE_BASE_FFDC_SBE_CALL_FUNCS_TO_COLLECT_FFDC(RC) { fapi::ReturnCode l_tempRc; FAPI_EXEC_HWP(l_tempRc, proc_tp_collect_dbg_data, CHIP, RC); }
-#define RC_PROC_EXTRACT_PORE_BASE_FFDC_SBE_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) fapiCollectRegFfdc(CHIP, fapi::REG_FFDC_PROC_STATUS_AND_SBE_VITAL_REGISTERS, RC); fapiCollectRegFfdc(CHIP, fapi::REG_FFDC_PROC_MBOX_REGISTERS, RC); 
+#define RC_PROC_EXTRACT_PORE_BASE_FFDC_SBE_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC) fapiCollectRegFfdc(CHIP, fapi::REG_FFDC_PROC_STATUS_AND_SBE_VITAL_REGISTERS, RC); fapiCollectRegFfdc(CHIP, fapi::REG_FFDC_PROC_MBOX_REGISTERS, RC); fapiCollectRegFfdc(CHIP, fapi::REG_FFDC_PROC_CFAM_REGISTERS, RC); 
 #define RC_PROC_EXTRACT_PORE_BASE_FFDC_SBE_ADD_ERROR_INFO(RC) \
 { \
   const void * l_objects[] = {&PNOR_ECCB_STATUS, &SEEPROM_ECCB_STATUS, &SOFT_ERROR_STATUS, &ATTN_REPORTED}; \
@@ -19950,6 +19978,7 @@ enum HwpFfdcId
     IO_FIR_LANE_RX_PARITY_ERROR_RC_LANE_ID = 0xcafab7ef,
     RC_MSS_SLEW_CAL_ERROR_PORT0_STAT_REG = 0xa873a013,
     RC_PROCPM_POREBAR_IMAGE_BRANCH_VALUE_ERROR_IMAGEADDR = 0xfa4eeeb5,
+    RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_EC = 0x5ba84837,
     RC_ROSETTA_MAP_BAD_SWIZZLE_VALUE_SWIZZLE_TYPE = 0x92c44779,
     REG_FFDC_DDR_PHY_FIR_REGS = 0xa4f8cd85,
     IO_FUNCS_WIRETEST_TIMEOUT_RC_FFDC_NUM_CYCLES = 0xb63bfeed,
@@ -21091,6 +21120,7 @@ enum HwpFfdcId
     RC_PROCPM_POREBAR_LOC_ERROR_CHIP = 0x3f54f582,
     RC_PROC_SETUP_BARS_INVALID_BAR_REG_DEF_BASE_ADDR = 0xc2bb390b,
     RC_PROC_FASTARRAY_INVALID_EX_CLOCK_SOURCE_CHIP_IN_ERROR = 0x9c300163,
+    RC_TP_COLLECT_DBG_DATA_UNSUPPORTED_CHIP_CT = 0x64e37234,
     IO_FUNCS_FUNC_FAIL_RC_SLAVE_CHIP_INTERFACE = 0x2a0e3ed4,
     RC_PROC_FASTARRAY_BAD_CHIP_EC_CHIP_NAME = 0x3d08f8e2,
     RC_MSS_SETUP_BARS_MULTIPLE_GROUP_ERR_GROUP_INDEX_A = 0x8c4a4994,
