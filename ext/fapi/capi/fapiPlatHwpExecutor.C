@@ -38,7 +38,11 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
     std::string sharedLibPath;
 
 #ifdef LINUX
+#ifdef _LP64
+    std::string tmp = (i_libName + "_x86_64.so");
+#else
     std::string tmp = (i_libName + "_x86.so");
+#endif //end _LP64
 #else
     std::string tmp = (i_libName + "_aix.so");
 #endif 

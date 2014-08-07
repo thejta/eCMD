@@ -31,10 +31,26 @@
 #define PLATTRACE_H_
 
 #include <stdio.h>
+#include <string.h>
 #include "fapiClientCapi.H"
 #include "fapiDllCapi.H"
 
 // Information traces (standard flight recorder that can wrap often)
+#ifdef _LP64
+#define FAPI_INF(_fmt_, _args_...) \
+do \
+{   char inf_user_str[255]; \
+    char inf_sum_str[512]; \
+    const char* input = ""_fmt_"\n"; \
+    size_t fmtSize = (strlen(input) + 1); \
+    char fmt_cpy[fmtSize]; \
+    fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(inf_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(inf_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(inf_sum_str, inf_user_str, 255); \
+    fapiOutputInfo(inf_sum_str); \
+} while(0)
+#else
 #define FAPI_INF(_fmt_, _args_...) \
 do \
 {   char inf_user_str[255]; \
@@ -44,9 +60,25 @@ do \
     strncat(inf_sum_str, inf_user_str, 255); \
     fapiOutputInfo(inf_sum_str); \
 } while(0)
+#endif
 
 
 // Important traces (should not wrap often)
+#ifdef _LP64
+#define FAPI_IMP(_fmt_, _args_...) \
+do \
+{   char imp_user_str[255]; \
+    char imp_sum_str[512]; \
+    const char* input = ""_fmt_"\n"; \
+    size_t fmtSize = (strlen(input) + 1);	\
+    char fmt_cpy[fmtSize]; \
+    fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(imp_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(imp_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(imp_sum_str, imp_user_str, 255); \
+    fapiOutputImportant(imp_sum_str); \
+} while(0)
+#else
 #define FAPI_IMP(_fmt_, _args_...) \
 do \
 {   char imp_user_str[255]; \
@@ -56,8 +88,24 @@ do \
     strncat(imp_sum_str, imp_user_str, 255); \
     fapiOutputImportant(imp_sum_str); \
 } while(0)
+#endif
 
 // Error traces (should not wrap often)
+#ifdef _LP64
+#define FAPI_ERR(_fmt_, _args_...) \
+do \
+{   char err_user_str[255]; \
+    char err_sum_str[512];  \
+    const char* input = ""_fmt_"\n"; \
+    size_t fmtSize = (strlen(input) + 1); \
+    char fmt_cpy[fmtSize]; \
+    fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(err_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(err_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(err_sum_str, err_user_str, 255); \
+    fapiOutputError(err_sum_str); \
+} while(0)
+#else
 #define FAPI_ERR(_fmt_, _args_...) \
 do \
 {   char err_user_str[255]; \
@@ -67,8 +115,24 @@ do \
     strncat(err_sum_str, err_user_str, 255); \
     fapiOutputError(err_sum_str); \
 } while(0)
+#endif
 
 // Debug traces (can wrap often)
+#ifdef _LP64
+#define FAPI_DBG(_fmt_, _args_...) \
+do \
+{   char dbg_user_str[255]; \
+    char dbg_sum_str[512];  \
+    const char* input = ""_fmt_"\n"; \
+    size_t fmtSize = (strlen(input) + 1);	\
+    char fmt_cpy[fmtSize]; \
+    fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(dbg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(dbg_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(dbg_sum_str, dbg_user_str, 255); \
+    fapiOutputDebug(dbg_sum_str); \
+} while(0)
+#else
 #define FAPI_DBG(_fmt_, _args_...) \
 do \
 {   char dbg_user_str[255]; \
@@ -78,6 +142,7 @@ do \
     strncat(dbg_sum_str, dbg_user_str, 255); \
     fapiOutputDebug(dbg_sum_str); \
 } while(0)
+#endif
 
 
 // Common SCAN traces for hardware access 
