@@ -1824,7 +1824,7 @@ int dllGetSpyListHash32(std::ifstream &hashFile, std::list<sedcHash32Entry> &spy
 
 int dllGetSpyListHash64(std::ifstream &hashFile, std::list<sedcHash64Entry> &spyKeysList) {
   
-  int entrysize = sizeof(struct sedcHash64Entry); /* We need this to be able to traverse the binary hash file */
+  int entrysize = sizeof(uint64_t) + sizeof(uint32_t); /* We need this to be able to traverse the binary hash file */
   sedcHash64Entry curhash;
   long filepos;
   int numentries;
@@ -1946,7 +1946,7 @@ int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t
 
   int found = 0;
   sedcHash64Entry curhash;
-  int entrysize = sizeof(struct sedcHash64Entry); /* We need this to be able to traverse the binary hash file */
+  int entrysize = sizeof(uint64_t) + sizeof(uint32_t); /* We need this to be able to traverse the binary hash file */
   long filepos;
   std::string line;
   int numentries;
@@ -1968,7 +1968,7 @@ int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t
     cur = (high + low) / 2;
 
     hashFile.seekg(cur * entrysize);         /* position into file */ 
-    hashFile.read((char*)&(curhash.key), 8); /* read 4-byte key */
+    hashFile.read((char*)&(curhash.key), 8); /* read 8-byte key */
     /* We need to byte swap this guy */
     curhash.key = htonll(curhash.key);
 
