@@ -32,7 +32,7 @@ PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
-ifeq (${EXTENSIONS},$(filter ${EXTENSIONS},fapi))
+ifeq (fapi,$(filter ${EXTENSIONS},fapi))
   LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
 endif
 LINK_EXTENSIONS := $(subst fapi,,${EXTENSIONS})
