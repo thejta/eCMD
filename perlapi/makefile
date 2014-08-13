@@ -32,9 +32,11 @@ PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
-EXTENSIONS := $(subst fapi,,${EXTENSIONS})
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi.a)
-LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
+ifeq (${EXTENSIONS},$(filter ${EXTENSIONS},fapi))
+  LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
+endif
+LINK_EXTENSIONS := $(subst fapi,,${EXTENSIONS})
+LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi.a)
 VPATH      := ${VPATH}:${OBJPATH}
 ifeq (${TARGET_ARCH},x86)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig
