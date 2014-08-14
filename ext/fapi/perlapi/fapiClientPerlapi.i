@@ -5,6 +5,4 @@
 
 /*********** Start Files to swigify ***********/
 %include "fapiClientPerlapi.H"
-%include "fapiClientPerlapiFunc.H"
-%include "fapiStructs.H"
 /*********** End Files to swigify ***********/

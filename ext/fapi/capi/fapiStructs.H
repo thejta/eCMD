@@ -36,8 +36,6 @@
 
 
 
-#ifndef ECMD_PERLAPI
-
 namespace fapi
 {
 
@@ -122,7 +120,6 @@ faMode(0x0)
 inline AttributeData::~AttributeData() {}
 
 } //namespace
-#endif // #ifndef ECMD_PERLAPI
 #endif 
 
 

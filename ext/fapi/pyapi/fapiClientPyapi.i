@@ -2,6 +2,5 @@
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
-%include "fapiClientCapi.H"
-%include "fapiStructs.H"
+%include "fapiClientPyapi.H"
 /*********** End Files to swigify ***********/

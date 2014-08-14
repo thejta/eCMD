@@ -27,9 +27,6 @@
 
 extern "C" {
 
- 
-#ifndef ECMD_PERLAPI
-
 /** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
 /**
@@ -216,8 +213,6 @@ void fapiOutputScanTrace(const char* i_message);
 
 */
 char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num);
-
-#endif // #ifndef ECMD_PERLAPI
 
 } //extern c
 
