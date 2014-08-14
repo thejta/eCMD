@@ -19,10 +19,12 @@ SWIGFLAGS    := ${SWIGFLAGS} -c++ -python -I../capi -I../dll -I${SRCPATH} -DECMD
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/${ext}/pyapi)
 VPATH        := $(subst ${space},,${VPATH})
 
-INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.H )
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/pyapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.C)
+INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.H ${ext}ClientPyapi.H)
+CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.C ${ext}ClientPyapi.C)
+# Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
+SOURCE       := $(subst fapiClientCapi.C,,${SOURCE})
 
 # *****************************************************************************
 # The Common Setup stuff
@@ -31,9 +33,11 @@ PY_TARGET := ecmd.py
 SO_TARGET := _ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
-EXTENSIONS := $(subst fapi,,${EXTENSIONS})
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi.a)
-LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
+ifeq (fapi,$(filter ${EXTENSIONS},fapi))
+  LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
+endif
+LINK_EXTENSIONS := $(subst fapi,,${EXTENSIONS})
+LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi.a)
 VPATH      := ${VPATH}:${OBJPATH}
 ifeq (${TARGET_ARCH},x86)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig

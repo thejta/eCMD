@@ -24,6 +24,8 @@ INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.H 
 CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/perlapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
+# Remove the fapiClientPerlapiFunc.C from the build, only will use fapiClientPerlapi.C which has the init extension
+SOURCE       := $(subst fapiClientPerlapiFunc.C,,${SOURCE})
 
 # *****************************************************************************
 # The Common Setup stuff

@@ -86,7 +86,6 @@
 #endif
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   #include "fapiClientPerlapi.H"
-  #include "fapiClientPerlapiFunc.H"
 #endif
 %}
 /*********** End Insert Code ***********/

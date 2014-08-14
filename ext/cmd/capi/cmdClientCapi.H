@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#ifndef ECMD_PERLAPI
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 /** @name Load/Unload Functions */
 //@{
 
