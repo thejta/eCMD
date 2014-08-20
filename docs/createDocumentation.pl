@@ -123,7 +123,7 @@ $rc = system("cd $outputDirectory/Capi; doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
-$rc = system("cd $outputDirectory/Capi/latex; gmake; mv refman.pdf ecmdClientCapi.pdf");
+$rc = system("cd $outputDirectory/Capi/latex; make; mv refman.pdf ecmdClientCapi.pdf");
 if ($rc) { return $rc; }
 
 # Now do the Perl-API
@@ -166,9 +166,8 @@ for (my $x = 0; $x <= $#extensions; $x++) {
     $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Perlapi/.");
     if ($rc) { return $rc; }
   } else {
-    printf("fapi extension found - skipping perl stuff\n"); 
-    printf("fapi extension found - skipping perl stuff\n"); 
-    printf("fapi extension found - skipping perl stuff\n"); 
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $outputDirectory/Perlapi/.");
+    if ($rc) { return $rc; }
   }
 }
 
@@ -229,7 +228,7 @@ $rc = system("cd $outputDirectory/Perlapi; doxygen ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
-$rc = system("cd $outputDirectory/Perlapi/latex; gmake; mv refman.pdf ecmdClientPerlapi.pdf");
+$rc = system("cd $outputDirectory/Perlapi/latex; make; mv refman.pdf ecmdClientPerlapi.pdf");
 if ($rc) { return $rc; }
 
 # Do the Python API
@@ -264,39 +263,18 @@ if ($rc) { return $rc; }
 
 for (my $x = 0; $x <= $#extensions; $x++) {
   
-  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Pythonapi/.");
-  if ($rc) { return $rc; }
+  # When doing fapi, only do the Pyapi file that has the init extension in it
+  # For all other extensions, do them all
+  if ($extensions[$x] ne "fapi"){
+    # I'm grepping out the *Capi.H to eliminate a doxygen error that happens from having a filename
+    # in the comments that is different from the actual file
+    $rc = system("cat $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $cvsBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H | grep -v $extensions[$x]ClientCapi.H > $outputDirectory/Pythonapi/$extensions[$x]ClientPyapi.H");
+    if ($rc) { return $rc; }
 
-  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Pythonapi/.");
-  if ($rc) { return $rc; }
-
-  # fapi specific stuff
-  if ($extensions[$x] eq "fapi"){
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]HwAccess.H $outputDirectory/Pythonapi/.");
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Pythonapi/.");
     if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SystemConfig.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Target.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCode.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCodes.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x].H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Util.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatTrace.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatHwpExecutor.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SharedUtils.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]AttributeService.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MvpdAccess.H $outputDirectory/Pythonapi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MultiScom.H $outputDirectory/Pythonapi/.");
+  } else {
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H $outputDirectory/Pythonapi/.");
     if ($rc) { return $rc; }
   }
 }
@@ -340,5 +318,5 @@ $rc = system("cd $outputDirectory/Pythonapi; doxygen ecmdDoxygenPython.config");
 if ($rc) { return $rc; }
 
 printf("Creating Python API Documentation (pdf)...\n\n");
-$rc = system("cd $outputDirectory/Pythonapi/latex; gmake; mv refman.pdf ecmdClientPythonapi.pdf");
+$rc = system("cd $outputDirectory/Pythonapi/latex; make; mv refman.pdf ecmdClientPythonapi.pdf");
 if ($rc) { return $rc; }

@@ -153,7 +153,7 @@ This extension provides interfaces to call command line functions and have forma
 
 Include files :
 <ul>
-<li> cmdClientCapi.H</li>
+<li> cmdClientPyapi.H</li>
 <li> cmdStructs.H</li>
 </ul>
 \endif
@@ -164,7 +164,7 @@ This extension provides interfaces to start/stop processor instructions and brea
 
 Include files :
 <ul>
-<li> cipClientCapi.H </li>
+<li> cipClientPyapi.H </li>
 <li> cipStructs.H</li>
 </ul>
 \endif
@@ -175,7 +175,7 @@ This extension provides IP Series GFW only interfaces.<br>
 
 Include files :
 <ul>
-<li> gipClientCapi.H </li>
+<li> gipClientPyapi.H </li>
 <li> gipStructs.H</li>
 </ul>
 \endif
@@ -186,7 +186,7 @@ This extension provides Cronus only interfaces.<br>
 
 Include files :
 <ul>
-<li> croClientCapi.H </li>
+<li> croClientPyapi.H </li>
 <li> croStructs.H</li>
 </ul>
 \endif
@@ -197,7 +197,7 @@ This extension provides Z-Series only interfaces.<br>
 
 Include files :
 <ul>
-<li> zseClientCapi.H </li>
+<li> zseClientPyapi.H </li>
 <li> zseStructs.H</li>
 </ul>
 \endif
@@ -208,7 +208,7 @@ This extension provides Eclipz only interfaces.<br>
 
 Include files :
 <ul>
-<li> eipClientCapi.H </li>
+<li> eipClientPyapi.H </li>
 <li> eipStructs.H</li>
 </ul>
 \endif
@@ -219,7 +219,7 @@ This extension provides Apollo only interfaces.<br>
 
 Include files :
 <ul>
-<li> aipClientCapi.H </li>
+<li> aipClientPyapi.H </li>
 <li> aipStructs.H</li>
 </ul>
 \endif
@@ -230,7 +230,7 @@ This extension provides ScanD only interfaces.<br>
 
 Include files :
 <ul>
-<li> scandClientCapi.H</li>
+<li> scandClientPyapi.H</li>
 <li> scandStructs.H</li>
 </ul>
 \endif
@@ -241,7 +241,7 @@ This extension provides BML only interfaces and is only available running eCMD i
 
 Include files :
 <ul>
-<li> bmlClientCapi.H </li>
+<li> bmlClientPyapi.H </li>
 <li> bmlStructs.H</li>
 </ul>
 \endif
@@ -252,8 +252,17 @@ This extension provides Mambo Simulator only interfaces.<br>
 
 Include files :
 <ul>
-<li> mboClientCapi.H </li>
+<li> mboClientPyapi.H </li>
 <li> mboStructs.H</li>
+</ul>
+\endif
+
+\if ECMD_FAPI_EXTENSION_SUPPORT
+@subsection fapi FAPI (Hardware Procedure Framework) Extension
+In Python only extension intialization is provided
+Include files :
+<ul>
+<li> fapiClientPyapi.H</li>
 </ul>
 \endif
 
@@ -261,7 +270,7 @@ Include files :
 
  <hr>
  @section pyv Python Version
- eCMD Scripts need Python 2 
+ eCMD Scripts need at least Python 2 
 
  <pre>
  #!/usr/bin/python 
