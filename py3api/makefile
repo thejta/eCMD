@@ -3,7 +3,7 @@ PYTHON_NAME := python3
 SUBDIR     := py3api/
 include ../makefile.rules
 
-SWIG := /gsa/rchgsa/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
+SWIG ?= /gsa/rchgsa/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
 
 # Setup the python3 include path
 # In the makefile.config the user can specify this as PY3INC
@@ -19,7 +19,12 @@ endif
 VPATH := ../pyapi:${VPATH}
 
 # Set testBuild.py to use python3
-ECMDPYTHONBIN := /gsa/rchgsa/projects/e/ecmd/utils/python-3.4.1/x86_64/bin/python3
+# Allow the user a way to set the python3 binary path
+ifneq ($(strip ${ECMDPYTHON3BIN}),)
+  ECMDPYTHONBIN := ${ECMDPYTHON3BIN}
+else
+  ECMDPYTHONBIN := /gsa/rchgsa/projects/e/ecmd/utils/python-3.4.1/x86_64/bin/python3
+endif
 
 # Set the CFLAGS to pickup out of the pyapi directory
 CFLAGS := -I../pyapi ${CFLAGS}

@@ -1,10 +1,5 @@
 %module ecmd
 
-// Header file needed to compile with newer gcc
-%{
-#include <stddef.h>
-%}
-
 /*********** Start Typemaps ***********/
 %include typemaps.i
 %include std_string.i
@@ -30,6 +25,8 @@
 #include "ecmdStructs.H"
 #include "ecmdUtils.H"
 #include "ecmdSharedUtils.H"
+// Header file needed to compile with newer gcc
+#include <stddef.h>
 
 #include "ecmdPluginExtensionSupport.H"
 #ifdef ECMD_AIP_EXTENSION_SUPPORT

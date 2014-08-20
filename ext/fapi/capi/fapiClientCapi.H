@@ -10,12 +10,10 @@
 
 #include <stdint.h>
 #include <list>
-#ifndef ECMD_PERLAPI
 #include <fapiTarget.H>
 #include <fapiReturnCode.H>
 #include <fapiStructs.H>  
 #include <fapiAttributeIds.H>
-#endif // #ifndef ECMD_PERLAPI
 
 #include <ecmdStructs.H>  
 #include <ecmdDataBufferBase.H>
