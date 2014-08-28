@@ -1,5 +1,8 @@
 %module ecmd
 
+// python helper to load _ecmd.so correctly for fapi
+%include dlopenhelper.i
+
 /*********** Start Typemaps ***********/
 %include typemaps.i
 %include std_string.i
