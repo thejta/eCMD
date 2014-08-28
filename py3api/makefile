@@ -3,8 +3,6 @@ PYTHON_NAME := python3
 SUBDIR     := py3api/
 include ../makefile.rules
 
-SWIG ?= /gsa/rchgsa/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
-
 # Setup the python3 include path
 # In the makefile.config the user can specify this as PY3INC
 # We then need to copy that to PYINC so it just works with the included makefile

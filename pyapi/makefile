@@ -5,6 +5,8 @@
 SUBDIR     := pyapi/
 include ../makefile.rules
 
+SWIG := /gsa/rchgsa/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
+
 VPATH        := ${VPATH}:../capi:${SRCDIR}
 INCLUDES     := ecmdClientCapi.H ecmdClientPyapi.H ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H
 SOURCE       := ecmdClientCapi.C ecmdClientPyapi.C
