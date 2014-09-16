@@ -129,7 +129,7 @@ sedcAEIEntry sedcAEIParser(std::ifstream &spyFile, std::vector<std::string> &err
   std::string line;
   sedcFileLine myLine;
   std::string tempstr;
-  unsigned int linePos;
+  size_t linePos;
   unsigned int whatsGoingOn = 0x0;
   std::list<unsigned int> braceOrder;
   unsigned int stateTemp;
