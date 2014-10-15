@@ -38,16 +38,16 @@
 #include <stdio.h>
 //#include <fapiPlatTrace.H>
 // Information traces (standard flight recorder that can wrap often)
-#define FAPI_INF(_fmt_, _args_...) printf("FAPI TRC>: "_fmt_"\n", ##_args_)
+#define FAPI_INF(_fmt_, _args_...) printf("FAPI TRC>: " _fmt_ "\n", ##_args_)
 
 // Important traces (should not wrap often)
-#define FAPI_IMP(_fmt_, _args_...) printf("FAPI IMP>: "_fmt_"\n", ##_args_)
+#define FAPI_IMP(_fmt_, _args_...) printf("FAPI IMP>: " _fmt_ "\n", ##_args_)
 
 // Error traces (should not wrap often)
-#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
+#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: " _fmt_ "\n", ##_args_)
 
 // Debug traces (can wrap often)
-#define FAPI_DBG(_fmt_, _args_...) printf("FAPI DBG>: "_fmt_"\n", ##_args_)
+#define FAPI_DBG(_fmt_, _args_...) printf("FAPI DBG>: " _fmt_ "\n", ##_args_)
 
 
 

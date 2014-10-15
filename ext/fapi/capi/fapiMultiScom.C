@@ -38,8 +38,8 @@ MultiScom::SingleScomInfo::SingleScomInfo ( const ScomMode      i_mode,
                                             pGetScomDataBuffer(NULL),
                                             putScomMask(i_mask)
 {
-    FAPI_DBG ("SingleScomInfo: mode %d i_addr 0x"UINT64_HEX16_PRESC_FORMAT" "
-                       "mask 0x"UINT64_HEX16_PRESC_FORMAT, i_mode, i_addr, i_mask);
+    FAPI_DBG ("SingleScomInfo: mode %d i_addr 0x" UINT64_HEX16_PRESC_FORMAT " "
+                       "mask 0x" UINT64_HEX16_PRESC_FORMAT, i_mode, i_addr, i_mask);
 
     switch (scomMode)
     {
@@ -100,7 +100,7 @@ ReturnCode MultiScom::addGetScom ( const uint64_t            i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addGetScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", o_data "
+        FAPI_ERR ("MultiScom::addGetScom failed - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT ", o_data "
         "length: %d double words", i_addr, o_data.getDoubleWordLength());
     }
 
@@ -128,7 +128,7 @@ ReturnCode MultiScom::addPutScom ( const uint64_t            i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", i_data "
+        FAPI_ERR ("MultiScom::addPutScom failed - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT ", i_data "
         "length: %d double words", i_addr, i_data.getDoubleWordLength());
     }
 
@@ -159,7 +159,7 @@ ReturnCode MultiScom::addPutScomUnderMask (const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutScomUnderMask failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", "
+        FAPI_ERR ("MultiScom::addPutScomUnderMask failed - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT ", "
         "i_data length: %d double words i_mask length: %d double words",
         i_addr, i_data.getDoubleWordLength(), i_mask.getDoubleWordLength());
     }
@@ -190,7 +190,7 @@ ReturnCode MultiScom::addGetBulkScom ( const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addGetBulkScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", o_data"
+        FAPI_ERR ("MultiScom::addGetBulkScom failed - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT ", o_data"
         " length: %d bits, expected len: %zd bits, i_lenInDoubleWords: %zd",
         i_addr, o_data.getBitLength(), l_lenInBits, i_lenInDoubleWords);
     }
@@ -222,7 +222,7 @@ ReturnCode MultiScom::addPutBulkScom ( const uint64_t i_addr,
 
     else
     {
-        FAPI_ERR ("MultiScom::addPutBulkScom failed - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT", i_data"
+        FAPI_ERR ("MultiScom::addPutBulkScom failed - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT ", i_data"
         " length: %d bits, expected len: %zd bits, i_lenInDoubleWords: %zd",
         i_addr, i_data.getBitLength(), l_lenInBits, i_lenInDoubleWords);
     }
@@ -243,7 +243,7 @@ ReturnCode MultiScom::sanityCheck (
 {
     ReturnCode l_rc;
 
-    FAPI_INF ("MultiScom::sanityCheck - i_addr: 0x"UINT64_HEX16_PRESC_FORMAT" i_scomMode:"
+    FAPI_INF ("MultiScom::sanityCheck - i_addr: 0x" UINT64_HEX16_PRESC_FORMAT " i_scomMode:"
              " 0x%.8X i_lenInBits: %zd io_data len: %d bits Mask len: %d bits",
               i_addr, i_scomMode, i_lenInBits, io_data.getBitLength(),
               ((NULL == i_pMask) ? (0) : (i_pMask->getBitLength())));

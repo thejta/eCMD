@@ -57,7 +57,7 @@
 /* *****************************************************************************/
 #include <stdio.h>
 // Error traces (should not wrap often)
-#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)
+#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: " _fmt_ "\n", ##_args_)
 
 
 namespace fapi

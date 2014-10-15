@@ -29,7 +29,7 @@
 
 // these should be in the fapi namespace, right? -farrugia JFDEBUG
    
-#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: "_fmt_"\n", ##_args_)   //JFDEBUG local defined due to dll load errors
+#define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: " _fmt_ "\n", ##_args_)   //JFDEBUG local defined due to dll load errors
 
 // dlopens a shared library and returns the handle
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)

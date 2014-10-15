@@ -54,13 +54,13 @@ fapi::ReturnCode fapiGetScom(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiGetScom failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiGetScom failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSCOM     : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT ,
+        FAPI_SCAN( "TRACE : GETSCOM     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT ,
                    i_target.toEcmdString(),
                    i_address,
                    o_data.getDoubleWord( 0 ) );
@@ -85,13 +85,13 @@ fapi::ReturnCode fapiPutScom(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutScom failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiPutScom failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSCOM     : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTSCOM     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_address,
                    i_data.getDoubleWord( 0 )  );
@@ -116,13 +116,13 @@ fapi::ReturnCode fapiPutScomUnderMask(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutScomUnderMask failed - Target %s, Addr "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiPutScomUnderMask failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_address);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT " "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
                i_target.toEcmdString(),
                i_address,
                i_data.getDoubleWord(0),
@@ -302,7 +302,7 @@ fapi::ReturnCode fapiGetRing(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT, 
+        FAPI_SCAN( "TRACE : GETRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT, 
                    i_target.toEcmdString(),
                    i_address,
                    o_data.getDoubleWord( 0 ) );
@@ -332,7 +332,7 @@ fapi::ReturnCode fapiPutRing(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_address,
                    i_data.getDoubleWord(0));
@@ -384,7 +384,7 @@ fapi::ReturnCode fapiModifyRing(const fapi::Target& i_target,
             l_pMode = "?";
         }
 
-        FAPI_SCAN( "TRACE : MODRING     : %s : %.8X "UINT64_HEX16_PRESC_FORMAT" %s",
+        FAPI_SCAN( "TRACE : MODRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT " %s",
                i_target.toEcmdString(),
                i_address,
                i_data.getDoubleWord(0),
@@ -414,7 +414,7 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiGetSpy failed - Target %s, SpyId 0x"UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiGetSpy failed - Target %s, SpyId 0x" UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_spyId);
     }
 
@@ -449,7 +449,7 @@ fapi::ReturnCode _fapiGetSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSPY      : %s : %s "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : GETSPY      : %s : %s " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -474,13 +474,13 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutSpy failed - Target %s, SpyId 0x"UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiPutSpy failed - Target %s, SpyId 0x" UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_spyId);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSPY      : %s : "UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTSPY      : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));
@@ -511,7 +511,7 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSPY      : %s : %s "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTSPY      : %s : %s " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));
@@ -543,7 +543,7 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-      FAPI_SCAN( "TRACE : GETSPYIMAGE : %s : %s "UINT64_HEX16_PRESC_FORMAT,
+      FAPI_SCAN( "TRACE : GETSPYIMAGE : %s : %s " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -574,7 +574,7 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
 
     if( l_traceit )
     {
-        FAPI_SCAN("TRACE : PUTSPYIMG : %s : %s "UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN("TRACE : PUTSPYIMG : %s : %s " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));
@@ -601,13 +601,13 @@ fapi::ReturnCode _fapiGetSpyImage(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiGetSpyImage failed - Target %s, SpyId 0x"UINT64_HEX16_PRESC_FORMAT,
+        FAPI_ERR("fapiGetSpyImage failed - Target %s, SpyId 0x" UINT64_HEX16_PRESC_FORMAT,
                   i_target.toEcmdString(), i_spyId);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : GETSPYIMG  : %s : "UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : GETSPYIMG  : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    o_data.getDoubleWord(0));
@@ -632,13 +632,13 @@ fapi::ReturnCode _fapiPutSpyImage(const fapi::Target& i_target,
 
     if (l_rc)
     {
-      FAPI_ERR("fapiPutSpyImage failed - Target %s, SpyId 0x"UINT64_HEX16_PRESC_FORMAT,
+      FAPI_ERR("fapiPutSpyImage failed - Target %s, SpyId 0x" UINT64_HEX16_PRESC_FORMAT,
                 i_target.toEcmdString(), i_spyId);
     }
 
     if( l_traceit )
     {
-        FAPI_SCAN( "TRACE : PUTSPYIMG  : %s : "UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
+        FAPI_SCAN( "TRACE : PUTSPYIMG  : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
                    i_target.toEcmdString(),
                    i_spyId,
                    i_data.getDoubleWord(0));

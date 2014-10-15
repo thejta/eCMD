@@ -41,7 +41,7 @@
 do \
 {   char inf_user_str[255]; \
     char inf_sum_str[512]; \
-    const char* input = ""_fmt_"\n"; \
+    const char* input = "" _fmt_ "\n"; \
     size_t fmtSize = (strlen(input) + 1); \
     char fmt_cpy[fmtSize]; \
     fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
@@ -56,7 +56,7 @@ do \
 {   char inf_user_str[255]; \
     char inf_sum_str[512]; \
     snprintf(inf_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-    snprintf(inf_user_str, 255, "" _fmt_"\n", ##_args_); \
+    snprintf(inf_user_str, 255, "" _fmt_ "\n", ##_args_); \
     strncat(inf_sum_str, inf_user_str, 255); \
     fapiOutputInfo(inf_sum_str); \
 } while(0)
@@ -69,7 +69,7 @@ do \
 do \
 {   char imp_user_str[255]; \
     char imp_sum_str[512]; \
-    const char* input = ""_fmt_"\n"; \
+    const char* input = "" _fmt_ "\n"; \
     size_t fmtSize = (strlen(input) + 1);	\
     char fmt_cpy[fmtSize]; \
     fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
@@ -84,7 +84,7 @@ do \
 {   char imp_user_str[255]; \
     char imp_sum_str[512]; \
     snprintf(imp_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-    snprintf(imp_user_str, 255, ""_fmt_"\n", ##_args_); \
+    snprintf(imp_user_str, 255, "" _fmt_ "\n", ##_args_); \
     strncat(imp_sum_str, imp_user_str, 255); \
     fapiOutputImportant(imp_sum_str); \
 } while(0)
@@ -96,7 +96,7 @@ do \
 do \
 {   char err_user_str[255]; \
     char err_sum_str[512];  \
-    const char* input = ""_fmt_"\n"; \
+    const char* input = "" _fmt_ "\n"; \
     size_t fmtSize = (strlen(input) + 1); \
     char fmt_cpy[fmtSize]; \
     fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
@@ -111,7 +111,7 @@ do \
 {   char err_user_str[255]; \
     char err_sum_str[512];  \
     snprintf(err_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-    snprintf(err_user_str, 255, ""_fmt_"\n", ##_args_); \
+    snprintf(err_user_str, 255, "" _fmt_ "\n", ##_args_); \
     strncat(err_sum_str, err_user_str, 255); \
     fapiOutputError(err_sum_str); \
 } while(0)
@@ -123,7 +123,7 @@ do \
 do \
 {   char dbg_user_str[255]; \
     char dbg_sum_str[512];  \
-    const char* input = ""_fmt_"\n"; \
+    const char* input = "" _fmt_ "\n"; \
     size_t fmtSize = (strlen(input) + 1);	\
     char fmt_cpy[fmtSize]; \
     fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
@@ -138,7 +138,7 @@ do \
 {   char dbg_user_str[255]; \
     char dbg_sum_str[512];  \
     snprintf(dbg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-    snprintf(dbg_user_str, 255, ""_fmt_"\n", ##_args_); \
+    snprintf(dbg_user_str, 255, "" _fmt_ "\n", ##_args_); \
     strncat(dbg_sum_str, dbg_user_str, 255); \
     fapiOutputDebug(dbg_sum_str); \
 } while(0)
@@ -149,7 +149,7 @@ do \
 #define FAPI_SCAN(_fmt_, _args_...) \
 do \
 {   char scan_user_str[255]; \
-    snprintf(scan_user_str, 255, ""_fmt_"\n", ##_args_); \
+    snprintf(scan_user_str, 255, "" _fmt_ "\n", ##_args_); \
     fapiOutputScanTrace(scan_user_str); \
 } while(0)
 
