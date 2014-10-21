@@ -7,6 +7,7 @@ use strict;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw (ecmd_print);
+our $quiet = 0;
 
 sub new {
   my $invocant = shift;
@@ -46,6 +47,7 @@ sub write_environment {
 
 sub ecmd_print {
   my $string = shift(@_);
+  my $force = shift(@_);
 
   # Escape some special characters
   # All these turn specialchar on left into \specialchar
@@ -59,7 +61,9 @@ sub ecmd_print {
   $string =~ s/\)/\\\)/g;
   $string =~ s/\|/\\\|/g;
 
-  printf("echo $string;");
+  if (!$quiet || $force) {
+    printf("echo $string;");
+  }
 }
 
 
