@@ -167,7 +167,7 @@ sub main {
   if ($shell eq "ksh") {
   } elsif ($shell eq "csh") {
   } else {
-    ecmd_print("Your shell is unsupported!");
+    ecmd_print("Your shell is unsupported!", 1);
     return 1;
   }
 
@@ -183,7 +183,7 @@ sub main {
   # Here is where we put in the magic to allow the user to just put a period to cover all four ecmd parms
   if ($release eq ".") {
     if ($ENV{"ECMD_RELEASE"} eq "" || $ENV{"ECMD_PLUGIN"} eq "" || $ENV{"ECMD_PRODUCT"} eq "" || $ENV{"ECMD_ARCH"} eq "") {
-      ecmd_print("You can't specify the '.' shortcut without having specified the release, product and plugin previously!");
+      ecmd_print("You can't specify the '.' shortcut without having specified the release, product and plugin previously!", 1);
       return 1;
     } else {
       $shortcut = 1;
@@ -198,7 +198,7 @@ sub main {
   if ($release ne "auto" && !$localInstall) {
     $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
     if (!(-d $temp)) {
-      ecmd_print("The eCMD release '$release' you specified is not known!");
+      ecmd_print("The eCMD release '$release' you specified is not known!", 1);
       return 1;
     }
   }
@@ -216,7 +216,7 @@ sub main {
   } elsif ($plugin eq "scand" && $scandUse) {
   } elsif ($plugin eq "mbo" && $mboUse) {
   } else {
-    ecmd_print("The eCMD plugin '$plugin' you specified is not known!");
+    ecmd_print("The eCMD plugin '$plugin' you specified is not known!", 1);
     return 1;
   }
 
@@ -246,13 +246,16 @@ sub main {
       splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } elsif ($ARGV[$x] eq "cleanup") {
       $cleanup = 1;
-      ecmd_print("Removing eCMD and Plugin settings from environment");
+      ecmd_print("Removing eCMD and Plugin settings from environment", 1);
       splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } elsif ($ARGV[$x] eq "64") {   
 	$bits = 64;
 	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } elsif ($ARGV[$x] eq "32") {   
 	$bits = 32;
+	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "quiet") {
+	$ecmdsetup::quiet = 1;
 	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } else {
       # We have to walk the array here because the splice shortens up the array
@@ -275,7 +278,7 @@ sub main {
 	      $arch = "aix64";
 	  }
 	  else {
-	      ecmd_print("'$bits' is not a valid bit value!");
+	      ecmd_print("'$bits' is not a valid bit value!", 1);
 	      return 1;
 	  }
 	  # PPC
@@ -287,7 +290,7 @@ sub main {
 	      $arch = "ppc64";
 	  }
 	  else {
-	      ecmd_print("'$bits' is not a valid bit value!");
+	      ecmd_print("'$bits' is not a valid bit value!", 1);
 	      return 1;
 	  }
 	  # X86
@@ -299,7 +302,7 @@ sub main {
 	      $arch = "x86_64";
 	  }
 	  else {
-	      ecmd_print("'$bits' is not a valid bit value!");
+	      ecmd_print("'$bits' is not a valid bit value!", 1);
 	      return 1;
 	  }    
       }
@@ -485,6 +488,7 @@ sub help {
   ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 32.");
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
+  ecmd_print("[quiet] - Disables status output");
   ecmd_print("<plugin options> - anything else passed into the script is passed onto the plugin");
   ecmd_print("-h - this help text");
 }
