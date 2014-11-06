@@ -2637,6 +2637,7 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
 }
 
 
+#ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
 uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
 {
     uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -2870,7 +2871,7 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
 
     return rc;
 }
-
+#endif //ECMD_REMOVE_MPIPL_FUNCTIONS
 
 uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString)
 {
