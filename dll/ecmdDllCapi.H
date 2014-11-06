@@ -377,6 +377,10 @@ uint32_t dllGetFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
 
 uint32_t dllPutFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data); 
 
+uint32_t dllGetFruVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data); 
+
+uint32_t dllPutFruVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data); 
+
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
 uint32_t dllI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port); 

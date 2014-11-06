@@ -2956,6 +2956,50 @@ uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuf
 
 */
 uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
+
+/**
+ @brief Get FRU VPD Keyword From Image Interface
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Read
+ @param i_bytes Byte length to read
+ Note: If i_bytes > actual VPD Keyword size: function will return all data of the actual VPD Keyword .. No Error is flagged.  
+ @param i_image_data Data buffer containing VPD Image
+ @param o_keyword_data Data buffer to copy keyword data to
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+NOTE : The HW is not accessed in this operation. Instead, the keyword data is pulled from the i_image_data ecmdDataBuffer.<br>
+ 
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t getFruVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
+
+/**
+ @brief Put FRU VPD Keyword To An Image Interface
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_record_name Name of VPD Record for given keyword
+ @param i_keyword Name of VPD Keyword to Read
+ @param io_image_data Data buffer containing VPD Image that gets updated 
+ @param i_keyword_data Data buffer containing keyword data
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_ARGS the inputs could not be mapped to a module
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+NOTE : The HW is not accessed in this operation. Instead, the keyword data in i_keyword_data is used to update the image data in io_image_data.<br>
+ 
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+
+*/
+uint32_t putFruVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data);
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 //@}
 

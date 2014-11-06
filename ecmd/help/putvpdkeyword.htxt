@@ -21,12 +21,16 @@ Syntax: putvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> <Data> [-i<for
         Data            Data to write into VPD. Not valid with -f option
                         Format specified by -i<format>
 
-        -fb <filename>  Specify full path and filename to binary file to load to system
-                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
-
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+        -vpdimage <file>
+                        Specify full path and filename of vpdimage file to write data to
+                        The file is used instead of accessing the hardware
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
