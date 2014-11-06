@@ -5,8 +5,6 @@
 SUBDIR     := pyapi/
 include ../makefile.rules
 
-SWIG := /gsa/rchgsa/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
-
 VPATH        := ${VPATH}:../capi:${SRCDIR}
 INCLUDES     := ecmdClientCapi.H ecmdClientPyapi.H ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H
 SOURCE       := ecmdClientCapi.C ecmdClientPyapi.C
@@ -40,6 +38,8 @@ LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit
 VPATH      := ${VPATH}:${OBJPATH}
 ifeq (${TARGET_ARCH},x86)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig
+else ifeq (${TARGET_ARCH},x86_64)
+  SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
 else ifeq (${TARGET_ARCH},aix)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
 else
