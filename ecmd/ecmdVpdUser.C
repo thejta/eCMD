@@ -62,6 +62,7 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   std::string outputformat = "xl";      ///< Output Format to display
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer data;                  ///< Data from the module vpd record
+  ecmdDataBuffer vpdImage;              ///< buffer to load a VPD image into, if given
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   std::ofstream ops;                    ///< Output stream for writing vpd data into
@@ -76,7 +77,6 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
-  
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
@@ -84,6 +84,9 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     outputformatflag = true;
   }
   
+  /* get VPD file to write to, if it's there */
+  char * vpdImageFile = ecmdParseOptionWithArgs(&argc, &argv, "-vpdimage");
+
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
   std::string printed;
@@ -96,12 +99,12 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
@@ -167,6 +170,16 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
   
   uint32_t numBytes = (uint32_t)atoi(argv[4]);
   
+  // If a VPD image to use was given, read it in now
+  if (vpdImageFile != NULL) {
+    rc = vpdImage.readFile(vpdImageFile, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (rc) {
+      printed = "putvpdkeyword - Problems occurred in reading image file " + (std::string)vpdImageFile + "\n";
+      ecmdOutputError(printed.c_str()); 
+      return rc;
+    }
+  }
+
   if (rid == -1) {
     //Run the loop to Check the number of targets
     if (filename != NULL) {
@@ -182,13 +195,20 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
     rc = ecmdLooperInit(target1, ECMD_SELECTED_TARGETS_LOOP, looperdata1);
     if (rc) return rc;
               
-
     while (ecmdLooperNext(target1, looperdata1) && (!coeRc || coeMode)) {
 
       if (!strcasecmp(vpdType, "MOD")) {
-        rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
+        if (vpdImageFile != NULL) {
+          rc = getModuleVpdKeywordFromImage(target1, recordName, keyWord, numBytes, vpdImage, data);
+        } else {
+          rc = getModuleVpdKeyword(target1, recordName, keyWord, numBytes, data);
+        }
       } else {
-        rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
+        if (vpdImageFile != NULL) {
+          rc = getFruVpdKeywordFromImage(target1, recordName, keyWord, numBytes, vpdImage, data);
+        } else {
+          rc = getFruVpdKeyword(target1, recordName, keyWord, numBytes, data);
+        }
       }
       if (rc) {
         printed = "getvpdkeyword - Error occurred performing ";
@@ -197,8 +217,6 @@ uint32_t ecmdGetVpdKeywordUser(int argc, char * argv[]) {
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
-        //return rc;
-
       }
       else {
         validPosFound = true;     
@@ -279,6 +297,7 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   std::string inputformat = "xl";       ///< format of input data
   ecmdChipTarget target;                ///< Current target operating on
   ecmdDataBuffer data;                  ///< buffer for the Data to write into the module vpd keyword
+  ecmdDataBuffer vpdImage;              ///< buffer to load a VPD image into, if given
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool inputformatflag = false;
   int rid = -1;                         ///< rid of device to operate on
@@ -293,6 +312,9 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     inputformat = formatPtr;
     inputformatflag = true;
   }
+
+  /* get VPD file to write to, if it's there */
+  char * vpdImageFile = ecmdParseOptionWithArgs(&argc, &argv, "-vpdimage");
   
   /* Get the filename if -fb is specified */
   char * filename = ecmdParseOptionWithArgs(&argc, &argv, "-fb");
@@ -306,13 +328,11 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
-
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -394,20 +414,37 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
     }
   }
   
+  // If a VPD image to use was given, read it in now
+  if (vpdImageFile != NULL) {
+    rc = vpdImage.readFile(vpdImageFile, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (rc) {
+      printed = "putvpdkeyword - Problems occurred in reading image file " + (std::string)vpdImageFile + "\n";
+      ecmdOutputError(printed.c_str()); 
+      return rc;
+    }
+  }
+
   if (rid == -1) {
     /************************************************************************/
     /* Kickoff Looping Stuff                                                */
     /************************************************************************/
-
     rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
     if (rc) return rc;
   
     while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
       if (!strcasecmp(vpdType, "MOD")) {
-        rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+        if (vpdImageFile != NULL) {
+          rc = putModuleVpdKeywordToImage(target, recordName, keyWord, vpdImage, data);
+        } else {
+          rc = putModuleVpdKeyword(target, recordName, keyWord, data);
+        }        
       } else {
-        rc = putFruVpdKeyword(target, recordName, keyWord, data);
+        if (vpdImageFile != NULL) {
+          rc = putFruVpdKeywordToImage(target, recordName, keyWord, vpdImage, data);
+        } else {
+          rc = putFruVpdKeyword(target, recordName, keyWord, data);
+        }
       }
       if (rc) {
         printed = "putvpdkeyword - Error occurred performing putModuleVpdKeyword ";
@@ -455,6 +492,16 @@ uint32_t ecmdPutVpdKeywordUser(int argc, char * argv[]) {
   }
   // coeRc will be the return code from in the loop, coe mode or not.
   if (coeRc) return coeRc;
+
+  // If a VPD image to use was given, now write the changes back out to the file given for use
+  if (vpdImageFile != NULL) {
+    rc = vpdImage.writeFile(vpdImageFile, ECMD_SAVE_FORMAT_BINARY_DATA);
+    if (rc) {
+      printed = "putvpdkeyword - Problems occurred in writing image file " + (std::string)vpdImageFile + "\n";
+      ecmdOutputError(printed.c_str()); 
+      return rc;
+    }
+  }
 
   // This is an error common across all UI functions
   if (!validPosFound) {
@@ -565,7 +612,6 @@ uint32_t ecmdPutVpdImageUser(int argc, char * argv[]) {
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
-
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
   

@@ -33,6 +33,10 @@ Syntax: getvpdkeyword <Chip|RID> <VpdType> <RecordName> <Keyword> <NumBytes> -o<
                         Incase multiple chip positions are specified the target string will
                         be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
 
+        -vpdimage <file>
+                        Specify full path and filename of vpdimage file to read data from
+                        The file is used instead of accessing the hardware
+
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
