@@ -318,6 +318,7 @@ typedef enum {
   ECMD_DLL_BML,                 ///< Running against the BML plugin
   ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
   ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
+  ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
 } ecmdDllType_t;
 
 /**

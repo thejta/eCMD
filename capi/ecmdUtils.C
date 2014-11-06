@@ -736,6 +736,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "MAMBO\n";
   else if (info.dllType == ECMD_DLL_RISCWATCH)
     printed += "RiscWatch\n";
+  else if (info.dllType == ECMD_DLL_LINUXHOSTTOOL)
+    printed += "Linux Host Tool\n";
   else 
     printed += "Unknown\n";
   ecmdOutput(printed.c_str());
@@ -2033,6 +2035,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         printed += "Z-Series\n";
       else if (dummy->dllType == ECMD_DLL_SCAND)
         printed += "ScanD\n";
+      else if (dummy->dllType == ECMD_DLL_LINUXHOSTTOOL)
+        printed += "Linux Host Tool\n";
       else 
         printed += "Unknown\n";
 
