@@ -1525,7 +1525,7 @@ public:
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
    * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
-  uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_property = NULL); /* Writes out the buffer (in the specified format) into the file */
+  uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_property = NULL); /* Reads in the buffer (in the specified format) into the databuffer */
 
   /**
    * @brief Read data from the file into the buffer  
