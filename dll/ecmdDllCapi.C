@@ -895,11 +895,13 @@ std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i
   std::list<ecmdErrorMsg>::iterator cur;
   char tmp[200];
   bool first = true;
+  size_t headerLength;
 
   for (cur = ecmdErrorMsgList.begin(); cur != ecmdErrorMsgList.end(); cur++) {
     if ((cur->returnCode == i_returnCode) || ((i_returnCode == ECMD_GET_ALL_REMAINING_ERRORS) && (!cur->accessed))) {
       if (first && i_messageBorder) {
-        ret  = "====== EXTENDED ERROR MSG : " + cur->whom + " ===============\n";
+        ret  = "=============== EXTENDED ERROR MSG : " + cur->whom + " ===============\n";
+        headerLength = ret.length();
         first = false;
       }
       ret = ret + cur->message;
@@ -913,7 +915,7 @@ std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i
       ret += tmp;
     }
     if (i_messageBorder) {
-      ret += "===================================================\n";
+      ret += std::string((headerLength - 1), '=') + '\n';
     }
   }
 
