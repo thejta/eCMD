@@ -119,31 +119,34 @@ print("dllBuildDate   = %s" % dllInfo.dllBuildDate)
 print("dllCapiVersion = %s" % dllInfo.dllCapiVersion)
 print("dllBuildInfo   = %s" % dllInfo.dllBuildInfo)
 
-testNum+=1; print("dll %02d) Query Ring Info" % testNum)
-tgt = ecmd.ecmdChipTarget()
-#ringInfo = list()
-ringInfo = ecmd.ecmdRingDataList()
-rc = ecmd.ecmdQueryRing(tgt, ringInfo)
-print("size: %d" % ringInfo.size())
-for i in range(0, ringInfo.size()):
-    for j in range(0, ringInfo[i].ringNames.size()):
-        print("%s" % ringInfo[i].ringNames[j])
-
-for item in ringInfo:
-    for itemName in item.ringNames:
-        print("%s" % itemName)
-
-for item in ringInfo:
-    print("ringNames: "),
-    for itemName in item.ringNames:
-        print("%s " % itemName),
-    print("") # Close the line above
-    print("address: 0x%08X" % item.address)
-    print("bitLength: %d" % item.bitLength)
-    print("isCheckable: %s" % item.isCheckable)
-    print("clockState: %s" % item.clockState)
-    item.clockState = ecmd.ECMD_CLOCKSTATE_OFF
-    print("clockState: %s" % item.clockState)
+# Pulling this test for now
+# It breaks builds where ring support isn't included, so some smarts would need to be put into it
+# JTA 11/11/2014
+if (0):
+    testNum+=1; print("dll %02d) Query Ring Info" % testNum)
+    tgt = ecmd.ecmdChipTarget()
+    ringInfo = ecmd.ecmdRingDataList()
+    rc = ecmd.ecmdQueryRing(tgt, ringInfo)
+    print("size: %d" % ringInfo.size())
+    for i in range(0, ringInfo.size()):
+        for j in range(0, ringInfo[i].ringNames.size()):
+            print("%s" % ringInfo[i].ringNames[j])
+            
+    for item in ringInfo:
+        for itemName in item.ringNames:
+            print("%s" % itemName)
+        
+    for item in ringInfo:
+        print("ringNames: "),
+        for itemName in item.ringNames:
+            print("%s " % itemName),
+        print("") # Close the line above
+        print("address: 0x%08X" % item.address)
+        print("bitLength: %d" % item.bitLength)
+        print("isCheckable: %s" % item.isCheckable)
+        print("clockState: %s" % item.clockState)
+        item.clockState = ecmd.ECMD_CLOCKSTATE_OFF
+        print("clockState: %s" % item.clockState)
 
 rc = ecmd.ecmdUnloadDll()
 if (rc):
