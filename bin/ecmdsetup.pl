@@ -43,6 +43,9 @@ BEGIN {
 # installpath points to root of install
 my $installPath = $pwd;
 $installPath =~ s/\/([^\/..]*\/?)$/\//;
+# Remove the trailing slash if there
+$installPath =~ s/\/$//;
+
 
 #########################################
 # Setup the modules to include
@@ -51,7 +54,7 @@ use ecmdsetup;
 my $ecmd = new ecmdsetup();
 
 # Create the other setup objects based upon what is available
-my ($cro, $scand, $gip, $mbo);
+my ($cro, $scand, $gip, $mbo, $lht);
 # Cronus
 my $croUse = 0;
 if (-e "crosetup.pm") {
@@ -82,6 +85,14 @@ if (-e "mbosetup.pm") {
   $mboUse = 1;
   require mbosetup;
   $mbo = new mbosetup();
+}
+
+# Linux Host Tool
+my $lhtUse = 0;
+if (-e "lhtsetup.pm") {
+  $lhtUse = 1;
+  require lhtsetup;
+  $lht = new lhtsetup();
 }
 
 ##########################################################################
@@ -215,6 +226,7 @@ sub main {
   } elsif ($plugin eq "gip" && $gipUse) {
   } elsif ($plugin eq "scand" && $scandUse) {
   } elsif ($plugin eq "mbo" && $mboUse) {
+  } elsif ($plugin eq "lht" && $lhtUse) {
   } else {
     ecmd_print("The eCMD plugin '$plugin' you specified is not known!", 1);
     return 1;
@@ -229,13 +241,6 @@ sub main {
   } else {
     $product = shift(@ARGV);
   }
-
-  # We no longer want to error check the product.  It is just passed on through to the plugin
-  #if ($product eq "eclipz") {
-  #} else {
-  #  printf("echo The eCMD product you specified is not known\\!;");
-  #  return 1;
-  #}
 
   ##########################################################################
   # Loop through the args left and see if any are for ecmd
@@ -269,47 +274,44 @@ sub main {
   if ($shortcut) {
     $arch = $ENV{"ECMD_ARCH"};
   } else {
-      # AIX
-      if (`uname` eq "AIX\n") {
-	  if ($bits eq "32") {
-	      $arch = "aix";
-	  }
-	  elsif ($bits eq "64") {
-	      $arch = "aix64";
-	  }
-	  else {
-	      ecmd_print("'$bits' is not a valid bit value!", 1);
-	      return 1;
-	  }
-	  # PPC
-      } elsif (`uname -a|grep ppc` ne "") {
-	  if ($bits eq "32") {
-	      $arch = "ppc";
-	  }
-	  elsif ($bits eq "64") {
-	      $arch = "ppc64";
-	  }
-	  else {
-	      ecmd_print("'$bits' is not a valid bit value!", 1);
-	      return 1;
-	  }
-	  # X86
-      } else {
-	  if ($bits eq "32") {
-	      $arch = "x86";
-	  }
-	  elsif ($bits eq "64") {
-	      $arch = "x86_64";
-	  }
-	  else {
-	      ecmd_print("'$bits' is not a valid bit value!", 1);
-	      return 1;
-	  }    
+    # AIX
+    if (`uname` eq "AIX\n") {
+      if ($bits eq "32") {
+        $arch = "aix";
       }
+      elsif ($bits eq "64") {
+        $arch = "aix64";
+      }
+      else {
+        ecmd_print("'$bits' is not a valid bit value!", 1);
+        return 1;
+      }
+      # PPC
+    } elsif (`uname -a|grep ppc` ne "") {
+      if ($bits eq "32") {
+        $arch = "ppc";
+      }
+      elsif ($bits eq "64") {
+        $arch = "ppc64";
+      }
+      else {
+        ecmd_print("'$bits' is not a valid bit value!", 1);
+        return 1;
+      }
+      # X86
+    } else {
+      if ($bits eq "32") {
+        $arch = "x86";
+      }
+      elsif ($bits eq "64") {
+        $arch = "x86_64";
+      }
+      else {
+        ecmd_print("'$bits' is not a valid bit value!", 1);
+        return 1;
+      }    
+    }
   }
-
-
-
 
   ##########################################################################
   # Cleanup any ecmd bin dirs that might be in the path
@@ -362,7 +364,19 @@ sub main {
         return $rc;
       }
     }
+    if ($lhtUse) {
+      $rc = $lht->cleanup(\%modified, $localInstall, $installPath);
+      if ($rc) {
+        return $rc;
+      }
+    }
   }
+
+  ##########################################################################
+  # Set ECMD_HOME based upon the installPath figured out above
+  #
+  $ENV{"ECMD_HOME"} = $installPath;
+  $modified{"ECMD_HOME"} = 1;
 
   ##########################################################################
   # Flag the ECMD_* variables as modified if appropriate
@@ -382,6 +396,7 @@ sub main {
     $modified{"ECMD_PLUGIN"} = -1;
     $modified{"ECMD_PRODUCT"} = -1;
     $modified{"ECMD_ARCH"} = -1;
+    $modified{"ECMD_HOME"} = -1;
   }
 
   ##########################################################################
@@ -408,6 +423,12 @@ sub main {
     }
     if ($plugin eq "mbo" && $mboUse) {
       $rc = $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
+      if ($rc) {
+        return $rc;
+      }
+    }
+    if ($plugin eq "lht" && $lhtUse) {
+      $rc = $lht->setup(\%modified, $localInstall, $product, $installPath, $arch, @ARGV);
       if ($rc) {
         return $rc;
       }
@@ -483,7 +504,7 @@ sub main {
 sub help {
   ecmd_print("ecmdsetup <release> <plugin> <product> [32|64] [copylocal] [cleanup] <plugin options>");
   ecmd_print("<release> - Any eCMD Version currently supported in CVS (ex rel, ver5, ver4-3)");
-  ecmd_print("<plugin> - cro|scand|gip|mbo");
+  ecmd_print("<plugin> - cro|scand|gip|mbo|lht");
   ecmd_print("<product> - eclipz, etc..");
   ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 32.");
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
