@@ -225,6 +225,9 @@ uint32_t ecmdGlobal_continueOnError = 0;
 /* ECMD_EXIST_LOOP, turned on by -exist */
 uint32_t ecmdGlobal_looperMode = ECMD_CONFIG_LOOP;
 
+/* @brief This is a global var to determine if in fused core mode */
+uint32_t ecmdGlobal_fusedCore = ECMD_FUSED_CORE_DISABLED;
+
 /* @brief This is a global var set by ecmdSetCurrentCmdline() */
 std::string ecmdGlobal_currentCmdline = "";
 
@@ -1023,6 +1026,91 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
   }
 
   return rc;
+}
+
+// Is the target passed a fused target 
+uint32_t dllUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use)
+{
+    uint32_t rc = ECMD_SUCCESS;
+
+    if (ecmdGlobal_fusedCore == ECMD_FUSED_CORE_SCOM)
+    {
+       rc = dllTargetTranslateNormalToFused(i_target, o_fusedcore, o_fusedthread);
+       if (rc) {
+          return rc;
+       }
+       if ((i_core == o_fusedcore) || (i_core == 0xFFFFFFFF)) { 
+	   return ECMD_SUCCESS;
+       }
+    }
+    else if (ecmdGlobal_fusedCore == ECMD_FUSED_CORE_REGISTER)
+    {
+       rc = dllTargetTranslateNormalToFused(i_target, o_fusedcore, o_fusedthread);
+       if (rc) {
+          return rc;
+       }
+    }
+    if (((i_core == o_fusedcore) || (i_core == 0xFFFFFFFF)) && ((i_thread == o_fusedthread) || (i_thread == 0xFFFFFFFF))) {
+	return ECMD_SUCCESS;
+    }
+    // passed target is not a fused target
+    o_use = true;
+    return ECMD_SUCCESS;
+}
+
+uint32_t dllGetCmdlineCoreThread(uint32_t & o_core,uint32_t & o_thread)
+{
+    std::string patterns = ",.";
+    if (ecmdUserArgs.chipUnitNum.length()) {
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      if (ecmdUserArgs.chipUnitNum.find_first_of(patterns) < ecmdUserArgs.chipUnitNum.length()) {
+        // ERROR multi not allowed with fused core mode
+        return ECMD_INVALID_ARGS;
+      }
+
+      /* See if the user specified -all or -call */
+      else if (ecmdUserArgs.chipUnitNum == "all") {
+        // good
+        o_core =  0xFFFFFFFF;
+      }
+
+      /* See if we have a single entry -c1 */
+      else if (isValidTargetString(ecmdUserArgs.chipUnitNum)) {
+        o_core = (uint32_t)atoi(ecmdUserArgs.chipUnitNum.c_str());
+        // good
+      }
+
+      else {
+        // bad
+        return ECMD_INVALID_ARGS;
+      }
+    }
+
+    if (ecmdUserArgs.thread.length()) {
+      /* If the user used any sort of list 0,1,2,4 or range 2..5 then we do multi */
+      if (ecmdUserArgs.thread.find_first_of(patterns) < ecmdUserArgs.thread.length()) {
+        // ERROR multi not allowed with fused core mode
+        return ECMD_INVALID_ARGS;
+      }
+
+      /* See if we have a single entry -t1 */
+      else if (isValidTargetString(ecmdUserArgs.thread)) {
+        o_thread = (uint32_t)atoi(ecmdUserArgs.thread.c_str());
+        // good
+      }
+
+      /* See if the user specified -all or -call */
+      else if (ecmdUserArgs.thread == "all") {
+        // good
+        o_thread =  0xFFFFFFFF;
+      }
+
+      else {
+        // bad
+        return ECMD_INVALID_ARGS;
+      }
+    } 
+    return ECMD_SUCCESS;
 }
 
 uint32_t dllQuerySelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype) {

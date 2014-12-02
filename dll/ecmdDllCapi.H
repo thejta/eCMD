@@ -324,6 +324,12 @@ uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode);
 
 uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 
 
+uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread); 
+
+uint32_t dllUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use); 
+
+uint32_t dllGetCmdlineCoreThread(uint32_t & o_core, uint32_t & o_thread); 
+
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
 uint32_t dllGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData); 

@@ -376,6 +376,7 @@ typedef enum {
   ECMD_GLOBALVAR_QUIETERRORMODE,        ///< Retrieve the value of the quiet error mode debug flag. Set by -quieterror
   ECMD_GLOBALVAR_LOOPMODE,              ///< Retrieve the value of the loopMode mode flag set by -exist default = ECMD_CONFIG_LOOP
   ECMD_GLOBALVAR_CMDLINEMODE,           ///< Retrieve the value of the cmdLine mode value.  cmdline default = 1, other = 0
+  ECMD_GLOBALVAR_FUSEDCORE              ///< Retrieve the value of the cmdLine fused core mode value, set by -fc  cmdline default = 1, other = 0
 } ecmdGlobalVarType_t;
 
 /**
@@ -2258,5 +2259,12 @@ struct ecmdDTSData{
  Defines for getMemProc and putMemProc
 */
 #define MEMPROC_CACHE_INHIBIT  0x00000001
+
+typedef enum {
+  ECMD_FUSED_CORE_DISABLED,  ///< Flag indicating fused core mode is disabled
+  ECMD_FUSED_CORE_ENABLED,   ///< Flag indicating fused core mode is enabled
+  ECMD_FUSED_CORE_REGISTER,  ///< Flag indicating fused core mode is enabled for a core register
+  ECMD_FUSED_CORE_SCOM,      ///< Flag indicating fused core mode is enabled for a scom 
+} ecmdFusedCoreMode_t;
 
 #endif
