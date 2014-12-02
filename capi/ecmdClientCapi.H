@@ -2519,6 +2519,37 @@ uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_
 */
 uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
 
+/**
+ @brief Retrieves the fused core chipunit and thread numbers for the chipunit and threaad that are passed in
+ @param i_target Struct that contains partial information to limit query results
+ @param o_core will contain the fused core chipunit of i_core upon successful return from the call
+ @param o_thread will contain the fused core thread of i_thread upon successful return from the call
+ retval ECMD_SUCCESS on success
+*/
+uint32_t ecmdTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread);
+
+/**
+ @brief Retrieves the fused core target for given target and compares it with the fused core target passed from command line
+ @param i_target Struct that contains partial information to limit query results
+ @param i_core contains fused core number passed at the command line
+ @param i_thread contains fused thread number passed at the command line
+ @param o_fusedcore contains the transformed fused core chipunit from i_target chipunit
+ @param o_fusedthread contains the transformed fused core thread from i_target thread
+ @param o_use will return true if you want to continue in the looper this function is called from and vice versa
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t ecmdUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use);
+
+/**
+ @brief Retrieves the fused core chipunit and thread numbers passed from command line
+ @param o_core will contain the fused core chipunit number upon successful return from the call
+ @param o_thread will contain the fused core thread number upon successful return from the call
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+ */
+uint32_t ecmdGetCmdlineCoreThread(uint32_t & o_core, uint32_t & o_thread);
+
 //@}
 
 
