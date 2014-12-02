@@ -109,6 +109,8 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
   std::string sprName;
   bool validChipFound = false;
   std::string chipType, chipUnitType;
+  uint32_t l_core   = 0; ///< Fused commandlline core
+  uint32_t l_thread = 0; ///< Fused commandlline thread
 
   /* get format flag, if it's there */
   std::string format;
@@ -160,6 +162,15 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         return rc;
     }
     
+  }
+
+  /* check if fused core is enabled, turn on register mode */
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_ENABLED) {
+    ecmdSetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE,  ECMD_FUSED_CORE_REGISTER);
+    rc = ecmdGetCmdlineCoreThread( l_core, l_thread);
+    if (rc){
+       return rc;
+    }
   }
 
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
@@ -311,7 +322,12 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
         /* Init the thread loop */
-        rc = ecmdLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+        if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+           threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+           rc = ecmdLooperInit(threadTarget, ECMD_ALL_TARGETS_LOOP, threadLooperData);
+	} else {
+           rc = ecmdLooperInit(threadTarget, ECMD_SELECTED_TARGETS_LOOP, threadLooperData);
+        }
         if (rc) return rc;
 
         /* If this isn't a thread spr we will fall into while loop and break at the end, if it is we will call run through configloopernext */
@@ -330,7 +346,28 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
             validPosFound = true;     
           }
 
-          printed = ecmdWriteTarget(threadTarget) + "\n";
+          printed = ecmdWriteTarget(threadTarget);
+          if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+	       uint32_t l_fusedCore   = 0;
+	       uint32_t l_fusedThread = 0;
+	       bool o_use = false;
+
+	       rc = ecmdUseFusedTarget(threadTarget, l_core, l_thread, l_fusedCore, l_fusedThread, o_use);
+
+	       if (o_use == true) {
+		   // fused target didn't match with local target, loop on rest of the targets
+		   continue;
+	       } 
+	       else if (!rc) {
+                  char tmp[50];
+                  snprintf(tmp, 50, "fc%02d:t%d  ", l_fusedCore, l_fusedThread);
+                  printed += tmp;
+	       } 
+	       else {
+		   return rc;
+	       }
+          }
+	  printed += "\n";
           ecmdOutput( printed.c_str() );
           for (nameIter = threadEntryIter->second.begin(); nameIter != threadEntryIter->second.end(); nameIter++) {
 
@@ -597,6 +634,8 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   std::string sprName;
   ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not 
   std::string chipType, chipUnitType;
+  uint32_t l_core   = 0; ///< Fused commandlline core
+  uint32_t l_thread = 0; ///< Fused commandlline thread
 
   /* get format flag, if it's there */
   std::string format;
@@ -621,6 +660,15 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* check if fused core is enabled, turn on register mode */
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_ENABLED) {
+    ecmdSetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE,  ECMD_FUSED_CORE_REGISTER);
+    rc = ecmdGetCmdlineCoreThread( l_core, l_thread);
+    if (rc){
+       return rc;
+    }
+  }
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
@@ -721,7 +769,12 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       }
     }
 
-    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+        subTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+        rc = ecmdLooperInit(subTarget, ECMD_ALL_TARGETS_LOOP, subLooperdata);
+    } else {
+        rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    }
     if (rc) {
       coeRc = rc;
       continue;
@@ -749,7 +802,28 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
         validPosFound = true;     
       }
 
-      printed = ecmdWriteTarget(subTarget) + "\n";
+      printed = ecmdWriteTarget(subTarget);
+      if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+	  uint32_t l_fusedCore   = 0;
+	  uint32_t l_fusedThread = 0;
+	  bool o_use = false;
+
+          rc = ecmdUseFusedTarget(subTarget, l_core, l_thread, l_fusedCore, l_fusedThread, o_use);
+
+         if (o_use == true) {
+            // fused target didn't match with local target, loop on rest of the targets
+            continue;
+         } 
+         else if (!rc) {
+            char tmp[50];
+            snprintf(tmp, 50, "fc%02d:t%d  ", l_fusedCore, l_fusedThread);
+            printed += tmp;
+        } 
+        else {
+            return rc;
+        }
+      }
+      printed += "\n";
       ecmdOutput( printed.c_str() );
       for (std::list<ecmdIndexEntry>::iterator nameIter = entries_copy.begin(); nameIter != entries_copy.end(); nameIter ++) {
 
