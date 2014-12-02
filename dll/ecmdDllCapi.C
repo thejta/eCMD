@@ -1029,7 +1029,7 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
 }
 
 // Is the target passed a fused target 
-uint32_t dllUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use)
+uint32_t dllUseFusedTarget(ecmdChipTarget & i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use)
 {
     uint32_t rc = ECMD_SUCCESS;
 

@@ -326,7 +326,7 @@ uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_addr
 
 uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread); 
 
-uint32_t dllUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use); 
+uint32_t dllUseFusedTarget(ecmdChipTarget & i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use); 
 
 uint32_t dllGetCmdlineCoreThread(uint32_t & o_core, uint32_t & o_thread); 
 

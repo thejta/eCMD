@@ -2539,7 +2539,7 @@ uint32_t ecmdTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & 
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
  */
-uint32_t ecmdUseFusedTarget(ecmdChipTarget i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use);
+uint32_t ecmdUseFusedTarget(ecmdChipTarget & i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use);
 
 /**
  @brief Retrieves the fused core chipunit and thread numbers passed from command line
