@@ -2127,6 +2127,10 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
     ecmdGlobal_looperMode = ECMD_EXIST_LOOP;
   }
 
+  /* Grab the fused core flag */
+  if (ecmdParseOption(io_argc, io_argv, "-fc")) {
+    ecmdGlobal_fusedCore = ECMD_FUSED_CORE_ENABLED;
+  }
 
   /*************************************/
   /* Parse command line targeting args */
@@ -2507,6 +2511,8 @@ uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type) {
     ret = ecmdGlobal_looperMode;
   } else if (i_type == ECMD_GLOBALVAR_CMDLINEMODE) {
     ret = ecmdGlobal_cmdLineMode;
+  } else if (i_type == ECMD_GLOBALVAR_FUSEDCORE) {
+    ret = ecmdGlobal_fusedCore;
   }
 
   return ret;
@@ -2530,6 +2536,8 @@ uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
     ecmdGlobal_looperMode = i_value;
   } else if (i_type == ECMD_GLOBALVAR_CMDLINEMODE) {
     ecmdGlobal_cmdLineMode = i_value;
+  } else if (i_type == ECMD_GLOBALVAR_FUSEDCORE) {
+    ecmdGlobal_fusedCore = i_value;
   } else {
     return ECMD_INVALID_ARGS;
   }

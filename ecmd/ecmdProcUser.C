@@ -419,6 +419,10 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   bool validChipFound = false;
   std::string chipType, chipUnitType;
   int idx = 0;
+  uint32_t l_core   = 0; ///< Fused commandlline core
+  uint32_t l_thread = 0; ///< Fused commandlline thread
+  uint32_t l_fusedCore   = 0;
+  uint32_t l_fusedThread = 0;
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -436,6 +440,15 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* check if fused core is enabled, turn on register mode */
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_ENABLED) {
+    ecmdSetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE,  ECMD_FUSED_CORE_REGISTER);
+    rc = ecmdGetCmdlineCoreThread( l_core, l_thread);
+    if (rc){
+       return rc;
+    }
+  }
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
@@ -559,11 +572,28 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
     }
 
-    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
+    if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+      rc = ecmdLooperInit(subTarget, ECMD_ALL_TARGETS_LOOP, subLooperData);
+    } else {
+      rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
+    }
     if (rc) break;
 
     while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
+       if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+          bool o_use = false;
+     
+          rc = ecmdUseFusedTarget(subTarget, l_core, l_thread, l_fusedCore, l_fusedThread, o_use);
+
+          if (o_use == true) {
+            // fused target didn't match with local target, loop on rest of the targets
+            continue;
+          } 
+          else if (rc) {
+            return rc;
+          }
+      }
       /* The user did the r/m/w version, so we need to do a get spr */
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {
@@ -595,7 +625,13 @@ uint32_t ecmdPutSprUser(int argc, char * argv[]) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(subTarget) + "\n";
+        printed = ecmdWriteTarget(subTarget);
+        if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+           char tmp[50];
+           snprintf(tmp, 50, "fc%02d:t%d  ", l_fusedCore, l_fusedThread);
+           printed += tmp;
+        } 
+	printed += "\n";
         ecmdOutput(printed.c_str());
       }
     }
@@ -854,27 +890,31 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdChipTarget target;        ///< Current target
-  ecmdLooperData looperdata;    ///< Store internal Looper data
-  ecmdChipTarget subTarget;        ///< Current target
-  ecmdLooperData subLooperdata;            ///< Store internal Looper data
-  std::string inputformat = "x";                ///< Default input format
-  std::string dataModifier = "insert";          ///< Default data Modifier (And/Or/insert)
-  ecmdDataBuffer cmdlineBuffer; ///< Buffer to store data to write with
-  ecmdDataBuffer buffer;        ///< Buffer to store data from the read
-  bool validPosFound = false;   ///< Did we find something to actually execute on ?
-  std::string printed;          ///< Print Buffer
-  uint32_t entry;               ///< Index entry to write 
-  uint32_t startBit = ECMD_UNSET; ///< Startbit to insert data
+  ecmdChipTarget target;               ///< Current target
+  ecmdLooperData looperdata;           ///< Store internal Looper data
+  ecmdChipTarget subTarget;            ///< Current target
+  ecmdLooperData subLooperData;        ///< Store internal Looper data
+  std::string inputformat = "x";       ///< Default input format
+  std::string dataModifier = "insert"; ///< Default data Modifier (And/Or/insert)
+  ecmdDataBuffer cmdlineBuffer;        ///< Buffer to store data to write with
+  ecmdDataBuffer buffer;               ///< Buffer to store data from the read
+  bool validPosFound = false;          ///< Did we find something to actually execute on ?
+  std::string printed;                 ///< Print Buffer
+  uint32_t entry;                      ///< Index entry to write 
+  uint32_t startBit = ECMD_UNSET;      ///< Startbit to insert data
   //Commenting numBits out to avoid compiler warnings.  Nothing was being done with this value.
-  //uint32_t numBits = 0;         ///< Number of bits to insert data
-  std::string function;         ///< Current function being run based on daType
+  //uint32_t numBits = 0;              ///< Number of bits to insert data
+  std::string function;                ///< Current function being run based on daType
   std::string sprName;
-  char* cmdlinePtr = NULL;         ///< Pointer to data in argv array
-  ecmdProcRegisterInfo procInfo; ///< Used to figure out if an SPR is threaded or not
+  char* cmdlinePtr = NULL;             ///< Pointer to data in argv array
+  ecmdProcRegisterInfo procInfo;       ///< Used to figure out if an SPR is threaded or not
   bool validChipFound = false;
   std::string chipType, chipUnitType;
   int idx = 0;
+  uint32_t l_core   = 0;               ///< Fused commandlline core
+  uint32_t l_thread = 0;               ///< Fused commandlline thread
+  uint32_t l_fusedCore   = 0;
+  uint32_t l_fusedThread = 0;
 
   /* get format flag, if it's there */
   char* formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
@@ -901,6 +941,15 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* check if fused core is enabled, turn on register mode */
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_ENABLED) {
+    ecmdSetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE,  ECMD_FUSED_CORE_REGISTER);
+    rc = ecmdGetCmdlineCoreThread( l_core, l_thread);
+    if (rc){
+       return rc;
+    }
+  }
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
@@ -1022,13 +1071,31 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       }
     }
 
-    rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperdata);
+    if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+      rc = ecmdLooperInit(subTarget, ECMD_ALL_TARGETS_LOOP, subLooperData);
+    } else {
+      rc = ecmdLooperInit(subTarget, ECMD_SELECTED_TARGETS_LOOP, subLooperData);
+    }
     if (rc) {
       coeRc = rc;
       continue;
     }
 
-    while (ecmdLooperNext(subTarget, subLooperdata) && (!coeRc || coeMode)) {
+    while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
+
+       if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+          bool o_use = false;
+     
+          rc = ecmdUseFusedTarget(subTarget, l_core, l_thread, l_fusedCore, l_fusedThread, o_use);
+
+          if (o_use == true) {
+            // fused target didn't match with local target, loop on rest of the targets
+            continue;
+          } 
+          else if (rc) {
+            return rc;
+          }
+      }
 
       /* Do we need to perform a read/modify/write op ? */
       if ((dataModifier != "insert") || (startBit != ECMD_UNSET)) {
@@ -1069,7 +1136,13 @@ uint32_t ecmdPutGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(subTarget) + "\n";
+        printed = ecmdWriteTarget(subTarget);
+        if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_REGISTER) {
+           char tmp[50];
+           snprintf(tmp, 50, "fc%02d:t%d  ", l_fusedCore, l_fusedThread);
+           printed += tmp;
+        } 
+	printed += "\n";
         ecmdOutput(printed.c_str());
       }
     }

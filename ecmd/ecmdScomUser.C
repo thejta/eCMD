@@ -484,6 +484,9 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   uint32_t numbits = 0;                         ///< Number of bits to insert data
   uint8_t oneLoop = 0;                          ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   char* cmdlinePtr = NULL;                      ///< Pointer to data in argv array
+  uint32_t l_core   = 0;                        ///< Fused commandlline core
+  uint32_t l_thread = 0;                        ///< Fused commandlline thread
+  uint32_t l_fusedCore   = 0;                   ///< Current local fused core
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -503,6 +506,15 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
   /************************************************************************/
   rc = ecmdCommandArgs(&argc, &argv);
   if (rc) return rc;
+
+  /* check if fused core is enabled, turn on register mode */
+  if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_ENABLED) {
+    ecmdSetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE,  ECMD_FUSED_CORE_SCOM);
+    rc = ecmdGetCmdlineCoreThread( l_core, l_thread);
+    if (rc){
+       return rc;
+    }
+  }
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
@@ -685,7 +697,11 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
 		    cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
 		    cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 		    // Init the chipUnit loop
-		    rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+                    if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_SCOM) {
+                        rc = ecmdLooperInit(cuTarget, ECMD_ALL_TARGETS_LOOP, cuLooper);
+	            }else {
+		        rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+		    }
 		    if (rc) break;
 		} 
 		else 
@@ -739,6 +755,21 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
         }
       } else {
 
+        if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_SCOM) 
+        {
+	  uint32_t l_fusedThread = 0;
+	  bool o_use = false;
+ 
+          rc = ecmdUseFusedTarget(cuTarget, l_core, l_thread, l_fusedCore, l_fusedThread, o_use);
+
+          if (o_use == true) {
+             // fused target didn't match with local target, loop on rest of the targets
+             continue;
+          } 
+          else if (rc) {
+	      return rc;
+          }
+        }
         /* My data is all setup, now write it */
         rc = putScom(cuTarget, address, buffer);
         if (rc) {
@@ -754,7 +785,14 @@ uint32_t ecmdPutScomUser(int argc, char* argv[]) {
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-        printed = ecmdWriteTarget(cuTarget) + "\n";
+        printed = ecmdWriteTarget(cuTarget);
+        if (ecmdGetGlobalVar(ECMD_GLOBALVAR_FUSEDCORE) == ECMD_FUSED_CORE_SCOM) 
+        {
+           char tmp[50];
+           snprintf(tmp, 50, "fc%02d  ", l_fusedCore);
+           printed += tmp;
+        }
+	printed += "\n";
         ecmdOutput(printed.c_str());
       }
     } /* End cuLooper */
