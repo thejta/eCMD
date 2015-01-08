@@ -30,6 +30,7 @@ SOURCE       := $(subst fapiClientCapi.C,,${SOURCE})
 # *****************************************************************************
 PY_TARGET := ecmd.py
 SO_TARGET := _ecmd.so
+PYTHON_NAME ?= python2
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
 ifeq (fapi,$(filter ${EXTENSIONS},fapi))
@@ -115,13 +116,13 @@ objclean:
 install: ${VERINSTALL}
 
 pyapi_install:
-	@echo "Creating ${TARGET_ARCH}/python2 dir ..."
-	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/python2
+	@echo "Creating ${TARGET_ARCH}/${PYTHON_NAME} dir ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}
 	@echo " "
 
-	@echo "Installing eCMD Python2 API ${INSTALL_PATH}/${TARGET_ARCH}/python2.."
-	cp ${OBJPATH}${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python2/.
-	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python2/.
+	@echo "Installing eCMD Python API ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}.."
+	cp ${OBJPATH}${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
 test: ${SO_TARGET}
         ifeq (${TARGET_OS},aix)
