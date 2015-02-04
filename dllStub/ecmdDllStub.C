@@ -226,6 +226,11 @@ bool dllQueryTraceMode(ecmdTraceType_t i_type) {
   return false;
 }
 
+uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
 /* ######################################################################### */
 /* UnitID Functions - UnitID Functions - UnitID Functions - UnitID Functions */
 /* ######################################################################### */

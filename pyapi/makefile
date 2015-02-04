@@ -45,6 +45,8 @@ else ifeq (${TARGET_ARCH},x86_64)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
 else ifeq (${TARGET_ARCH},aix)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
+else ifeq (${TARGET_ARCH},ppc64)
+  SWIG     ?= /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/ppc64/bin/swig
 else
   SWIG     ?= /usr/bin/swig
 endif
@@ -74,6 +76,7 @@ ifeq (${TARGET_OS},ppc)
     PYINC ?= -I/usr/include/python2.6
   else
     PYINC ?= -I/usr/include/python2.6
+    CFLAGS := ${CFLAGS} -mcmodel=medium
   endif
 endif
 

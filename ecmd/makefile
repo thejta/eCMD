@@ -60,7 +60,11 @@ ifeq (${TARGET_OS},aix)
   ifeq (${TARGET_ARCH},aix)
     LDLIBS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd
   else
-    LDLIBS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd -lz
+    ifeq (${TARGET_ARCH},aix64)
+      LDLIBS    := -Wl,-brtl -L${OBJROOT}/capi/${OBJDIR} -lecmd -lz
+	else
+      LDLIBS    := -brtl -w -L${OBJROOT}/capi/${OBJDIR} -lecmd -lz
+    endif
   endif
 endif
 
@@ -134,7 +138,11 @@ ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ifeq (${TARGET_OS},aix)
+ifeq (${TARGET_ARCH},aix64)
+	${LD} ${LDFLAGS} -Wl,-brtl $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+else
 	${LD} ${LDFLAGS} -brtl -w $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+endif
 else
 	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
 endif
