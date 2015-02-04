@@ -37,7 +37,7 @@
 #include <netinet/in.h> /* for htonl */
 #include <fstream>
 #include <iostream>
-#include <zlib.h>
+#include "/usr/include/zlib.h"
 
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>

@@ -41,7 +41,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
-#include <zlib.h>
+#include "/usr/include/zlib.h"
 #include <netinet/in.h>
 #else
 #include <fapiUtil.H>
@@ -2638,11 +2638,7 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
 
   /* Error check the length */
   if (uncompressedBuffer.getByteLength() != uncompressedSize) {
-#ifdef _LP64
-    ETRAC2("*** ERROR : Expected byte length of %d, got back %ld", uncompressedBuffer.getByteLength(), uncompressedSize);
-#else
-    ETRAC2("*** ERROR : Expected byte length of %d, got back %d", uncompressedBuffer.getByteLength(), uncompressedSize);
-#endif
+    ETRAC2("*** ERROR : Expected byte length of %d, got back %zd", uncompressedBuffer.getByteLength(), uncompressedSize);
     RETURN_ERROR(ECMD_DBUF_MISMATCH); 
   }
 

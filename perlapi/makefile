@@ -44,6 +44,8 @@ ifeq (${TARGET_ARCH},x86)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig
 else ifeq (${TARGET_ARCH},aix)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
+else ifeq (${TARGET_ARCH},aix64)
+  SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
 else
   SWIG     ?= /usr/bin/swig
 endif
@@ -71,6 +73,7 @@ endif
 # The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${TARGET_OS},ppc)
+  CFLAGS    := ${CFLAGS} -mcmodel=medium
   SLDFLAGS  := ${SLDFLAGS}
   LDLIBS    := ${LDLIBS} -L${OBJROOT}/capi/${OBJDIR} -lecmd
   ifeq (${TARGET_ARCH},ppc)
@@ -84,8 +87,14 @@ endif
 # The Aix Setup stuff
 # *****************************************************************************
 ifeq (${TARGET_OS},aix)
-  SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ${OBJROOT}/capi/${OBJDIR} -l ecmd
-  PERLINC   ?= -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
+  ifeq (${TARGET_ARCH},aix64)
+    SLDFLAGS  := ${SLDFLAGS} -lpthreads -Wl,-bbigtoc -Wl,-bI:${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE/perl.exp -L ${OBJROOT}/capi/${OBJDIR} -l ecmd -pthread
+    CFLAGS    := ${CFLAGS} -mcmodel=large
+    PERLINC   ?= -I${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE -pthread
+  else
+    SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ${OBJROOT}/capi/${OBJDIR} -l ecmd
+    PERLINC   ?= -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
+  endif
   DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 

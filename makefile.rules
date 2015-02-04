@@ -138,6 +138,7 @@ ifeq (${TARGET_OS},x86)
     LDFLAGS  := ${LDFLAGS} -m32 -fPIC
     SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
   else
+    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
     CC       := /opt/rh/devtoolset-2/root/usr/bin/g++
     #CC       := /usr/bin/g++
     CC_R     := ${CC}
@@ -177,22 +178,27 @@ endif
 # The aix setup stuff
 # *****************************************************************************
 ifeq (${TARGET_OS},aix)
-  CC       := /bin/xlC
-  CC_R     := /bin/xlC_r
-  CFLAGS   := ${CFLAGS} -+ -qstaticinline -qnoinline
-  LD       := ${CC}
-  LD_R     := ${CC_R}
-  LDFLAGS  := ${LDFLAGS}
-  SLDFLAGS := -qmkshrobj -brtl
-  AR       := /usr/bin/ar
-  ifeq (${TARGET_ARCH},aix)
-    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
+  GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+  ifeq (${TARGET_ARCH},aix64)
+    CC       := /opt/xsite/cte/tools/simarama/gcc/bin/g++
+    CC_R     := ${CC}
+    LD       := ${CC}
+    LD_R     := ${CC_R} 
+    AR       := /opt/xsite/cte/tools/simarama/gcc/bin/ar -X64
+    CFLAGS   := -g -I. -fPIC -ftemplate-depth-25 -Wall -maix64
+    LDFLAGS  := ${LDFLAGS} -fPIC -maix64 -Wl,-brtl -Wl,-bexpall -Wl,-bhalt:5
+    SLDFLAGS := -maix64 -fPIC -shared -Wl,-G -Wl,-bexpall -Wl,-bhalt:5
+#    SLDFLAGS := -maix64 -fPIC -shared -Wl,-bexpfull -Wl,-brtl
   else
-    CFLAGS   := ${CFLAGS} -q64 -I/usr/include
-    LDFLAGS  := ${LDFLAGS} -q64
-    SLDFLAGS := ${SLDFLAGS} -q64
-    ARFLAGS   := -X64
+    CC       := /bin/xlC
+    CC_R     := /bin/xlC_r
+    CFLAGS   := ${CFLAGS} -+ -qstaticinline -qnoinline
+    LD       := ${CC}
+    LD_R     := ${CC_R}
+    LDFLAGS  := ${LDFLAGS}
+    SLDFLAGS := -qmkshrobj -brtl
+    AR       := /usr/bin/ar
+    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
   endif
 endif
 

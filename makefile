@@ -38,7 +38,7 @@ ifneq ($(findstring py3api,$(shell /bin/ls -d *)),)
 endif
 
 # Only do the pyapi and py3api if not x86 and not aix
-ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
+ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix aix64))
   PYAPI_BUILD := 
   PY3API_BUILD := 
 else

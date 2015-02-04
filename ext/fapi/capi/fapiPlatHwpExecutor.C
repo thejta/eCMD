@@ -39,12 +39,20 @@ int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
 
 #ifdef LINUX
 #ifdef _LP64
+#ifdef __powerpc__
+    std::string tmp = (i_libName + "_ppc64.so");
+#else
     std::string tmp = (i_libName + "_x86_64.so");
+#endif // end _LP64
 #else
     std::string tmp = (i_libName + "_x86.so");
-#endif //end _LP64
+#endif //end _LINUX
+#else
+#ifdef _LP64
+    std::string tmp = (i_libName + "_aix64.so");
 #else
     std::string tmp = (i_libName + "_aix.so");
+#endif
 #endif 
 
 #if defined(ECMD_STATIC_FUNCTIONS) || defined(FAPIARCHIVE)
