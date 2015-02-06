@@ -41,7 +41,11 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
+#ifdef AIX
 #include "/usr/include/zlib.h"
+#else
+#include <zlib.h>
+#endif
 #include <netinet/in.h>
 #else
 #include <fapiUtil.H>
