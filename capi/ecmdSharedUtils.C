@@ -877,7 +877,12 @@ void ecmdSetTargetDisplayMode(ecmdTargetDisplayMode_t i_displayMode) {
   pluginDisplayMode = i_displayMode;
 }
 
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode)
+{
+    return ecmdWriteTarget((const ecmdChipTarget &) i_target, i_displayMode);
+}
+
+std::string ecmdWriteTarget(const ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {
 
   std::string printed;
   char util[20];
