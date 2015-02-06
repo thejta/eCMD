@@ -19,6 +19,7 @@ EXTENSIONS   := $(subst cmd,,${EXTENSIONS})
 # Don't want to include the scand extension, there isn't one
 EXTENSIONS   := $(subst scand,,${EXTENSIONS})
 # Don't want to include the fapi extension, there isn't one
+EXTENSIONS   := $(subst fapi2,,${EXTENSIONS})
 EXTENSIONS   := $(subst fapi,,${EXTENSIONS})
 
 VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../ext/${ext}/cmd/:../ext/${ext}/capi/)

@@ -300,6 +300,27 @@ fapipyapi:
 	@echo " "
 
 ########################
+# fapi Extension
+########################
+fapi2: fapi2capi fapi2perlapi fapi2pyapi
+
+fapi2capi: ecmdcapi
+	@echo "FAPI2 Extension C API ${TARGET_ARCH} ..."
+	@cd ext/fapi2/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	#@cd ext/fapi2/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+fapi2perlapi:
+	@echo "FAPI2 Extension Perl API ${TARGET_ARCH} ..."
+	@cd ext/fapi2/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+fapi2pyapi:
+	@echo "FAPI2 Extension Python API ${TARGET_ARCH} ..."
+	@cd ext/fapi2/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+########################
 # CMD Extension
 ########################
 cmd: cmdcapi cmdperlapi cmdpyapi
