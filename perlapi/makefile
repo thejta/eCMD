@@ -25,6 +25,7 @@ CFLAGS       := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I..
 SWIGFLAGS    := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/perlapi -I../ext/${ext}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SOURCE       := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientPerlapi.C ${ext}ClientPerlapiFunc.C)
 # Remove the fapiClientPerlapiFunc.C from the build, only will use fapiClientPerlapi.C which has the init extension
+SOURCE       := $(subst fapi2ClientPerlapiFunc.C,,${SOURCE})
 SOURCE       := $(subst fapiClientPerlapiFunc.C,,${SOURCE})
 
 # *****************************************************************************
@@ -34,10 +35,14 @@ PM_TARGET := ecmd.pm
 SO_TARGET := ecmd.so
 LINK_OBJS := ${LINK_OBJS} ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
+ifeq (fapi2,$(filter ${EXTENSIONS},fapi2))
+  LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi2/capi/${OBJDIR}/fapi2ClientCapiInit.o
+endif
 ifeq (fapi,$(filter ${EXTENSIONS},fapi))
   LINK_OBJS  := ${LINK_OBJS} ${OBJROOT}/ext/fapi/capi/${OBJDIR}/fapiClientCapiInit.o
 endif
-LINK_EXTENSIONS := $(subst fapi,,${EXTENSIONS})
+LINK_EXTENSIONS := $(subst fapi2,,${EXTENSIONS})
+LINK_EXTENSIONS := $(subst fapi,,${LINK_EXTENSIONS})
 LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/${ext}ClientCapi.a)
 VPATH      := ${VPATH}:${OBJPATH}
 ifeq (${TARGET_ARCH},x86)

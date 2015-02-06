@@ -15,7 +15,7 @@ MAKEFILE_RULES := y
 
 # Build all extension if not otherwise specified
 ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi
+  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi fapi2
   export EXTENSIONS
 endif
 
@@ -121,7 +121,8 @@ CFLAGS    := -g -I.
 # *****************************************************************************
 ifeq (${TARGET_OS},x86)
   GPATH    := ${OBJDIR}
-  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+  #CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
+  CFLAGS   := ${CFLAGS} -Wall
   ifeq (${TARGET_ARCH},x86)
     CC_VER := $(shell gcc --version | cut -d " " -f 3 | grep "\.")
     ifeq (${CC_VER},4.1.2)
@@ -146,9 +147,9 @@ ifeq (${TARGET_OS},x86)
     LD_R     := ${CC_R} 
     AR       := /opt/rh/devtoolset-2/root/usr/bin/ar
     #AR       := /usr/bin/ar
-    CFLAGS   := ${CFLAGS} -m64 -fPIC
-    LDFLAGS  := ${LDFLAGS} -m64 -fPIC
-    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
+    CFLAGS   := ${CFLAGS} -m64 -fPIC -std=c++11
+    LDFLAGS  := ${LDFLAGS} -m64 -fPIC -std=c++11
+    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC -std=c++11
   endif
 endif
 

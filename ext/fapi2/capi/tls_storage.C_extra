@@ -1,0 +1,2 @@
+.globl  _ZTHN5fapi211current_errE
+_ZTHN5fapi211current_errE = __tls_init
