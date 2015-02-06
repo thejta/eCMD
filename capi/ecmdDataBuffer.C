@@ -37,7 +37,11 @@
 #include <netinet/in.h> /* for htonl */
 #include <fstream>
 #include <iostream>
+#ifdef AIX
 #include "/usr/include/zlib.h"
+#else
+#include <zlib.h>
+#endif
 
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
