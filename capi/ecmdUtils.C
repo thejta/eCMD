@@ -757,6 +757,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "Stradale\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_OPENPOWER) {
     printed += "OpenPower\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P9) {
+    printed += "P9\n";
   } else {
     printed += "Unknown\n";
   }

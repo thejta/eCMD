@@ -303,6 +303,7 @@ typedef enum {
   ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
   ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
   ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
+  ECMD_DLL_PRODUCT_P9,          ///< P9 Project
 } ecmdDllProduct_t;
 
 /**
