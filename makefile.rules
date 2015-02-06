@@ -13,12 +13,6 @@ MAKEFILE_RULES := y
 %: s.%
 %: SCCS/s.%
 
-# Build all extension if not otherwise specified
-ifeq ($(strip ${EXTENSIONS}),)
-  EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi fapi2
-  export EXTENSIONS
-endif
-
 # Figure out the OS
 ifeq ($(shell uname),Linux)
   DEFINES := ${DEFINES} -DLINUX
@@ -201,6 +195,16 @@ ifeq (${TARGET_OS},aix)
     AR       := /usr/bin/ar
     CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
   endif
+endif
+
+# Build all extension if not otherwise specified
+ifeq ($(strip ${EXTENSIONS}),)
+  ifeq (${TARGET_ARCH},x86_64)
+    EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi fapi2
+  else
+    EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi
+  endif
+  export EXTENSIONS
 endif
 
 # Include the makefile.confg if the config script was run, this will override anything above
