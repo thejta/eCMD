@@ -27,8 +27,8 @@
 #include <fapi2HwpExecutor.H>
 #include <fapi2AttributeService.H>
 //#include <fapi2ChipEcFeature.H>
-#include <fapi2HwpReturnCodes.H> // Generated file
-#include <fapi2HwpErrorInfo.H>   // Generated file
+//#include <fapi2HwpReturnCodes.H> // Generated file
+//#include <fapi2HwpErrorInfo.H>   // Generated file
 #include <fapi2AttributeIds.H>   // Generated file
 //#include <fapi2SetSbeError.H>    // Generated file
 //#include <fapi2MvpdAccess.H>
