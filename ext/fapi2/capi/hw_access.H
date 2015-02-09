@@ -61,7 +61,7 @@ namespace fapi2
 
     /// @brief Sets the PIB error mask - platform dependant
     /// @param[in]  i_mask     The new error mask
-    void setPIBErrorMask(uint8_t i_mask)
+    inline void setPIBErrorMask(uint8_t i_mask)
     {
         // Platform specific funtion needs to be defined here.
         // For Cronus/FSP/Hostboot, this is a no-op.
@@ -70,7 +70,7 @@ namespace fapi2
 
     /// @brief Gets the PIB error mask - platform dependant
     /// @return uint8_t The current PIB error mask
-    uint8_t getPIBErrorMask(void)
+    inline uint8_t getPIBErrorMask(void)
     {
         // Platform specific funtion needs to be defined here.
         // For Cronus/FSP/Hostboot, this always returns 0
