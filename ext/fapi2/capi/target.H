@@ -209,10 +209,10 @@ namespace fapi2
         template< TargetType T>
         std::vector<Target<T> > getChildren(void) const
             {
-                static_assert(!((K == fapi2::TARGET_TYPE_SYSTEM) ||
-                                (K == fapi2::TARGET_TYPE_PROC_CHIP) ||
-                                (K == fapi2::TARGET_TYPE_MEMBUF_CHIP)),
-                                "Invalid parent for getChildren");
+                static_assert((K == fapi2::TARGET_TYPE_SYSTEM) ||
+                              (K == fapi2::TARGET_TYPE_PROC_CHIP) ||
+                              (K == fapi2::TARGET_TYPE_MEMBUF_CHIP),
+                              "Invalid parent for getChildren");
 
 #define INVALID_CHILD(PARENT, CHILD) \
     static_assert(!((K == PARENT) && (T == CHILD)), \
