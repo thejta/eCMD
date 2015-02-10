@@ -201,6 +201,7 @@ char* fapi2FixOutputFormat(char* o_message, const char* i_message, size_t i_num)
 bool fapi2IsOutputInfoEnabled();
 bool fapi2IsOutputDebugEnabled();
 
+uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
 
 } //extern c
 

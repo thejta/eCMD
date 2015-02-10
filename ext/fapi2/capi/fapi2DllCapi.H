@@ -197,6 +197,8 @@ uint32_t dllFapi2GetAssociatedTargets(
 	std::list<const ecmdChipTarget *> & o_targets, 
 	const fapi2::TargetState i_state); 
 
+uint32_t dllFapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
+
 } //extern C
 
 #endif

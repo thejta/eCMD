@@ -307,7 +307,7 @@ fapi2: fapi2capi fapi2perlapi fapi2pyapi
 fapi2capi: ecmdcapi
 	@echo "FAPI2 Extension C API ${TARGET_ARCH} ..."
 	@cd ext/fapi2/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	#@cd ext/fapi2/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/fapi2/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 fapi2perlapi:

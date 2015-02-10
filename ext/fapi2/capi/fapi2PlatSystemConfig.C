@@ -103,6 +103,69 @@ uint32_t fapi2GetAssociatedTargets( const ecmdChipTarget & i_target, const fapi2
 
     return l_rc;
 }
+uint32_t fapi2GetTargetType( const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType)
+{
+    uint32_t l_rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL)
+    {
+        fprintf(stderr,"dllFapi2GetTargetType%s",ECMD_DLL_NOT_LOADED_ERROR);
+        exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+    if (!fapi2Initialized)
+    {
+        fprintf(stderr,"dllFapi2GetTargetType: eCMD Extension not initialized before function called\n");
+        fprintf(stderr,"dllFapi2GetTargetType: OR eCMD fapi2 Extension not supported by plugin\n");
+        exit(ECMD_DLL_INVALID);
+    }
+
+#ifndef ECMD_STRIP_DEBUG
+    int myTcount;
+    std::vector< void * > args;
+    if (ecmdClientDebug != 0)
+    {
+        args.push_back((void*) &i_target);
+        args.push_back((void*) &o_targetType);
+        fppCallCount++;
+        myTcount = fppCallCount;
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType)",args);
+        ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2GetTargetType");
+    }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+    l_rc = dllFapi2GetTargetType(i_target, o_targetType);
+#else
+    if (fapi2DllFnTable[ECMD_FAPI2GETTARGETTYPE] == NULL)
+    {
+        fapi2DllFnTable[ECMD_FAPI2GETTARGETTYPE] = (void*)dlsym(dlHandle, "dllFapi2GetTargetType");
+        if (fapi2DllFnTable[ECMD_FAPI2GETTARGETTYPE] == NULL)
+        {
+            fprintf(stderr,"dllFapi2GetTargetType%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+            ecmdDisplayDllInfo();
+            exit(ECMD_DLL_INVALID);
+        }
+    }
+
+    uint32_t (*Function)(const ecmdChipTarget &, fapi2::TargetType &) =
+        (uint32_t(*)(const ecmdChipTarget &, fapi2::TargetType &))fapi2DllFnTable[ECMD_FAPI2GETTARGETTYPE];
+    l_rc = (*Function)(i_target, o_targetType);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+    if (ecmdClientDebug != 0)
+    {
+        args.push_back((void*) &l_rc);
+        ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2GetTargetType");
+        ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType)",args);
+    }
+#endif
+
+    return l_rc;
+}
 
 #if 0
 fapi::ReturnCode fapiGetChildChiplets( const fapi::Target & i_chip, const fapi::TargetType i_chipletType, std::vector<fapi::Target> & o_chiplets, const fapi::TargetState i_state){

@@ -1,0 +1,50 @@
+
+Syntax: fapi2dumpattr [<Chip[.ChipUnit]>] [AttributeType] [-f <filename>] [-dk | -dp | -dc]
+        [-quiet] [-quieterror] [-exist] [-a#] [-k#] [-p#] [-c#]
+
+        ECMD:           FAPI2 Extension
+
+        Function:       Dump specified attributes to screen or file
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip     [opt]  Specifies the chip to operate on.
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
+        AttributeType   hwp | plat | all (default)
+
+        -f <filename>   Instead of printing attributes to the screen, write them to the
+                        file specified.
+
+        -dk  [optional] Specify cage depth to loop on. When no Chip specified
+                        -dk is default
+
+        -dp  [optional] Specify pos depth to loop on. When Chip specified
+                        -dp is default
+
+        -dc  [optional] Specify core/chipUnit depth to loop on.
+ 
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > fapi2dumpattr centaur.mba plat -p0
+
+                          target = k0:n0:s0:centaur.mba:p00:c0
+                          ATTR_CHIP_UNIT_POS    u8    0x00
+                          ATTR_FUNCTIONAL    u8e    FUNCTIONAL
+
+                          target = k0:n0:s0:centaur.mba:p00:c1
+                          ATTR_CHIP_UNIT_POS    u8    0x01
+                          ATTR_FUNCTIONAL    u8e    FUNCTIONAL
+                        > fapi2dumpattr plat -dk
+
+                          target = k0
+                          ATTR_EXECUTION_PLATFORM    u8e    FSP
+                          ATTR_FREQ_PROC_REFCLOCK    u32    0x00000c80
+                          ATTR_IS_SIMULATION    u8    0x01
+                          ATTR_MSS_CLEANER_ENABLE    u8e    ON
+                          ...
+

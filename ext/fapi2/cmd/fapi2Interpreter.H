@@ -1,9 +1,9 @@
-#ifndef ecmdPluginExtensionSupport_h
-#define ecmdPluginExtensionSupport_h
+#ifndef fapi2Interpreter_h
+#define fapi2Interpreter_h
 /* $Header$ */
 // Copyright **********************************************************
 //                                                                      
-// File ecmdPluginExtensionSupport.H                                               
+// File fapi2Interpreter.H                                               
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
@@ -15,57 +15,47 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
+/**
+ @file fapi2Interpreter.H
+ @brief eCMD Fapi2 Extension Command Interpreter function prototypes
+*/
 
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <inttypes.h>
 
 
 //--------------------------------------------------------------------
 //  Forward References                                                
 //--------------------------------------------------------------------
+/**
+ @brief Process user args and execute command requested
+ @param argc Command line arguments
+ @param argv Command line arguments
+ @retval ECMD_SUCCESS On successful command
+ @retval ECMD_INT_UNKNOWN_COMMAND If command is not valid
+ @retval nonzero On command failure
+ @pre Dll must be loaded - if applicable
 
-/* These defines what extensions are supported by this plugin */
-/* Enable or disable these defines as needed by your plugin */
-/* The eCMD makefiles take care of turning on the appropriate defines for the extentions being built in CVS */
-
-
-/* The Cronus/IP GFW Extension */
-//#define ECMD_CIP_EXTENSION_SUPPORT
-
-/* The Cronus Extension */
-//#define ECMD_CRO_EXTENSION_SUPPORT
-
-/* The Eclipz IP/Cronus Extension */
-//#define ECMD_EIP_EXTENSION_SUPPORT
-
-/* The Apollo IP/Cronus Extension */
-//#define ECMD_AIP_EXTENSION_SUPPORT
-
-/* The GFW IP Extension */
-//#define ECMD_GIP_EXTENSION_SUPPORT
-
-/* The Z Series Extension */
-//#define ECMD_ZSE_EXTENSION_SUPPORT
-
-/* The BML Extension */
-//#define ECMD_BML_EXTENSION_SUPPORT
-
-/* The Mambo Extension */
-//#define ECMD_MBO_EXTENSION_SUPPORT
-
-/* The CommandLine Extension */
-//#define ECMD_CMD_EXTENSION_SUPPORT
-
-/* The FAPI (Hardware Procedure Framework) Extension */
-//#define ECMD_FAPI_EXTENSION_SUPPORT
-
-/* The FAPI2 (Hardware Procedure Framework) Extension */
-//#define ECMD_FAPI2_EXTENSION_SUPPORT
+ NOTE - should only be called for Fapi extension functions
+*/
+ 
+uint32_t fapi2CommandInterpreter(int argc, char* argv[]);
 
 
 
-#endif /* ecmdPluginExtensionSupport_h */
+/** @name User Functions */
+//@{
+
+/* fapi2MiscUser.C */
+uint32_t fapi2GetAttributeUser(int argc, char * argv[]);
+uint32_t fapi2DumpAttributeUser(int argc, char * argv[]);
+
+
+//@}
+
+#endif /* fapi2Interpreter_h */
 
 // Change Log *********************************************************
 //                                                                      
