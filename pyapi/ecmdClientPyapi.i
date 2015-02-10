@@ -72,6 +72,9 @@
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   #include "fapiClientPyapi.H"
 #endif
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+  #include "fapi2ClientPyapi.H"
+#endif
 %}
 /*********** End Insert Code ***********/
 
@@ -150,5 +153,8 @@
 #endif
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   %include fapiClientPyapi.i
+#endif
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+  %include fapi2ClientPyapi.i
 #endif
 /*********** End Files to swigify ***********/

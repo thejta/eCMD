@@ -87,6 +87,9 @@
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   #include "fapiClientPerlapi.H"
 #endif
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+  #include "fapi2ClientPerlapi.H"
+#endif
 %}
 /*********** End Insert Code ***********/
 
@@ -167,6 +170,9 @@
 #endif
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   %include fapiClientPerlapi.i
+#endif
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+  %include fapi2ClientPerlapi.i
 #endif
 /*********** End Files to swigify ***********/
 

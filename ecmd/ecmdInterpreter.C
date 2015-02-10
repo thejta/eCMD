@@ -38,6 +38,11 @@
 #include <fapiInterpreter.H>
 #endif
 
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+#include <fapi2ClientCapi.H>
+#include <fapi2Interpreter.H>
+#endif
+
 #ifdef ECMD_CIP_EXTENSION_SUPPORT
  #include <cipInterpreter.H>
  #include <cipClientCapi.H>
@@ -223,10 +228,20 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
 
 #ifdef ECMD_FAPI_EXTENSION_SUPPORT
   /* Fapi Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi",argv[0],4))) {
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi",argv[0],4)) && (strncmp("fapi2",argv[0],5))) {
     rc = fapiInitExtension();
     if (rc == ECMD_SUCCESS) {
       rc = fapiCommandInterpreter(argc, argv);
+    }
+  }
+#endif
+
+#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
+  /* Fapi2 Extension */
+  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi2",argv[0],5))) {
+    rc = fapi2InitExtension();
+    if (rc == ECMD_SUCCESS) {
+      rc = fapi2CommandInterpreter(argc, argv);
     }
   }
 #endif

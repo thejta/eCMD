@@ -60,6 +60,9 @@
 /* The FAPI (Hardware Procedure Framework) Extension */
 //#define ECMD_FAPI_EXTENSION_SUPPORT
 
+/* The FAPI2 (Hardware Procedure Framework) Extension */
+//#define ECMD_FAPI2_EXTENSION_SUPPORT
+
 
 
 #endif /* ecmdPluginExtensionSupport_h */
