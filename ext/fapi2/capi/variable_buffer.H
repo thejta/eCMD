@@ -225,8 +225,8 @@ namespace fapi2
             }
 
             iv_data[index] |=
-                unit_type(1) << (bits_per_unit - 1) -
-                (i_bit - (index * bits_per_unit));
+                unit_type(1) << ((bits_per_unit - 1) -
+                (i_bit - (index * bits_per_unit)));
 
             return FAPI2_RC_SUCCESS;
         }
@@ -529,7 +529,7 @@ namespace fapi2
                                                            bits_type i_targetStart,
                                                            bits_type i_len)
     {
-        _insertFromRight(i_data, parameterTraits<OT>::bit_length, i_targetStart, i_len);
+        return _insertFromRight(i_data, parameterTraits<OT>::bit_length, i_targetStart, i_len);
     }
 
     //
