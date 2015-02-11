@@ -44,7 +44,7 @@ namespace fapi2
                                                            bits_type i_len)
     {
         const bits_type bit_length_of_source = i_data.getBitLength();
-        _insertFromRight(i_data, bit_length_of_source, i_targetStart, i_len);
+        return _insertFromRight(i_data, bit_length_of_source, i_targetStart, i_len);
     }
 
     //
@@ -57,7 +57,7 @@ namespace fapi2
     {
         // If thy didn't pass an i_len, assume they want all the data
         // which will fit.
-        if (i_len == ~0)
+        if (i_len == ~0U)
         {
             i_len = i_data.getBitLength();
         }
