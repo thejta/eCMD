@@ -30,6 +30,7 @@
 namespace fapi2
 {
 
+#if 0
     /**
      * @brief Gets the Target on the other side of the memory channel
      * - Input MEMBUF_CHIP, Output DMI
@@ -61,13 +62,11 @@ namespace fapi2
      * 
      * @return ReturnCode. Zero on success, else error 
      */ 
-#if 0
     ReturnCode getChildChiplets(
         const Target & i_chip,
         const TargetType i_chipletType, 
         std::vector<Target> & o_chiplets,
         const TargetState i_state = TARGET_STATE_FUNCTIONAL);
-#endif
 
     /** 
      * @brief Gets the DIMMs that are logically associated with the input MBA target
@@ -93,7 +92,6 @@ namespace fapi2
      * 
      * @return ReturnCode. Zero on success, else error 
      */ 
-#if 0
     ReturnCode getParentChip(
         const Target& i_chiplet,
         Target & o_chip);

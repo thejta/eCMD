@@ -22,7 +22,7 @@
 #include <hw_access.H>
 
 #include <fapi2Util.H>
-#include <fapi2SystemConfig.H>
+//#include <fapi2SystemConfig.H>
 #include <fapi2PlatTrace.H>
 #include <fapi2HwpExecutor.H>
 #include <fapi2AttributeService.H>
@@ -33,6 +33,6 @@
 //#include <fapi2SetSbeError.H>    // Generated file
 //#include <fapi2MvpdAccess.H>
 //#include <fapi2MBvpdAccess.H>
-#include <fapi2Macro.H>
+//#include <fapi2Macro.H>
 
 #endif // FAPI2_H_

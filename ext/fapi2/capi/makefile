@@ -23,11 +23,11 @@ CAPI_INCLUDES     :=  target.H target_types.H target_states.H \
 					 hw_access.H plat_hw_access.H hw_access_structs.H \
  				     fapi2SharedUtils.H fapi2PlatTrace.H \
                      fapi2DllCapi.H fapi2ClientEnums.H \
-                     fapi2Util.H fapi2PlatUtil.H fapi2SystemConfig.H \
+                     fapi2Util.H fapi2PlatUtil.H \
                      fapi2HwpExecutor.H fapi2PlatHwpExecutor.H \
-					 fapi2AttributeService.H fapi2PlatAttributeService.H \
-					 fapi2Macro.H fapi2PlatMacro.H
+					 fapi2AttributeService.H fapi2PlatAttributeService.H
 
+					 # fapi2Macro.H fapi2PlatMacro.H fapi2SystemConfig.H
 					 # fapiCollectRegFfdc.H fapiMBvpdAccess.H fapiMvpdAccess.H
                      # fapiErrorInfo.H fapiMultiScom.H fapiSetSbeError.H
                      # fapi2HwpReturnCodes.H fapi2HwpErrorInfo.H
