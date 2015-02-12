@@ -78,6 +78,35 @@
     } \
 }
 
+#define FAPI_PLAT_EXEC_HWP_LAMBDA(FUNC, _args_...) \
+[&]()->fapi2::ReturnCode \
+{\
+    void * l_pLibHandle = NULL; \
+    void * l_pSymAddr = NULL; \
+    uint32_t l_u32_rc_xyzabc = ECMD_SUCCESS; \
+    fapi2::ReturnCode rc; \
+    l_u32_rc_xyzabc = openSharedLib(#FUNC, l_pLibHandle); \
+    if (l_u32_rc_xyzabc == 0) \
+    { \
+        l_u32_rc_xyzabc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        if (l_u32_rc_xyzabc == 0) \
+        { \
+            FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
+            rc = l_pFunc(_args_); \
+        } \
+	else \
+	{ \
+          rc = (fapi2::ReturnCodes) l_u32_rc_xyzabc; \
+	} \
+        closeSharedLib(l_pLibHandle); \
+    } \
+    else \
+    { \
+      rc = (fapi2::ReturnCodes) l_u32_rc_xyzabc; \
+    } \
+    return rc;\
+}()
+
 int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);
 int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr);
 void closeSharedLib(void * i_pLibHandle);
