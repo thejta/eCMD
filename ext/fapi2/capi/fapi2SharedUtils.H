@@ -38,15 +38,14 @@ namespace fapi2
     //@{
 
     /**
-     * @brief Turns a fapi target (fapi2::Target) into an eCMD chip target (ecmdChipTarget)
+     * @brief Copies contents of a fapi target (fapi2::Target) to an eCMD chip target (ecmdChipTarget)
      * @param i_fapiTarget fapi2::Target to convert
      * @param o_ecmdTarget generated ecmdChipTarget 
      */
     template< TargetType K >
     void fapiTargetToEcmdTarget(const fapi2::Target<K> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
-        ecmdChipTarget * ecmdTargetPtr = reinterpret_cast<ecmdChipTarget *> (i_fapiTarget.get());
-        o_ecmdTarget = (*ecmdTargetPtr);
+        o_ecmdTarget = *i_fapiTarget;
     }
 
     template< TargetType K >
@@ -73,7 +72,7 @@ namespace fapi2
     template< TargetType K >
     void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi2::Target<K> & o_fapiTarget)
     {
-        o_fapiTarget = Target<K>(reinterpret_cast<uint64_t> (&i_ecmdTarget));
+        o_fapiTarget = Target<K>(&i_ecmdTarget);
     }
 #endif
 

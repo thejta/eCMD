@@ -109,7 +109,7 @@ namespace fapi2
     /// fapi2::Target<fapi2::TARGET_TYPE_ABUS_ENDPOINT> E;
     /// takesProcOrMembuf( E );
     /// @endcode
-    template<TargetType K, typename V = uint64_t>
+    template<TargetType K, typename V = const ecmdChipTarget *>
     class Target
     {
     public:
@@ -122,7 +122,7 @@ namespace fapi2
         /// single uint64_t in value which represents all the information
         /// they might need. value( K | V ), for example
         ///
-        Target(V Value = 0):
+        Target(V Value = NULL):
             iv_handle(Value)
         {}
 
@@ -183,10 +183,8 @@ namespace fapi2
             {
                 // FIXME add static asserts
 	            std::list<const ecmdChipTarget *> l_targets;
-                ecmdChipTarget * ecmdTargetPtr = reinterpret_cast<ecmdChipTarget *> (this->get());
-                ecmdChipTarget l_ecmdTarget = (*ecmdTargetPtr);
 
-                uint32_t l_rc = fapi2GetAssociatedTargets(l_ecmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
+                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
                 if (l_rc)
                 {
                     // ERROR
@@ -197,7 +195,7 @@ namespace fapi2
                     // ERROR
                     return Target<T>();
                 }
-                return Target<T>(reinterpret_cast<uint64_t> (*(l_targets.front())));
+                return Target<T>(*(l_targets.front()));
             }
 
         ///
@@ -305,10 +303,8 @@ namespace fapi2
 #endif
 #undef INVALID_CHILD
 	            std::list<const ecmdChipTarget *> l_targets;
-                ecmdChipTarget * ecmdTargetPtr = reinterpret_cast<ecmdChipTarget *> (this->get());
-                ecmdChipTarget l_ecmdTarget = (*ecmdTargetPtr);
 
-                uint32_t l_rc = fapi2GetAssociatedTargets(l_ecmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
+                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
                 if (l_rc)
                 {
                     // ERROR
@@ -323,7 +319,7 @@ namespace fapi2
                 auto l_target = l_targets.begin();
                 while (l_target != l_targets.end())
                 {
-                    l_children.push_back(Target<T>(reinterpret_cast<uint64_t> (*l_target)));
+                    l_children.push_back(Target<T>(*l_target));
                     l_target++;
                 }
                 return l_children;
@@ -340,10 +336,8 @@ namespace fapi2
             {
                 // FIXME add static asserts
 	            std::list<const ecmdChipTarget *> l_targets;
-                ecmdChipTarget * ecmdTargetPtr = reinterpret_cast<ecmdChipTarget *> (this->get());
-                ecmdChipTarget l_ecmdTarget = (*ecmdTargetPtr);
 
-                uint32_t l_rc = fapi2GetAssociatedTargets(l_ecmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
+                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
                 if (l_rc)
                 {
                     // ERROR
@@ -354,7 +348,7 @@ namespace fapi2
                     // ERROR
                     return Target<T>();
                 }
-                return Target<T>(reinterpret_cast<uint64_t> (*(l_targets.front())));
+                return Target<T>(*(l_targets.front()));
             }
 
         ///
@@ -414,7 +408,7 @@ namespace fapi2
     Target<T> getTarget(uint64_t Ordinal)
     {
         // For testing
-        return Target<T>(Ordinal);
+        return Target<T>(NULL);
     }
 
     // Why has the been removed? For starters, the API name
