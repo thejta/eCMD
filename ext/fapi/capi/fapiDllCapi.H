@@ -120,6 +120,8 @@ void dllFapiOutputDebug(const char* i_message);
 
 void dllFapiOutputScanTrace(const char* i_message); 
 
+void dllFapiOutputManufacturing(const char* i_message); 
+
 char* dllFapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num); 
 
 uint32_t dllFapiDelay(uint64_t i_nanoSeconds, uint64_t i_simCycles); 

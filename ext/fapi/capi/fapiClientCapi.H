@@ -203,6 +203,14 @@ void fapiOutputDebug(const char* i_message);
 void fapiOutputScanTrace(const char* i_message);
 
 /**
+ @brief Output a message labeled as manufacturing debug
+ @param i_message String to output
+
+*/
+void fapiOutputManufacturing(const char* i_message);
+
+
+/**
  @brief Dynamically update the format flags to be compatible with 64-bit architectures.
  @param i_message Original string to check
  @param o_message String with modified format strings, if they were found

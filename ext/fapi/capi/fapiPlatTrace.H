@@ -153,6 +153,31 @@ do \
     fapiOutputScanTrace(scan_user_str); \
 } while(0)
 
-
+// Mfg traces
+#ifdef _LP64
+#define FAPI_MFG(_fmt_, _args_...) \
+do \
+{   char mfg_user_str[255]; \
+    char mfg_sum_str[512];  \
+    const char* input = "" _fmt_ "\n"; \
+    size_t fmtSize = (strlen(input) + 1); \
+    char fmt_cpy[fmtSize]; \
+    fapiFixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(mfg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(mfg_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(mfg_sum_str, mfg_user_str, 255); \
+    fapiOutputManufacturing(mfg_sum_str); \
+} while(0)
+#else
+#define FAPI_MFG(_fmt_, _args_...) \
+do \
+{   char mfg_user_str[255]; \
+    char mfg_sum_str[512];  \
+    snprintf(mfg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(mfg_user_str, 255, "" _fmt_ "\n", ##_args_); \
+    strncat(mfg_sum_str, mfg_user_str, 255); \
+    fapiOutputManufacturing(mfg_sum_str); \
+} while(0)
+#endif
 
 #endif // PLATTRACE_H_

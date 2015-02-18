@@ -771,6 +771,34 @@ void fapiOutputScanTrace(const char* i_message) {
 #endif
 }
 
+void fapiOutputManufacturing(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapiOutputManufacturing%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapiOutputManufacturing(i_message);
+#else
+  if (fapiDllFnTable[ECMD_FAPIOUTPUTMANUFACTURING] == NULL) {
+     fapiDllFnTable[ECMD_FAPIOUTPUTMANUFACTURING] = (void*)dlsym(dlHandle, "dllFapiOutputManufacturing");
+     if (fapiDllFnTable[ECMD_FAPIOUTPUTMANUFACTURING] == NULL) {
+       fprintf(stderr,"dllFapiOutputManufacturing%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))fapiDllFnTable[ECMD_FAPIOUTPUTMANUFACTURING];
+   (*Function)(i_message);
+#endif
+}
+
+
 char* fapiFixOutputFormat(char* o_message, const char* i_message, size_t i_num){
 
   char * rc = NULL;
