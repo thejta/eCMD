@@ -513,6 +513,7 @@ uint32_t fapiDumpAttributeUser(int argc, char * argv[])
     std::list<fapi::AttributeId> dimmAttributeIds;
     std::list<fapi::AttributeId> procChipAttributeIds;
     std::list<fapi::AttributeId> membufChipAttributeIds;
+    std::list<fapi::AttributeId> memfpgaChipAttributeIds;
     std::list<fapi::AttributeId> exChipletAttributeIds;
     std::list<fapi::AttributeId> mbaChipletAttributeIds;
     std::list<fapi::AttributeId> mcsChipletAttributeIds;
@@ -559,6 +560,13 @@ uint32_t fapiDumpAttributeUser(int argc, char * argv[])
                     fapiGetAttributeIdsByType(targetType, attributeSource, membufChipAttributeIds);
                 }
                 attributeListPtr = &membufChipAttributeIds;
+                break;
+            case fapi::TARGET_TYPE_MEMFPGA_CHIP:
+                if (memfpgaChipAttributeIds.empty())
+                {
+                    fapiGetAttributeIdsByType(targetType, attributeSource, memfpgaChipAttributeIds);
+                }
+                attributeListPtr = &memfpgaChipAttributeIds;
                 break;
             case fapi::TARGET_TYPE_EX_CHIPLET:
                 if (exChipletAttributeIds.empty())

@@ -32,9 +32,10 @@ extern "C"
 /**
 * @brief Gets the Target on the other side of the memory channel
 * - Input MEMBUF_CHIP, Output MCS_CHIPLET
-* - Input MCS_CHIPLET, Output MEMBUF_CHIP
+* - Input MEMFPGA_CHIP, Output MCS_CHIPLET
+* - Input MCS_CHIPLET, Output MEMBUF_CHIP or MEMFPGA_CHIP
 *
-* @param[in] i_target Input MCS_CHIPLET or MEMBUF_CHIP Target
+* @param[in] i_target Input MCS_CHIPLET, MEMBUF_CHIP, or MEMFPGA_CHIP Target
 * @param[out] o_target Reference to Target that is set to the Target on
 * the other side of the memory channel, if there is no such
 * Target in the specified state then an error is returned

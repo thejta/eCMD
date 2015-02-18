@@ -101,6 +101,10 @@ void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi::Target & o_fapi
       {
          o_fapiTarget.setType(fapi::TARGET_TYPE_MEMBUF_CHIP);
       } 
+      else if (i_ecmdTarget.chipType == "contutto") 
+      {
+         o_fapiTarget.setType(fapi::TARGET_TYPE_MEMFPGA_CHIP);
+      } 
   }
   else if (i_ecmdTarget.cageState == ECMD_TARGET_FIELD_VALID)
   {

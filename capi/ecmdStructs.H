@@ -70,6 +70,7 @@
 #define ECMD_CHIPT_PROCESSOR            "pu"
 #define ECMD_CHIPT_MEM_BUF              "memb"
 #define ECMD_CHIPT_MEM_CNTRL            "memc"
+#define ECMD_CHIPT_MEM_FPGA             "memf"
 #define ECMD_CHIPT_MEM_CACHE            "cache"
 #define ECMD_CHIPT_MEM_L2CACHE          "l2cache"
 #define ECMD_CHIPT_MEM_L3CACHE          "l3cache"

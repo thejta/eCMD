@@ -118,7 +118,7 @@ void Target::set(void * i_pHandle)
 //******************************************************************************
 bool Target::isChip() const
 {
-    return ((iv_type & (TARGET_TYPE_PROC_CHIP | TARGET_TYPE_MEMBUF_CHIP)) != 0);
+    return ((iv_type & (TARGET_TYPE_PROC_CHIP | TARGET_TYPE_MEMBUF_CHIP | TARGET_TYPE_MEMFPGA_CHIP)) != 0);
 }
 
 //******************************************************************************
