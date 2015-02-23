@@ -1566,6 +1566,54 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 inline ecmdScomData::~ecmdScomData() { }
 #endif
 
+/**
+ @brief Used for the ecmdQueryScomHidden function to return scom info
+*/
+struct ecmdScomDataHidden {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdScomDataHidden();
+
+  // Destructor
+  ~ecmdScomDataHidden();
+
+  // Methods
+  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  //uint32_t flattenSize(void);
+#ifndef REMOVE_SIM
+  //void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  uint64_t         address;              ///< (Detail: Low)  Scom Address
+  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
+  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
+  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
+  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
+  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the dataHidden
+  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
+  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
+};
+
+#ifndef DOCUMENTATION
+// ecmdScomDataHidden Constructor
+inline ecmdScomDataHidden::ecmdScomDataHidden():
+address(0),
+length(0),
+isChipUnitRelated(false),
+endianMode(ECMD_UNKNOWN_ENDIAN),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdScomDataHidden Destructor
+inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
+#endif
+
 
 /**
  @brief Used for the ecmdQueryLatch function to return latch info
