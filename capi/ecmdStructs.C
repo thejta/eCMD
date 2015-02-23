@@ -4436,6 +4436,30 @@ bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
+/*
+ * The following method will check if the chipUnitType matches with the list of relatedChipUnit's and relatedChipUnitShort's
+ *
+ */
+bool ecmdScomDataHidden::isChipUnitMatch(std::string &i_chipUnitType) {
+
+  /* If either matches, return true */
+  // walk through the list to see if it matches with relatedChipUnit
+  std::list<std::string>::iterator relatedChipUnitIter;
+  for ( relatedChipUnitIter = relatedChipUnit.begin(); relatedChipUnitIter != relatedChipUnit.end(); relatedChipUnitIter++) {
+    if (i_chipUnitType == *relatedChipUnitIter) {
+      return true;
+    }
+  }
+  std::list<std::string>::iterator relatedChipUnitShortIter;
+  for ( relatedChipUnitShortIter = relatedChipUnitShort.begin(); relatedChipUnitShortIter != relatedChipUnitShort.end(); relatedChipUnitShortIter++) {
+    if (i_chipUnitType == *relatedChipUnitShortIter) {
+      return true;
+    }
+  }
+  return false;
+
+}
+
 uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t tmpData32 = 0;
