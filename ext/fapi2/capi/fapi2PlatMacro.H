@@ -1,3 +1,0 @@
-#ifndef FAPI2PLATMACRO_H_
-#define FAPI2PLATMACRO_H_
-#endif

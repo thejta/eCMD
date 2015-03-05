@@ -70,6 +70,13 @@ namespace fapi2
         TARGET_TYPE_PHB           = 0x00800000, ///< PHB type
 
         TARGET_TYPE_ALL           = 0xFFFFFFFF, ///< Any/All types
+
+        // Mappings to target types found in the error xml files
+        TARGET_TYPE_EX_CHIPLET    = TARGET_TYPE_EX,
+        TARGET_TYPE_MBA_CHIPLET   = TARGET_TYPE_MBA,
+        TARGET_TYPE_MCS_CHIPLET   = TARGET_TYPE_MCS,
+        TARGET_TYPE_XBUS_ENDPOINT = TARGET_TYPE_XBUS,
+        TARGET_TYPE_ABUS_ENDPOINT = TARGET_TYPE_ABUS,
     };
 
     /// @cond

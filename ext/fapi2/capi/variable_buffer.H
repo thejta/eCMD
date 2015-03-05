@@ -34,6 +34,7 @@
 
 namespace fapi2
 {
+    /// @brief Get a 32 bit mask quickly
     // This is one of the main reasons we static_assert in the ctor's
     // to ensure the unit_type is 32 bits.
     inline uint32_t fast_mask32(int32_t i_pos, int32_t i_len)
@@ -71,16 +72,15 @@ namespace fapi2
     ///            incoming data
     /// @param[in] i_target_start_bit The starting bit position in this
     /// @param[in] i_length The length, in bits, the user wants copied.
-    /// @endcond
     ///
     template<typename unit_type, typename bits_type>
-    fapi2::ReturnCode _insert(const unit_type* i_source,
-                              bits_type i_source_length,
-                              unit_type* i_target,
-                              bits_type i_target_length,
-                              bits_type i_source_start_bit,
-                              bits_type i_target_start_bit,
-                              bits_type i_length)
+    inline fapi2::ReturnCode _insert(const unit_type* i_source,
+                                     bits_type i_source_length,
+                                     unit_type* i_target,
+                                     bits_type i_target_length,
+                                     bits_type i_source_start_bit,
+                                     bits_type i_target_start_bit,
+                                     bits_type i_length)
     {
         const bits_type bits_per_unit = fapi2::parameterTraits<unit_type>::bit_length;
 
@@ -154,6 +154,7 @@ namespace fapi2
 
         return fapi2::FAPI2_RC_SUCCESS;
     }
+    /// @endcond
 
     /// @brief Class representing a FAPI variable_buffer.
     /// @remark Variable buffers are buffers which can be variable in length
@@ -203,7 +204,7 @@ namespace fapi2
         /// getLength<uin32_t>().
         ///
         template< typename OT >
-        uint32_t getLength(void) const
+        inline uint32_t getLength(void) const
         {
             static const uint32_t bits_in_ot = sizeof(OT) * 8;
             return (getBitLength() + (bits_in_ot - 1)) / bits_in_ot;
@@ -266,10 +267,10 @@ namespace fapi2
         /// the case we can add a function parameter version.
         ///
         template< bits_type B >
-        bool getBit(void) const
+        inline bool getBit(void) const
         {
             const bits_type index = B / bits_per_unit;
-            const unit_type mask = unit_type(1) << (bits_per_unit - 1) - (B - (index * bits_per_unit));
+            const unit_type mask = unit_type(1) << ((bits_per_unit - 1) - (B - (index * bits_per_unit)));
             return iv_data[index] & mask;
         }
 
@@ -396,7 +397,7 @@ namespace fapi2
         /// @brief operator==()
         /// @return true if and only if lhs == rhs
         ///
-        bool operator==(const fapi2::bits_container& rhs) const
+        inline bool operator==(const fapi2::bits_container& rhs) const
         {
             if (&iv_data == &rhs)
             {
@@ -422,11 +423,11 @@ namespace fapi2
 
         ///
         /// @brief Copy in a right aligned (decimal) element
-        /// @param[in] i_data, the incoming data
+        /// @param[in] i_data the incoming data
         ///    - data is taken right aligned
         /// @param[in] i_targetStart The starting bit position in this
         ///            - Defaultst to 0
-        /// @param[in] i_length The length, in bits, the user wants copied.
+        /// @param[in] i_len The length, in bits, the user wants copied.
         ///            - Defaults to all of the bits in the source which fit
         /// @return FAPI2_RC_SUCCESS on success, FAPI2_RC_OVERFLOW otherwise
         ///
@@ -498,15 +499,35 @@ namespace fapi2
 
     };
 
+    inline variable_buffer::
+    variable_buffer(bits_type i_value):
+        buffer_base(i_value),
+        iv_perceived_bit_length(i_value)
+    {
+        static_assert(std::is_same<unit_type, uint32_t>::value,
+                      "code currently needs unit_type to be a unit32_t");
+    }
 
+    inline variable_buffer::
+    variable_buffer(const std::initializer_list<unit_type>& i_value):
+        buffer_base(i_value),
+        iv_perceived_bit_length(i_value.size() * sizeof(unit_type) * 8)
+    {
+        static_assert(std::is_same<unit_type, uint32_t>::value,
+                      "code currently needs unit_type to be a unit32_t");
+    }
+
+
+
+    /// @cond
     //
     // Generic insert
     //
     template<typename OT>
-    fapi2::ReturnCode variable_buffer::insert(const OT& i_source,
-                                              bits_type i_targetStart,
-                                              bits_type i_len,
-                                              bits_type i_sourceStart)
+    inline fapi2::ReturnCode variable_buffer::insert(const OT& i_source,
+                                                     bits_type i_targetStart,
+                                                     bits_type i_len,
+                                                     bits_type i_sourceStart)
     {
         return _insert((unit_type*)(&i_source), parameterTraits<OT>::bit_length,
                        &(iv_data[0]), getBitLength(),
@@ -517,17 +538,25 @@ namespace fapi2
     // Insert another variable_bufer
     //
     template<>
-        fapi2::ReturnCode variable_buffer::insert(const variable_buffer& i_data,
-                                                  bits_type i_targetStart,
-                                                  bits_type i_len,
-                                                  bits_type i_sourceStart);
+    inline fapi2::ReturnCode variable_buffer::insert(
+        const variable_buffer& i_data,
+        bits_type i_targetStart,
+        bits_type i_len,
+        bits_type i_sourceStart)
+    {
+        return _insert((unit_type*)&(i_data()[0]), i_data.getBitLength(),
+                       &(iv_data[0]), getBitLength(),
+                       i_sourceStart, i_targetStart, i_len);
+    }
+
     //
     // Generic insert from right
     //
     template<typename OT>
-        fapi2::ReturnCode variable_buffer::insertFromRight(const OT& i_data,
-                                                           bits_type i_targetStart,
-                                                           bits_type i_len)
+    inline fapi2::ReturnCode variable_buffer::insertFromRight(
+        const OT& i_data,
+        bits_type i_targetStart,
+        bits_type i_len)
     {
         return _insertFromRight(i_data, parameterTraits<OT>::bit_length, i_targetStart, i_len);
     }
@@ -536,9 +565,14 @@ namespace fapi2
     // variable_buffer insert from right
     //
     template<>
-        fapi2::ReturnCode variable_buffer::insertFromRight(const variable_buffer& i_data,
-                                                           bits_type i_targetStart,
-                                                           bits_type i_len);
+    inline fapi2::ReturnCode variable_buffer::insertFromRight(
+        const variable_buffer& i_data,
+        bits_type i_targetStart,
+        bits_type i_len)
+    {
+        const bits_type bit_length_of_source = i_data.getBitLength();
+        return _insertFromRight(i_data, bit_length_of_source, i_targetStart, i_len);
+    }
 
 
 
@@ -547,16 +581,17 @@ namespace fapi2
     // Generic extract. Extract is an insert with the arguments reversed.
     //
     template<typename OT>
-    fapi2::ReturnCode variable_buffer::extract(OT& i_data,
-                                               bits_type i_start,
-                                               bits_type i_len) const
+    inline fapi2::ReturnCode variable_buffer::extract(
+        OT& i_data,
+        bits_type i_start,
+        bits_type i_len) const
     {
         // Needed to trick the compiler into matching the template below
         const bits_type max_length = parameterTraits<OT>::bit_length;
 
         // If thy didn't pass an i_len, assume they want all the data
         // which will fit.
-        if (i_len == ~0)
+        if (i_len == static_cast<bits_type>(~0))
         {
             i_len = max_length;
         }
@@ -570,15 +605,30 @@ namespace fapi2
     // Extract in to another variable_bufer
     //
     template<>
-        fapi2::ReturnCode variable_buffer::extract(variable_buffer& i_data,
-                                                   bits_type i_start,
-                                                   bits_type i_len) const;
+    inline fapi2::ReturnCode variable_buffer::extract(
+        variable_buffer& i_data,
+        bits_type i_start,
+        bits_type i_len) const
+    {
+        // If thy didn't pass an i_len, assume they want all the data
+        // which will fit.
+        if (i_len == static_cast<bits_type>(~0))
+        {
+            i_len = i_data.getBitLength();
+        }
+        return _insert((container_unit*)&iv_data[0], getBitLength(),
+                       &(i_data()[0]), i_data.getBitLength(),
+                       i_start, 0U, i_len);
+    }
+
+
 
     template<typename OT>
-    fapi2::ReturnCode variable_buffer::_insertFromRight(const OT& i_data,
-                                                        bits_type i_data_length,
-                                                        bits_type i_targetStart,
-                                                        bits_type i_len)
+    inline fapi2::ReturnCode variable_buffer::_insertFromRight(
+        const OT& i_data,
+        bits_type i_data_length,
+        bits_type i_targetStart,
+        bits_type i_len)
     {
         // If they didn't pass in a length, assume they want all the i_data
         // which will fit.
@@ -602,12 +652,11 @@ namespace fapi2
     // linker complains loudly if anyone calls it.
 #if 0
     template<>
-    fapi2::ReturnCode buffer_base::set(const variable_buffer& i_value,
-                                           bits_type i_offset);
-//    fapi2::ReturnCode variable_buffer::set(const variable_buffer& i_value,
+    inline fapi2::ReturnCode buffer_base::set(
+        const variable_buffer& i_value,
+        bits_type i_offset);
 #endif
     /// @endcond
-
 };
 
 

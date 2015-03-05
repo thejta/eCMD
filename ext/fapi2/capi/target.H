@@ -131,21 +131,32 @@ namespace fapi2
         /// @param[in] i_right Reference to Target to assign from.
         /// @return Reference to 'this' Target
         ///
-        Target& operator=(const Target& i_right);
+        Target& operator=(const Target& i_right)
+            { iv_handle = i_right.iv_handle; return *this; }
 
         ///
         /// @brief Equality Comparison Operator
         /// @param[in] i_right Reference to Target to compare.
         /// @return bool. True if equal.
+        /// @note Platforms need to define this so that the physical
+        /// targets are determined to be equivilent rather than just the handles
         ///
-        bool operator==(const Target& i_right) const;
+        bool operator==(const Target& i_right) const
+        {
+            return ((*iv_handle) == (*(i_right.iv_handle)));
+        }
 
         ///
         /// @brief Inquality Comparison Operator
         /// @param[in] i_right Reference to Target to compare.
-        /// @return bool. True if equal.
+        /// @return bool. True if not equal.
+        /// @note Platforms need to define this so that the physical
+        /// targets are determined to be equivilent rather than just the handles
         ///
-        bool operator!=(const Target& i_right) const;
+        bool operator!=(const Target& i_right) const
+        {
+            return !((*iv_handle) == (*(i_right.iv_handle)));
+        }
 
         ///
         /// @brief Get the handle.
@@ -158,20 +169,19 @@ namespace fapi2
         /// @brief Get the handle as a V
         /// @return V The target's handle, or value
         ///
-        operator V() const { return iv_handle; }
+        inline operator V() const { return iv_handle; }
 
         ///
         /// @brief Get a target's value
         /// @return V The target's handle, or value
         ///
-        V& operator()(void) { return iv_handle; }
+        inline V& operator()(void) { return iv_handle; }
 
         ///
         /// @brief Get the target type
         /// @return The type of target represented by this target
         ///
-        TargetType getType(void) const
-            { return iv_type; }
+        inline TargetType getType(void) const { return iv_type; }
 
         ///
         /// @brief Get this target's immediate parent
@@ -179,7 +189,7 @@ namespace fapi2
         /// @return Target<T> a target representing the parent
         ///
         template< TargetType T >
-        Target<T> getParent(void) const
+        inline Target<T> getParent(void) const
             {
                 // FIXME add static asserts
 	            std::list<const ecmdChipTarget *> l_targets;
@@ -201,11 +211,13 @@ namespace fapi2
         ///
         /// @brief Get this target's children
         /// @tparam T The type of the parent
+        /// @param[in] i_state The desired TargetState of the children
         /// @return std::vector<Target<T> > a vector of present/functional
         /// children
         ///
         template< TargetType T>
-        std::vector<Target<T> > getChildren(void) const
+        inline std::vector<Target<T> >
+        getChildren(const TargetState i_state = TARGET_STATE_FUNCTIONAL) const
             {
                 static_assert((K == fapi2::TARGET_TYPE_SYSTEM) ||
                               (K == fapi2::TARGET_TYPE_PROC_CHIP) ||
@@ -304,7 +316,7 @@ namespace fapi2
 #undef INVALID_CHILD
 	            std::list<const ecmdChipTarget *> l_targets;
 
-                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
+                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, i_state);
                 if (l_rc)
                 {
                     // ERROR
@@ -328,16 +340,18 @@ namespace fapi2
         ///
         /// @brief Get the target at the other end of a bus - dimm included
         /// @tparam T The type of the parent
+        /// @param[in] i_state The desired TargetState of the children
         /// @return Target<T> a target representing the thing on the other end
         /// @note Can be easily changed to a vector if needed
         ///
         template<TargetType T>
-        Target<T> getOtherEnd(void) const
+        inline Target<T>
+        getOtherEnd(const TargetState i_state = TARGET_STATE_FUNCTIONAL) const
             {
                 // FIXME add static asserts
 	            std::list<const ecmdChipTarget *> l_targets;
 
-                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
+                uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, i_state);
                 if (l_rc)
                 {
                     // ERROR
@@ -356,7 +370,7 @@ namespace fapi2
         /// @tparam O the target type of the other
         ///
         template<TargetType O>
-        Target( const Target<O>& Other ):
+        inline Target( const Target<O>& Other ):
             Target<K, V>(Other.get())
         {
             static_assert( (K & O) != 0,
@@ -380,7 +394,7 @@ namespace fapi2
         // Don't use enums here as it makes it hard to assign
         // in the platform target cast constructor.
         static const TargetType iv_type = K;
-        const V iv_handle;
+        V iv_handle;
 
     };
 
@@ -388,14 +402,33 @@ namespace fapi2
     /// @brief Return the string interpretation of this target
     /// @tparam T The type of the target
     /// @tparam B The type of the buffer
-    /// @param[in] The Target<T>
+    /// @param[in] i_target Target<T>
+    /// @param[in] i_buffer buffer
+    /// @return void
+    /// @post The contents of the buffer is replaced with the string
+    /// representation of the target
+    ///
+    template< TargetType T >
+    inline void toString(const Target<T>& i_target, char* i_buffer, size_t i_bsize)
+    {
+        snprintf(i_buffer, i_bsize, "Target 0x%p/0x%x", i_target.get(), T);
+    }
+
+    ///
+    /// @brief Return the string interpretation of this target
+    /// @tparam T The type of the target
+    /// @tparam B The type of the buffer
+    /// @param[in] A pointer to the Target<T>
     /// @param[in] The buffer
     /// @return void
     /// @post The contents of the buffer is replaced with the string
     /// representation of the target
     ///
-    template<TargetType T, typename B>
-    void toString(const Target<T>& i_target, B& i_buffer);
+    template< TargetType T >
+    inline void toString(const Target<T>* i_target, char* i_buffer, size_t i_bsize)
+    {
+        snprintf(i_buffer, i_bsize, "Target 0x%p/0x%x", i_target->get(), T);
+    }
 
     ///
     /// @brief Get an enumerated target of a specific type
@@ -424,7 +457,7 @@ namespace fapi2
     /// children
     ///
     template<TargetType T>
-    std::vector<Target<T> > getChildren()
+    inline std::vector<Target<T> > getChildren()
     {
         // For testing
         return {Target<T>(), Target<T>()};
@@ -435,14 +468,14 @@ namespace fapi2
     /// @brief Return the string interpretation of this target
     /// @tparam T The type of the target
     /// @tparam B The type of the buffer
-    /// @param[in] The Target<T>
-    /// @param[in] The buffer
+    /// @param[in] i_target Target<T>
+    /// @param[in] i_buffer buffer
     /// @return void
     /// @post The contents of the buffer is replaced with the string
     /// representation of the target
     ///
     template<TargetType T, typename B>
-    void toString(const Target<T>& i_target, B& i_buffer)
+    inline void toString(const Target<T>& i_target, B& i_buffer)
     {
     }
 
@@ -453,7 +486,7 @@ namespace fapi2
     /// @return True, iff K is a proper T
     ///
     template< TargetType K, TargetType T >
-    constexpr bool is_same(void)
+    inline constexpr bool is_same(void)
     { return (K & T) != 0; }
 
 

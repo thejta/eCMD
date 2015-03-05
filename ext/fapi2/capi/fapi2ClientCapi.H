@@ -189,6 +189,13 @@ void fapi2OutputDebug(const char* i_message);
 void fapi2OutputScanTrace(const char* i_message);
 
 /**
+ @brief Output a message labeled as manufacturing
+ @param i_message String to output
+
+*/
+void fapi2OutputManufacturing(const char* i_message);
+
+/**
  @brief Dynamically update the format flags to be compatible with 64-bit architectures.
  @param i_message Original string to check
  @param o_message String with modified format strings, if they were found
@@ -200,6 +207,7 @@ char* fapi2FixOutputFormat(char* o_message, const char* i_message, size_t i_num)
 
 bool fapi2IsOutputInfoEnabled();
 bool fapi2IsOutputDebugEnabled();
+bool fapi2IsOutputManufacturingEnabled();
 
 uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
 

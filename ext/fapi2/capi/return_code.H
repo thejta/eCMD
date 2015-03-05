@@ -32,12 +32,38 @@
 
 #include <stdint.h>
 
-namespace fapi2
-{
+// Remove this for platforms which don't support FFDC
+#include <ffdc.H>
 
 ///
-/// @brief Enumeration of return codes
+/// @brief Set HWP Error macro
 ///
+/// This macro should be used by a HWP to create an error. The ReturnCode's
+/// internal return code is set and any error information in the Error XML file
+/// is added to the ReturnCode
+///
+#define FAPI_SET_HWP_ERROR(RC, ERROR) \
+    RC._setHwpError(fapi2::ERROR); \
+    ERROR##_CALL_FUNCS_TO_COLLECT_FFDC(RC); \
+    ERROR##_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC); \
+    ERROR##_ADD_ERROR_INFO(RC)
+
+///
+/// @brief Add info to HWP Error macro
+///
+/// This macro should be used by an FFDC HWP to add error information from an
+/// Error XML file to an existing error.
+///
+#define FAPI_ADD_INFO_TO_HWP_ERROR(RC, ERROR) \
+    ERROR##_CALL_FUNCS_TO_COLLECT_FFDC(RC); \
+    ERROR##_CALL_FUNCS_TO_COLLECT_REG_FFDC(RC); \
+    ERROR##_ADD_ERROR_INFO(RC)
+
+namespace fapi2
+{
+    ///
+    /// @brief Enumeration of return codes
+    ///
     enum ReturnCodes
     {
         ///< Success
@@ -82,21 +108,20 @@ namespace fapi2
         ///< Operation not supported by HB runtime
     };
 
-    class FirstFailureData
-    {};
-
     ///
     /// @brief Class representing a FAPI2 ReturnCode
     ///
-    class ReturnCode : public FirstFailureData
+    /// @note Remove the inheritance relationship with FirstFailureData if
+    /// the platform doesn't support FFDC.
+    class ReturnCode : public FirstFailureData<ReturnCode>
     {
     public:
 
         ///
         /// @brief Constructor.
-        /// @param[in] The rc to set
+        /// @param[in] i_rc the rc to set
         ///
-        ReturnCode(const ReturnCodes i_rc = fapi2::FAPI2_RC_SUCCESS):
+        ReturnCode(const uint64_t i_rc = FAPI2_RC_SUCCESS):
             iv_rc(i_rc)
             {};
 
@@ -104,11 +129,52 @@ namespace fapi2
         /// @brief integral type conversion function. Returns the error code
         /// @return The error code
         ///
-        operator ReturnCodes() const { return iv_rc; }
+        inline operator uint64_t() const { return iv_rc; }
+
+        ///
+        /// @brief Returns true iff iv_rc == SUCCESS
+        /// @return true or false
+        ///
+        inline operator bool() const { return iv_rc == FAPI2_RC_SUCCESS; }
+
+        ///
+        /// @brief Assignement operator
+        ///
+        inline ReturnCode& operator=(const uint64_t& rhs)
+            {
+                iv_rc = rhs;
+                return *this;
+            }
+
+        inline ReturnCode& operator=(const ReturnCodes& rhs)
+            {
+                iv_rc = rhs;
+                return *this;
+            }
+
+        inline bool operator==(const uint64_t& rhs) const
+            { return rhs == iv_rc; }
+
+        inline bool operator==(const ReturnCodes& rhs) const
+            { return rhs == iv_rc; }
+
+        inline bool operator!=(const uint64_t& rhs) const
+            { return rhs != iv_rc; }
+
+        inline bool operator!=(const ReturnCodes& rhs) const
+            { return rhs != iv_rc; }
 
     private:
-        ReturnCodes iv_rc;
+        uint64_t iv_rc;
     };
+
+    /// This implementation assumes no exception handling and leverages thread-local
+    /// storage. For platforms without thread support, a global variable will
+    /// suffice for the error state.
+    extern thread_local ReturnCode current_err;      /// the current error state
+    extern thread_local uint64_t pib_error_mask;     /// the pib mask
+    extern thread_local uint64_t operational_state;  /// the operational mode
+
 };
 
 #endif

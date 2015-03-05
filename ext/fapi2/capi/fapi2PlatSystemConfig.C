@@ -4,7 +4,6 @@
 #include <ecmdClientCapi.H>
 #include <ecmdSharedUtils.H>
 #include <fapi2ClientCapi.H>
-#include <fapi2SystemConfig.H>
 #include <fapi2SharedUtils.H>
 #ifndef ECMD_STATIC_FUNCTIONS
 #include <fapi2ClientEnums.H>

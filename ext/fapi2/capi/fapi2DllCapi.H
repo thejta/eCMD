@@ -10,16 +10,16 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBufferBase.H>
 
-#include <return_code.H>
 #include <target_states.H>
 #include <hw_access_structs.H>
+#include <error_info.H>
 
 #include <fapi2Structs.H>
 #include <fapi2AttributeIds.H>
 //#include <fapiMvpdAccess.H>
 //#include <fapiMBvpdAccess.H>
 //#include <fapiMultiScom.H>
-#include <fapi2Util.H>
+//#include <fapi2Util.H>
 
 extern "C" {
 
@@ -29,13 +29,13 @@ uint32_t dllFapi2InitExtension(const char * i_version);
 /* Extension Specific load function - used by Cronus/GFW to see if extension is supported */
 uint32_t dllFapi2InitExtensionInPlugin();
 
-fapi2::ReturnCode dllFapi2GetRing(
+uint32_t dllFapi2GetRing(
 	const ecmdChipTarget & i_target,
 	const scanRingId_t i_address, 
 	ecmdDataBufferBase & o_data, 
 	const uint32_t i_ringMode); 
 
-fapi2::ReturnCode dllFapi2PutRing(
+uint32_t dllFapi2PutRing(
 	const ecmdChipTarget & i_target, 
 	const scanRingId_t i_address, 
 	ecmdDataBufferBase & i_data, 
@@ -119,6 +119,8 @@ void dllFapi2OutputDebug(const char* i_message);
 
 void dllFapi2OutputScanTrace(const char* i_message); 
 
+void dllFapi2OutputManufacturing(const char* i_message); 
+
 char* dllFapi2FixOutputFormat(char* o_message, const char* i_message, size_t i_num); 
 
 uint32_t dllFapi2Delay(uint64_t i_nanoSeconds, uint64_t i_simCycles); 
@@ -128,7 +130,7 @@ bool dllFapi2PlatIsScanTraceEnabled();
 void dllFapi2PlatSetScanTrace(bool i_enable);
 
 void dllFapi2LogError(fapi2::ReturnCode & io_rc,
-                     fapi2::fapiErrlSeverity_t i_sev,
+                     fapi2::errlSeverity_t i_sev,
                      bool i_unitTestError);
 
 #if 0
@@ -189,6 +191,8 @@ fapi2::ReturnCode dllFapi2MultiScom(const fapi2::Target<fapi2::TARGET_TYPE_ALL_C
 bool dllFapi2IsOutputInfoEnabled(); 
 
 bool dllFapi2IsOutputDebugEnabled(); 
+
+bool dllFapi2IsOutputManufacturingEnabled(); 
 
 // general interface for child/parent/on-chip-peer discovery
 uint32_t dllFapi2GetAssociatedTargets(

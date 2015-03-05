@@ -1,11 +1,11 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* This is an automatically generated prolog.                             */
 /*                                                                        */
-/* $Source$                                                             */
+/* $Source$                                                            */
 /*                                                                        */
 /* OpenPOWER HostBoot Project                                             */
 /*                                                                        */
-/* Contributors Listed Below - COPYRIGHT 2012,2014                        */
+/* Contributors Listed Below - COPYRIGHT 2011,2015                        */
 /* [+] International Business Machines Corp.                              */
 /*                                                                        */
 /*                                                                        */
@@ -23,43 +23,52 @@
 /*                                                                        */
 /* IBM_PROLOG_END_TAG                                                     */
 /**
- * @file buffer_parameters.H
- * @brief definitions for fapi2 buffer parameter types
+ * @file utils.H
+ * @brief Defines common fapi2 utilities
  */
 
-#ifndef __FAPI2_BUFFER_PARAM__
-#define __FAPI2_BUFFER_PARAM__
+#ifndef FAPI2_UTILS_H_
+#define FAPI2_UTILS_H_
 
 #include <stdint.h>
+#include <return_code.H>
+#include <error_info.H>
 
 namespace fapi2
 {
-    /// @cond
-    /// @brief Traits of buffer parameters - things passed in
-    /// @tparam T is the type of i_value (typically an integral type)
-    template<typename T>
-    class parameterTraits
-    {
-    public:
-        enum
-        {
-            mask = T(~0),
-            bit_length = sizeof(T) * 8,
-            byte_length = sizeof(T),
-        };
+    ///
+    /// @brief Log an error.
+    ///
+    /// @param[in,out] io_rc Reference to ReturnCode (Any references to data and error
+    ///            target are removed and rc value is set to success after
+    ///            function ends.)
+    /// @param[in] i_sev Fapi error log severity defaulted to unrecoverable
+    /// @param[in] i_unitTestError - flag to log error which does not cause a unit
+    ///                              test to fail.
+    ///
+    /// @note This function is called from the ffdc collection classes and no longer
+    /// needs to be called directly.
+    /// @note Implemented by platform code
+    ///
+    void logError(
+        fapi2::ReturnCode & io_rc,
+        fapi2::errlSeverity_t i_sev = fapi2::FAPI2_ERRL_SEV_UNRECOVERABLE,
+        bool i_unitTestError = false );
 
-        template<typename U>
-        inline static void write_element(void* i_data, T i_value, uint32_t i_offset)
-        {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-            T* ptr = (T*)i_data + (i_offset ^ ((sizeof(U) / sizeof(T)) - 1));
-#else
-            T* ptr = (T*)i_data + i_offset;
-#endif
-            *ptr = i_value;
-        }
-    };
-    /// @endcond
+    /**  @brief This function answers the question, is scand tracing turned on?
+     *   The implementation of this function is specific to the platform.
+     *
+     *   @returns Boolean indication
+     */
+    bool platIsScanTraceEnabled();
+
+    /**  @brief Alter the state of scand tracing.
+     *   The implementation of this function is specific to the platform.
+     *
+     *   @param[in] i_enable True to enable or false to disable scan trace.
+     *   @return  void
+     */
+    void platSetScanTrace(bool i_enable);
 };
 
-#endif
+#endif // FAPI2_UTILS_H_

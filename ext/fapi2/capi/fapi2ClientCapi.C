@@ -672,6 +672,33 @@ void fapi2OutputDebug(const char* i_message) {
 #endif
 }
 
+void fapi2OutputManufacturing(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapi2OutputManufacturing%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapi2OutputManufacturing(i_message);
+#else
+  if (fapi2DllFnTable[ECMD_FAPI2OUTPUTMANUFACTURING] == NULL) {
+     fapi2DllFnTable[ECMD_FAPI2OUTPUTMANUFACTURING] = (void*)dlsym(dlHandle, "dllFapi2OutputManufacturing");
+     if (fapi2DllFnTable[ECMD_FAPI2OUTPUTMANUFACTURING] == NULL) {
+       fprintf(stderr,"dllFapi2OutputManufacturing%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))fapi2DllFnTable[ECMD_FAPI2OUTPUTMANUFACTURING];
+   (*Function)(i_message);
+#endif
+}
+
 void fapi2OutputScanTrace(const char* i_message) {
 
 #ifndef ECMD_STATIC_FUNCTIONS
@@ -860,6 +887,67 @@ if (!fapi2Initialized) {
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2IsOutputDebugEnabled");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"", args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+bool fapi2IsOutputManufacturingEnabled(){
+
+  bool rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapi2IsOutputManufacturingEnabled%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+if (!fapi2Initialized) {
+   fprintf(stderr,"dllFapi2IsOutputManufacturingEnabled: eCMD Extension not initialized before function called\n");
+   fprintf(stderr,"dllFapi2IsOutputManufacturingEnabled: OR eCMD fapi2 Extension not supported by plugin\n");
+   exit(ECMD_DLL_INVALID);
+}
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2IsOutputManufacturingEnabled");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapi2IsOutputManufacturingEnabled();
+#else
+  if (fapi2DllFnTable[ECMD_FAPI2ISOUTPUTMANUFACTURINGENABLED] == NULL) {
+     fapi2DllFnTable[ECMD_FAPI2ISOUTPUTMANUFACTURINGENABLED] = (void*)dlsym(dlHandle, "dllFapi2IsOutputManufacturingEnabled");
+     if (fapi2DllFnTable[ECMD_FAPI2ISOUTPUTMANUFACTURINGENABLED] == NULL) {
+       fprintf(stderr,"dllFapi2IsOutputManufacturingEnabled%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  bool (*Function)() = 
+      (bool (*)())fapi2DllFnTable[ECMD_FAPI2ISOUTPUTMANUFACTURINGENABLED];
+  rc =    (*Function)();
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2IsOutputManufacturingEnabled");
      ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"", args);
    }
 #endif

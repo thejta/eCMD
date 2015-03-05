@@ -35,6 +35,7 @@
 #include <error_scope.H>
 #include <buffer_parameters.H>
 #include <buffer_traits.H>
+#include <return_code.H>
 
 namespace fapi2
 {
@@ -161,7 +162,9 @@ namespace fapi2
 
     public:
 
+        /// Shortcut typedef to get to our traits class
         typedef typename TT::bits_type bits_type;
+        /// Shortcut typedef to get to our traits class
         typedef typename TT::unit_type unit_type;
 
         ///
@@ -178,27 +181,38 @@ namespace fapi2
 
 #ifndef DOXYGEN
         /// @brief Print the contents of the buffer to stdout
-        void print(void) const
+        inline void print(void) const
         { TT::print(iv_data); }
 #endif
         ///
         /// @brief Get the contents of the buffer
         /// @return The contents of the buffer
         ///
-        operator T() const { return iv_data; }
+        inline operator T() const { return iv_data; }
 
         ///
         /// @brief Get the contents of the buffer
         /// @return The contents of the buffer
         ///
-        operator T&() { return iv_data; }
+        inline operator T&() { return iv_data; }
 
         ///
         /// @brief Get the contents of the buffer
         /// @return The contents of the buffer
         ///
-        T& operator()(void) { return iv_data; }
-        const T& operator()(void) const { return iv_data; }
+        inline T& operator()(void) { return iv_data; }
+
+        ///
+        /// @brief Get the contents of the buffer
+        /// @return Reference to the contents of the buffer
+        ///
+        inline const T& operator()(void) const { return iv_data; }
+
+        ///
+        /// @brief Get a pointer to the buffer bits
+        /// @return Pointer to the buffer itself
+        ///
+        inline T* pointer(void) { return &iv_data; }
 
         /// @name Buffer Manipulation Functions
         ///@{
@@ -213,7 +227,7 @@ namespace fapi2
         ///    variable_buffer into a variable_buffer, use insert()
         ///
         template< typename OT>
-        fapi2::ReturnCode set(OT i_value, const bits_type i_offset = 0)
+        inline fapi2::ReturnCode set(OT i_value, const bits_type i_offset = 0)
         {
             // Compile time check to make sure OT isn't a variable buffer
             static_assert( !std::is_same<bits_container, OT>::value,
@@ -261,14 +275,14 @@ namespace fapi2
         /// @brief Invert entire buffer
         /// @return buffer_base&, Useful for method chaining
         ///
-        buffer_base& invert(void)
+        inline buffer_base& invert(void)
             { TT::invert(iv_data); return *this; }
 
         ///
         /// @brief Bit reverse entire buffer
         /// @return buffer_base&, Useful for method chaining
         ///
-        buffer_base& reverse(void)
+        inline buffer_base& reverse(void)
             { TT::reverse(iv_data); return *this; }
 
         //@}
@@ -291,21 +305,22 @@ namespace fapi2
         ///
         /// @brief Clear the buffer
         ///
-        void clear(void)
+        inline void clear(void)
             { TT::clear(iv_data); }
 
+        /// The contents of the buffer
         T iv_data;
     };
 
     template <typename T, typename TT>
-    buffer_base<T, TT>::buffer_base(bits_type i_value):
+    inline buffer_base<T, TT>::buffer_base(bits_type i_value):
         iv_data( std::max(bits_type(1),
                           bits_type(i_value / 8 / sizeof(bits_type))))
     {
     }
 
     template <typename T, typename TT>
-    buffer_base<T, TT>::buffer_base(std::initializer_list<unit_type> i_value):
+    inline buffer_base<T, TT>::buffer_base(std::initializer_list<unit_type> i_value):
         iv_data(i_value)
     {
     }

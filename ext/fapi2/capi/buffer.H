@@ -31,6 +31,7 @@
 #define __FAPI2_INTEGRAL_BUFFER__
 
 #include <buffer_base.H>
+#include <return_code.H>
 
 namespace fapi2
 {
@@ -51,6 +52,7 @@ namespace fapi2
     class buffer : public buffer_base<T>
     {
     public:
+        /// Shortcut typedef to map to our traits class
         typedef typename buffer_base<T, buffer>::bits_type bits_type;
 
         ///
@@ -58,7 +60,7 @@ namespace fapi2
         /// @param[in] i_value initial value of the buffer
         /// Meaningless for variable types and thus protected.
         ///
-        buffer(T i_value = 0)
+        inline buffer(T i_value = 0)
             {
                 // Why not an initializer list? That would force buffer_base<T>
                 // to have a ctor which took a T, and I want to avoid that in
@@ -78,7 +80,7 @@ namespace fapi2
         /// @brief Return the length of the buffer in bits
         /// @return Length in bits
         ///
-        constexpr uint32_t getBitLength(void) const
+        inline constexpr uint32_t getBitLength(void) const
             { return bufferTraits<T>::bit_length(this->iv_data); }
 
         ///
@@ -90,7 +92,7 @@ namespace fapi2
         /// getLength<uin32_t>().
         ///
         template< typename OT >
-        constexpr uint32_t getLength(void) const
+        inline constexpr uint32_t getLength(void) const
         {
             return bufferTraits<T>::template size<OT>(this->iv_data);
         }
@@ -176,7 +178,7 @@ namespace fapi2
         /// @return true if bit is on, false if bit is off
         ///
         template< bits_type B >
-        bool getBit(void) const
+        inline bool getBit(void) const
             {
                 return buffer<T>().setBit<B>() & this->iv_data;
             }
@@ -254,10 +256,17 @@ namespace fapi2
 #endif
 
         ///
+        /// @brief operator~()
+        ///
+#ifdef DOXYGEN
+        buffer<T>& operator~(const T& rhs) const;
+#endif
+
+        ///
         /// @brief operator==()
         ///
 #ifdef DOXYGEN
-        buffer<T>& operator==(const T& rhs) const;
+        bool operator==(const T& rhs) const;
 #endif
 
         ///
@@ -268,25 +277,19 @@ namespace fapi2
 #endif
 
         ///
-        /// @brief operator~()
-        ///
-#ifdef DOXYGEN
-        bool operator~(const T& rhs) const;
-#endif
-        ///
         /// @brief Copy part of a OT into the DataBuffer
         /// @tparam TS Start bit to insert into (target start)
         /// @tparam L Length of bits to insert
         /// @tparam SS Start bit in source
         /// @tparam OT the type of the incoming (origin) data
-        /// @param[in] i_data OT value to copy into DataBuffer
+        /// @param[in] i_datain OT value to copy into DataBuffer
         ///    - data is taken left aligned
         /// @note Asserting that all the parameters are known at
         /// compile time so this can be templated only. If that is not
         /// the case we can add a function parameter version.
         ///
         template<bits_type TS, bits_type L, bits_type SS, typename OT>
-        void insert(const OT i_datain)
+        inline void insert(const OT i_datain)
         {
             const bits_type target_length = parameterTraits<T>::bit_length;
             const bits_type source_length = parameterTraits<OT>::bit_length;
@@ -351,7 +354,7 @@ namespace fapi2
         /// @tparam SB Start bit to insert into
         /// @tparam L Length of bits to insert
         /// @tparam OT the type of the incoming (origin) data
-        /// @param[in] i_data OT value to copy into DataBuffer
+        /// @param[in] i_datain OT value to copy into DataBuffer
         ///    - data is taken right aligned
         /// @note Data is assumed to be aligned on the word boundary of L
         /// @note Asserting that all the parameters are known at
@@ -359,7 +362,7 @@ namespace fapi2
         /// the case we can add a function parameter version.
         ///
         template<bits_type TS, bits_type L, typename OT>
-        void insertFromRight(const OT i_datain)
+        inline void insertFromRight(const OT i_datain)
         {
             // Error if input data don't make sense
             static_assert(L < parameterTraits<OT>::bit_length,
@@ -385,7 +388,7 @@ namespace fapi2
         /// the case we can add a function parameter version.
         ///
         template<bits_type TS, bits_type L, bits_type SS, typename OT>
-        void extract(OT& o_out)
+        inline void extract(OT& o_out)
         {
             // Extraction is just an insert into o_out
 

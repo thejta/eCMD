@@ -1,34 +1,39 @@
-// IBM_PROLOG_BEGIN_TAG 
-// This is an automatically generated prolog. 
-//  
-// fipsrefactordoc src/hwpf/plat/fapi2PlatTrace.H 1.2 
-//  
-// IBM CONFIDENTIAL 
-//  
-// OBJECT CODE ONLY SOURCE MATERIALS 
-//  
-// COPYRIGHT International Business Machines Corp. 2011 
-// All Rights Reserved 
-//  
-// The source code for this program is not published or otherwise 
-// divested of its trade secrets, irrespective of what has been 
-// deposited with the U.S. Copyright Office. 
-//  
-// IBM_PROLOG_END_TAG 
+/* IBM_PROLOG_BEGIN_TAG                                                   */
+/* This is an automatically generated prolog.                             */
+/*                                                                        */
+/* $Source$                                                            */
+/*                                                                        */
+/* OpenPOWER HostBoot Project                                             */
+/*                                                                        */
+/* Contributors Listed Below - COPYRIGHT 2011,2015                        */
+/* [+] International Business Machines Corp.                              */
+/*                                                                        */
+/*                                                                        */
+/* Licensed under the Apache License, Version 2.0 (the "License");        */
+/* you may not use this file except in compliance with the License.       */
+/* You may obtain a copy of the License at                                */
+/*                                                                        */
+/*     http://www.apache.org/licenses/LICENSE-2.0                         */
+/*                                                                        */
+/* Unless required by applicable law or agreed to in writing, software    */
+/* distributed under the License is distributed on an "AS IS" BASIS,      */
+/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
+/* implied. See the License for the specific language governing           */
+/* permissions and limitations under the License.                         */
+/*                                                                        */
+/* IBM_PROLOG_END_TAG                                                     */
 /**
- *  @file fapi2PlatTrace.H
- *
- *  @brief Defines the FAPI trace macros.
+ *  @file plat_trace.H
+ *  @brief Defines the FAPI2 trace macros.
  *
  *  Note that platform code must provide the implementation.
  *
- *  FAPI has provided a default implementation of printfs. Platform code must
+ *  FAPI has provided a default implementation. Platform code must
  *  provide an alternate implementation if needed.
  */
 
-
-#ifndef FAPI2PLATTRACE_H
-#define FAPI2PLATTRACE_H
+#ifndef FAPI2_PLATTRACE_H_
+#define FAPI2_PLATTRACE_H_
 
 #include <stdio.h>
 #include <string.h>
@@ -63,8 +68,9 @@
 #endif
 #endif
 
+#define MAX_ECMD_STRING_LEN 64
 
-// Information traces (standard flight recorder that can wrap often)
+// Information traces (go into fast trace buffer that can wrap often)
 #ifdef _LP64
 #define FAPI_INF(_fmt_, _args_...) \
 if(fapi2IsOutputInfoEnabled()) \
@@ -91,8 +97,7 @@ if(fapi2IsOutputInfoEnabled()) \
 }
 #endif
 
-
-// Important traces (should not wrap often)
+// Important traces (go into slow trace buffer that should not wrap often)
 #ifdef _LP64
 #define FAPI_IMP(_fmt_, _args_...) \
 if(fapi2IsOutputInfoEnabled()) \
@@ -119,7 +124,7 @@ if(fapi2IsOutputInfoEnabled()) \
 }
 #endif
 
-// Error traces (should not wrap often)
+// Error traces (go into slow trace buffer that should not wrap often)
 #ifdef _LP64
 #define FAPI_ERR(_fmt_, _args_...) \
 do \
@@ -146,7 +151,7 @@ do \
 } while(0)
 #endif
 
-// Debug traces (can wrap often)
+// Debug traces (go into fast trace buffer that can wrap often)
 #ifdef _LP64
 #define FAPI_DBG(_fmt_, _args_...) \
 if (fapi2IsOutputDebugEnabled()) \
@@ -173,8 +178,7 @@ if (fapi2IsOutputDebugEnabled()) \
 }
 #endif
 
-
-// Common SCAN traces for hardware access 
+// Scan traces
 #define FAPI_SCAN(_fmt_, _args_...) \
 do \
 {   char scan_user_str[255]; \
@@ -182,6 +186,31 @@ do \
     fapi2OutputScanTrace(scan_user_str); \
 } while(0)
 
+// Manufacturing traces
+#ifdef _LP64
+#define FAPI_MFG(_fmt_, _args_...) \
+if (fapi2IsOutputManufacturingEnabled()) \
+{   char mfg_user_str[255]; \
+    char mfg_sum_str[512];  \
+    const char* input = "" _fmt_ "\n"; \
+    size_t fmtSize = (strlen(input) + 1);	\
+    char fmt_cpy[fmtSize]; \
+    fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(mfg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(mfg_user_str, 255, fmt_cpy, ##_args_); \
+    strncat(mfg_sum_str, mfg_user_str, 255); \
+    fapi2OutputManufacturing(mfg_sum_str); \
+}
+#else
+#define FAPI_MFG(_fmt_, _args_...) \
+if (fapi2IsOutputManufacturingEnabled()) \
+{   char mfg_user_str[255]; \
+    char mfg_sum_str[512];  \
+    snprintf(mfg_sum_str, 128, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+    snprintf(mfg_user_str, 255, "" _fmt_ "\n", ##_args_); \
+    strncat(mfg_sum_str, mfg_user_str, 255); \
+    fapi2OutputManufacturing(mfg_sum_str); \
+}
+#endif
 
-
-#endif // FAPI2PLATTRACE_H
+#endif // FAPI2_PLATTRACE_H_

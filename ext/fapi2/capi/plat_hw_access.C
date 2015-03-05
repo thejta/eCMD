@@ -497,6 +497,7 @@ namespace fapi2
     ReturnCode platGetRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & o_data, const uint32_t i_ringMode)
     {
         ReturnCode rc(FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
 #ifndef ECMD_STATIC_FUNCTIONS
@@ -525,13 +526,17 @@ namespace fapi2
             args.push_back((void*) &i_ringMode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data, const uint32_t i_ringMode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getRing");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-        rc = dllFapi2GetRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        l_ecmdRc = dllFapi2GetRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        if (l_ecmdRc)
+        {
+            rc = (ReturnCodes) l_ecmdRc; 
+        }
 #else
         if (fapi2DllFnTable[ECMD_FAPI2GETRING] == NULL)
         {
@@ -544,21 +549,35 @@ namespace fapi2
             }
         }
 
-        ReturnCode (*Function)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t ) = 
-            (ReturnCode(*)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2GETRING];
-        rc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t ) = 
+            (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2GETRING];
+        l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        if (l_ecmdRc)
+        {
+            rc = (ReturnCodes) l_ecmdRc; 
+        }
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
         {
-            args.push_back((void*) &rc);
+            args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data)",args);
         }
 #endif
 
-        // o_data = l_ecmd_buffer; // FIXME
+#if 0
+        uint32_t* l_data = ecmdDataBufferBaseImplementationHelper::getDataPtr(&l_ecmd_buffer);
+        if (l_data != NULL)
+        {
+            o_data.insert(l_data, 0, l_ecmd_buffer.getBitLength(), 0);
+        }
+        else
+        {
+            // ERROR
+        }
+#endif
 
         return rc;
     }
@@ -566,6 +585,7 @@ namespace fapi2
     ReturnCode platPutRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
     {
         ReturnCode rc(FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
         // l_ecmd_buffer = i_data; // FIXME
@@ -596,13 +616,17 @@ namespace fapi2
             args.push_back((void*) &i_ringMode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putRing");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-        rc = dllFapi2PutRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        l_ecmdRc = dllFapi2PutRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        if (l_ecmdRc)
+        {
+            rc = (ReturnCodes) l_ecmdRc; 
+        }
 #else
         if (fapi2DllFnTable[ECMD_FAPI2PUTRING] == NULL)
         {
@@ -615,17 +639,21 @@ namespace fapi2
             }
         }
 
-        ReturnCode (*Function)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t i_ringMode) = 
-            (ReturnCode(*)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRING];
-        rc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t i_ringMode) = 
+            (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRING];
+        l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+        if (l_ecmdRc)
+        {
+            rc = (ReturnCodes) l_ecmdRc; 
+        }
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
         {
-            args.push_back((void*) &rc);
+            args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
         }
 #endif
 

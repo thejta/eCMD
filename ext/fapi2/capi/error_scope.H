@@ -34,27 +34,7 @@
 #include <thread>
 #include <stdio.h>
 #include <return_code.H>
-#include <fapi2PlatTrace.H>
-
-/// This implementation assumes no exception handling and leverages thread-local
-/// storage. For platforms without thread support, a global variable will
-/// suffice for the error state.
-namespace fapi2
-{
-    extern thread_local ReturnCode current_err;
-    extern thread_local uint64_t pib_error_mask;
-    extern thread_local uint64_t operational_state;
-};
-
-///
-/// @brief Place holder until more of the FAPI infrastructure
-/// can be compiled with this file
-/// @param[in] ... varargs, passed to a platform specific output function
-/// @note This is skeleton implementation for prototype purposes. This
-/// does not imply "printf" is used on any or all platforms.
-///
-//#define FAPI_ERR( ... ) printf( __VA_ARGS__ );
-//#define FAPI_DBG( ... ) printf( __VA_ARGS__ );
+#include <plat_trace.H>
 
 /// @cond
 #define FAPI_VA_NARGS_IMPL(_1, _2, _3, _4, _5, N, ...) N
@@ -91,7 +71,7 @@ namespace fapi2
 /// @brief Wrapper to check an operation for an error state
 /// and jump to the label cleam_up if there is an error.
 /// @param[in] __operation__ an operation which returns a fapi::ReturnCode
-/// @param[in] Optional vararg format/agruments for trace output.
+/// @param[in] ... vararg format/agruments for trace output (optional)
 /// @note This implementation does not support PIB error masks or
 /// FSP operational states.
 /// @warning The trace information is only going to be seen during
@@ -116,7 +96,7 @@ namespace fapi2
 #define FAPI_ASSERT( __conditional__, __ffdc__, ... )   \
     if (! (__conditional__))                            \
     {                                                   \
-        /*       __ffdc__; */                           \
+        (__ffdc__).execute();                           \
         FAPI_ERR(__VA_ARGS__);                          \
         goto clean_up;                                  \
     }

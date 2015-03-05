@@ -45,8 +45,8 @@
 #include <target.H>
 #include <plat_hw_access.H>
 
-#include <fapi2Util.H>
-#include <fapi2PlatTrace.H>
+#include <utils.H>
+#include <plat_trace.H>
 
 #ifdef FAPI_SUPPORT_MULTI_SCOM
 #include <fapiMultiScom.H>
@@ -82,10 +82,10 @@ namespace fapi2
     //--------------------------------------------------------------------------
 
     /// @brief Reads a SCOM register from a chip.
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target     HW target to operate on.
     /// @param[in]  i_address    SCOM register address to read from.
-    /// @param[out] o_date       Buffer that holds data read from HW target.
+    /// @param[out] o_data       Buffer that holds data read from HW target.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     template< TargetType K >
     ReturnCode getScom(const Target<K>& i_target, const uint64_t i_address,
@@ -97,7 +97,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platGetScom( i_target, i_address, o_data );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -134,7 +134,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platPutScom( i_target, i_address, i_data );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -187,7 +187,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platPutScomUnderMask( i_target, i_address, i_data, i_mask );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -227,7 +227,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platGetCfamRegister( i_target, i_address, o_data );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -266,7 +266,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platPutCfamRegister( i_target, i_address, i_data );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -320,7 +320,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platGetRing( i_target, i_address, o_data, i_ringMode );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);
@@ -363,7 +363,7 @@ namespace fapi2
         // call the platform implementation
         l_rc = platPutRing( i_target, i_address, i_data, i_ringMode );
 
-        if (l_rc)
+        if (l_rc != FAPI2_RC_SUCCESS)
         {
             std::string target_string;
             fapi2::toString(i_target, target_string);

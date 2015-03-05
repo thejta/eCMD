@@ -3,7 +3,7 @@
 
 #include <fapi2AttributeService.H>
 #include <fapi2ChipEcFeature.H>
-#include <fapi2PlatTrace.H>
+#include <plat_trace.H>
 
 namespace fapi2
 {
