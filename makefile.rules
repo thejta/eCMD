@@ -19,7 +19,9 @@ ifeq ($(shell uname),Linux)
   # It's linux, figure out the type and arch
   ifneq ($(strip $(shell uname -a |grep ppc)),)
     HOST_OS := ppc
-    ifneq ($(strip $(shell uname -a |grep ppc64)),)
+    ifneq ($(strip $(shell uname -a |grep ppc64le)),)
+      HOST_ARCH := ppc64le
+    else ifneq ($(strip $(shell uname -a |grep ppc64)),)
       HOST_ARCH := ppc64
     else
       HOST_ARCH := ppc
