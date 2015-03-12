@@ -80,8 +80,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     uint64_t address =0xFFFFFFFFFFFFFFFFull;
     char addrStr[20];
 
-    std::list<ecmdScomData> scomdata;
-    std::list<ecmdScomData>::iterator scomit;
+    std::list<ecmdScomDataHidden> scomdata;           ///< Scom data 
+    std::list<ecmdScomDataHidden>::iterator scomit;   ///< Scom data 
 
     if (argc < 2) {
       ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
@@ -112,7 +112,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
     while (ecmdLooperNext(target, looperData)) {
 
-      rc = ecmdQueryScom(target, scomdata, address);
+      rc = ecmdQueryScomHidden(target, scomdata, address);
       if (rc) {
         printed = "ecmdquery - Error occured performing scom query on ";
         printed += ecmdWriteTarget(target);
@@ -154,9 +154,11 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         }
 
         if (scomit->isChipUnitRelated) {
-          if (scomit->relatedChipUnit != "") {
-            isChipUnit = scomit->relatedChipUnit;
-          } else {
+	   std::list<std::string>::iterator relatedChipUnitIter;
+           for ( relatedChipUnitIter = scomit->relatedChipUnit.begin(); relatedChipUnitIter != scomit->relatedChipUnit.end(); relatedChipUnitIter++) {
+               isChipUnit = *relatedChipUnitIter;
+	   }
+          if (*relatedChipUnitIter == "") {
             isChipUnit = "Y";
           }
         } else {
@@ -1864,7 +1866,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutput(   "*******************************************************\n");
       printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
       if (queryData.isChipUnitRelated) {
-        printed =     "Chip Unit        : " + queryData.relatedChipUnit + "\n"; ecmdOutput(printed.c_str());
+	          printed =     "Chip Unit        : " + queryData.relatedChipUnit + "\n"; ecmdOutput(printed.c_str());
       } else {
         printed =     "Chip Unit        : NONE\n"; ecmdOutput(printed.c_str());
       }
@@ -1884,7 +1886,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 
     ecmdChipData chipdata;
-    ecmdScomData queryData;
+    ecmdScomDataHidden queryData;
 
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
