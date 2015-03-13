@@ -139,6 +139,82 @@ namespace fapi2
         io_rc.forgetData();
     }
 
+    ///
+    /// @brief Delay this thread.
+    ///
+    ReturnCode delay(uint64_t i_nanoSeconds, uint64_t i_simCycles)
+    {
+        uint32_t rc = ECMD_SUCCESS;
+        ReturnCode l_fapiRc(FAPI2_RC_SUCCESS);
+
+#ifndef ECMD_STATIC_FUNCTIONS
+        if (dlHandle == NULL)
+        {
+            fprintf(stderr,"dllFapi2Delay%s",ECMD_DLL_NOT_LOADED_ERROR);
+            exit(ECMD_DLL_INVALID);
+        }
+#endif
+
+        if (!fapi2Initialized)
+        {
+            fprintf(stderr,"dllFapi2Delay: eCMD Extension not initialized before function called\n");
+            fprintf(stderr,"dllFapi2Delay: OR eCMD fapi Extension not supported by plugin\n");
+            exit(ECMD_DLL_INVALID);
+        }
+
+#ifndef ECMD_STRIP_DEBUG
+        int myTcount;
+        std::vector< void * > args;
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &i_nanoSeconds);
+            args.push_back((void*) &i_simCycles);
+            fppCallCount++;
+            myTcount = fppCallCount;
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"fapi2::ReturnCode fapi2::delay(uint64_t i_nanoSeconds, uint64_t i_simCycles)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2::delay");
+        }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+        rc = dllFapi2Delay(i_nanoSeconds, i_simCycles);
+#else
+        if (fapi2DllFnTable[ECMD_FAPI2DELAY] == NULL)
+        {
+            fapi2DllFnTable[ECMD_FAPI2DELAY] = (void*)dlsym(dlHandle, "dllFapi2Delay");
+            if (fapi2DllFnTable[ECMD_FAPI2DELAY] == NULL)
+            {
+                fprintf(stderr,"dllFapi2Delay%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                ecmdDisplayDllInfo();
+                exit(ECMD_DLL_INVALID);
+            }
+        }
+
+        uint32_t (*Function)(uint64_t, uint64_t) = 
+            (uint32_t(*)(uint64_t, uint64_t))fapi2DllFnTable[ECMD_FAPI2DELAY];
+        rc = (*Function)(i_nanoSeconds, i_simCycles);
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &rc);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2::delay");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"fapi2::ReturnCode fapi2::delay(uint64_t i_nanoSeconds, uint64_t i_simCycles)",args);
+        }
+#endif
+
+        if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE))
+        {
+            std::string errorString;
+            errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+            if (errorString.size()) ecmdOutput(errorString.c_str());
+        }
+
+        l_fapiRc = (ReturnCodes)rc;
+        return l_fapiRc;
+    }
+
     bool platIsScanTraceEnabled()
     {
 
