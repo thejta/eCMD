@@ -567,17 +567,15 @@ namespace fapi2
         }
 #endif
 
-#if 0
         uint32_t* l_data = ecmdDataBufferBaseImplementationHelper::getDataPtr(&l_ecmd_buffer);
         if (l_data != NULL)
         {
-            o_data.insert(l_data, 0, l_ecmd_buffer.getBitLength(), 0);
+            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
         }
         else
         {
-            // ERROR
+            fprintf(stderr,"dllFapi2GetRing: error getting data pointer to ecmdDataBufferBase\n");
         }
-#endif
 
         return rc;
     }
@@ -588,7 +586,41 @@ namespace fapi2
         uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
-        // l_ecmd_buffer = i_data; // FIXME
+        uint32_t l_bitLength = i_data.getBitLength();
+        l_ecmd_buffer.setBitLength(l_bitLength);
+        const uint32_t l_bitsPerWord = sizeof(uint32_t) * 8;
+        uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
+        uint32_t l_currentWord = 0;
+        uint32_t l_extractData = 0;
+        ReturnCode l_copy_rc(FAPI2_RC_SUCCESS);
+        while (l_currentWord < l_wordLength)
+        {
+            l_copy_rc = i_data.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                fprintf(stderr,"dllFapi2PutRing: error calling i_data.extract(l_extractData, %d, %d)\n", l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            }
+            l_ecmdRc = l_ecmd_buffer.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
+            if (l_ecmdRc)
+            {
+                fprintf(stderr,"dllFapi2PutRing: error calling l_ecmd_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            }
+            l_currentWord++;
+        }
+        if (l_bitLength > (l_wordLength * l_bitsPerWord))
+        {
+            uint32_t l_bitsRemaining = l_bitLength - (l_wordLength * l_bitsPerWord);
+            l_copy_rc = i_data.extract(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                fprintf(stderr,"dllFapi2PutRing: error calling i_data.extract(l_extractData, %d, %d)\n", l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            }
+            l_ecmdRc = l_ecmd_buffer.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
+            if (l_ecmdRc)
+            {
+                fprintf(stderr,"dllFapi2PutRing: error calling l_ecmd_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            }
+        }
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL)

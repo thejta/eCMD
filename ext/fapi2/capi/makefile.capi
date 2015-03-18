@@ -21,6 +21,7 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
   INCLUDES    := ${INCLUDES} ${EXTENSION_NAME}DllCapi.H ${EXTENSION_NAME}ClientEnums.H
 endif
 
+CFLAGS_SPECIAL := ${CFLAGS} -I../../../capi
 CFLAGS        := ${CFLAGS} -I../../../capi
 
 # Variables used for the build
@@ -109,7 +110,7 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 # file has changed.
 # *****************************************************************************
 ${CAPI_SPECIAL_SOURCE_ASM}: ${OBJPATH}%.S : %.C %.C_extra ${INCLUDES} ${INT_INCLUDES}
-	${CC} -S ${CFLAGS} $< -o $@ ${DEFINES}
+	${CC} -S ${CFLAGS_SPECIAL} $< -o $@ ${DEFINES}
 	cat $<_extra >> $@
 ${CAPI_SPECIAL_SOURCE_OBJS}: ${OBJPATH}%.o : ${OBJPATH}%.S ${INCLUDES} ${INT_INCLUDES}
 	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}

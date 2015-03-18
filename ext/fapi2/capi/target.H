@@ -490,6 +490,6 @@ namespace fapi2
     { return (K & T) != 0; }
 
 
-};
+}
 
 #endif
