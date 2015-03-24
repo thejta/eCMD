@@ -14,40 +14,39 @@ include makefile.rules
 # If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
 CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
 
-# Last thing to be done, setup all of our build targets for use below
-BUILD_TARGETS := ${EXTENSIONS}
 # The cmd extension has to be built after ecmdcmd, so if it's in the extension list pull it out and add after ecmdcmd
-ifneq (,$(findstring cmd,${BUILD_TARGETS}))
-  CMD_EXT_BUILD := cmd
+ifneq (,$(findstring cmd,${EXTENSIONS}))
+  CMD_EXT_BUILD := cmdcapi
 endif
-BUILD_TARGETS := $(subst cmd,,${BUILD_TARGETS})
+# Pull cmd then use the list to build the {ext}capi targets
+EXT_TARGETS := $(subst cmd,,${EXT_TARGETS})
+EXT_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
 
-# Only do the perlapi if it's checked out
-ifneq ($(findstring perlapi,$(shell /bin/ls -d *)),)
-  PERLAPI_BUILD := ecmdperlapi
-endif
-
-# Only do the pyapi if it's checked out
-ifneq ($(findstring pyapi,$(shell /bin/ls -d *)),)
-  PYAPI_BUILD := ecmdpyapi
-endif
-
-# Only do the py3api if it's checked out
-ifneq ($(findstring py3api,$(shell /bin/ls -d *)),)
-  PY3API_BUILD := ecmdpy3api
-endif
+# These variables can be controlled from the makefile.config to determine if python/perl should be built
+# The default here is yes
+CREATE_PERLAPI ?= yes
+CREATE_PYAPI ?= yes
+CREATE_PY3API ?= yes
 
 # Only do the pyapi and py3api if not x86 and not aix
 ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix aix64))
-  PYAPI_BUILD := 
-  PY3API_BUILD := 
-else
-  PYAPI_BUILD := ${PYAPI_BUILD}
-  PY3API_BUILD := ${PY3API_BUILD}
+  CREATE_PYAPI := no
+  CREATE_PY3API := no
+endif
+
+# Set the actual build targets used in the build if yes
+ifeq (${CREATE_PERLAPI},yes)
+  PERLAPI_BUILD := ecmdperlapi
+endif
+ifeq (${CREATE_PYAPI},yes)
+  PYAPI_BUILD := ecmdpyapi
+endif
+ifeq (${CREATE_PY3API},yes)
+  PY3API_BUILD := ecmdpy3api
 endif
 
 # Now create our build targets
-BUILD_TARGETS := ecmdcapi ${BUILD_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
+BUILD_TARGETS := ecmdcapi ${EXT_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
 
 # *****************************************************************************
 # The Main Targets
@@ -68,23 +67,22 @@ ecmdcapi:
 	@cd capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdcmd: ecmdcapi $(subst cmd,,${EXTENSIONS})
+ecmdcmd: ecmdcapi ${EXT_TARGETS}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
 	@cd ecmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-
-ecmdperlapi: ecmdcmd ${CMD_EXT_BUILD}
+ecmdperlapi: ecmdcmd $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
 	@cd perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdpyapi: ecmdcmd ${CMD_EXT_BUILD}
+ecmdpyapi: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
 	@cd pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdpy3api: ecmdcmd ${CMD_EXT_BUILD}
+ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
 	@cd py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
@@ -93,8 +91,6 @@ ecmdpy3api: ecmdcmd ${CMD_EXT_BUILD}
 ########################
 # CIP Extension
 ########################
-cip: cipcapi cipperlapi cippyapi 
-
 cipcapi: ecmdcapi
 	@echo "Cronus/IP Extension C API ${TARGET_ARCH} ..."
 	@cd ext/cip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -114,8 +110,6 @@ cippyapi:
 ########################
 # CRO Extension
 ########################
-cro: crocapi croperlapi cropyapi
-
 crocapi: ecmdcapi
 	@echo "Cronus Extension C API ${TARGET_ARCH} ..."
 	@cd ext/cro/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -135,8 +129,6 @@ cropyapi:
 ########################
 # Scand Extension
 ########################
-scand: scandcapi scandperlapi scandpyapi
-
 scandcapi: ecmdcapi
 	@echo "Scand Extension C API ${TARGET_ARCH} ..."
 	@cd ext/scand/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -155,7 +147,7 @@ scandpyapi:
 ########################
 # EIP Extension
 ########################
-eip: eipcapi eipperlapi eippyapi
+eip: eipcapi
 
 eipcapi: ecmdcapi
 	@echo "Eclipz IP Extension C API ${TARGET_ARCH} ..."
@@ -176,8 +168,6 @@ eippyapi:
 ########################
 # AIP Extension
 ########################
-aip: aipcapi aipperlapi aippyapi
-
 aipcapi: ecmdcapi
 	@echo "Apollo IP Extension C API ${TARGET_ARCH} ..."
 	@cd ext/aip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -197,8 +187,6 @@ aippyapi:
 ########################
 # GIP Extension
 ########################
-gip: gipcapi gipperlapi gippyapi
-
 gipcapi: ecmdcapi
 	@echo "GFW IP Extension C API ${TARGET_ARCH} ..."
 	@cd ext/gip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -218,8 +206,6 @@ gippyapi:
 ########################
 # ZSE Extension
 ########################
-zse: zsecapi zseperlapi zsepyapi
-
 zsecapi: ecmdcapi
 	@echo "Z Series Extension C API ${TARGET_ARCH} ..."
 	@cd ext/zse/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -239,8 +225,6 @@ zsepyapi:
 ########################
 # MBO Extension
 ########################
-mbo: mbocapi mboperlapi mbopyapi
-
 mbocapi: ecmdcapi
 	@echo "Mambo Extension C API ${TARGET_ARCH} ..."
 	@cd ext/mbo/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -260,8 +244,6 @@ mbopyapi:
 ########################
 # BML Extension
 ########################
-bml: bmlcapi bmlperlapi bmlpyapi
-
 bmlcapi: ecmdcapi
 	@echo "BML Extension C API ${TARGET_ARCH} ..."
 	@cd ext/bml/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -281,8 +263,6 @@ bmlpyapi:
 ########################
 # fapi Extension
 ########################
-fapi: fapicapi fapiperlapi fapipyapi
-
 fapicapi: ecmdcapi
 	@echo "FAPI Extension C API ${TARGET_ARCH} ..."
 	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -302,8 +282,6 @@ fapipyapi:
 ########################
 # fapi Extension
 ########################
-fapi2: fapi2capi fapi2perlapi fapi2pyapi
-
 fapi2capi: ecmdcapi
 	@echo "FAPI2 Extension C API ${TARGET_ARCH} ..."
 	@cd ext/fapi2/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
@@ -323,8 +301,6 @@ fapi2pyapi:
 ########################
 # CMD Extension
 ########################
-cmd: cmdcapi cmdperlapi cmdpyapi
-
 cmdcapi: ecmdcmd
 	@echo "Command line Extension C API ${TARGET_ARCH} ..."
 	@cd ext/cmd/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
