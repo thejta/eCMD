@@ -143,9 +143,9 @@ ifeq (${TARGET_OS},x86)
     LD_R     := ${CC_R} 
     AR       := /opt/rh/devtoolset-2/root/usr/bin/ar
     #AR       := /usr/bin/ar
-    CFLAGS   := ${CFLAGS} -m64 -fPIC -std=c++11
-    LDFLAGS  := ${LDFLAGS} -m64 -fPIC -std=c++11
-    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC -std=c++11
+    CFLAGS   := ${CFLAGS} -m64 -fPIC
+    LDFLAGS  := ${LDFLAGS} -m64 -fPIC
+    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
   endif
 endif
 
@@ -207,6 +207,13 @@ ifeq ($(strip ${EXTENSIONS}),)
     EXTENSIONS := cro cip gip eip aip scand zse bml mbo cmd fapi
   endif
   export EXTENSIONS
+endif
+
+# If building fapi2, this is required
+ifneq (,$(findstring fapi2,${EXTENSIONS}))
+  CFLAGS   := ${CFLAGS} -std=c++11
+  LDFLAGS  := ${LDFLAGS} -std=c++11
+  SLDFLAGS := ${SLDFLAGS} -std=c++11
 endif
 
 # Include the makefile.confg if the config script was run, this will override anything above
