@@ -19,7 +19,7 @@ ifneq (,$(findstring cmd,${EXTENSIONS}))
   CMD_EXT_BUILD := cmdcapi
 endif
 # Pull cmd then use the list to build the {ext}capi targets
-EXT_TARGETS := $(subst cmd,,${EXT_TARGETS})
+EXT_TARGETS := $(subst cmd,,${EXTENSIONS})
 EXT_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
 
 # These variables can be controlled from the makefile.config to determine if python/perl should be built
