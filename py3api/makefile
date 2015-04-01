@@ -32,3 +32,6 @@ SWIGFLAGS := -py3 -I../pyapi -DECMD_PY3API ${SWIGFLAGS}
 
 # Include the python 2 makefile
 include ../pyapi/makefile
+
+# Reset the subdir after including the python 2 makefile
+SUBDIR := py3api/

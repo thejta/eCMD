@@ -48,8 +48,6 @@ ifeq (${TARGET_ARCH},x86)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig
 else ifeq (${TARGET_ARCH},x86_64)
   SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
-else ifeq (${TARGET_ARCH},aix)
-  SWIG     ?= /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
 else ifeq (${TARGET_ARCH},ppc64)
   SWIG     ?= /afs/rchland.ibm.com/rel/common/bringup.tools/cronus/tools/swig/ppc64/bin/swig
 else
@@ -83,16 +81,6 @@ ifeq (${TARGET_OS},ppc)
     PYINC ?= -I/usr/include/python2.6
     CFLAGS := ${CFLAGS} -mcmodel=medium
   endif
-endif
-
-# *****************************************************************************
-# The Aix Setup stuff
-# *****************************************************************************
-# NEEDS UPDATE
-ifeq (${TARGET_OS},aix)
-  SLDFLAGS  := ${SLDFLAGS} -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp -L ${OBJROOT}/capi/${OBJDIR} -l ecmd
-  PERLINC   ?= -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
-  DEFINES   := ${DEFINES} -DHAS_BOOL=1
 endif
 
 # This handles the fact that the same make file is used for both python2 and python3 apis
@@ -131,11 +119,9 @@ pyapi_install:
 	@echo "Installing eCMD Python API ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}.."
 	cp ${OBJPATH}${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${ECMD_ROOT}${SUBDIR}init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
 test: ${SO_TARGET}
-        ifeq (${TARGET_OS},aix)
-	@slibclean
-        endif
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
 	@ECMD_DLL_FILE=${OBJROOT}/dllStub/${OBJDIR}/stub.dll PYTHONPATH=${OBJPATH} LD_LIBRARY_PATH=${OBJROOT}/capi/${OBJDIR} ${ECMDPYTHONBIN} ../pyapi/testBuild.py
 
