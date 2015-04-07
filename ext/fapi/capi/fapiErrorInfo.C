@@ -26,6 +26,7 @@
  *                          rjknight    09/24/2013  Support dimm callouts
  *                                                  based on mba parent target
  *                          whs         03/11/2014  Add FW traces to error logs
+ *                          sangeet2    01/16/2015  Modify ErrorInfoHwCallout
  */
 
 #include <fapiErrorInfo.H>
@@ -103,8 +104,10 @@ void ErrorInfoFfdc::operator delete(void * i_ptr)
 ErrorInfoHwCallout::ErrorInfoHwCallout(
     const HwCallouts::HwCallout i_hw,
     const CalloutPriorities::CalloutPriority i_calloutPriority,
-    const Target & i_refTarget)
-: iv_hw(i_hw), iv_calloutPriority(i_calloutPriority), iv_refTarget(i_refTarget)
+    const Target & i_refTarget,
+    const targetPos_t i_position)
+: iv_hw(i_hw), iv_calloutPriority(i_calloutPriority), iv_refTarget(i_refTarget),
+  iv_position(i_position)
 {
 
 }

@@ -28,6 +28,7 @@
  *                          mjjones     09/24/2013  Update fapiLogError to
  *                                                  accept another parameter
  *                          dcrowell    10/14/2013  Add explicit inline
+ *                          pragupta    09/16/2014  Add fapi gen hash function
  */
 
 #ifndef FAPIUTIL_H_
@@ -36,6 +37,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <fapiReturnCode.H>
+
+namespace fapi
+{
+    namespace hash
+    {
+        enum validHashes { CRC32 };
+    }
+};
+
 #include <fapiPlatUtil.H>
 
 // Defines for endian convertion
@@ -58,6 +68,7 @@
 #define fapiMalloc(s) fapiPlatMalloc(s)
 #define fapiFree(p) fapiPlatFree(p)
 
+#define FAPI_GEN_HASH(type, data, size) FAPI_PLAT_GEN_HASH(type,data,size)
 // It is an eCMD requirement that these functions have a "C" symbol
 // because they may be used from a dynamically linked shared library
 extern "C"

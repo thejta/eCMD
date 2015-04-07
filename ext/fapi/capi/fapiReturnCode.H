@@ -36,6 +36,7 @@
  *                                                  MBA port and dimm number
  *                          mjjones     11/08/2013  Do not define struct in union
  *                          whs         03/11/2014  Add FW traces to error logs
+ *                          sangeet2    01/16/2015  Modify ErrorInfoEntryHwCallout
  */
 
 #ifndef FAPIRETURNCODE_H_
@@ -280,6 +281,8 @@ public:
         uint8_t iv_hw;
         uint8_t iv_calloutPriority;
         uint8_t iv_refObjIndex;
+        //For a HW callout (clock) the position of the clock
+        uint8_t iv_objPosIndex;
     };
 
     struct ErrorInfoEntryProcCallout
@@ -420,11 +423,14 @@ private:
      * @param[in] i_hw        The hardware to callout
      * @param[in] i_priority  The priority of the callout
      * @param[in] i_refTarget Reference to reference Target
+     * @param[in] i_position  Incase of a clock callout;
+     *                        position of the clock target
      */
      void addEIHwCallout(
          const HwCallouts::HwCallout i_hw,
          const CalloutPriorities::CalloutPriority i_priority,
-         const Target & i_refTarget);
+         const Target & i_refTarget,
+         const targetPos_t i_position = INVALID_CLOCK_POS);
 
     /**
      * @brief Add a procedure callout to the ErrorInfo

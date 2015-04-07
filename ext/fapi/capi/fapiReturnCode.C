@@ -35,6 +35,9 @@
  *                          mjjones     06/24/2013  Support Children CDGs
  *                          mjjones     08/26/2013  Support HW Callouts
  *                          whs         03/11/2014  Add FW traces to error logs
+ *                          whs         07/23/2014  Reduce traces
+ *                          sangeet2    01/16/2015  Support "position" attribute
+ *                                                  for osc callout
  */
 
 #include <fapiReturnCode.H>
@@ -287,6 +290,9 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 static_cast<CalloutPriorities::CalloutPriority>(
                     i_pEntries[i].hw_callout.iv_calloutPriority);
 
+            // A l_posIndex of 0xff indicates that it is not a clock callout
+            uint8_t l_posIndex = i_pEntries[i].hw_callout.iv_objPosIndex;
+
             // A refIndex of 0xff indicates that there is no reference target
             uint8_t l_refIndex = i_pEntries[i].hw_callout.iv_refObjIndex;
 
@@ -295,17 +301,40 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
                 const Target * l_pRefTarget = static_cast<const Target *>(
                     i_pObjects[l_refIndex]);
                 // Removing cause it pollutes stdout - mklight 02.17.14
-                // FAPI_ERR("addErrorInfo: Adding hw callout with ref, hw: %d, pri: %d",
-                //      l_hw, l_pri);
-                addEIHwCallout(l_hw, l_pri, *l_pRefTarget);
+                //FAPI_DBG("addErrorInfo: Adding hw callout with ref, hw:"
+                //     " %d, pri: %d",
+                //     l_hw, l_pri);
+
+                if (l_posIndex != 0xff)
+                {
+                    const targetPos_t * l_posObj =
+                    static_cast<const targetPos_t *>(i_pObjects[l_posIndex]);
+
+                    addEIHwCallout(l_hw, l_pri, *l_pRefTarget, *l_posObj);
+                }
+                else
+                {
+                    addEIHwCallout(l_hw, l_pri, *l_pRefTarget);
+                }
             }
             else
             {
                 Target l_emptyTarget;
                 // Removing cause it pollutes stdout - mklight 02.17.14
-                // FAPI_ERR("addErrorInfo: Adding hw callout with no ref, hw: %d, pri: %d",
-                //      l_hw, l_pri);
-                addEIHwCallout(l_hw, l_pri, l_emptyTarget);
+                //FAPI_DBG("addErrorInfo: Adding hw callout with ref, hw:"
+                //     " %d, pri: %d",
+                //     l_hw, l_pri);
+
+                if (l_posIndex != 0xff)
+                {
+                    const targetPos_t * l_posObj =
+                    static_cast<const targetPos_t *>(i_pObjects[l_posIndex]);
+                    addEIHwCallout(l_hw, l_pri, l_emptyTarget, *l_posObj);
+                }
+                else
+                {
+                    addEIHwCallout(l_hw, l_pri, l_emptyTarget);
+                }
             }
         }
         else if (l_type == EI_TYPE_PROCEDURE_CALLOUT)
@@ -319,7 +348,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
 
             // Add the ErrorInfo
             // Removing cause it pollutes stdout - mklight 02.17.14
-            // FAPI_ERR("addErrorInfo: Adding proc callout, proc: %d, pri: %d",
+            // FAPI_DBG("addErrorInfo: Adding proc callout, proc: %d, pri: %d",
             //          l_proc, l_pri);
             addEIProcedureCallout(l_proc, l_pri);
         }
@@ -337,9 +366,29 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
             const Target * l_pTarget2 = static_cast<const Target *>(
                 i_pObjects[l_ep2Index]);
 
-            // Add the ErrorInfo
             // Removing cause it pollutes stdout - mklight 02.17.14
-            // FAPI_ERR("addErrorInfo: Adding bus callout, pri: %d", l_pri);
+            // Add Procedure ErrorInfo section first
+            ProcedureCallouts::ProcedureCallout l_proc =
+                ProcedureCallouts::BUS_CALLOUT;
+            //FAPI_DBG("addErrorInfo: Bus Callout: Adding procedure "
+            //         "proc: %d, pri: %d",
+            //         l_proc, l_pri);
+            addEIProcedureCallout(l_proc, l_pri);
+
+            // Update priority for bus callout (with targets):
+            // use priority 1 level down of initial callout priority
+            if (l_pri == CalloutPriorities::HIGH)
+            {
+                l_pri = CalloutPriorities::MEDIUM;
+            }
+            else
+            {
+                // Medium or low, so set to low
+                l_pri = CalloutPriorities::LOW;
+            }
+
+            // Add the Bus Callout ErrorInfo section next with updated priority
+            //FAPI_DBG("addErrorInfo: Adding bus callout, pri: %d", l_pri);
             addEIBusCallout(*l_pTarget1, *l_pTarget2, l_pri);
         }
         else if (l_type == EI_TYPE_CDG)
@@ -358,7 +407,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
 
             // Add the ErrorInfo
             // Removing cause it pollutes stdout - mklight 02.17.14
-            // FAPI_ERR("addErrorInfo: Adding target cdg (%d:%d:%d), pri: %d",
+            // FAPI_DBG("addErrorInfo: Adding target cdg (%d:%d:%d), pri: %d",
             //          l_callout, l_deconf, l_gard, l_pri);
             addEICdg(*l_pTarget, l_callout, l_deconf, l_gard, l_pri);
         }
@@ -384,7 +433,7 @@ void ReturnCode::addErrorInfo(const void * const * i_pObjects,
 
             // Add the ErrorInfo
             // Removing cause it pollutes stdout - mklight 02.17.14
-            // FAPI_ERR("addErrorInfo: Adding children cdg (%d:%d:%d), type: 0x%08x, pri: %d",
+            // FAPI_DBG("addErrorInfo: Adding children cdg (%d:%d:%d), type: 0x%08x, pri: %d",
             //          l_callout, l_deconf, l_gard, l_childType, l_pri);
             addEIChildrenCdg(*l_pParent, l_childType, l_callout, l_deconf,
                              l_gard, l_pri, l_childPort, l_childNumber );
@@ -490,11 +539,12 @@ void ReturnCode::forgetData()
 void ReturnCode::addEIHwCallout(
     const HwCallouts::HwCallout i_hw,
     const CalloutPriorities::CalloutPriority i_priority,
-    const Target & i_refTarget)
+    const Target & i_refTarget,
+    const targetPos_t i_position)
 {
     // Create an ErrorInfoHwCallout object and add it to the Error Information
     ErrorInfoHwCallout * l_pCallout = new ErrorInfoHwCallout(
-        i_hw, i_priority, i_refTarget);
+        i_hw, i_priority, i_refTarget, i_position);
     getCreateReturnCodeDataRef().getCreateErrorInfo().
         iv_hwCallouts.push_back(l_pCallout);
 }

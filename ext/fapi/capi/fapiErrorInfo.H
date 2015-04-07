@@ -27,6 +27,7 @@
  *                                                  /gard of DIMM(s) related
  *                                                  to MBA
  *                          whs         03/11/2014  Add FW traces to error logs
+ *                          sangeet2    01/16/2015  Modify ErrorInfoHwCallout
  */
 
 #ifndef FAPIERRORINFO_H_
@@ -38,6 +39,12 @@
 
 namespace fapi
 {
+
+// The type that will hold the position of clock
+typedef int8_t targetPos_t;
+
+// Used  incase a valid clock position is not specified
+const targetPos_t INVALID_CLOCK_POS = (-1);
 
 /**
  * @enum HwCallout
@@ -60,6 +67,13 @@ enum HwCallout
     MEM_REF_CLOCK         = 1, // Include membuf-chip ref (or child chiplet)
     PROC_REF_CLOCK        = 2, // Include proc-chip ref (or child chiplet)
     PCI_REF_CLOCK         = 3, // Include proc-chip ref (or child chiplet)
+    FLASH_CONTROLLER_PART      = 4,
+    PNOR_PART                  = 5,
+    SBE_SEEPROM_PART           = 6,
+    VPD_PART                   = 7,
+    LPC_SLAVE_PART             = 8,
+    GPIO_EXPANDER_PART         = 9,
+    SPIVID_SLAVE_PART          = 10,
 };
 }
 
@@ -80,6 +94,7 @@ enum ProcedureCallout
     CODE                  = 0, // Code problem
     LVL_SUPPORT           = 1, // Call next level of support
     MEMORY_PLUGGING_ERROR = 2, // DIMM Plugging error
+    BUS_CALLOUT           = 3, // Bus Called Out
 };
 }
 
@@ -207,11 +222,14 @@ struct ErrorInfoHwCallout
      * @param[in] i_hw              Hardware to callout
      * @param[in] i_calloutPriority Priority of callout
      * @param[in] i_refTarget       Reference to reference target
+     * @param[in] i_position        Incase of a clock callout;
+     *                              the position of the clock to be called out
      */
     ErrorInfoHwCallout(
         const HwCallouts::HwCallout i_hw,
         const CalloutPriorities::CalloutPriority i_calloutPriority,
-        const Target & i_refTarget);
+        const Target & i_refTarget,
+        const targetPos_t i_position = INVALID_CLOCK_POS);
 
 #ifdef FAPI_CUSTOM_MALLOC
     /**
@@ -240,6 +258,9 @@ struct ErrorInfoHwCallout
     // The reference target (needed for some HW callouts to identify what to
     // callout). The target handle is NULL if there is no reference target.
     Target iv_refTarget;
+
+    // Incase of a clock callout; the position of the clock to be called out
+    targetPos_t iv_position;
 };
 
 /**

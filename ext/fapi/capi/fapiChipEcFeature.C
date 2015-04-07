@@ -143,6 +143,15 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CENTAUR_BLUEWATERFALL_NWELL_BROKEN_CHECK_FLAG:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc == 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CENTAUR_EC_MSS_CONTINUE_ON_DP18_PLL_LOCK_FAIL:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
@@ -287,9 +296,90 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
-                case ATTR_CHIP_EC_FEATURE_VENICE_SPECIFIC:
+                case ATTR_CENTAUR_EC_DISABLE_VDDR_DYNAMIC_VID:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
+                         (l_chipEc < 0x20))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_SET_ABUS_PRBS_TAP_ID:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_TA_PB_T1_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_TA_A_T1_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_SINGLE_XBUS_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_NV_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_DUAL_CAPP_PRESENT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_SET_LEGACY_NODE_ID_VALID_MBOX_BIT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_USE_POLLING_PROT:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                        )
                     {
@@ -353,15 +443,6 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
-                case ATTR_CHIP_EC_FEATURE_32_PCIE_LANES:
-                    if (
-                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
-                         (l_chipEc >= 0x10))
-                       )
-                    {
-                        o_hasFeature = true;
-                    }
-                    break;
                 case ATTR_CHIP_EC_FEATURE_CAPP_HANG_CONTROL_ON_SCOM:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
@@ -369,6 +450,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -381,6 +465,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -393,6 +480,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -405,6 +495,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -416,6 +509,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                          (l_chipEc >= 0x20))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
@@ -433,6 +529,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x10))
                     ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                    ||
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
                          (l_chipEc >= 0x20))
                        )
@@ -446,6 +545,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                          (l_chipEc >= 0x20))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_CENTAUR) &&
@@ -522,6 +624,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -533,6 +638,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                          (l_chipEc >= 0x20))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                        )
                     {
@@ -558,6 +666,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -570,6 +681,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -600,6 +714,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -609,6 +726,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -621,6 +741,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -644,6 +767,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                          (l_chipEc >= 0x20))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                        )
                     {
@@ -677,6 +803,18 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                         o_hasFeature = true;
                     }
                     break;
+                case ATTR_CHIP_EC_FEATURE_XBUS_RESONANT_CLK_VALID:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
                 case ATTR_CHIP_EC_FEATURE_RESONANT_CLK_VALID:
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
@@ -684,6 +822,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -696,6 +837,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -717,6 +861,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -728,6 +875,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                          (l_chipEc >= 0x20))
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
+                         (l_chipEc >= 0x10))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
                          (l_chipEc >= 0x10))
                        )
                     {
@@ -750,6 +900,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -762,6 +915,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -792,6 +948,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     ||
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -801,6 +960,9 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
                        )
                     {
                         o_hasFeature = true;
@@ -840,6 +1002,18 @@ fapi::ReturnCode fapiQueryChipEcFeature(fapi::AttributeId i_id,
                     if (
                         ((l_chipName == ENUM_ATTR_NAME_VENICE) &&
                          (l_chipEc >= 0x20))
+                    ||
+                        ((l_chipName == ENUM_ATTR_NAME_NAPLES) &&
+                         (l_chipEc >= 0x10))
+                       )
+                    {
+                        o_hasFeature = true;
+                    }
+                    break;
+                case ATTR_CHIP_EC_FEATURE_HW_BUG_TOD_ERROR_MASK_NOT_WRITABLE:
+                    if (
+                        ((l_chipName == ENUM_ATTR_NAME_MURANO) &&
+                         (l_chipEc < 0x20))
                        )
                     {
                         o_hasFeature = true;
