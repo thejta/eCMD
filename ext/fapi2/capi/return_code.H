@@ -93,6 +93,10 @@ namespace fapi2
         FAPI2_RC_OVERFLOW                    = FAPI2_RC_FAPI2_MASK | 0x05,
         ///< Overflow condition, typically a buffer operation
 
+        FAPI2_RC_FALSE                       = FAPI2_RC_FAPI2_MASK | 0x06,
+        ///< The logical opposite of SUCCESS. Needed where procedures want
+        ///< a multi-bool type of operation (e.g., true, false, scom error)
+
         //
         // PLAT generated return codes. Additional details may be contained in
         // ReturnCode platData (this can only be looked at by PLAT code)
@@ -140,17 +144,10 @@ namespace fapi2
         ///
         /// @brief Assignement operator
         ///
+#ifdef DOXYGEN
         inline ReturnCode& operator=(const uint64_t& rhs)
-            {
-                iv_rc = rhs;
-                return *this;
-            }
-
         inline ReturnCode& operator=(const ReturnCodes& rhs)
-            {
-                iv_rc = rhs;
-                return *this;
-            }
+#endif
 
         inline bool operator==(const uint64_t& rhs) const
             { return rhs == iv_rc; }

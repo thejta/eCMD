@@ -22,7 +22,7 @@ CAPI_INCLUDES     :=  target.H target_types.H target_states.H \
 					 hw_access.H plat_hw_access.H hw_access_structs.H \
 					 ffdc.H error_info.H collect_reg_ffdc.H \
 					 hwp_return_codes.H hwp_error_info.H hwp_ffdc_classes.H set_sbe_error.H \
-					 utils.H \
+					 utils.H array.H \
  				     fapi2SharedUtils.H \
                      fapi2DllCapi.H fapi2ClientEnums.H \
                      fapi2HwpExecutor.H fapi2PlatHwpExecutor.H \
@@ -36,7 +36,7 @@ CAPI_INCLUDES     := ${CAPI_INCLUDES} fapi2.H fapi2AttributeIds.H fapi2Attribute
 
 # Additional Source files for the Shared Lib
 # FIXME add fapi buffer source files
-SLIB_SOURCE  := ffdc.C error_info.C
+SLIB_SOURCE  := ffdc.C error_info.C array.C
 
 # Include the common extension makefile to do all the work
 # include ../../template/capi/makefile.capi

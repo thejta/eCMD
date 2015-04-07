@@ -103,7 +103,7 @@ namespace fapi2
 
     template< TargetType K >
     ReturnCode platPutScom(const Target<K>& i_target, const uint64_t i_address,
-                           buffer<uint64_t>& i_data)
+                           buffer<uint64_t> i_data)
     {
         static_assert(true, "platPutScom called with incorrect TargetType");
         return (ReturnCodes) 1;
@@ -113,7 +113,7 @@ namespace fapi2
     template<> \
     ReturnCode platPutScom(const Target<TARGET_TYPE> & i_target, \
                            const uint64_t i_address, \
-                           buffer<uint64_t>& i_data);
+                           buffer<uint64_t> i_data);
 
     PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
     PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)

@@ -155,7 +155,7 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutScom(ecmdChipTarget & i_target, const uint64_t i_address,  fapi2::buffer<uint64_t> & i_data) 
+    ReturnCode platPutScom(ecmdChipTarget & i_target, const uint64_t i_address,  fapi2::buffer<uint64_t> i_data) 
     {
         ReturnCode rc;
         uint32_t l_ecmdRc;
@@ -731,7 +731,7 @@ namespace fapi2
     template<> \
     ReturnCode platPutScom(const Target<TARGET_TYPE> & i_target, \
                            const uint64_t i_address, \
-                           buffer<uint64_t>& i_data) \
+                           buffer<uint64_t> i_data) \
     { \
         ecmdChipTarget ecmdTarget; \
         fapiTargetToEcmdTarget(i_target, ecmdTarget);  \

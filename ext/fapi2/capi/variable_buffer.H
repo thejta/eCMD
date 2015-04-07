@@ -249,6 +249,31 @@ namespace fapi2
         }
 
         ///
+        /// @brief Set an OT of data in buffer
+        /// @param[in] i_value sizeof(OT) bits of data
+        /// @param[in] i_offset Start OT (start word, for example) in buffer
+        ///            - defaults to 0 (will by default write the left most element)
+        /// @return FAPI2_RC_SUCCESS on success, FAPI2_RC_OVERFLOW otherwise
+        /// @note This is is only available for integral types. To set a
+        ///    variable_buffer into a variable_buffer, use insert()
+        ///
+        template< typename OT>
+        inline fapi2::ReturnCode set(OT i_value, const bits_type i_offset = 0)
+        {
+            // Do the variable_buffer specific check for overflow here. Then
+            // call the common set()
+            static const bits_type bits_in_value = parameterTraits<OT>::bit_length();
+            const bits_type bit_length = bufferTraits<bits_container>::bit_length(iv_data);
+
+            if ((i_offset + bits_in_value) >= this->iv_perceived_bit_length)
+            {
+                return FAPI2_RC_OVERFLOW;
+            }
+
+            return buffer_base::set(i_value, i_offset);
+        }
+
+        ///
         /// @brief Set a bit in the buffer
         /// @param[in] i_bit the bit number to set.
         /// @note 0 is left-most
@@ -351,6 +376,27 @@ namespace fapi2
         ///
         template< bits_type SB, bits_type L = 1 >
         bits_type getNumBitsSet(void) const;
+
+        ///
+        /// @brief Set and entire buffer to X's
+        /// @tparam X {0,1} depending if you want to clear (0)
+        /// or fill (1) a buffer
+        /// @return buffer_base&, Useful for method chaining
+        ///
+        template< uint8_t X >
+        inline variable_buffer& flush(void)
+            {
+                static_assert( (X == 1) || (X == 0), "bad argument to flush" );
+                (0 == X) ? bufferTraits<bits_container>::clear(this->iv_data) : bufferTraits<bits_container>::set(this->iv_data);
+                return *this;
+            }
+
+        ///
+        /// @brief Invert entire buffer
+        /// @return buffer_base&, Useful for method chaining
+        ///
+        inline variable_buffer& invert(void)
+            { bufferTraits<bits_container>::invert(this->iv_data); return *this; }
 
         ///@}
 
@@ -469,6 +515,12 @@ namespace fapi2
 #ifdef DOXYGEN
         variable_buffer<T>& operator^=(const T& rhs);
 #endif
+
+        ///
+        /// @brief Get a pointer to the buffer bits
+        /// @return Pointer to the buffer itself
+        ///
+        inline unit_type* pointer(void) { return &(iv_data[0]); }
 
         ///
         /// @brief operator!=()

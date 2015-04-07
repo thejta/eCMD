@@ -207,12 +207,6 @@ namespace fapi2
         ///
         inline const T& operator()(void) const { return iv_data; }
 
-        ///
-        /// @brief Get a pointer to the buffer bits
-        /// @return Pointer to the buffer itself
-        ///
-        inline T* pointer(void) { return &iv_data; }
-
         /// @name Buffer Manipulation Functions
         ///@{
 
@@ -239,10 +233,10 @@ namespace fapi2
             // as what we're trying to prevent is overflow, which this should do.
             //
             const uint32_t length = TT:: template size<OT>(iv_data);
-            static const bits_type bits_in_value = parameterTraits<OT>::bit_length;
+            static const bits_type bits_in_value = parameterTraits<OT>::bit_length();
             const bits_type bit_length = TT::bit_length(iv_data);
 
-            if (i_offset >= length)
+            if (i_offset + bits_in_value >= bit_length)
             {
                 return FAPI2_RC_OVERFLOW;
             }
@@ -251,38 +245,12 @@ namespace fapi2
             // Shift it left by the amount of unused bits,
             // Clear the unused bits
             if (((i_offset + 1) == length) && (bit_length % bits_in_value)) {
-                i_value &= parameterTraits<OT>::mask << ((bits_in_value * length) - bit_length);
+                i_value &= parameterTraits<OT>::mask() << ((bits_in_value * length) - bit_length);
             }
 
             parameterTraits<OT>::template write_element<unit_type>(TT::get_address(iv_data), i_value, i_offset);
             return FAPI2_RC_SUCCESS;
         }
-
-        ///
-        /// @brief Set and entire buffer to X's
-        /// @tparam X {0,1} depending if you want to clear (0)
-        /// or fill (1) a buffer
-        ///
-        template< uint8_t X >
-        inline void flush(void)
-            {
-                static_assert( (X == 1) || (X == 0), "bad argument to flush" );
-                (0 == X) ? TT::clear(iv_data) : TT::set(iv_data);
-            }
-
-        ///
-        /// @brief Invert entire buffer
-        /// @return buffer_base&, Useful for method chaining
-        ///
-        inline buffer_base& invert(void)
-            { TT::invert(iv_data); return *this; }
-
-        ///
-        /// @brief Bit reverse entire buffer
-        /// @return buffer_base&, Useful for method chaining
-        ///
-        inline buffer_base& reverse(void)
-            { TT::reverse(iv_data); return *this; }
 
         //@}
     protected:
