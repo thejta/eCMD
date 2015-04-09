@@ -22,7 +22,7 @@ CAPI_INCLUDES     :=  target.H target_types.H target_states.H \
 					 hw_access.H plat_hw_access.H hw_access_structs.H \
 					 ffdc.H error_info.H collect_reg_ffdc.H \
 					 hwp_return_codes.H hwp_error_info.H hwp_ffdc_classes.H set_sbe_error.H \
-					 utils.H array.H \
+					 utils.H plat_utils.H array.H \
  				     fapi2SharedUtils.H \
                      fapi2DllCapi.H fapi2ClientEnums.H \
                      fapi2HwpExecutor.H fapi2PlatHwpExecutor.H \

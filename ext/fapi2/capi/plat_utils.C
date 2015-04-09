@@ -214,8 +214,11 @@ namespace fapi2
         l_fapiRc = (ReturnCodes)rc;
         return l_fapiRc;
     }
+};
 
-    bool platIsScanTraceEnabled()
+namespace fapi2plat
+{
+    bool isScanTraceEnabled()
     {
 
         bool rc;
@@ -243,7 +246,7 @@ namespace fapi2
             fppCallCount++;
             myTcount = fppCallCount;
             ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"",args);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2::platIsScanTraceEnabled");
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2plat::isScanTraceEnabled");
         }
 #endif
 
@@ -269,7 +272,7 @@ namespace fapi2
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
         {
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2::platIsScanTraceEnabled");
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2plat::isScanTraceEnabled");
             ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"", args);
         }
 #endif
@@ -284,7 +287,7 @@ namespace fapi2
         return rc;
     }
 
-    void platSetScanTrace(bool i_enable)
+    void setScanTrace(bool i_enable)
     {
 
 #ifndef ECMD_STATIC_FUNCTIONS
@@ -310,8 +313,8 @@ namespace fapi2
             args.push_back((void*) &i_enable);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void fapi2::platSetScanTrace(bool i_enable)",args);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2::platSetScanTrace");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"void fapi2plat::setScanTrace(bool i_enable)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2plat::setScanTrace");
         }
 #endif
 
@@ -337,8 +340,8 @@ namespace fapi2
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
         {
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2::platSetScanTrace");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void fapi2::platSetScanTrace(bool i_enable)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2plat::setScanTrace");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"void fapi2plat::setScanTrace(bool i_enable)",args);
         }
 #endif
 

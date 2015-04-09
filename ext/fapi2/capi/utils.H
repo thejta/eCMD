@@ -82,21 +82,6 @@ namespace fapi2
     /// @return ReturnCode. Zero on success, else platform specified error.
     ///
     ReturnCode delay(uint64_t i_nanoSeconds, uint64_t i_simCycles);
-
-    /**  @brief This function answers the question, is scand tracing turned on?
-     *   The implementation of this function is specific to the platform.
-     *
-     *   @returns Boolean indication
-     */
-    bool platIsScanTraceEnabled();
-
-    /**  @brief Alter the state of scand tracing.
-     *   The implementation of this function is specific to the platform.
-     *
-     *   @param[in] i_enable True to enable or false to disable scan trace.
-     *   @return  void
-     */
-    void platSetScanTrace(bool i_enable);
 };
 
 #endif // FAPI2_UTILS_H_

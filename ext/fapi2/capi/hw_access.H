@@ -46,6 +46,7 @@
 #include <plat_hw_access.H>
 
 #include <utils.H>
+#include <plat_utils.H>
 #include <plat_trace.H>
 
 #ifdef FAPI_SUPPORT_MULTI_SCOM
@@ -128,7 +129,7 @@ namespace fapi2
                               buffer<uint64_t>& o_data)
     {
         ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platGetScom( i_target, i_address, o_data );
@@ -165,7 +166,7 @@ namespace fapi2
                               buffer<uint64_t> i_data)
     {
         ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platPutScom( i_target, i_address, i_data );
@@ -218,7 +219,7 @@ namespace fapi2
                                        buffer<uint64_t>& i_mask)
     {
         ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platPutScomUnderMask( i_target, i_address, i_data, i_mask );
@@ -258,7 +259,7 @@ namespace fapi2
                                       buffer<uint32_t>& o_data)
     {
         ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platGetCfamRegister( i_target, i_address, o_data );
@@ -297,7 +298,7 @@ namespace fapi2
                                       buffer<uint32_t>& i_data)
     {
         ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platPutCfamRegister( i_target, i_address, i_data );
@@ -351,7 +352,7 @@ namespace fapi2
                               const RingMode i_ringMode = 0)
     {
         fapi2::ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platGetRing( i_target, i_address, o_data, i_ringMode );
@@ -394,7 +395,7 @@ namespace fapi2
                               const RingMode i_ringMode = 0)
     {
         fapi2::ReturnCode l_rc;
-        bool l_traceit = platIsScanTraceEnabled();
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
         l_rc = platPutRing( i_target, i_address, i_data, i_ringMode );
