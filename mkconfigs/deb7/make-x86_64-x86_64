@@ -1,0 +1,27 @@
+##
+# All compiler options
+##
+CC       := /usr/bin/g++
+CC_R     := ${CC}
+LD       := ${CC}
+LD_R     := ${CC_R}
+AR       := /usr/bin/ar
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /usr/local/swig/bin/swig
+
+##
+# All perl build options
+##
+ECMDPERLBIN := /usr/bin/perl
+PERLINC  := -I/usr/lib/perl/5.14.2/CORE
+export ECMDPERLBIN
+
+##
+# All python build options
+##
+PYINC    := -I/usr/include/python2.7
+PY3INC   := -I/usr/include/python3.2mu
+ECMDPYTHON3BIN := /usr/bin/python3

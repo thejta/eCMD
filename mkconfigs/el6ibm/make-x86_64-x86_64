@@ -1,0 +1,28 @@
+GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+
+##
+# All compiler options
+##
+CC   := /opt/rh/devtoolset-2/root/usr/bin/g++
+CC_R := ${CC}
+LD   := ${CC}
+LD_R := ${CC_R} 
+AR   := /opt/rh/devtoolset-2/root/usr/bin/ar
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-3.0.2/x86_64/bin/swig
+
+##
+# All perl build options
+##
+PERLINC := -I${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/amd64_linux26_RH6-64/CORE
+PERLDEFINES := -DHAS_MODFL_PROTO=1
+
+##
+# All python build options
+##
+PYINC := -I/usr/include/python2.6
+PY3INC := -I/gsa/rchgsa/projects/e/ecmd/utils/python-3.4.1/x86_64/include/python3.4m
+ECMDPYTHON3BIN := /gsa/rchgsa/projects/e/ecmd/utils/python-3.4.1/x86_64/bin/python3

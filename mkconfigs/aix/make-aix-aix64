@@ -1,0 +1,33 @@
+# Setup GSA
+GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+
+##
+# All the compiler setup
+##
+CC       := /opt/xsite/cte/tools/simarama/gcc/bin/g++
+CC_R     := ${CC}
+LD       := ${CC}
+LD_R     := ${CC_R} 
+AR       := /opt/xsite/cte/tools/simarama/gcc/bin/ar -X64
+CFLAGS   := ${CFLAGS} -fPIC -ftemplate-depth-25 -Wall -maix64
+LDFLAGS  := ${LDFLAGS} -fPIC -maix64 -Wl,-brtl -Wl,-bexpall -Wl,-bhalt:5
+SLDFLAGS := ${SLDFLAGS} -maix64 -fPIC -shared -Wl,-G -Wl,-bexpall -Wl,-bhalt:5
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
+
+##
+# All perl build options
+##
+PERLINC := -I${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE
+PERLCFLAGS := -mcmodel=large -pthread
+PERLSLDFLAGS := -lpthreads -Wl,-bbigtoc -Wl,-bI:${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE/perl.exp -pthread
+PERLDEFINES := -DHAS_BOOL=1
+
+##
+# All python build options
+##
+CREATE_PYAPI := no
+CREATE_PY3API := no

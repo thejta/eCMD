@@ -1,0 +1,28 @@
+GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+#GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
+
+##
+# All compiler options
+##
+CC     := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
+CC_R   := ${CC}
+LD     := ${CC}
+LD_R   := ${CC_R} 
+AR     := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
+CFLAGS := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/x86/include
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/x86/bin/swig
+
+##
+# All perl build options
+##
+PERLINC := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/i386_linux24/CORE
+
+##
+# All python build options
+##
+CREATE_PYAPI := no
+CREATE_PY3API := no
