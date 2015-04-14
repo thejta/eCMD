@@ -1,0 +1,33 @@
+# Setup GSA
+GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
+
+##
+# All the compiler setup
+##
+CC       := /bin/xlC
+CC_R     := /bin/xlC_r
+CFLAGS   := ${CFLAGS} -+ -qstaticinline -qnoinline
+LD       := ${CC}
+LD_R     := ${CC_R}
+LDFLAGS  := ${LDFLAGS}
+SLDFLAGS := ${SLDFLAGS} -qmkshrobj -brtl
+AR       := /usr/bin/ar
+CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
+
+##
+# All perl build options
+##
+PERLINC := -I${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE
+PERLSLDFLAGS := -lpthreads -bI:${CTEPATH}/tools/perl/5.8.1/lib/5.8.1/rs_aix53/CORE/perl.exp
+PERLDEFINES := -DHAS_BOOL=1
+
+##
+# All python build options
+##
+CREATE_PYAPI := no
+CREATE_PY3API := no

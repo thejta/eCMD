@@ -13,47 +13,6 @@ MAKEFILE_RULES := y
 %: s.%
 %: SCCS/s.%
 
-# Figure out the OS
-ifeq ($(shell uname),Linux)
-  DEFINES := ${DEFINES} -DLINUX
-  # It's linux, figure out the type and arch
-  ifneq ($(strip $(shell uname -a |grep ppc)),)
-    HOST_OS := ppc
-    ifneq ($(strip $(shell uname -a |grep ppc64le)),)
-      HOST_ARCH := ppc64le
-    else ifneq ($(strip $(shell uname -a |grep ppc64)),)
-      HOST_ARCH := ppc64
-    else
-      HOST_ARCH := ppc
-    endif
-#  else ifneq ($(strip $(shell uname -a |grep x86)),)
-  else
-    HOST_OS := x86
-    ifneq ($(strip $(shell uname -a |grep x86_64)),)
-      HOST_ARCH := x86_64
-    else
-      HOST_ARCH := x86
-    endif
-  endif
-else
-    DEFINES := ${DEFINES} -DAIX
-    HOST_OS := aix
-    # It's AIX, just support 32 bit (for now)
-    HOST_ARCH := aix
-endif
-
-# See if the TARGET_ARCH was passed in.  If not, use the HOST_ARCH
-ifeq (${TARGET_ARCH},)
-  TARGET_ARCH := ${HOST_ARCH}
-endif
-
-# The TARGET_OS is the first 3 characters of the TARGET_ARCH (just by luck)
-TARGET_OS := $(shell echo ${TARGET_ARCH} | cut -c1-3)
-
-# Logic should be put in here to check that the TARGET_ARCH is compatible with the HOST_ARCH
-# For example, aix can't build ppc or x86 code.
-# Leaving a TODO for now, JTA 06/24/2014
-
 # Setup the ECMD_ROOT
 # Strip the subdir off the end of the path so it points to the root of the repository
 ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@${SUBDIR}$$@@')
@@ -61,6 +20,26 @@ ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@${SUBDIR}$$@@')
 #These are needed to define a space char for substitutions later on
 empty :=
 space := ${empty} ${empty}
+
+# Figure out the OS
+HOST_ARCH := $(shell ${ECMD_ROOT}/mkscripts/gethostarch.sh)
+
+# The HOST_OS is the first 3 characters of the HOST_ARCH (just by luck)
+HOST_OS := $(shell echo ${HOST_ARCH} | cut -c1-3)
+
+# See if the TARGET_ARCH was passed in.  If not, use the HOST_ARCH
+ifeq (${TARGET_ARCH},)
+  TARGET_ARCH := ${HOST_ARCH}
+endif
+
+# Get the target size
+TARGET_SIZE := $(shell ${ECMD_ROOT}/mkscripts/getsize.sh ${TARGET_ARCH})
+
+# The TARGET_OS is the first 3 characters of the TARGET_ARCH (just by luck)
+TARGET_OS := $(shell echo ${TARGET_ARCH} | cut -c1-3)
+
+# Get the distro we are building on
+DISTRO := $(shell ${ECMD_ROOT}/mkscripts/getdistro.sh)
 
 ######## Default things we need setup for every compile ########
 # SUBDIR = where the objects are moved to after compile
@@ -109,94 +88,25 @@ export SRCROOT
 export SRCDIR
 export SRCPATH
 
-# Common compile flags
+# Common compile flags across any OS
 CFLAGS    := -g -I.
 
-# *****************************************************************************
-# The x86 linux setup stuff
-# *****************************************************************************
-ifeq (${TARGET_OS},x86)
+# Setup common flags across an OS
+ifeq (${TARGET_OS},$(filter ${TARGET_OS}, x86 ppc))
+  DEFINES := ${DEFINES} -DLINUX
   GPATH    := ${OBJDIR}
-  #CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
   CFLAGS   := ${CFLAGS} -Wall
-  ifeq (${TARGET_ARCH},x86)
-    CC_VER := $(shell gcc --version | cut -d " " -f 3 | grep "\.")
-    ifeq (${CC_VER},4.1.2)
-      GSACELL  := $(shell cat /etc/ldap.conf | grep "host " | cut -d" " -f2 | cut -d. -f1)
-    else
-      GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-    endif
-    CC       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-g++
-    CC_R     := ${CC}
-    LD       := ${CC}
-    LD_R     := ${CC_R} 
-    AR       := /gsa/${GSACELL}/projects/e/ecmd/utils/gcc-4.1.2-glibc-2.3.2/i686-pc-linux-gnu/bin/i686-pc-linux-gnu-ar
-    CFLAGS   := ${CFLAGS} -m32 -fPIC -I/gsa/${GSACELL}/projects/e/ecmd/utils/x86/include
-    LDFLAGS  := ${LDFLAGS} -m32 -fPIC
-    SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
-  else
-    GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-    CC       := /opt/rh/devtoolset-2/root/usr/bin/g++
-    #CC       := /usr/bin/g++
-    CC_R     := ${CC}
-    LD       := ${CC}
-    LD_R     := ${CC_R} 
-    AR       := /opt/rh/devtoolset-2/root/usr/bin/ar
-    #AR       := /usr/bin/ar
+  ifeq (${TARGET_SIZE},64)
     CFLAGS   := ${CFLAGS} -m64 -fPIC
     LDFLAGS  := ${LDFLAGS} -m64 -fPIC
     SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
-  endif
-endif
-
-# *****************************************************************************
-# The ppc linux setup stuff
-# *****************************************************************************
-ifeq (${TARGET_OS},ppc)
-  CC       := /usr/bin/g++
-  CC_R     := ${CC}
-  LD       := ${CC}
-  LD_R     := ${CC_R} 
-  AR       := /usr/bin/ar
-  GPATH    := ${OBJDIR}
-  CFLAGS   := ${CFLAGS} -ftemplate-depth-25 -Wall
-  ifeq (${TARGET_ARCH},ppc)
+  else
     CFLAGS   := ${CFLAGS} -m32 -fPIC
     LDFLAGS  := ${LDFLAGS} -m32 -fPIC
     SLDFLAGS := ${SLDFLAGS} -shared -m32 -fPIC
-  else
-    CFLAGS   := ${CFLAGS} -m64 -fPIC
-    LDFLAGS  := ${LDFLAGS} -m64 -fPIC
-    SLDFLAGS := ${SLDFLAGS} -shared -m64 -fPIC
   endif
-endif
-
-# *****************************************************************************
-# The aix setup stuff
-# *****************************************************************************
-ifeq (${TARGET_OS},aix)
-  GSACELL  := $(shell cat /usr/gsa/etc/gsa.conf | grep cellname | cut -d" " -f2 | cut -d. -f1)
-  ifeq (${TARGET_ARCH},aix64)
-    CC       := /opt/xsite/cte/tools/simarama/gcc/bin/g++
-    CC_R     := ${CC}
-    LD       := ${CC}
-    LD_R     := ${CC_R} 
-    AR       := /opt/xsite/cte/tools/simarama/gcc/bin/ar -X64
-    CFLAGS   := -g -I. -fPIC -ftemplate-depth-25 -Wall -maix64
-    LDFLAGS  := ${LDFLAGS} -fPIC -maix64 -Wl,-brtl -Wl,-bexpall -Wl,-bhalt:5
-    SLDFLAGS := -maix64 -fPIC -shared -Wl,-G -Wl,-bexpall -Wl,-bhalt:5
-#    SLDFLAGS := -maix64 -fPIC -shared -Wl,-bexpfull -Wl,-brtl
-  else
-    CC       := /bin/xlC
-    CC_R     := /bin/xlC_r
-    CFLAGS   := ${CFLAGS} -+ -qstaticinline -qnoinline
-    LD       := ${CC}
-    LD_R     := ${CC_R}
-    LDFLAGS  := ${LDFLAGS}
-    SLDFLAGS := -qmkshrobj -brtl
-    AR       := /usr/bin/ar
-    CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
-  endif
+else
+  DEFINES := ${DEFINES} -DAIX
 endif
 
 # Build all extension if not otherwise specified
@@ -216,8 +126,14 @@ ifneq (,$(findstring fapi2,${EXTENSIONS}))
   SLDFLAGS := ${SLDFLAGS} -std=c++11
 endif
 
-# Include the makefile.confg if the config script was run, this will override anything above
+# Include the makefile for this build type
+include ${ECMD_ROOT}mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
+
+# Include the makefile.config, this will override anything above
 -include ${ECMD_ROOT}/makefile.config
+
+# If not disabled in the included makefiles, enable build tests
+TEST_BUILD ?= yes
 
 # Try and use distcc if it's available - JTA 03/24/09
 ifeq ($(strip ${NODISTCC}),)
@@ -258,4 +174,10 @@ ifneq (${DIDGMAKEFLAGS},yes)
   export DIDGMAKEFLAGS
 endif
 
+# Allows you to print any variable by doing this:
+# make print-BUILD_TARGETS
+print-%:
+	@echo $*=$($*)
+
 endif
+

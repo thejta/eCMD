@@ -1,0 +1,26 @@
+##
+# All compiler options
+##
+CC   := /usr/bin/g++
+CC_R := ${CC}
+LD   := ${CC}
+LD_R := ${CC_R}
+AR   := /usr/bin/ar
+
+##
+# The location of SWIG and any swig options
+##
+SWIG := /usr/local/swig/bin/swig
+
+##
+# All perl build options
+##
+PERLINC := -I/usr/lib64/perl5/CORE
+ECMDPERLBIN := /usr/bin/perl
+export ECMDPERLBIN
+
+##
+# All python build options
+##
+PYINC := -I/usr/include/python2.6
+CREATE_PY3API := no

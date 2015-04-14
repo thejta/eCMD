@@ -22,17 +22,11 @@ endif
 EXT_TARGETS := $(subst cmd,,${EXTENSIONS})
 EXT_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
 
-# These variables can be controlled from the makefile.config to determine if python/perl should be built
+# These variables can be controlled from the distro or makefile.config to determine if python/perl should be built
 # The default here is yes
 CREATE_PERLAPI ?= yes
 CREATE_PYAPI ?= yes
 CREATE_PY3API ?= yes
-
-# Only do the pyapi and py3api if not x86 and not aix
-ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix aix64))
-  CREATE_PYAPI := no
-  CREATE_PY3API := no
-endif
 
 # Set the actual build targets used in the build if yes
 ifeq (${CREATE_PERLAPI},yes)
@@ -412,3 +406,4 @@ endif
 debug: ${BUILD_TARGETS}
 	@echo ${OBJROOT}
 	@echo ${ECMD_ROOT}
+
