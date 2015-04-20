@@ -16,7 +16,7 @@ CAPI_SPECIAL_SOURCE = tls_storage.C
 
 # Added for fapiTarget.H, etc
 CAPI_INCLUDES     :=  fapi2_target.H plat_target.H target.H target_types.H target_states.H \
-					 buffer_base.H buffer_parameters.H buffer_traits.H \
+					 buffer_parameters.H buffer_traits.H \
 					 buffer.H variable_buffer.H \
 					 fapi2_error_scope.H plat_error_scope.H error_scope.H \
                      return_code.H plat_trace.H \
