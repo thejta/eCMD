@@ -155,7 +155,7 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutScom(ecmdChipTarget & i_target, const uint64_t i_address,  fapi2::buffer<uint64_t> i_data) 
+    ReturnCode platPutScom(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data) 
     {
         ReturnCode rc;
         uint32_t l_ecmdRc;
@@ -240,7 +240,7 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, fapi2::buffer<uint64_t> & i_data, fapi2::buffer<uint64_t> & i_mask) 
+    ReturnCode platPutScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data, const fapi2::buffer<uint64_t> i_mask) 
     {
         ReturnCode rc;
         uint32_t l_ecmdRc;
@@ -409,7 +409,7 @@ namespace fapi2
 
     ReturnCode platPutCfamRegister(ecmdChipTarget& i_target,
                                   const uint32_t i_address,
-                                  buffer<uint32_t>& i_data)
+                                  const buffer<uint32_t> i_data)
     {
         ReturnCode rc(FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
@@ -580,7 +580,7 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
+    ReturnCode platPutRing(ecmdChipTarget & i_target, const scanRingId_t i_address, const fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
     {
         ReturnCode rc(FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
@@ -731,7 +731,7 @@ namespace fapi2
     template<> \
     ReturnCode platPutScom(const Target<TARGET_TYPE> & i_target, \
                            const uint64_t i_address, \
-                           buffer<uint64_t> i_data) \
+                           const buffer<uint64_t> i_data) \
     { \
         ecmdChipTarget ecmdTarget; \
         fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
@@ -766,8 +766,8 @@ namespace fapi2
     template<> \
     ReturnCode platPutScomUnderMask(const Target<TARGET_TYPE> & i_target, \
                                     const uint64_t i_address, \
-                                    buffer<uint64_t>& i_data, \
-                                    buffer<uint64_t>& i_mask) \
+                                    const buffer<uint64_t> i_data, \
+                                    const buffer<uint64_t> i_mask) \
     { \
         ecmdChipTarget ecmdTarget; \
         fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
@@ -822,7 +822,7 @@ namespace fapi2
     template<>
     ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
                                   const uint32_t i_address,
-                                  buffer<uint32_t>& i_data)
+                                  const buffer<uint32_t> i_data)
     {
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget); 
@@ -832,7 +832,7 @@ namespace fapi2
     template<>
     ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
                                   const uint32_t i_address,
-                                  buffer<uint32_t>& i_data)
+                                  const buffer<uint32_t> i_data)
     {
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget); 
@@ -861,7 +861,7 @@ namespace fapi2
     template<> \
     ReturnCode platPutRing(const Target<TARGET_TYPE>& i_target, \
                            const scanRingId_t i_address, \
-                           variable_buffer& i_data, \
+                           const variable_buffer& i_data, \
                            const RingMode i_ringMode) \
     { \
         ecmdChipTarget ecmdTarget; \

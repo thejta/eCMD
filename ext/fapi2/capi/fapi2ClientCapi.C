@@ -26,7 +26,7 @@
 #include <ecmdClientEnums.H>
 #include <ecmdUtils.H>
 
-#include <hw_access_structs.H> 
+#include <hw_access_def.H> 
 #include <return_code.H>
 
 #include <fapi2ClientCapi.H>

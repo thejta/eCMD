@@ -15,11 +15,12 @@ CAPI_SOURCE  := fapi2DllCapi.C plat_utils.C plat_hw_access.C fapi2PlatHwpExecuto
 CAPI_SPECIAL_SOURCE = tls_storage.C
 
 # Added for fapiTarget.H, etc
-CAPI_INCLUDES     :=  target.H target_types.H target_states.H \
+CAPI_INCLUDES     :=  fapi2_target.H plat_target.H target.H target_types.H target_states.H \
 					 buffer_base.H buffer_parameters.H buffer_traits.H \
-					 buffer.H variable_buffer.H error_scope.H \
+					 buffer.H variable_buffer.H \
+					 fapi2_error_scope.H plat_error_scope.H error_scope.H \
                      return_code.H plat_trace.H \
-					 hw_access.H plat_hw_access.H hw_access_structs.H \
+					 fapi2_hw_access.H hw_access.H plat_hw_access.H hw_access_def.H \
 					 ffdc.H error_info.H collect_reg_ffdc.H \
 					 hwp_return_codes.H hwp_error_info.H hwp_ffdc_classes.H set_sbe_error.H \
 					 utils.H plat_utils.H array.H \

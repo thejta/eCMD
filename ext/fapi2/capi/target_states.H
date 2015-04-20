@@ -24,24 +24,22 @@
 /* IBM_PROLOG_END_TAG                                                     */
 /**
  * @file target_states.H
- * @brief definitions for fapi2 target states
+ * @brief common state for fapi2 targets
  */
 
 #ifndef __FAPI2_TARGET_STATES__
 #define __FAPI2_TARGET_STATES__
 
-/// FAPI namespace
 namespace fapi2
 {
-/**
- * @brief Enumeration of target state values (bitmask values)
- */
-enum TargetState
-{
-    TARGET_STATE_PRESENT    = 0x00000001,
-    TARGET_STATE_FUNCTIONAL = 0x00000002,
-};
-
-};
+    ///
+    /// @brief Enumeration of target state values (bitmask values)
+    ///
+    enum TargetState
+    {
+        TARGET_STATE_PRESENT    = 0x00000001,
+        TARGET_STATE_FUNCTIONAL = 0x00000002,
+    };
+}
 
 #endif

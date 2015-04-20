@@ -11,7 +11,7 @@
 #include <ecmdDataBufferBase.H>
 
 #include <target_states.H>
-#include <hw_access_structs.H>
+#include <hw_access_def.H>
 #include <error_info.H>
 
 #include <fapi2Structs.H>
