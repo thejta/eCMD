@@ -9,7 +9,7 @@ then
     if [[ $uout == *"ppc64le"* ]]
     then
         echo ppc64le
-    elif [[ $out == *"ppc64"* ]]
+    elif [[ $uout == *"ppc64"* ]]
     then
         echo ppc64
     else
