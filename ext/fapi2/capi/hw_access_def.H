@@ -34,7 +34,7 @@
 
 /// @cond
 typedef uint64_t spyId_t;
-typedef uint64_t scanRingId_t;
+typedef uint32_t scanRingId_t;
 /// @endcond
 
 namespace fapi2
