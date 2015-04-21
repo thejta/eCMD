@@ -101,6 +101,7 @@ namespace fapi
         MVPD_KEYWORD_MK  = 0x20,
         MVPD_KEYWORD_PB  = 0x21,
         MVPD_KEYWORD_CH  = 0x22,
+        MVPD_KEYWORD_IQ  = 0x23,
     };
 }
 
