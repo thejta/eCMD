@@ -12,7 +12,8 @@
 
 #include <target_states.H>
 #include <hw_access_def.H>
-#include <error_info.H>
+#include <error_info_defs.H>
+#include <return_code.H>
 
 #include <fapi2Structs.H>
 #include <fapi2AttributeIds.H>

@@ -19,9 +19,9 @@ CAPI_INCLUDES     :=  fapi2_target.H plat_target.H target.H target_types.H targe
 					 buffer_parameters.H buffer_traits.H \
 					 buffer.H variable_buffer.H \
 					 fapi2_error_scope.H plat_error_scope.H error_scope.H \
-                     return_code.H plat_trace.H \
+                     return_code.H return_code_defs.H plat_trace.H \
 					 fapi2_hw_access.H hw_access.H plat_hw_access.H hw_access_def.H \
-					 ffdc.H error_info.H collect_reg_ffdc.H \
+					 ffdc.H error_info.H error_info_defs.H collect_reg_ffdc.H \
 					 hwp_return_codes.H hwp_error_info.H hwp_ffdc_classes.H set_sbe_error.H \
 					 utils.H plat_utils.H array.H \
  				     fapi2SharedUtils.H \

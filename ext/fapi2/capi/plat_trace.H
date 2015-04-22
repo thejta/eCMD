@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <fapi2ClientCapi.H>
-#include <fapi2DllCapi.H>
 
 #ifdef _LP64
 #ifndef UINT64_HEX_FORMAT
@@ -68,7 +67,10 @@
 #endif
 #endif
 
-#define MAX_ECMD_STRING_LEN 64
+namespace fapi2
+{
+    const uint32_t MAX_ECMD_STRING_LEN = 64;
+};
 
 // Information traces (go into fast trace buffer that can wrap often)
 #ifdef _LP64
