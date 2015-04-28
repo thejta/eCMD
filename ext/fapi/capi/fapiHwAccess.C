@@ -505,7 +505,7 @@ fapi::ReturnCode _fapiPutSpy(const fapi::Target& i_target,
 
     if (l_rc)
     {
-        FAPI_ERR("fapiPutSpy failed - Target %s, SpyId %s.8X",
+        FAPI_ERR("fapiPutSpy failed - Target %s, SpyId %s",
                   i_target.toEcmdString(), i_spyId);
     }
 
