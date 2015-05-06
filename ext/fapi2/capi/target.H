@@ -103,7 +103,7 @@ namespace fapi2
             // ERROR
             return Target<T>();
         }
-        return Target<T>(*(l_targets.front()));
+        return Target<T>(l_targets.front());
     }
 
     ///
@@ -264,7 +264,7 @@ namespace fapi2
             // ERROR
             return Target<T>();
         }
-        return Target<T>(*(l_targets.front()));
+        return Target<T>(l_targets.front());
     }
 
 
