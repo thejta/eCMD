@@ -89,7 +89,134 @@ namespace fapi2
     template<TargetType T>
     inline Target<T> Target<K, V>::getParent(void) const
     {
-        // FIXME add static asserts
+        // valid parents for DIMM
+        // DIMM -> MCA
+        // DIMM -> MBA
+        static_assert(!((K == fapi2::TARGET_TYPE_DIMM) &&
+                        (T != fapi2::TARGET_TYPE_MCA) &&
+                        (T != fapi2::TARGET_TYPE_MBA)),
+                      "improper parent of fapi2::TARGET_TYPE_DIMM");
+
+        // valid parents for PROC
+        // PROC -> SYSTEM
+        static_assert(!((K == fapi2::TARGET_TYPE_PROC_CHIP) &&
+                        (T != fapi2::TARGET_TYPE_SYSTEM)),
+                      "improper parent of fapi2::TARGET_TYPE_PROC_CHIP");
+
+        // valid parents for MEMBUF
+        // MEMBUF -> SYSTEM
+        // MEMBUF -> DMI
+        static_assert(!((K == fapi2::TARGET_TYPE_MEMBUF_CHIP) &&
+                        (T != fapi2::TARGET_TYPE_SYSTEM) &&
+                        (T != fapi2::TARGET_TYPE_DMI)),
+                      "improper parent of fapi2::TARGET_TYPE_MEMBUF_CHIP");
+
+        // valid parents for EX
+        // EX -> EQ
+        // EX -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_EX) &&
+                        (T != fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_EX");
+
+        // valid parents for MBA
+        // MBA -> MEMBUF
+        static_assert(!((K == fapi2::TARGET_TYPE_MBA) &&
+                        (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_MBA");
+
+        // valid parents for MCS
+        // MCS -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_MCS");
+
+        // valid parents for L4
+        // L4 -> MEMBUF
+        static_assert(!((K == fapi2::TARGET_TYPE_L4) &&
+                        (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_L4");
+
+        // valid parents for CORE
+        // CORE -> EX
+        // CORE -> EQ
+        // CORE -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_CORE) &&
+                        (T != fapi2::TARGET_TYPE_EX) &&
+                        (T != fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_CORE");
+
+        // valid parents for EQ
+        // EQ -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_EQ");
+
+        // valid parents for MCA
+        // MCA -> MCS
+        // MCA -> MCBIST
+        // MCA -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_MCA) &&
+                        (T != fapi2::TARGET_TYPE_MCS) &&
+                        (T != fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_MCA");
+
+        // valid parents for MCBIST
+        // MCBIST -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_MCBIST");
+
+        // valid parents for MI
+        // MI -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_MI");
+
+        // valid parents for DMI
+        // DMI -> MI
+        // DMI -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_DMI) &&
+                        (T != fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_DMI");
+
+        // valid parents for SBE
+        // SBE -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_SBE) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_SBE");
+
+        // valid parents for PPE
+        // PPE -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_PPE) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_PPE");
+
+        // valid parents for PERV
+        // PERV -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_PERV");
+
+        // valid parents for PEC
+        // PEC -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_PEC) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_PEC");
+
+        // valid parents for PHB
+        // PHB -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_PHB) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_PHB");
+
+// FIXME        TARGET_TYPE_XBUS
+// FIXME        TARGET_TYPE_OBUS
+// FIXME        TARGET_TYPE_NV
+
         std::list<const ecmdChipTarget *> l_targets;
 
         uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, TARGET_STATE_FUNCTIONAL);
@@ -120,11 +247,6 @@ namespace fapi2
     inline std::vector<Target<T> >
     Target<K, V>::getChildren(const TargetState i_state) const
     {
-        static_assert((K == fapi2::TARGET_TYPE_SYSTEM) ||
-                      (K == fapi2::TARGET_TYPE_PROC_CHIP) ||
-                      (K == fapi2::TARGET_TYPE_MEMBUF_CHIP),
-                      "Invalid parent for getChildren");
-
 #define INVALID_CHILD(PARENT, CHILD) \
     static_assert(!((K == PARENT) && (T == CHILD)), \
                   #CHILD " is not a child of " #PARENT );
@@ -136,82 +258,77 @@ namespace fapi2
         INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_PROC_CHIP)
         INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MEMBUF_CHIP)
         INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MBA)
-
-        // invalid children for membuf
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_NONE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_SYSTEM)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_DIMM)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_PROC_CHIP)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MEMBUF_CHIP)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_EX)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MCS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_XBUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_ABUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_L4)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_CORE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_EQ)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MCA)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MCBIST)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MCBIST)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_MI)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_DMI)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_OBUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_NV)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_SBE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_PPE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_PERV)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_PEC)
-        INVALID_CHILD(fapi2::TARGET_TYPE_MEMBUF_CHIP, fapi2::TARGET_TYPE_PHB)
-
-        // invalid children for system
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_NONE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_SYSTEM)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_EX)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_MBA)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_MCS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_XBUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_ABUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_L4)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_CORE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_EQ)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_MCA)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_MCBIST)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_MI)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_DMI)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_OBUS)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_NV)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_SBE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_PPE)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_PERV)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_PEC)
-        INVALID_CHILD(fapi2::TARGET_TYPE_SYSTEM, fapi2::TARGET_TYPE_PHB)
-#if 0
-        TARGET_TYPE_NONE
-        TARGET_TYPE_SYSTEM
-        TARGET_TYPE_DIMM
-        TARGET_TYPE_PROC_CHIP
-        TARGET_TYPE_MEMBUF_CHIP
-        TARGET_TYPE_EX
-        TARGET_TYPE_MBA
-        TARGET_TYPE_MCS
-        TARGET_TYPE_XBUS
-        TARGET_TYPE_ABUS
-        TARGET_TYPE_L4
-        TARGET_TYPE_CORE
-        TARGET_TYPE_EQ
-        TARGET_TYPE_MCA
-        TARGET_TYPE_MCBIST
-        TARGET_TYPE_MI
-        TARGET_TYPE_DMI
-        TARGET_TYPE_OBUS
-        TARGET_TYPE_NV
-        TARGET_TYPE_SBE
-        TARGET_TYPE_PPE
-        TARGET_TYPE_PERV
-        TARGET_TYPE_PEC
-        TARGET_TYPE_PHB
-#endif
 #undef INVALID_CHILD
+
+        // valid children for MEMBUF
+        // MEMBUF -> L4
+        // MEMBUF -> MBA
+        static_assert(!((K == fapi2::TARGET_TYPE_MEMBUF_CHIP) &&
+                        (T != fapi2::TARGET_TYPE_L4) &&
+                        (T != fapi2::TARGET_TYPE_MBA)),
+                      "improper child of fapi2::TARGET_TYPE_MEMBUF_CHIP");
+
+        // valid children for system
+        // SYSTEM -> PROC
+        // SYSTEM -> MEMBUF
+        // SYSTEM -> DIMM ??? disabled for now
+        static_assert(!((K == fapi2::TARGET_TYPE_SYSTEM) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP) &&
+                        (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                      "improper child of fapi2::TARGET_TYPE_SYSTEM");
+
+        // valid children for EQ
+        // EQ -> CORE
+        // EQ -> EX
+        static_assert(!((K == fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_CORE) &&
+                        (T != fapi2::TARGET_TYPE_EX)),
+                      "improper child of fapi2::TARGET_TYPE_EQ");
+
+        // valid children for EX
+        // EX -> CORE
+        static_assert(!((K == fapi2::TARGET_TYPE_EX) &&
+                        (T != fapi2::TARGET_TYPE_CORE)),
+                      "improper child of fapi2::TARGET_TYPE_EX");
+
+        // Nimbus Memory
+        // valid children for MCS
+        // MCS -> MCA
+        static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
+                        (T != fapi2::TARGET_TYPE_MCA)),
+                      "improper child of fapi2::TARGET_TYPE_MCS");
+
+        // valid children for MCA
+        // MCA -> DIMM
+        static_assert(!((K == fapi2::TARGET_TYPE_MCA) &&
+                        (T != fapi2::TARGET_TYPE_DIMM)),
+                      "improper child of fapi2::TARGET_TYPE_MCA");
+
+        // valid children for MCBIST
+        // MCBIST -> MCA
+        static_assert(!((K == fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_MCA)),
+                      "improper child of fapi2::TARGET_TYPE_MCBIST");
+
+        // Cumulus Memory
+        // valid children for MI
+        // MI -> DMI
+        static_assert(!((K == fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_DMI)),
+                      "improper child of fapi2::TARGET_TYPE_MI");
+
+        // valid children for DMI
+        // DMI -> MEMBUF
+        static_assert(!((K == fapi2::TARGET_TYPE_DMI) &&
+                        (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                      "improper child of fapi2::TARGET_TYPE_DMI");
+
+        // valid children for MBA
+        // MBA -> DIMM
+        static_assert(!((K == fapi2::TARGET_TYPE_MBA) &&
+                        (T != fapi2::TARGET_TYPE_DIMM)),
+                      "improper child of fapi2::TARGET_TYPE_MBA");
+
         std::list<const ecmdChipTarget *> l_targets;
 
         uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, i_state);
