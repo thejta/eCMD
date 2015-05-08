@@ -33,6 +33,7 @@
 #include <buffer_parameters.H>
 #include <buffer_traits.H>
 #include <return_code_defs.H>
+#include <cassert>
 
 namespace fapi2
 {
@@ -163,9 +164,12 @@ namespace fapi2
     /// (and "odd sized.") These best represent the FAPI 1.X ecmdDataBuffer,
     /// however they are implemented using the same template techniques
     /// as the new fapi::buffer.
-    /// @note Variable buffers are implemeneted as a std::vector of uint32_t
-    /// as this keeps simple compatibility with ecmdDataBuffers. Cronus (at least)
-    /// need to interwork the two.
+    /// @note Variable buffers are not (presently) declared as std::bitset
+    /// as bitsets' size is fixed at runtime. It is not clear if this is
+    /// acceptable for variable_buffers at this time.
+    /// @note Variable buffers are implemented as a std::vecor of uint32_t
+    /// as this keeps simple compatibility with ecmdDataBuffers. Cronus (at
+    //least) need to interwork the two.
     class variable_buffer
     {
 
@@ -243,6 +247,7 @@ namespace fapi2
                 // Copy the array in to our vector.
                 iv_data.insert(iv_data.end(), i_value, &i_value[i_length]);
             }
+
 
 #if !defined(DOXYGEN) && defined(FAPI2_DEBUG)
         /// @brief Print the contents of the buffer to stdout
@@ -339,25 +344,71 @@ namespace fapi2
         }
 
         ///
-        /// @brief Set a bit in the buffer
-        /// @param[in] i_bit the bit number to set.
-        /// @note 0 is left-most
-        /// @return FAPI2_RC_SUCCESS if OK
-        ///
-        inline fapi2::ReturnCodes setBit(const bits_type& i_bit)
+        /// @brief  Set a bit in buffer
+        /// @tparam SB Start bit in buffer to clear.
+        /// @tparam L Number of consecutive bits from start bit to
+        /// clear
+        /// @return FAPI2_RC_SUCCESS on success
+        inline fapi2::ReturnCodes setBit( const bits_type SB, bits_type L = 1)
         {
-            const bits_type index = i_bit / bits_per_unit;
 
-            if (index > iv_data.size())
+            ReturnCodes rc;
+           // make sure we stay within our container
+            assert((L > 0) && ((SB + L) <= this->iv_perceived_bit_length) );
+
+            uint32_t mask   = 0;
+
+            // last bit to check
+            bits_type EB    = SB + L -1;
+
+            // index where first bit to check is located
+            bits_type start_index = SB/bits_per_unit;
+
+            // index where last bit is located
+            bits_type end_index   = EB/bits_per_unit;
+
+            if( start_index == end_index )
             {
-                return FAPI2_RC_INVALID_PARAMETER;
+                // normalize our SB to be within a unit
+                bits_type TempSB = SB - (start_index*bits_per_unit);
+
+                // grab a mask from SB for L number of bits.
+                mask = fast_mask32(TempSB, L);
+
+                iv_data[start_index] |= mask;
+
+                rc = FAPI2_RC_SUCCESS;
+
+            }
+            else
+            {
+                // the bits span more than one internal unit, need to break
+                // it up to process it.
+
+                // make TempSB point to the start of the next unit, adjust the
+                // length and go again, process the bits in the previous index
+                // when we get back.
+                bits_type TempSB = (start_index + 1) * bits_per_unit;
+                bits_type TempL  = EB - TempSB + 1;
+
+                rc = this->setBit( TempSB, TempL );
+
+                if(rc == FAPI2_RC_SUCCESS)
+                {
+                    // now check the bits in the previous index up to the next index.
+                    // normalize our SB to be within a unit
+                    TempSB = SB - (start_index*bits_per_unit);
+
+                    // get a mask for the new SB location to the end of this unit.
+                    mask = fast_mask32(TempSB, L-TempL);
+
+                    // merge theses bits with the others.
+                    iv_data[start_index] |= mask;
+                }
+
             }
 
-            iv_data[index] |=
-                unit_type(1) << ((bits_per_unit - 1) -
-                                 (i_bit - (index * bits_per_unit)));
-
-            return FAPI2_RC_SUCCESS;
+            return rc;
         }
 
         ///
@@ -370,8 +421,14 @@ namespace fapi2
         /// compile time so this can be templated only. If that is not
         /// the case we can add a function parameter version.
         ///
-        template< bits_type SB, bits_type L >
-        inline fapi2::ReturnCodes clearBit(void);
+        inline fapi2::ReturnCodes clearBit(bits_type SB, bits_type L = 0)
+        {
+            ReturnCodes rc = invert().setBit(SB,L);
+
+            invert();
+
+            return rc;
+        }
 
         ///
         /// @brief Invert bit
@@ -405,30 +462,83 @@ namespace fapi2
 
         ///
         /// @brief Test if multiple bits are set
-        /// @tparam SB Start bit in buffer to test.
-        /// @tparam L Number of consecutive bits from start bit to
+        /// @param SB Start bit in buffer to test.
+        /// @param L Number of consecutive bits from start bit to
         /// test, defaults to 1
-        /// @note Asserting that all the parameters are known at
-        /// compile time so this can be templated only. If that is not
-        /// the case we can add a function parameter version.
         /// @return true if all bits in range are set - false if any
         /// bit is clear
-        ///
-        template< bits_type SB, bits_type L = 1 >
-        inline bool isBitSet(void) const;
+        /// @note Example: fapi2::buffer<uint64_t>().isBitSet(4,3);
+        inline bool isBitSet( bits_type SB, bits_type L = 1 ) const
+        {
+            // make sure we stay within our container
+            assert( ((L > 0) && ((SB + L) <= this->iv_perceived_bit_length)) );
+
+            bool is_set     = false;
+            uint32_t mask   = 0;
+
+            // last bit to check
+            bits_type EB    = SB + L - 1;
+
+            // index where first bit to check is located
+            bits_type start_index = SB/bits_per_unit;
+
+            // index where last bit is located
+            bits_type end_index   = EB/bits_per_unit;
+
+            if( start_index == end_index )
+            {
+                // normalize our SB to be within a unit
+                bits_type TempSB = SB - (start_index*bits_per_unit);
+
+                // grab a mask from SB for L number of bits.
+                mask = fast_mask32(TempSB, L);
+
+                is_set =
+                    (( iv_data[start_index] & mask) == mask ) ? true : false;
+
+            }
+            else
+            {
+                // the bits span more than one internal unit, need to break
+                // it up to process it.
+
+                // make TempSB point to the start of the next unit, adjust the
+                // length and go again, process the bits in the previous index
+                // when we get back.
+                bits_type TempSB = (start_index + 1) * bits_per_unit;
+                bits_type TempL  = EB - TempSB + 1;
+
+                is_set = this->isBitSet( TempSB, TempL );
+
+                // now check the bits in the previous index up to the next index.
+                // normalize our SB to be within a unit
+                TempSB = SB - (start_index*bits_per_unit);
+
+                // get a mask for the new SB location to the end of this unit.
+                mask = fast_mask32(TempSB, L-TempL);
+
+                // test these bits against the others..
+                is_set &=
+                    (( iv_data[start_index] & mask) == mask ) ? true : false;
+
+            }
+
+            return is_set;
+        }
 
         ///
         /// @brief Test if multiple bits are clear
-        /// @tparam SB Start bit in buffer to test.
-        /// @tparam L Number of consecutive bits from start bit to
+        /// @param SB Start bit in buffer to test.
+        /// @param L Number of consecutive bits from start bit to
         /// test, defaults to 1
-        /// @note Asserting that all the parameters are known at
-        /// compile time so this can be templated only. If that is not
-        /// the case we can add a function parameter version.
         /// @return true if bit is clear - false if bit is set
         ///
-        template< bits_type SB, bits_type L = 1 >
-        inline bool isBitClear(void) const;
+        inline bool isBitClear( bits_type SB, bits_type L =1 ) const
+        {
+            variable_buffer l_buf = *this;
+
+            return l_buf.invert().isBitSet(SB,L);
+        }
 
         ///
         /// @brief Count number of bits set in a range
@@ -639,7 +749,7 @@ namespace fapi2
         /// @param[in] i_data the incoming data
         ///    - data is taken right aligned
         /// @param[in] i_targetStart The starting bit position in this
-        ///            - Defaultst to 0
+        ///            - Defaults to 0
         /// @param[in] i_len The length, in bits, the user wants copied.
         ///            - Defaults to all of the bits in the source which fit
         /// @return FAPI2_RC_SUCCESS on success, FAPI2_RC_OVERFLOW otherwise

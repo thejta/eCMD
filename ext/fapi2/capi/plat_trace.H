@@ -67,9 +67,11 @@
 #endif
 #endif
 
+// Why not a #define, why is this in the fapi2 namespace?
+// To prevent problems with Cronus and the fapi1 definitions.
 namespace fapi2
 {
-    const uint32_t MAX_ECMD_STRING_LEN = 64;
+    static const uint32_t MAX_ECMD_STRING_LEN = 64;
 };
 
 // Information traces (go into fast trace buffer that can wrap often)
