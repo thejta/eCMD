@@ -23,7 +23,7 @@ SWIG := /gsa/${GSACELL}/projects/e/ecmd/utils/swig-1.3.39/aix/bin/swig
 ##
 PERLINC := -I${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE
 PERLCFLAGS := -mcmodel=large -pthread
-PERLSLDFLAGS := -lpthreads -Wl,-bbigtoc -Wl,-bI:${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE/perl.exp -pthread
+PERLSLDFLAGS := -lpthreads -Wl,-bbigtoc -Wl,-bI:${CTEPATH}/tools/perl/5.8.1/lib64/5.8.1/rs_aix53-64/CORE/perl.exp
 PERLDEFINES := -DHAS_BOOL=1
 
 ##
