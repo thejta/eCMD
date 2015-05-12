@@ -124,7 +124,7 @@ if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
 $rc = system("cd $outputDirectory/Capi/latex; make; mv refman.pdf ecmdClientCapi.pdf");
-if ($rc) { return $rc; }
+#if ($rc) { return $rc; }
 
 # Now do the Perl-API
 printf("\n\nCreating Perl-API Documentation (html) ...\n\n");
@@ -229,7 +229,7 @@ if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
 $rc = system("cd $outputDirectory/Perlapi/latex; make; mv refman.pdf ecmdClientPerlapi.pdf");
-if ($rc) { return $rc; }
+#if ($rc) { return $rc; }
 
 # Do the Python API
 printf("Creating Python API Documentation (html)...\n\n");
@@ -319,4 +319,4 @@ if ($rc) { return $rc; }
 
 printf("Creating Python API Documentation (pdf)...\n\n");
 $rc = system("cd $outputDirectory/Pythonapi/latex; make; mv refman.pdf ecmdClientPythonapi.pdf");
-if ($rc) { return $rc; }
+#if ($rc) { return $rc; }
