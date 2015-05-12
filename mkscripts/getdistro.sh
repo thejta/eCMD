@@ -38,6 +38,9 @@ then
        if [[ "$distrorelease" == *"7."* ]]
        then
            echo deb7
+       elif [[ "$distrorelease" == *"8."* ]]
+       then
+           echo deb8
        else
            echo NONE
        fi
