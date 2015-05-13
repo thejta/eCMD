@@ -288,8 +288,6 @@ namespace fapi2
         /// @param[in] i_offset Start OT (start word, for example) in buffer
         ///            - defaults to 0 (will by default write the left most element)
         /// @return FAPI2_RC_SUCCESS on success, FAPI2_RC_OVERFLOW otherwise
-        /// @note This is is only available for integral types. To set a
-        ///    variable_buffer into a variable_buffer, use insert()
         ///
         template< typename OT>
         inline fapi2::ReturnCodes set(OT i_value, const bits_type i_offset = 0)
@@ -317,6 +315,17 @@ namespace fapi2
             parameterTraits<OT>::template write_element<unit_type>(bufferTraits<bits_container>::get_address(iv_data), i_value, i_offset);
             return FAPI2_RC_SUCCESS;
         }
+
+        ///
+        /// @brief Get an OT of data from buffer
+        /// @tparam OT the type of the data to get
+        /// @param[in] i_offset Start OT (start word, for example) in buffer
+        ///            - defaults to 0 (will by default write the left most element)
+        /// @return OT
+        /// @note uint8_t b = get<uint8_t>(N) <- gets the N'th left byte from the buffer
+        ///
+        template< typename OT>
+        inline OT get(const bits_type i_offset = 0);
 
         /// @name Bit/Word Manipulation Functions
         ///@{
@@ -580,6 +589,27 @@ namespace fapi2
         ///@{
 
         ///
+        /// @brief Shift a buffer left a defined number of bits, from a start bit
+        /// @param[in] number of bits to shift
+        /// @param[in] offset from 0 to start shift, defaults to ~0 (see operator<<())
+        /// @note an offset of ~(0) implies "end of the buffer"
+        /// @warning there is no shiftLeftandResize - resizing the buffer is left to
+        /// the caller to alight the operations with integral buffers.
+        /// @return FAPI2_RC_SUCCESS on success
+        ///
+        inline ReturnCodes shiftLeft(bits_type i_shiftNum, bits_type i_offset = ~0);
+
+        ///
+        /// @brief Shift a buffer right a defined number of bits, from a start bit
+        /// @param[in] number of bits to shift
+        /// @param[in] offset from 0 to start shift, defaults to 0 (see operator>>())
+        /// @warning there is no shiftRightandResize - resizing the buffer is left to
+        /// the caller to alight the operations with integral buffers.
+        /// @return FAPI2_RC_SUCCESS on success
+        ///
+        inline ReturnCodes shiftRight(bits_type i_shiftNum, bits_type i_offset = 0);
+
+        ///
         /// @brief move operator=()
         /// @note To use: new_buffer = std::move(old_buffer). old_buffer will be
         /// destroyed and no copy will be made (moved)
@@ -605,16 +635,33 @@ namespace fapi2
         ///
         /// @brief operator>>()
         ///
-#ifdef DOXYGEN
-        inline variable_buffer<T>& operator>>(bits_type i_shiftnum);
-#endif
+        inline variable_buffer& operator>>(bits_type i_shiftnum)
+            {
+                // This is just a right shift from the begining of the buffer
+                // Why void? Well, there's no place to return the return
+                // code and in reality the only problem which can arise
+                // is the offset is out of bounds. But since we're hard-wiring it
+                // to 0, it can't be out of bounds. So there's no real problem
+                // which can arise here.
+                static_cast<void>(shiftRight(i_shiftnum));
+                return *this;
+            }
 
         ///
         /// @brief operator<<()
         ///
-#ifdef DOXYGEN
-        inline variable_buffer<T>& operator<<(bits_type i_shiftnum);
-#endif
+        inline variable_buffer& operator<<(bits_type i_shiftnum)
+            {
+                // This is just a left shift from the end of the buffer
+                // Why void? Well, there's no place to return the return
+                // code and in reality the only problem which can arise
+                // is the offset is out of bounds. But since we're hard-wiring it
+                // to 0, it can't be out of bounds. So there's no real problem
+                // which can arise here.
+                static_cast<void>(shiftLeft(i_shiftnum));
+                return *this;
+            }
+
 
         ///
         /// @brief operator+()
@@ -770,6 +817,9 @@ namespace fapi2
         /// @param[in] i_start Start bit to copy from - defaults to 0
         /// @param[in] i_len Length of bits to copy - defaults to filling o_out
         /// @return FAPI2_RC_SUCCESS on success
+        /// @warning fapi2::extract() does not extend the argument buffer. The caller
+        /// should adjust the size proir to calling extract() (resize()). This is to
+        /// keep the semantics the same with integral buffers, which can't be resized.
         ///
         // Generic extract. Extract is an insert with the arguments reversed.
         template< typename OT >
@@ -783,6 +833,11 @@ namespace fapi2
                 {
                     i_len = std::min(getBitLength(),
                                      parameterTraits<OT>::bit_length());
+                }
+
+                if (i_len > getBitLength())
+                {
+                    return FAPI2_RC_INVALID_PARAMETER;
                 }
 
                 // _insert likes 32-bit targets. So lets make our target 32 bits.
@@ -1007,6 +1062,7 @@ namespace fapi2
         {
             i_len = i_data.getBitLength();
         }
+
         return _insert(reinterpret_cast<const container_unit*>(
                            &iv_data[0]),
                        getBitLength(),
@@ -1053,6 +1109,90 @@ namespace fapi2
         return FAPI2_RC_SUCCESS;
     }
 
+    inline fapi2::ReturnCodes variable_buffer::shiftLeft(
+        bits_type i_shiftNum,
+        bits_type i_offset)
+    {
+        if (i_offset == 0)
+        {
+            return FAPI2_RC_SUCCESS;
+        }
 
+        if (i_offset == static_cast<bits_type>(~0))
+        {
+            i_offset = getBitLength();
+        }
+
+        else if (i_offset > getBitLength())
+        {
+            return FAPI2_RC_INVALID_PARAMETER;
+        }
+
+        /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
+        variable_buffer shiftData(i_offset);
+        ReturnCodes rc;
+
+        // Get the hunk of data
+        if ((rc = extract(shiftData, 0, i_offset)) != FAPI2_RC_SUCCESS)
+        {
+            return rc;
+        }
+
+        // Clear the hole that was opened
+        if ((rc = clearBit((i_offset - i_shiftNum), i_shiftNum)) != FAPI2_RC_SUCCESS)
+        {
+            return rc;
+        }
+
+        // Stick the data back in
+        rc = insert(shiftData, 0, (shiftData.getBitLength() - i_shiftNum), i_shiftNum);
+
+        return rc;
+    }
+
+    inline fapi2::ReturnCodes variable_buffer::shiftRight(
+        bits_type i_shiftNum,
+        bits_type i_offset)
+    {
+        if (i_offset == getBitLength())
+        {
+            return FAPI2_RC_SUCCESS;
+        }
+
+        if (i_offset > getBitLength())
+        {
+            return FAPI2_RC_INVALID_PARAMETER;
+        }
+
+        /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
+        variable_buffer shiftData(getBitLength() - i_offset);
+        ReturnCodes rc;
+
+        // Get the hunk of data
+        if ((rc = extract(shiftData, i_offset, getBitLength() - i_offset)) != FAPI2_RC_SUCCESS)
+        {
+            return rc;
+        }
+
+        // Clear the hole that was opened
+        if ((rc = clearBit(i_offset, i_shiftNum)) != FAPI2_RC_SUCCESS)
+        {
+            return rc;
+        }
+
+        // Stick the data back in
+        rc = insert(shiftData, (i_offset + i_shiftNum), (shiftData.getBitLength() - i_shiftNum));
+
+        return rc;
+    }
+
+    template< typename OT>
+    inline OT variable_buffer::get(const bits_type i_offset)
+    {
+        // Get is just an extract.
+        OT l_tmp;
+        extract(l_tmp, parameterTraits<OT>::bit_length() * i_offset, parameterTraits<OT>::bit_length());
+        return l_tmp;
+    }
 }
 #endif

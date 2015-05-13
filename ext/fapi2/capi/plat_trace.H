@@ -36,6 +36,7 @@
 #define FAPI2_PLATTRACE_H_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <fapi2ClientCapi.H>
 
