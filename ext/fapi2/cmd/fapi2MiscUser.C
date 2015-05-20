@@ -217,17 +217,20 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == SLOT) {
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == NODE) {
     target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
   } else if (depth == CAGE) {
     target.nodeState = ECMD_TARGET_FIELD_UNUSED;
     target.slotState = ECMD_TARGET_FIELD_UNUSED;
+    target.posState = ECMD_TARGET_FIELD_UNUSED;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
