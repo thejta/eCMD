@@ -44,16 +44,16 @@
 
 // Block of headers not currently in fapi2
 #ifdef FAPI2_MISSING_HEADERS
-  #include <fapi2HwpExecutor.H>
-  #include <fapi2AttributeService.H>
+  #include <fapi2_hwp_executor.H>
+  #include <fapi2_attribute_service.H>
   //#include <fapi2MvpdAccess.H>
   //#include <fapi2MBvpdAccess.H>
 #endif
 
 // Block of auto generated headers not presently in fapi2
 #ifdef FAPI2_AUTOGEN_HEADERS
-  #include <fapi2AttributeIds.H>  // Generated file
-  //#include <fapi2ChipEcFeature.H> // Generated file
+  #include <attribute_ids.H>  // Generated file
+  //#include <fapi2_chip_ec_feature.H> // Generated file
 #endif
 
 #endif // __FAPI2_TOP_LEVEL__

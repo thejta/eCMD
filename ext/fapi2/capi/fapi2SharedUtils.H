@@ -45,7 +45,15 @@ namespace fapi2
     template< TargetType K >
     void fapiTargetToEcmdTarget(const fapi2::Target<K> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
-        o_ecmdTarget = *i_fapiTarget;
+        if (i_fapiTarget.get() != NULL)
+        {
+            o_ecmdTarget = *i_fapiTarget;
+        }
+        else
+        {
+            o_ecmdTarget.cageState = ECMD_TARGET_FIELD_VALID;
+            o_ecmdTarget.nodeState = ECMD_TARGET_FIELD_UNUSED;
+        }
     }
 
     template< TargetType K >

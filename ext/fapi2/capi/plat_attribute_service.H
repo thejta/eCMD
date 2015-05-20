@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <return_code.H>
-#include <fapi2AttributeIds.H>
+#include <attribute_ids.H>
 #include <fapi2ClientCapi.H>
 #include <fapi2Structs.H>
 #include <fapi2SharedUtils.H>
@@ -27,8 +27,8 @@
 #include <ecmdReturnCodes.H>
 #include <ecmdStructs.H>
 
-#define PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, PTARGET, VAL) \
-      fapi2::_getEcFeatureOverride<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, TARGET, VAL) \
+      fapi2::_getEcFeatureOverride<ID##_Type>(ID, TARGET, VAL)
 
 /* INSERT NEW ATTRIBUTES HERE */
 
@@ -156,288 +156,288 @@
 /******************************************************************************/
 
 /* global get uint8_t 1D array macro */
-#define PLAT_ATTR_GET_UINT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_UINT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayShort(ID, TARGET, VAL)
 /* global set uint8_t 1D array macro */
-#define PLAT_ATTR_SET_UINT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_UINT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayShort(ID, TARGET, VAL)
 
 /* global get uint8_t 2D array macro */
-#define PLAT_ATTR_GET_UINT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_UINT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0])
 /* global set uint8_t 2D array macro */
-#define PLAT_ATTR_SET_UINT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_UINT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0])
 
 /* global get uint8_t 3D array macro */
-#define PLAT_ATTR_GET_UINT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_UINT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0][0])
 /* global set uint8_t 3D array macro */
-#define PLAT_ATTR_SET_UINT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_UINT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0][0])
 
 /* global get uint8_t 4D array macro */
-#define PLAT_ATTR_GET_UINT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_UINT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0][0][0])
 /* global set uint8_t 4D array macro */
-#define PLAT_ATTR_SET_UINT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_UINT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0][0][0])
 
 
 
 
 /* global get uint32_t 1D array macro */
-#define PLAT_ATTR_GET_UINT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_UINT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayWord(ID, TARGET, VAL)
 /* global set uint32_t 1D array macro */
-#define PLAT_ATTR_SET_UINT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_UINT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayWord(ID, TARGET, VAL)
 
 /* global get uint32_t 2D array macro */
-#define PLAT_ATTR_GET_UINT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_UINT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0])
 /* global set uint32_t 2D array macro */
-#define PLAT_ATTR_SET_UINT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_UINT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0])
 
 /* global get uint32_t 3D array macro */
-#define PLAT_ATTR_GET_UINT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_UINT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0][0])
 /* global set uint32_t 3D array macro */
-#define PLAT_ATTR_SET_UINT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_UINT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0][0])
 
 /* global get uint32_t 4D array macro */
-#define PLAT_ATTR_GET_UINT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_UINT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0][0][0])
 /* global set uint32_t 4D array macro */
-#define PLAT_ATTR_SET_UINT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_UINT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get uint64_t 1D array macro */
-#define PLAT_ATTR_GET_UINT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_UINT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL)
 /* global set uint64_t 1D array macro */
-#define PLAT_ATTR_SET_UINT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_UINT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL)
 
 /* global get uint64_t 2D array macro */
-#define PLAT_ATTR_GET_UINT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_UINT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0])
 /* global set uint64_t 2D array macro */
-#define PLAT_ATTR_SET_UINT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_UINT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0])
 
 /* global get uint64_t 3D array macro */
-#define PLAT_ATTR_GET_UINT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_UINT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
 /* global set uint64_t 3D array macro */
-#define PLAT_ATTR_SET_UINT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_UINT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
 
 /* global get uint64_t 4D array macro */
-#define PLAT_ATTR_GET_UINT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_UINT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 /* global set uint64_t 4D array macro */
-#define PLAT_ATTR_SET_UINT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_UINT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get int macro (uint8_t, 32 and 64) */
-#define PLAT_ATTR_GET_GLOBAL_INT(ID, PTARGET, VAL) \
-     fapi2::_get<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_GLOBAL_INT(ID, TARGET, VAL) \
+     fapi2::_get<ID##_Type>(ID, TARGET, VAL)
 
 /* global set int macro (uint8_t, 32 and 64) */
-#define PLAT_ATTR_SET_GLOBAL_INT(ID, PTARGET, VAL) \
-     fapi2::_set<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_GLOBAL_INT(ID, TARGET, VAL) \
+     fapi2::_set<ID##_Type>(ID, TARGET, VAL)
 
 /******************************************************************************/
 // Get Override Macros
 /******************************************************************************/
 /* global get override uint8_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL)
 /* global get override uint8_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0])
 /* global get override uint8_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0])
 /* global get override uint8_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint32_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL)
 /* global get override uint32_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0])
 /* global get override uint32_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0])
 /* global get override uint32_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint64_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL)
 /* global get override uint64_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0])
 /* global get override uint64_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0])
 /* global get override uint64_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_UINT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_UINT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get override int macro (uint8_t, 32 and 64) */
-#define PLAT_ATTR_GET_OVERRIDE_GLOBAL_INT(ID, PTARGET, VAL) \
-     fapi2::_getOverride<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_GLOBAL_INT(ID, TARGET, VAL) \
+     fapi2::_getOverride<ID##_Type>(ID, TARGET, VAL)
 
 /* global get uint8_t 1D array macro */
-#define PLAT_ATTR_GET_INT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_INT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL)
 /* global set uint8_t 1D array macro */
-#define PLAT_ATTR_SET_INT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_INT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL)
 
 /* global get uint8_t 2D array macro */
-#define PLAT_ATTR_GET_INT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_INT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0])
 /* global set uint8_t 2D array macro */
-#define PLAT_ATTR_SET_INT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_INT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0])
 
 /* global get uint8_t 3D array macro */
-#define PLAT_ATTR_GET_INT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_INT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0][0])
 /* global set uint8_t 3D array macro */
-#define PLAT_ATTR_SET_INT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_INT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0][0])
 
 /* global get uint8_t 4D array macro */
-#define PLAT_ATTR_GET_INT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_INT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
 /* global set uint8_t 4D array macro */
-#define PLAT_ATTR_SET_INT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_INT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
 
 
 
 
 /* global get uint32_t 1D array macro */
-#define PLAT_ATTR_GET_INT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_INT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL)
 /* global set uint32_t 1D array macro */
-#define PLAT_ATTR_SET_INT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_INT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL)
 
 /* global get uint32_t 2D array macro */
-#define PLAT_ATTR_GET_INT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_INT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0])
 /* global set uint32_t 2D array macro */
-#define PLAT_ATTR_SET_INT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_INT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0])
 
 /* global get uint32_t 3D array macro */
-#define PLAT_ATTR_GET_INT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_INT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0][0])
 /* global set uint32_t 3D array macro */
-#define PLAT_ATTR_SET_INT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_INT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0][0])
 
 /* global get uint32_t 4D array macro */
-#define PLAT_ATTR_GET_INT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_INT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
 /* global set uint32_t 4D array macro */
-#define PLAT_ATTR_SET_INT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_INT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get uint64_t 1D array macro */
-#define PLAT_ATTR_GET_INT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_INT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL)
 /* global set uint64_t 1D array macro */
-#define PLAT_ATTR_SET_INT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_INT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL)
 
 /* global get uint64_t 2D array macro */
-#define PLAT_ATTR_GET_INT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_INT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
 /* global set uint64_t 2D array macro */
-#define PLAT_ATTR_SET_INT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_SET_INT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
 
 /* global get uint64_t 3D array macro */
-#define PLAT_ATTR_GET_INT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_INT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 /* global set uint64_t 3D array macro */
-#define PLAT_ATTR_SET_INT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_SET_INT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 
 /* global get uint64_t 4D array macro */
-#define PLAT_ATTR_GET_INT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_INT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 /* global set uint64_t 4D array macro */
-#define PLAT_ATTR_SET_INT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_SET_INT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get int macro (uint8_t, 32 and 64) */
-#define PLAT_ATTR_GET_GLOBAL_INT(ID, PTARGET, VAL) \
-     fapi2::_get<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_GLOBAL_INT(ID, TARGET, VAL) \
+     fapi2::_get<ID##_Type>(ID, TARGET, VAL)
 
 /* global set int macro (uint8_t, 32 and 64) */
-#define PLAT_ATTR_SET_GLOBAL_INT(ID, PTARGET, VAL) \
-     fapi2::_set<fapi2::ID##_Type>(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_SET_GLOBAL_INT(ID, TARGET, VAL) \
+     fapi2::_set<ID##_Type>(ID, TARGET, VAL)
 
 /******************************************************************************/
 // Get Override Macros
 /******************************************************************************/
 /* global get override uint8_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT8_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_INT8_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL)
 /* global get override uint8_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT8_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_INT8_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0])
 /* global get override uint8_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT8_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT8_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0])
 /* global get override uint8_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT8_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT8_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint32_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT32_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_INT32_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL)
 /* global get override uint32_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT32_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_INT32_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0])
 /* global get override uint32_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT32_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT32_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0])
 /* global get override uint32_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT32_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT32_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint64_t 1D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT64_1D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(fapi2::ID, PTARGET, VAL)
+#define PLAT_ATTR_GET_OVERRIDE_INT64_1D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL)
 /* global get override uint64_t 2D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT64_2D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0])
+#define PLAT_ATTR_GET_OVERRIDE_INT64_2D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0])
 /* global get override uint64_t 3D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT64_3D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT64_3D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 /* global get override uint64_t 4D array macro */
-#define PLAT_ATTR_GET_OVERRIDE_INT64_4D_ARRAY(ID, PTARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(fapi2::ID, PTARGET, VAL[0][0][0])
+#define PLAT_ATTR_GET_OVERRIDE_INT64_4D_ARRAY(ID, TARGET, VAL) \
+     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 
 namespace fapi2 {
 
@@ -446,7 +446,7 @@ namespace fapi2 {
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -456,7 +456,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -477,7 +477,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 uint32_t& o_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch");
@@ -487,7 +487,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -508,7 +508,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 uint64_t& o_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch");
@@ -518,7 +518,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -539,7 +539,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -549,7 +549,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -570,7 +570,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         uint32_t& o_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch");
@@ -580,7 +580,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -601,7 +601,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         uint64_t& o_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch");
@@ -611,7 +611,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -632,7 +632,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getEcFeatureOverride(const AttributeId i_id,
-                                 const Target<K> * const i_pTarget,
+                                 const Target<K>& i_target,
                                  uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -640,14 +640,14 @@ ReturnCode _getEcFeatureOverride(const AttributeId i_id,
     // The way this is implemented, we want to return a non-zero return code if we found an override.  
     // Return 0 if there was an error.
     // This is how it's implemented:
-    // PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, PTARGET, VAL) ? fapi::FAPI_RC_SUCCESS : fapi::fapiQueryChipEcFeature(fapi::ID, PTARGET, VAL)
+    // PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, TARGET, VAL) ? fapi::FAPI_RC_SUCCESS : fapi::fapiQueryChipEcFeature(fapi::ID, TARGET, VAL)
 
     fapi2::AttributeData o_data;
     fapi2::ReturnCode l_fapi_rc(FAPI2_RC_SUCCESS); 
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -670,7 +670,7 @@ ReturnCode _getEcFeatureOverride(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArrayShort(const AttributeId i_id,
-                                   const Target<K> * const i_pTarget,
+                                   const Target<K>& i_target,
                                    uint8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -678,7 +678,7 @@ ReturnCode _getAttributeArrayShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8ARY;
     o_data.faUint8ary = o_pValues;
@@ -696,7 +696,7 @@ ReturnCode _getAttributeArrayShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArrayShort(const AttributeId i_id,
-                                   const Target<K> * const i_pTarget,
+                                   const Target<K>& i_target,
                                    uint8_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -704,7 +704,7 @@ ReturnCode _setAttributeArrayShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8ARY;
     i_data.faUint8ary = i_pValues;
@@ -722,7 +722,7 @@ ReturnCode _setAttributeArrayShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArrayWord(const AttributeId i_id,
-                                  const Target<K> * const i_pTarget,
+                                  const Target<K>& i_target,
                                   uint32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -730,7 +730,7 @@ ReturnCode _getAttributeArrayWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32ARY;
     o_data.faUint32ary = o_pValues;
@@ -748,7 +748,7 @@ ReturnCode _getAttributeArrayWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArrayWord(const AttributeId i_id,
-                                  const Target<K> * const i_pTarget,
+                                  const Target<K>& i_target,
                                   uint32_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -756,7 +756,7 @@ ReturnCode _setAttributeArrayWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32ARY;
     i_data.faUint32ary = i_pValues;
@@ -774,7 +774,7 @@ ReturnCode _setAttributeArrayWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
-                                        const Target<K> * const i_pTarget,
+                                        const Target<K>& i_target,
                                         uint64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -782,7 +782,7 @@ ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64ARY;
     o_data.faUint64ary = o_pValues;
@@ -800,7 +800,7 @@ ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
-                                        const Target<K> * const i_pTarget,
+                                        const Target<K>& i_target,
                                         uint64_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -808,7 +808,7 @@ ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64ARY;
     i_data.faUint64ary = i_pValues;
@@ -826,7 +826,7 @@ ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id,
-                                           const Target<K> * const i_pTarget,
+                                           const Target<K>& i_target,
                                            uint8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -834,7 +834,7 @@ ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8ARY;
     o_data.faUint8ary = o_pValues;
@@ -852,7 +852,7 @@ ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id,
-                                          const Target<K> * const i_pTarget,
+                                          const Target<K>& i_target,
                                           uint32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -860,7 +860,7 @@ ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32ARY;
     o_data.faUint32ary = o_pValues;
@@ -878,7 +878,7 @@ ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id,
-                                                const Target<K> * const i_pTarget,
+                                                const Target<K>& i_target,
                                                 uint64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -886,7 +886,7 @@ ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64ARY;
     o_data.faUint64ary = o_pValues;
@@ -904,7 +904,7 @@ ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 uint8_t& i_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch"); // May need to remove
@@ -914,7 +914,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT8;
     i_data.faUint8 = i_value;
@@ -933,7 +933,7 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 uint32_t& i_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch"); // May need to remove
@@ -943,7 +943,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT32;
     i_data.faUint32 = i_value;
@@ -962,7 +962,7 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 const uint64_t & i_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch"); // May need to remove
@@ -972,7 +972,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_UINT64;
     i_data.faUint64 = i_value;
@@ -991,7 +991,7 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 int8_t& o_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch");
@@ -1001,7 +1001,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -1022,7 +1022,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 int32_t& o_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch");
@@ -1032,7 +1032,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -1053,7 +1053,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 int64_t& o_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch");
@@ -1063,7 +1063,7 @@ ReturnCode _get(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64;
     l_ecmd_rc = fapi2GetAttribute(l_ecmd_target, i_id, o_data); 
@@ -1084,7 +1084,7 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         int8_t& o_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch");
@@ -1094,7 +1094,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -1115,7 +1115,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         int32_t& o_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch");
@@ -1125,7 +1125,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -1146,7 +1146,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K> * const i_pTarget,
+                        const Target<K>& i_target,
                         int64_t& o_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch");
@@ -1156,7 +1156,7 @@ ReturnCode _getOverride(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64;
     l_ecmd_rc = fapi2GetAttributeOverride(l_ecmd_target, i_id, o_data); 
@@ -1177,7 +1177,7 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArraySignedShort(const AttributeId i_id,
-                                         const Target<K> * const i_pTarget,
+                                         const Target<K>& i_target,
                                          int8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1185,7 +1185,7 @@ ReturnCode _getAttributeArraySignedShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8ARY;
     o_data.faInt8ary = o_pValues;
@@ -1204,7 +1204,7 @@ ReturnCode _getAttributeArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArraySignedShort(const AttributeId i_id,
-                                         const Target<K> * const i_pTarget,
+                                         const Target<K>& i_target,
                                          int8_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1212,7 +1212,7 @@ ReturnCode _setAttributeArraySignedShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8ARY;
     i_data.faInt8ary = i_pValues;
@@ -1231,7 +1231,7 @@ ReturnCode _setAttributeArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArraySignedWord(const AttributeId i_id,
-                                        const Target<K> * const i_pTarget,
+                                        const Target<K>& i_target,
                                         int32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1239,7 +1239,7 @@ ReturnCode _getAttributeArraySignedWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32ARY;
     o_data.faInt32ary = o_pValues;
@@ -1258,7 +1258,7 @@ ReturnCode _getAttributeArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArraySignedWord(const AttributeId i_id,
-                                        const Target<K> * const i_pTarget,
+                                        const Target<K>& i_target,
                                         int32_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1266,7 +1266,7 @@ ReturnCode _setAttributeArraySignedWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32ARY;
     i_data.faInt32ary = i_pValues;
@@ -1285,7 +1285,7 @@ ReturnCode _setAttributeArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeArraySignedDoubleWord(const AttributeId i_id,
-                                              const Target<K> * const i_pTarget,
+                                              const Target<K>& i_target,
                                               int64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1293,7 +1293,7 @@ ReturnCode _getAttributeArraySignedDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64ARY;
     o_data.faInt64ary = o_pValues;
@@ -1311,7 +1311,7 @@ ReturnCode _getAttributeArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _setAttributeArraySignedDoubleWord(const AttributeId i_id,
-                                              const Target<K> * const i_pTarget,
+                                              const Target<K>& i_target,
                                               int64_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1319,7 +1319,7 @@ ReturnCode _setAttributeArraySignedDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64ARY;
     i_data.faInt64ary = i_pValues;
@@ -1337,7 +1337,7 @@ ReturnCode _setAttributeArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArraySignedShort(const AttributeId i_id,
-                                                 const Target<K> * const i_pTarget,
+                                                 const Target<K>& i_target,
                                                  int8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1345,7 +1345,7 @@ ReturnCode _getAttributeOverrideArraySignedShort(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS;
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8ARY;
     o_data.faInt8ary = o_pValues;
@@ -1364,7 +1364,7 @@ ReturnCode _getAttributeOverrideArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArraySignedWord(const AttributeId i_id,
-                                                const Target<K> * const i_pTarget,
+                                                const Target<K>& i_target,
                                                 int32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1372,7 +1372,7 @@ ReturnCode _getAttributeOverrideArraySignedWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32ARY;
     o_data.faInt32ary = o_pValues;
@@ -1391,7 +1391,7 @@ ReturnCode _getAttributeOverrideArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 template<TargetType K>
 ReturnCode _getAttributeOverrideArraySignedDoubleWord(const AttributeId i_id,
-                                                      const Target<K> * const i_pTarget,
+                                                      const Target<K>& i_target,
                                                       int64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1399,7 +1399,7 @@ ReturnCode _getAttributeOverrideArraySignedDoubleWord(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     o_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64ARY;
     o_data.faInt64ary = o_pValues;
@@ -1418,7 +1418,7 @@ ReturnCode _getAttributeOverrideArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 int8_t& i_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1428,7 +1428,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT8;
     i_data.faInt8 = i_value;
@@ -1447,7 +1447,7 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 int32_t& i_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1457,7 +1457,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT32;
     i_data.faInt32 = i_value;
@@ -1476,7 +1476,7 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 template<typename T, TargetType K>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K> * const i_pTarget,
+                const Target<K>& i_target,
                 const int64_t & i_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1486,7 +1486,7 @@ ReturnCode _set(const AttributeId i_id,
     uint32_t l_ecmd_rc = ECMD_SUCCESS; 
 
     ecmdChipTarget l_ecmd_target;
-    fapiTargetPointerToEcmdTarget(i_pTarget, l_ecmd_target);
+    fapiTargetToEcmdTarget(i_target, l_ecmd_target);
 
     i_data.faValidMask = FAPI_ATTRIBUTE_TYPE_INT64;
     i_data.faInt64 = i_value;

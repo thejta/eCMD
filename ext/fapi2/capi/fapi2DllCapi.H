@@ -16,7 +16,7 @@
 #include <return_code.H>
 
 #include <fapi2Structs.H>
-#include <fapi2AttributeIds.H>
+#include <attribute_ids.H>
 //#include <fapiMvpdAccess.H>
 //#include <fapiMBvpdAccess.H>
 //#include <fapiMultiScom.H>
@@ -88,7 +88,7 @@ uint32_t dllFapi2SetAttribute(
 	fapi2::AttributeData & i_data);
 
 uint32_t dllFapi2AttributeDataToString(
-	fapi2::AttributeId i_attrId, 
+	AttributeId i_attrId, 
 	const fapi2::AttributeData & i_attrData, 
 	std::string & o_attrDataString, 
 	bool i_fullData, 
@@ -96,10 +96,10 @@ uint32_t dllFapi2AttributeDataToString(
 
 uint32_t dllFapi2AttributeStringToId(
 	std::string i_attrString, 
-	fapi2::AttributeId & o_attrId);
+	AttributeId & o_attrId);
 
 uint32_t dllFapi2GetAttrInfo(
-	fapi2::AttributeId i_attrId, 
+	AttributeId i_attrId, 
 	uint32_t & o_attrType, 
 	uint32_t & o_numOfEntries, 
 	uint32_t & o_numOfBytes, 
@@ -108,7 +108,7 @@ uint32_t dllFapi2GetAttrInfo(
 uint32_t dllFapi2GetAttributeIdsByType(
 	uint32_t i_targetTypes, 
 	uint32_t i_attributeSources, 
-	std::list<fapi2::AttributeId> & o_attributeIds);
+	std::list<AttributeId> & o_attributeIds);
 
 void dllFapi2OutputError(const char* i_message); 
 
