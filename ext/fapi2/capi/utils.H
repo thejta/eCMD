@@ -82,6 +82,13 @@ namespace fapi2
     /// @return ReturnCode. Zero on success, else platform specified error.
     ///
     ReturnCode delay(uint64_t i_nanoSeconds, uint64_t i_simCycles);
+
+    ///
+    /// @brief Assert a condition, and halt
+    ///
+    /// @param[in] a boolean representing the assertion
+    ///
+    void Assert(bool i_expression);
 };
 
 #endif // FAPI2_UTILS_H_

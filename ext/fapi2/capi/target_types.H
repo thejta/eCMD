@@ -1,27 +1,3 @@
-/* IBM_PROLOG_BEGIN_TAG                                                   */
-/* This is an automatically generated prolog.                             */
-/*                                                                        */
-/* $Source$                                                             */
-/*                                                                        */
-/* OpenPOWER HostBoot Project                                             */
-/*                                                                        */
-/* Contributors Listed Below - COPYRIGHT 2012,2014                        */
-/* [+] International Business Machines Corp.                              */
-/*                                                                        */
-/*                                                                        */
-/* Licensed under the Apache License, Version 2.0 (the "License");        */
-/* you may not use this file except in compliance with the License.       */
-/* You may obtain a copy of the License at                                */
-/*                                                                        */
-/*     http://www.apache.org/licenses/LICENSE-2.0                         */
-/*                                                                        */
-/* Unless required by applicable law or agreed to in writing, software    */
-/* distributed under the License is distributed on an "AS IS" BASIS,      */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
-/* implied. See the License for the specific language governing           */
-/* permissions and limitations under the License.                         */
-/*                                                                        */
-/* IBM_PROLOG_END_TAG                                                     */
 /**
  * @file target_types.H
  * @brief definitions for fapi2 target types
@@ -40,6 +16,7 @@ namespace fapi2
     /// or tables. TYPE_ALL is used to pass targets to methods which
     /// can act generally on any type of target
     ///
+
     /// Target Kind
     enum TargetType
     {
@@ -59,7 +36,7 @@ namespace fapi2
         TARGET_TYPE_MCA           = 0x00001000, ///< MCA type
         TARGET_TYPE_MCBIST        = 0x00002000, ///< MCBIST type
         TARGET_TYPE_MI            = 0x00004000, ///< MI Memory Interface (Cumulus)
-//      Can be recycled           = 0x00008000, ///<
+        TARGET_TYPE_CAPP          = 0x00008000, ///< CAPP target
         TARGET_TYPE_DMI           = 0x00010000, ///< DMI type
         TARGET_TYPE_OBUS          = 0x00020000, ///< OBUS type
         TARGET_TYPE_NV            = 0x00040000, ///< NV bus type
@@ -99,6 +76,7 @@ namespace fapi2
         static const uint8_t count = 0;
     };
     /// @endcond
+
 }
 
 #endif
