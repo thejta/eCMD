@@ -8,6 +8,10 @@
 ### If perl code needs to be inserted into the ecmd pel module in the future, please add it to this
 ### file and re-include it in ecmdClientPerlapi.i
 
+package ecmd;
+# This code lets ecmd.so be loaded properly for fapi
+sub dl_load_flags { 0x01 }
+
 package ecmd::ecmdDataBuffer;
 use overload
     "&" => sub { $_[0]->__and__($_[1])},
