@@ -172,6 +172,38 @@ typedef enum {
   CIP_RW_PROC_STATUS_POWEROFF,
 } cipRWProcStatus_t;
 
+enum CIP_PROCESSOR_FAMILY
+{
+  CIP_PROCESSOR_FAMILY_P8 = 0x05, 
+  CIP_PROCESSOR_FAMILY_P9 = 0x06, 
+  CIP_PROCESSOR_FAMILY_RESERVED = 0x0F,
+  CIP_PROCESSOR_FAMILY_INVALID = 0xFF,     // Uninitialized
+};
+
+
+struct cipSysInfo_t
+{
+//   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+//   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+//   uint32_t flattenSize(void);
+//   void printStruct();
+
+   // CEC info
+   uint32_t max_cores_per_chip; ///< Maximum Number of Cores per Processor Chip
+   uint32_t max_threads_per_core; ///< Maximum Number of Threads per Core
+//   GIP_SYSINFO_BOX_TYPE   boxType; ///< System/Box Type
+//   ecmdChipTarget primaryThread; ///< Primary Thread of Chip On the System
+   CIP_PROCESSOR_FAMILY  procFamily; ///< Type of Processor In The System
+//   GIP_CLK_STATE procClkState; ///< Clock Domain States of Processors
+//   GIP_CLK_STATE asicClkState; ///< Clock Domain States of Asic Chips
+//   GIP_MACHINE_SERIES_TYPE seriesType;  ///< Indicates i vs p-series
+//   bool hasOlcRcvd;           ///< Has OLC been received?
+//   uint32_t attnErrorState; // Value set to attn/AhTerm registry variable
+//   char ecmd_capi_version[16]; ///< ECMD_CAPI_VERSION In "Major.Minor" format (ex "10.4")
+//   char gip_capi_version[16]; ///< ECMD_GIP_CAPI_VERSION In "Major.Minor" format (ex "1.0")
+//   uint32_t gip_server_client_version; ///< ECMD_GIP_SERVER_CLIENT_VERSION in 0xMMmm format
+};
+
 #endif /* cipStructs_h */
 
 // Change Log *********************************************************
