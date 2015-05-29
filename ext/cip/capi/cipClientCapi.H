@@ -966,6 +966,15 @@ uint32_t cipPutPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32
 #endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
 //@}
 
+/**
+ @brief Get the System Info structure
+ @param o_sysInfo Buffer containing the SysInfo struct
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+*/
+uint32_t cipGetSysInfo(cipSysInfo_t & o_sysInfo);
+
+
 #ifndef DOCUMENTATION
 } /* end extern "c" */
 #endif
