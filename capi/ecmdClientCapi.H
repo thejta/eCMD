@@ -424,22 +424,6 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
- @brief Query Scom information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return data from query
- @param i_address if != 0xFFFFFFFF used to refine query to a single scom
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
-/**
  @brief Query Scomgroup information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_scomGroupName Name of the scomgroup to look up in the hash
@@ -4261,6 +4245,22 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 
 //@}
 #endif
+
+/**
+ @brief Query Scom information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_queryData Return data from query
+ @param i_address if != 0xFFFFFFFF used to refine query to a single scom
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 #ifndef DOCUMENTATION
 }  //extern "C"
