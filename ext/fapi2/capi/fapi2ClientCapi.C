@@ -322,7 +322,7 @@ uint32_t fapi2SetAttribute(const ecmdChipTarget & i_target, const uint32_t i_id,
   return rc;
 }
 
-uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format){
+uint32_t fapi2AttributeDataToString(fapi2::AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format){
 
   uint32_t rc;
 
@@ -344,7 +344,7 @@ uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::Attribute
      args.push_back((void*) &i_format);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2AttributeDataToString(fapi2::AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2AttributeDataToString");
   }
 #endif
@@ -361,8 +361,8 @@ uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::Attribute
      }
   }
 
-  uint32_t (*Function)(AttributeId, const fapi2::AttributeData &, std::string &, bool, const char *) = 
-      (uint32_t(*)(AttributeId, const fapi2::AttributeData &, std::string &, bool, const char *))fapi2DllFnTable[ECMD_FAPI2ATTRIBUTEDATATOSTRING];
+  uint32_t (*Function)(fapi2::AttributeId, const fapi2::AttributeData &, std::string &, bool, const char *) = 
+      (uint32_t(*)(fapi2::AttributeId, const fapi2::AttributeData &, std::string &, bool, const char *))fapi2DllFnTable[ECMD_FAPI2ATTRIBUTEDATATOSTRING];
   rc =    (*Function)(i_attrId, i_attrData, o_attrDataString, i_fullData, i_format);
 #endif
 
@@ -370,7 +370,7 @@ uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::Attribute
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2AttributeDataToString");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2AttributeDataToString(fapi2::AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format)",args);
    }
 #endif
 
@@ -383,7 +383,7 @@ uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::Attribute
   return rc;
 }
 
-uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attrId){
+uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId & o_attrId){
 
   uint32_t rc;
 
@@ -402,7 +402,7 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attr
      args.push_back((void*) &o_attrId);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attrId)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId & o_attrId)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2AttributeStringToId");
   }
 #endif
@@ -419,8 +419,8 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attr
      }
   }
 
-  uint32_t (*Function)(std::string, AttributeId &) = 
-      (uint32_t(*)(std::string, AttributeId &))fapi2DllFnTable[ECMD_FAPI2ATTRIBUTESTRINGTOID];
+  uint32_t (*Function)(std::string, fapi2::AttributeId &) = 
+      (uint32_t(*)(std::string, fapi2::AttributeId &))fapi2DllFnTable[ECMD_FAPI2ATTRIBUTESTRINGTOID];
   rc =    (*Function)(i_attrString, o_attrId);
 #endif
 
@@ -428,7 +428,7 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attr
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2AttributeStringToId");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attrId)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId & o_attrId)",args);
    }
 #endif
 
@@ -441,7 +441,7 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attr
   return rc;
 }
 
-uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum){
+uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum){
 
   uint32_t rc;
 
@@ -463,7 +463,7 @@ uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t 
      args.push_back((void*) &o_attrEnum);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2GetAttrInfo");
   }
 #endif
@@ -480,8 +480,8 @@ uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t 
      }
   }
 
-  uint32_t (*Function)(AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &) = 
-      (uint32_t(*)(AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &))fapi2DllFnTable[ECMD_FAPI2GETATTRINFO];
+  uint32_t (*Function)(fapi2::AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &) = 
+      (uint32_t(*)(fapi2::AttributeId, uint32_t &, uint32_t &, uint32_t &, bool &))fapi2DllFnTable[ECMD_FAPI2GETATTRINFO];
   rc =    (*Function)(i_attrId, o_attrType, o_numOfEntries, o_numOfBytes, o_attrEnum);
 #endif
 
@@ -489,7 +489,7 @@ uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t 
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2GetAttrInfo");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum)",args);
    }
 #endif
 
@@ -502,7 +502,7 @@ uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t 
   return rc;
 }
 
-uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<AttributeId> & o_attributeIds){
+uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds){
 
   uint32_t rc;
 
@@ -522,7 +522,7 @@ uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attribute
      args.push_back((void*) &o_attributeIds);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<AttributeId> & o_attributeIds)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2GetAttributeIdsByType");
   }
 #endif
@@ -539,8 +539,8 @@ uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attribute
      }
   }
 
-  uint32_t (*Function)(uint32_t, uint32_t, std::list<AttributeId> &) = 
-      (uint32_t(*)(uint32_t, uint32_t, std::list<AttributeId> &))fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE];
+  uint32_t (*Function)(uint32_t, uint32_t, std::list<fapi2::AttributeId> &) = 
+      (uint32_t(*)(uint32_t, uint32_t, std::list<fapi2::AttributeId> &))fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE];
   rc =    (*Function)(i_targetTypes, i_attributeSources, o_attributeIds);
 #endif
 
@@ -548,7 +548,7 @@ uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attribute
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2GetAttributeIdsByType");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<AttributeId> & o_attributeIds)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds)",args);
    }
 #endif
 

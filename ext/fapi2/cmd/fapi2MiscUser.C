@@ -159,7 +159,7 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   }
 
   /* Check that attribute name is valid */
-  AttributeId attributeId;
+  fapi2::AttributeId attributeId;
   rc = fapi2AttributeStringToId(attributeName, attributeId);
   if (rc) {
     printed = "fapi2getattr - Unknown attribute name (";
@@ -527,10 +527,10 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
         }
     }
 
-    std::map<fapi2::TargetType, std::list<AttributeId> > attributeIds;
-    std::list<AttributeId> systemAttributeIds;
+    std::map<fapi2::TargetType, std::list<fapi2::AttributeId> > attributeIds;
+    std::list<fapi2::AttributeId> systemAttributeIds;
 
-    std::map<AttributeId, AttributeInfo> attributeInfoMap;
+    std::map<fapi2::AttributeId, AttributeInfo> attributeInfoMap;
 
     fapi2::TargetType targetType = fapi2::TARGET_TYPE_NONE;
     for (std::list<ecmdChipTarget>::iterator targetIter = targetList.begin(); targetIter != targetList.end(); targetIter++)
@@ -554,9 +554,9 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 dumpfile << printed;
             else
                 ecmdOutput(printed.c_str());
-            for (std::list<AttributeId>::iterator curAttr = attributeIds[targetType].begin(); curAttr != attributeIds[targetType].end(); curAttr++)
+            for (std::list<fapi2::AttributeId>::iterator curAttr = attributeIds[targetType].begin(); curAttr != attributeIds[targetType].end(); curAttr++)
             {
-                std::map<AttributeId, AttributeInfo>::iterator attributeInfoIter = attributeInfoMap.find(*curAttr);
+                std::map<fapi2::AttributeId, AttributeInfo>::iterator attributeInfoIter = attributeInfoMap.find(*curAttr);
                 if (attributeInfoIter == attributeInfoMap.end())
                 {
                     AttributeInfo tempAttributeInfo = {0, 0, 0, false};

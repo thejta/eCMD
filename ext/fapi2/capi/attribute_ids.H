@@ -6,6 +6,9 @@
 
 #include <target_types.H>
 
+namespace fapi2
+{
+
 /**
  * @brief Enumeration of attribute IDs
  */
@@ -781,5 +784,7 @@ const bool ATTR_CHIP_UNIT_POS_InitToZero = false;
 const fapi2::TargetType ATTR_CHIP_UNIT_POS_TargetType = fapi2::TARGET_TYPE_CORE | fapi2::TARGET_TYPE_EQ | fapi2::TARGET_TYPE_MBA | fapi2::TARGET_TYPE_MCS | fapi2::TARGET_TYPE_MCA | fapi2::TARGET_TYPE_MCBIST | fapi2::TARGET_TYPE_MI | fapi2::TARGET_TYPE_DMI | fapi2::TARGET_TYPE_NV | fapi2::TARGET_TYPE_SBE | fapi2::TARGET_TYPE_PPE | fapi2::TARGET_TYPE_PEC | fapi2::TARGET_TYPE_PHB | fapi2::TARGET_TYPE_PERV | fapi2::TARGET_TYPE_EX;
 const bool ATTR_CHIP_UNIT_POS_PlatInit = true;
 #define ATTR_CHIP_UNIT_POS_SETMACRO ATTRIBUTE_NOT_WRITABLE
+
+}
 
 #endif

@@ -28,7 +28,7 @@
 #include <ecmdStructs.H>
 
 #define PLAT_GET_CHIP_EC_FEATURE_OVERRIDE(ID, TARGET, VAL) \
-      fapi2::_getEcFeatureOverride<ID##_Type>(ID, TARGET, VAL)
+      _getEcFeatureOverride<ID##_Type>(ID, TARGET, VAL)
 
 /* INSERT NEW ATTRIBUTES HERE */
 
@@ -157,287 +157,287 @@
 
 /* global get uint8_t 1D array macro */
 #define PLAT_ATTR_GET_UINT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayShort(ID, TARGET, VAL)
+     _getAttributeArrayShort(ID, TARGET, VAL)
 /* global set uint8_t 1D array macro */
 #define PLAT_ATTR_SET_UINT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayShort(ID, TARGET, VAL)
+     _setAttributeArrayShort(ID, TARGET, VAL)
 
 /* global get uint8_t 2D array macro */
 #define PLAT_ATTR_GET_UINT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0])
+     _getAttributeArrayShort(ID, TARGET, VAL[0])
 /* global set uint8_t 2D array macro */
 #define PLAT_ATTR_SET_UINT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0])
+     _setAttributeArrayShort(ID, TARGET, VAL[0])
 
 /* global get uint8_t 3D array macro */
 #define PLAT_ATTR_GET_UINT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0][0])
+     _getAttributeArrayShort(ID, TARGET, VAL[0][0])
 /* global set uint8_t 3D array macro */
 #define PLAT_ATTR_SET_UINT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0][0])
+     _setAttributeArrayShort(ID, TARGET, VAL[0][0])
 
 /* global get uint8_t 4D array macro */
 #define PLAT_ATTR_GET_UINT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayShort(ID, TARGET, VAL[0][0][0])
+     _getAttributeArrayShort(ID, TARGET, VAL[0][0][0])
 /* global set uint8_t 4D array macro */
 #define PLAT_ATTR_SET_UINT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayShort(ID, TARGET, VAL[0][0][0])
+     _setAttributeArrayShort(ID, TARGET, VAL[0][0][0])
 
 
 
 
 /* global get uint32_t 1D array macro */
 #define PLAT_ATTR_GET_UINT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayWord(ID, TARGET, VAL)
+     _getAttributeArrayWord(ID, TARGET, VAL)
 /* global set uint32_t 1D array macro */
 #define PLAT_ATTR_SET_UINT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayWord(ID, TARGET, VAL)
+     _setAttributeArrayWord(ID, TARGET, VAL)
 
 /* global get uint32_t 2D array macro */
 #define PLAT_ATTR_GET_UINT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0])
+     _getAttributeArrayWord(ID, TARGET, VAL[0])
 /* global set uint32_t 2D array macro */
 #define PLAT_ATTR_SET_UINT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0])
+     _setAttributeArrayWord(ID, TARGET, VAL[0])
 
 /* global get uint32_t 3D array macro */
 #define PLAT_ATTR_GET_UINT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0][0])
+     _getAttributeArrayWord(ID, TARGET, VAL[0][0])
 /* global set uint32_t 3D array macro */
 #define PLAT_ATTR_SET_UINT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0][0])
+     _setAttributeArrayWord(ID, TARGET, VAL[0][0])
 
 /* global get uint32_t 4D array macro */
 #define PLAT_ATTR_GET_UINT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeArrayWord(ID, TARGET, VAL[0][0][0])
 /* global set uint32_t 4D array macro */
 #define PLAT_ATTR_SET_UINT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayWord(ID, TARGET, VAL[0][0][0])
+     _setAttributeArrayWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get uint64_t 1D array macro */
 #define PLAT_ATTR_GET_UINT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL)
+     _getAttributeArrayDoubleWord(ID, TARGET, VAL)
 /* global set uint64_t 1D array macro */
 #define PLAT_ATTR_SET_UINT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL)
+     _setAttributeArrayDoubleWord(ID, TARGET, VAL)
 
 /* global get uint64_t 2D array macro */
 #define PLAT_ATTR_GET_UINT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0])
+     _getAttributeArrayDoubleWord(ID, TARGET, VAL[0])
 /* global set uint64_t 2D array macro */
 #define PLAT_ATTR_SET_UINT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0])
+     _setAttributeArrayDoubleWord(ID, TARGET, VAL[0])
 
 /* global get uint64_t 3D array macro */
 #define PLAT_ATTR_GET_UINT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
+     _getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
 /* global set uint64_t 3D array macro */
 #define PLAT_ATTR_SET_UINT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
+     _setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0])
 
 /* global get uint64_t 4D array macro */
 #define PLAT_ATTR_GET_UINT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 /* global set uint64_t 4D array macro */
 #define PLAT_ATTR_SET_UINT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
+     _setAttributeArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get int macro (uint8_t, 32 and 64) */
 #define PLAT_ATTR_GET_GLOBAL_INT(ID, TARGET, VAL) \
-     fapi2::_get<ID##_Type>(ID, TARGET, VAL)
+     _get<ID##_Type>(ID, TARGET, VAL)
 
 /* global set int macro (uint8_t, 32 and 64) */
 #define PLAT_ATTR_SET_GLOBAL_INT(ID, TARGET, VAL) \
-     fapi2::_set<ID##_Type>(ID, TARGET, VAL)
+     _set<ID##_Type>(ID, TARGET, VAL)
 
 /******************************************************************************/
 // Get Override Macros
 /******************************************************************************/
 /* global get override uint8_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL)
+     _getAttributeOverrideArrayShort(ID, TARGET, VAL)
 /* global get override uint8_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0])
+     _getAttributeOverrideArrayShort(ID, TARGET, VAL[0])
 /* global get override uint8_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0])
 /* global get override uint8_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArrayShort(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint32_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL)
+     _getAttributeOverrideArrayWord(ID, TARGET, VAL)
 /* global get override uint32_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0])
+     _getAttributeOverrideArrayWord(ID, TARGET, VAL[0])
 /* global get override uint32_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0])
 /* global get override uint32_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArrayWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint64_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL)
+     _getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL)
 /* global get override uint64_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0])
+     _getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0])
 /* global get override uint64_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0])
 /* global get override uint64_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_UINT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArrayDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get override int macro (uint8_t, 32 and 64) */
 #define PLAT_ATTR_GET_OVERRIDE_GLOBAL_INT(ID, TARGET, VAL) \
-     fapi2::_getOverride<ID##_Type>(ID, TARGET, VAL)
+     _getOverride<ID##_Type>(ID, TARGET, VAL)
 
 /* global get uint8_t 1D array macro */
 #define PLAT_ATTR_GET_INT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL)
+     _getAttributeArraySignedShort(ID, TARGET, VAL)
 /* global set uint8_t 1D array macro */
 #define PLAT_ATTR_SET_INT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL)
+     _setAttributeArraySignedShort(ID, TARGET, VAL)
 
 /* global get uint8_t 2D array macro */
 #define PLAT_ATTR_GET_INT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0])
+     _getAttributeArraySignedShort(ID, TARGET, VAL[0])
 /* global set uint8_t 2D array macro */
 #define PLAT_ATTR_SET_INT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0])
+     _setAttributeArraySignedShort(ID, TARGET, VAL[0])
 
 /* global get uint8_t 3D array macro */
 #define PLAT_ATTR_GET_INT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0][0])
+     _getAttributeArraySignedShort(ID, TARGET, VAL[0][0])
 /* global set uint8_t 3D array macro */
 #define PLAT_ATTR_SET_INT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0][0])
+     _setAttributeArraySignedShort(ID, TARGET, VAL[0][0])
 
 /* global get uint8_t 4D array macro */
 #define PLAT_ATTR_GET_INT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
+     _getAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
 /* global set uint8_t 4D array macro */
 #define PLAT_ATTR_SET_INT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
+     _setAttributeArraySignedShort(ID, TARGET, VAL[0][0][0])
 
 
 
 
 /* global get uint32_t 1D array macro */
 #define PLAT_ATTR_GET_INT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL)
+     _getAttributeArraySignedWord(ID, TARGET, VAL)
 /* global set uint32_t 1D array macro */
 #define PLAT_ATTR_SET_INT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL)
+     _setAttributeArraySignedWord(ID, TARGET, VAL)
 
 /* global get uint32_t 2D array macro */
 #define PLAT_ATTR_GET_INT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0])
+     _getAttributeArraySignedWord(ID, TARGET, VAL[0])
 /* global set uint32_t 2D array macro */
 #define PLAT_ATTR_SET_INT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0])
+     _setAttributeArraySignedWord(ID, TARGET, VAL[0])
 
 /* global get uint32_t 3D array macro */
 #define PLAT_ATTR_GET_INT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0][0])
+     _getAttributeArraySignedWord(ID, TARGET, VAL[0][0])
 /* global set uint32_t 3D array macro */
 #define PLAT_ATTR_SET_INT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0][0])
+     _setAttributeArraySignedWord(ID, TARGET, VAL[0][0])
 
 /* global get uint32_t 4D array macro */
 #define PLAT_ATTR_GET_INT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
 /* global set uint32_t 4D array macro */
 #define PLAT_ATTR_SET_INT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
+     _setAttributeArraySignedWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get uint64_t 1D array macro */
 #define PLAT_ATTR_GET_INT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL)
+     _getAttributeArraySignedDoubleWord(ID, TARGET, VAL)
 /* global set uint64_t 1D array macro */
 #define PLAT_ATTR_SET_INT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL)
+     _setAttributeArraySignedDoubleWord(ID, TARGET, VAL)
 
 /* global get uint64_t 2D array macro */
 #define PLAT_ATTR_GET_INT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
+     _getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
 /* global set uint64_t 2D array macro */
 #define PLAT_ATTR_SET_INT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
+     _setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0])
 
 /* global get uint64_t 3D array macro */
 #define PLAT_ATTR_GET_INT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
+     _getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 /* global set uint64_t 3D array macro */
 #define PLAT_ATTR_SET_INT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
+     _setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 
 /* global get uint64_t 4D array macro */
 #define PLAT_ATTR_GET_INT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 /* global set uint64_t 4D array macro */
 #define PLAT_ATTR_SET_INT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
+     _setAttributeArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 
 /* global get int macro (uint8_t, 32 and 64) */
 #define PLAT_ATTR_GET_GLOBAL_INT(ID, TARGET, VAL) \
-     fapi2::_get<ID##_Type>(ID, TARGET, VAL)
+     _get<ID##_Type>(ID, TARGET, VAL)
 
 /* global set int macro (uint8_t, 32 and 64) */
 #define PLAT_ATTR_SET_GLOBAL_INT(ID, TARGET, VAL) \
-     fapi2::_set<ID##_Type>(ID, TARGET, VAL)
+     _set<ID##_Type>(ID, TARGET, VAL)
 
 /******************************************************************************/
 // Get Override Macros
 /******************************************************************************/
 /* global get override uint8_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT8_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL)
+     _getAttributeOverrideArraySignedShort(ID, TARGET, VAL)
 /* global get override uint8_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT8_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0])
+     _getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0])
 /* global get override uint8_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT8_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0])
 /* global get override uint8_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT8_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArraySignedShort(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint32_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT32_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL)
+     _getAttributeOverrideArraySignedWord(ID, TARGET, VAL)
 /* global get override uint32_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT32_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0])
+     _getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0])
 /* global get override uint32_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT32_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0])
 /* global get override uint32_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT32_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArraySignedWord(ID, TARGET, VAL[0][0][0])
 
 
 /* global get override uint64_t 1D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT64_1D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL)
+     _getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL)
 /* global get override uint64_t 2D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT64_2D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0])
+     _getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0])
 /* global get override uint64_t 3D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT64_3D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0])
+     _getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0])
 /* global get override uint64_t 4D array macro */
 #define PLAT_ATTR_GET_OVERRIDE_INT64_4D_ARRAY(ID, TARGET, VAL) \
-     fapi2::_getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
+     _getAttributeOverrideArraySignedDoubleWord(ID, TARGET, VAL[0][0][0])
 
 namespace fapi2 {
 

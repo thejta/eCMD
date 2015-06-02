@@ -121,7 +121,7 @@ uint32_t fapi2SetAttribute(const ecmdChipTarget & i_target, const uint32_t i_id,
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_ARGS if unknown format
 */
-uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format);
+uint32_t fapi2AttributeDataToString(fapi2::AttributeId i_attrId, const fapi2::AttributeData & i_attrData, std::string & o_attrDataString, bool i_fullData, const char * i_format);
 
 /**
  @brief Translate a string to an attribute id if one exists
@@ -129,7 +129,7 @@ uint32_t fapi2AttributeDataToString(AttributeId i_attrId, const fapi2::Attribute
  @param o_attrId ID of attribute that matches string
  @retval ECMD_SUCCESS if successful
 */
-uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attrId);
+uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId & o_attrId);
 
 /**
  @brief Retrieve the information about an Attribute
@@ -140,7 +140,7 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, AttributeId & o_attr
  @param o_attrEnum True if attribute supports enumeration values
  @retval ECMD_SUCCESS if successful
 */
-uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
+uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
 
 /**
  @brief Retrieve a list of attributes based upon their TargetType and AttributeSource
@@ -149,7 +149,7 @@ uint32_t fapi2GetAttrInfo(AttributeId i_attrId, uint32_t & o_attrType, uint32_t 
  @param o_attributeIds A list of AttributeId based upon the requested types
  @retval ECMD_SUCCESS if successful
 */
-uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<AttributeId> & o_attributeIds);
+uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds);
 
 //@}
 
