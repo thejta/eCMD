@@ -30,6 +30,7 @@
 #include <plat_trace.H>
 #include <return_code.H>
 #include <error_info.H>
+#include <assert.h>
 
 #include <ecmdUtils.H>
 
@@ -214,6 +215,17 @@ namespace fapi2
         l_fapiRc = (ReturnCodes)rc;
         return l_fapiRc;
     }
+
+    ///
+    /// @brief Assert a condition, and halt
+    ///
+    /// @param[in] a boolean representing the assertion
+    ///
+    void Assert(bool i_expression)
+    {
+        assert(i_expression);
+    }
+
 };
 
 namespace fapi2plat
