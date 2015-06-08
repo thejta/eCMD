@@ -280,6 +280,8 @@ uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const ch
 
 uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode); 
 
+uint32_t dllFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_searchString); 
+
 uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
 
 uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget); 

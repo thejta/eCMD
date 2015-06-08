@@ -974,6 +974,26 @@ uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode) {
   return rc;
 }
 
+
+uint32_t dllFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_searchString) {
+  uint32_t rc = ECMD_SUCCESS;
+  std::list<ecmdErrorMsg>::iterator errorIter = ecmdErrorMsgList.begin();
+  std::list<ecmdErrorMsg>::iterator deleteIter;
+
+  while (errorIter != ecmdErrorMsgList.end()) {
+    if ( (errorIter->returnCode == i_returnCode) && (errorIter->message.find(i_searchString) != std::string::npos) ) {
+      deleteIter = errorIter;
+      errorIter++; // Walk our iter forward before we delete were we are
+      ecmdErrorMsgList.erase(deleteIter);
+    } else {
+      // Didn't find a match, so just advance forward
+      errorIter++;
+    }
+  }
+
+  return rc;
+}
+
 uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdErrorTarget>::iterator cur;
@@ -2131,6 +2151,7 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   if (ecmdParseOption(io_argc, io_argv, "-fc")) {
     ecmdGlobal_fusedCore = ECMD_FUSED_CORE_ENABLED;
   }
+
 
   /*************************************/
   /* Parse command line targeting args */
