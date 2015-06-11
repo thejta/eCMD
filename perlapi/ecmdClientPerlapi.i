@@ -124,6 +124,7 @@
 %template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
 %template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
 %template(listUint32_t)              std::list<uint32_t>;
+%template(vectorString)              std::vector<std::string>;
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
