@@ -17,7 +17,7 @@
 
 #include <fapi2Structs.H>
 #include <attribute_ids.H>
-//#include <fapiMvpdAccess.H>
+#include <mvpd_access.H>
 //#include <fapiMBvpdAccess.H>
 //#include <fapiMultiScom.H>
 //#include <fapi2Util.H>
@@ -146,21 +146,23 @@ fapi2::ReturnCode dllFapi2UnloadInitFile(
 	const char * i_file, 
 	const char *& io_addr, 
 	size_t & io_size);
+#endif
 
-fapi2::ReturnCode dllFapi2GetMvpdField(
+uint32_t dllFapi2GetMvpdField(
 	const fapi2::MvpdRecord i_record,
 	const fapi2::MvpdKeyword i_keyword,
-	const fapi2::Target<fapi2::TARGET_TYPE_PROC_CHIP> &i_procTarget,
+	const ecmdChipTarget & i_target,
 	uint8_t * const i_pBuffer,
-	uint32_t &io_fieldSize);
+	uint32_t & io_fieldSize);
 
-fapi2::ReturnCode dllFapi2SetMvpdField(
+uint32_t dllFapi2SetMvpdField(
 	const fapi2::MvpdRecord i_record,
 	const fapi2::MvpdKeyword i_keyword,
-	const fapi2::Target<fapi2::TARGET_TYPE_PROC_CHIP> &i_procTarget,
+	const ecmdChipTarget & i_target,
 	const uint8_t * const i_pBuffer,
 	const uint32_t i_fieldSize);
 
+#if 0
 fapi2::ReturnCode dllFapi2SpecialWakeup(
 	const fapi2::Target & i_target, 
 	const bool i_enable);

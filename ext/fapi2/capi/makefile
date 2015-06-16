@@ -36,6 +36,7 @@ CAPI_INCLUDES += fapi2_hw_access.H
 CAPI_INCLUDES += hw_access.H
 CAPI_INCLUDES += plat_hw_access.H
 CAPI_INCLUDES += hw_access_def.H
+CAPI_INCLUDES += mvpd_access.H
 CAPI_INCLUDES += ffdc.H
 CAPI_INCLUDES += error_info.H
 CAPI_INCLUDES += error_info_defs.H

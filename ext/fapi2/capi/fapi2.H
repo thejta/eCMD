@@ -1,31 +1,25 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* This is an automatically generated prolog.                             */
 /*                                                                        */
-/* $Source$                                                             */
+/* $Source$                                  */
 /*                                                                        */
-/* OpenPOWER HostBoot Project                                             */
+/* IBM CONFIDENTIAL                                                       */
 /*                                                                        */
-/* Contributors Listed Below - COPYRIGHT 2012,2014                        */
+/* EKB Project                                                            */
+/*                                                                        */
+/* COPYRIGHT 2015                                                         */
 /* [+] International Business Machines Corp.                              */
 /*                                                                        */
 /*                                                                        */
-/* Licensed under the Apache License, Version 2.0 (the "License");        */
-/* you may not use this file except in compliance with the License.       */
-/* You may obtain a copy of the License at                                */
-/*                                                                        */
-/*     http://www.apache.org/licenses/LICENSE-2.0                         */
-/*                                                                        */
-/* Unless required by applicable law or agreed to in writing, software    */
-/* distributed under the License is distributed on an "AS IS" BASIS,      */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
-/* implied. See the License for the specific language governing           */
-/* permissions and limitations under the License.                         */
+/* The source code for this program is not published or otherwise         */
+/* divested of its trade secrets, irrespective of what has been           */
+/* deposited with the U.S. Copyright Office.                              */
 /*                                                                        */
 /* IBM_PROLOG_END_TAG                                                     */
-/**
- * @file fapi2.H
- * @brief top level header for fapi2
- */
+///
+/// @file fapi2.H
+/// @brief top level header for fapi2
+///
 
 #ifndef __FAPI2_TOP_LEVEL__
 #define __FAPI2_TOP_LEVEL__
@@ -34,7 +28,6 @@
 #include <return_code.H>
 #include <buffer.H>
 #include <hw_access.H>
-
 #include <utils.H>
 #include <plat_trace.H>
 
@@ -42,12 +35,15 @@
 #include <error_scope.H>
 #include <set_sbe_error.H>      // Generated file
 
+#include <fapi2_hwp_executor.H>
+
+#include <mvpd_access.H>
+
+#include <fapi2_attribute_service.H>
+
 // Block of headers not currently in fapi2
 #ifdef FAPI2_MISSING_HEADERS
-  #include <fapi2_hwp_executor.H>
-  #include <fapi2_attribute_service.H>
-  //#include <fapi2MvpdAccess.H>
-  //#include <fapi2MBvpdAccess.H>
+    //#include <mbvpd_access.H>
 #endif
 
 // Block of auto generated headers not presently in fapi2
