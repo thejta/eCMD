@@ -78,8 +78,6 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
-uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
-
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName, ecmdQueryDetail_t i_detail); 
 
@@ -280,8 +278,6 @@ uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const ch
 
 uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode); 
 
-uint32_t dllFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_searchString); 
-
 uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_errorTargets, bool i_deleteTarget); 
 
 uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget); 
@@ -327,12 +323,6 @@ uint32_t dllSyncIplMode(int i_unused);
 uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
 
 uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 
-
-uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread); 
-
-uint32_t dllUseFusedTarget(ecmdChipTarget & i_target, uint32_t i_core, uint32_t i_thread, uint32_t & o_fusedcore, uint32_t & o_fusedthread, bool & o_use); 
-
-uint32_t dllGetCmdlineCoreThread(uint32_t & o_core, uint32_t & o_thread); 
 
 uint32_t dllGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric); 
 
@@ -573,6 +563,8 @@ uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
 std::string dllGetCurrentCmdline(); 
 
 void dllSetCurrentCmdline(int argc, char* argv[]); 
+
+uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
 } //extern C
 
