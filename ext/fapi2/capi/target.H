@@ -330,19 +330,19 @@ namespace fapi2
                       "improper child of fapi2::TARGET_TYPE_MBA");
 
         std::list<const ecmdChipTarget *> l_targets;
+        std::vector<Target<T> > l_children;
 
         uint32_t l_rc = fapi2GetAssociatedTargets(**this, T, l_targets, i_state);
         if (l_rc)
         {
             // ERROR
-            return {Target<T>()};
+            return l_children;
         }
         if (l_targets.empty())
         {
             // ERROR
-            return {Target<T>()};
+            return l_children;
         }
-        std::vector<Target<T> > l_children;
         auto l_target = l_targets.begin();
         while (l_target != l_targets.end())
         {
