@@ -2723,6 +2723,12 @@ uint32_t ecmdDataBuffer::unflatten(const uint8_t * i_data, uint32_t i_len)
 
   return ecmdDataBufferBase::unflatten(i_data, i_len);
 }
+uint32_t ecmdDataBuffer::unflattenTryKeepCapacity(const uint8_t * i_data, uint32_t i_len)
+{
+  ECMD_NULL_PTR_CHECK(i_data);
+
+  return ecmdDataBufferBase::unflattenTryKeepCapacity(i_data, i_len);
+}
 uint32_t  ecmdDataBuffer::setBitLength(uint32_t i_newNumBits)
 {
   return ecmdDataBufferBase::setBitLength(i_newNumBits);

@@ -1140,6 +1140,18 @@ public:
   uint32_t unflatten(const uint8_t * i_data, uint32_t i_len);
 
   /**
+   * @brief unflattenTryKeepCapacity object data from a uint8_t buffer into this DataBuffer
+   * @param i_data Byte buffer to read the flattened data from
+   * @param i_len Number of bytes in the i_data buffer
+   * @post This DataBuffer is allocated and initialized with the unflattenTryKeepCapacity version of i_data
+   * Data format (all in network byte order):
+   * First Word:      iv_Capacity*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  uint32_t unflattenTryKeepCapacity(const uint8_t * i_data, uint32_t i_len);
+
+  /**
    * @brief Return number of bytes needed for a buffer to flatten the object
    * @retval Number of bytes needed
    */
