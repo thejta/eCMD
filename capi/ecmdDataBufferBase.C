@@ -2222,6 +2222,58 @@ uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
   return rc;
 }
 
+uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, uint32_t i_len) {
+
+  ECMD_NULL_PTR_CHECK(i_data);
+  
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  uint32_t newCapacity;
+  uint32_t newBitLength;
+  uint32_t * i_ptr = (uint32_t *) i_data;
+  uint32_t newWordLength;
+
+  newCapacity = (ntohl(i_ptr[0]) + 31) / 32;
+  newBitLength = ntohl(i_ptr[1]);
+
+  if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8))) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: i_len %d bytes is too small to unflatten a capacity of %d words ", i_len, newCapacity);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  } else if (newBitLength > newCapacity * 32) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
+  if (this->getCapacity() < newCapacity) {
+    rc = this->setCapacity(newCapacity);
+    if (rc != ECMD_DBUF_SUCCESS) {
+      ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
+      RETURN_ERROR(rc);
+    }
+  }
+
+  if (this->getBitLength() != newBitLength) {
+    rc = this->setBitLength(newBitLength);
+    if (rc != ECMD_DBUF_SUCCESS) {
+      ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
+      RETURN_ERROR(rc);
+    }
+  }
+
+  newWordLength = getWordLength();
+  if (newCapacity > 0) {
+    for (uint32_t i = 0; i < newWordLength ; i++) {
+      rc = setWord(i, ntohl(i_ptr[i+2]));
+      if (rc != ECMD_DBUF_SUCCESS) {
+        ETRAC5("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setWord() Failed. rc=0x%08x  newBitLength = %d bits, newWordLength= %d words, newCapacity = %d words, loop parm i = %d ", rc, newBitLength, newWordLength, newCapacity, i);
+        RETURN_ERROR(rc);
+      }
+    }
+  }
+
+  return rc;
+}
+
 uint32_t ecmdDataBufferBase::flattenSize() const {
   return (iv_Capacity + 2) * 4;
 }
