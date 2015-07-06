@@ -2,24 +2,24 @@
 #define fapi2Structs_h
 // Copyright **********************************************************
 //                                                                      
-// File fapiStructs.H                                               
+// File fapi2Structs.H                                                  
 //                                                                      
 // IBM Confidential                                                     
 // OCO Source Materials                                                 
 // 9400 Licensed Internal Code                                          
-// (C) COPYRIGHT IBM CORP. 1996                                         
+// (C) COPYRIGHT IBM CORP. 2015                                         
 //                                                                      
 // The source code for this program is not published or otherwise       
 // divested of its trade secrets, irrespective of what has been         
-// deposited with the U.S. Copyright Office.                             
+// deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright ******************************************************
 
 /**
- * @file fapiStructs.H
+ * @file fapi2Structs.H
  * @brief fapi eCMD Extension Structures
 
- * Extension Owner : John Farrugia
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------
