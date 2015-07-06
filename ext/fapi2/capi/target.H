@@ -34,6 +34,8 @@
 #include <fapi2_target.H>
 #include <stdio.h>
 
+#include <fapi2SharedUtils.H>
+#include <ecmdSharedUtils.H>
 #include <ecmdStructs.H>
 extern "C" {
 uint32_t fapi2GetAssociatedTargets(
@@ -395,7 +397,10 @@ namespace fapi2
     template< TargetType T >
     inline void toString(const Target<T>& i_target, char* i_buffer, size_t i_bsize)
     {
-        snprintf(i_buffer, i_bsize, "Target 0x%p/0x%x", i_target.get(), T);
+        ecmdChipTarget l_ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, l_ecmdTarget);
+        std::string l_ecmdTargetString = ecmdWriteTarget(l_ecmdTarget, ECMD_DISPLAY_TARGET_HYBRID);
+        snprintf(i_buffer, i_bsize, "%s", l_ecmdTargetString.c_str());
     }
 
     ///
@@ -412,7 +417,10 @@ namespace fapi2
     template< TargetType T >
     inline void toString(const Target<T>* i_target, char* i_buffer, size_t i_bsize)
     {
-        snprintf(i_buffer, i_bsize, "Target 0x%p/0x%x", i_target->get(), T);
+        ecmdChipTarget l_ecmdTarget;
+        fapiTargetPointerToEcmdTarget(i_target, l_ecmdTarget);
+        std::string l_ecmdTargetString = ecmdWriteTarget(l_ecmdTarget, ECMD_DISPLAY_TARGET_HYBRID);
+        snprintf(i_buffer, i_bsize, "%s", l_ecmdTargetString.c_str());
     }
 
     ///

@@ -116,18 +116,18 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("getScom failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
-                    target_string.c_str(), i_address);
+                    target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_SCAN( "TRACE : GETSCOM     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT ,
-                        target_string.c_str(),
+                        target_string,
                         i_address,
                         static_cast<uint64_t>(o_data) );
         }
@@ -154,18 +154,18 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("putScom failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
-                    target_string.c_str(), i_address);
+                    target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_SCAN( "TRACE : PUTSCOM     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT ,
-                        target_string.c_str(),
+                        target_string,
                         i_address,
                         static_cast<uint64_t>(i_data) );
         }
@@ -194,18 +194,18 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("putScomUnderMask failed - Target %s, Addr " UINT64_HEX16_PRESC_FORMAT,
-                    target_string.c_str(), i_address);
+                    target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_SCAN( "TRACE : PUTSCOMMASK : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT,
-                        target_string.c_str(),
+                        target_string,
                         i_address,
                         static_cast<uint64_t>(i_data),
                         static_cast<uint64_t>(i_mask) );
@@ -236,18 +236,18 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("getCfamRegister failed - Target %s, Addr %.8X",
-                    target_string.c_str(), i_address);
+                    target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_SCAN( "TRACE : GETCFAMREG  : %s : %.8X %.8X",
-                target_string.c_str(),
+                target_string,
                 i_address,
                 static_cast<uint32_t>(o_data) );
         }
@@ -277,18 +277,18 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("platPutCfamRegister failed - Target %s, Addr %.8X",
-                  target_string.c_str(), i_address);
+                  target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_SCAN( "TRACE : PUTCFAMREG  : %s : %.8X %.8X",
-                target_string.c_str(),
+                target_string,
                 i_address,
                 static_cast<uint32_t>(i_data) );
         }
@@ -351,20 +351,20 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("getRing failed - Target %s, Addr 0x%.8X", 
-                     target_string.c_str(), i_address);
+                     target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             uint64_t l_data = 0;
             o_data.extract(l_data, 0, 64);
             FAPI_SCAN( "TRACE : GETRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT, 
-                       target_string.c_str(),
+                       target_string,
                        i_address,
                        l_data );
         }
@@ -395,20 +395,20 @@ namespace fapi2
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             FAPI_ERR("putRing failed - Target %s, Addr 0x%.8X", 
-                     target_string.c_str(), i_address);
+                     target_string, i_address);
         }
 
         if( l_traceit )
         {
-            std::string target_string;
-            fapi2::toString(i_target, target_string);
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             uint64_t l_data = 0;
             i_data.extract(l_data, 0, 64);
             FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT, 
-                       target_string.c_str(),
+                       target_string,
                        i_address,
                        l_data );
         }
