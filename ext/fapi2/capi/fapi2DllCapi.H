@@ -124,7 +124,7 @@ void dllFapi2OutputManufacturing(const char* i_message);
 
 char* dllFapi2FixOutputFormat(char* o_message, const char* i_message, size_t i_num); 
 
-uint32_t dllFapi2Delay(uint64_t i_nanoSeconds, uint64_t i_simCycles); 
+uint32_t dllFapi2Delay(uint64_t i_nanoSeconds, uint64_t i_simCycles, bool i_fixed); 
 
 bool dllFapi2PlatIsScanTraceEnabled(); 
 
