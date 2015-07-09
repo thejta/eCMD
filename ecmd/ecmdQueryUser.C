@@ -154,15 +154,19 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
         }
 
         if (scomit->isChipUnitRelated) {
-	   std::list<std::string>::iterator relatedChipUnitIter;
-           for ( relatedChipUnitIter = scomit->relatedChipUnit.begin(); relatedChipUnitIter != scomit->relatedChipUnit.end(); relatedChipUnitIter++) {
+	    std::list<std::string>::iterator relatedChipUnitIter;
+            for ( relatedChipUnitIter = scomit->relatedChipUnit.begin(); relatedChipUnitIter != scomit->relatedChipUnit.end(); relatedChipUnitIter++) 
+            {
                isChipUnit = *relatedChipUnitIter;
-	   }
-          if (*relatedChipUnitIter == "") {
-            isChipUnit = "Y";
-          }
+	    }
+            // check for the chip unit to be empty, contains N (default) or relatedChipUnit size is 0
+            if ( (isChipUnit == "") || (isChipUnit == "N") || (scomit->relatedChipUnit.size() == 0) ) 
+            {
+                // Y is appropriate for older systems where there was only a core chipunit
+                isChipUnit = "Y";
+            }
         } else {
-          isChipUnit = "N";
+            isChipUnit = "N";
         }
 
         sprintf(buf,"   %8s  %-7d %-21s", isChipUnit.c_str() ,scomit->length, scomit->clockDomain.c_str());
