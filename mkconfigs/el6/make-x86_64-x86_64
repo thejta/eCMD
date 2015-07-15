@@ -1,11 +1,19 @@
 ##
 # All compiler options
 ##
-CC   := /usr/bin/g++
+ifeq ($(strip $(shell if [[ -d /opt/rh/devtoolset-2 ]]; then echo found; fi)),found)
+  CC   := /opt/rh/devtoolset-2/root/usr/bin/g++
+else
+  CC   := /usr/bin/g++
+endif
 CC_R := ${CC}
 LD   := ${CC}
 LD_R := ${CC_R}
-AR   := /usr/bin/ar
+ifeq ($(strip $(shell if [[ -d /opt/rh/devtoolset-2 ]]; then echo found; fi)),found)
+  AR   := /opt/rh/devtoolset-2/root/usr/bin/ar
+else
+  AR   := /usr/bin/ar
+endif
 
 ##
 # The location of SWIG and any swig options
