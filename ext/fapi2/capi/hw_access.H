@@ -112,7 +112,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platGetScom( i_target, i_address, o_data );
+        l_rc = fapi2plat::getScom( i_target, i_address, o_data );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
@@ -150,7 +150,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platPutScom( i_target, i_address, i_data );
+        l_rc = fapi2plat::putScom( i_target, i_address, i_data );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
@@ -190,7 +190,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platPutScomUnderMask( i_target, i_address, i_data, i_mask );
+        l_rc = fapi2plat::putScomUnderMask( i_target, i_address, i_data, i_mask );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
@@ -232,7 +232,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platGetCfamRegister( i_target, i_address, o_data );
+        l_rc = fapi2plat::getCfamRegister( i_target, i_address, o_data );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
@@ -273,13 +273,13 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platPutCfamRegister( i_target, i_address, i_data );
+        l_rc = fapi2plat::putCfamRegister( i_target, i_address, i_data );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
             char target_string[MAX_ECMD_STRING_LEN];
             fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
-            FAPI_ERR("platPutCfamRegister failed - Target %s, Addr %.8X",
+            FAPI_ERR("putCfamRegister failed - Target %s, Addr %.8X",
                   target_string, i_address);
         }
 
@@ -347,7 +347,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platGetRing( i_target, i_address, o_data, i_ringMode );
+        l_rc = fapi2plat::getRing( i_target, i_address, o_data, i_ringMode );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {
@@ -391,7 +391,7 @@ namespace fapi2
         bool l_traceit = fapi2plat::isScanTraceEnabled();
 
         // call the platform implementation
-        l_rc = platPutRing( i_target, i_address, i_data, i_ringMode );
+        l_rc = fapi2plat::putRing( i_target, i_address, i_data, i_ringMode );
 
         if (l_rc != FAPI2_RC_SUCCESS)
         {

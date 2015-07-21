@@ -64,14 +64,14 @@ extern int fppCallCount;
 extern bool ecmdDebugOutput;
 #endif
 
-namespace fapi2
+namespace fapi2plat
 {
 
-    ReturnCode platGetScom(ecmdChipTarget& i_target,
-                           const uint64_t i_address,
-                           buffer<uint64_t>& o_data)
+    fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
+                              const uint64_t i_address,
+                              fapi2::buffer<uint64_t>& o_data)
     {
-        ReturnCode rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer;
@@ -104,15 +104,11 @@ namespace fapi2
         ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
         if (ecmdIsRingCacheEnabled(cacheTarget))
         {
-            rc = (ReturnCodes) ECMD_RING_CACHE_ENABLED;
+            rc = (fapi2::ReturnCodes) ECMD_RING_CACHE_ENABLED;
             return rc;
         }
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllGetScom(i_target, i_address, l_ecmd_buffer); 
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc;
-        }
 #else
         if (DllFnTable[ECMD_GETSCOM] == NULL)
         {
@@ -128,11 +124,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
             (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETSCOM];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc; 
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -155,9 +151,9 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutScom(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data) 
+    fapi2::ReturnCode putScom(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data) 
     {
-        ReturnCode rc;
+        fapi2::ReturnCode rc;
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer(64);
@@ -191,15 +187,11 @@ namespace fapi2
         ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
         if (ecmdIsRingCacheEnabled(cacheTarget))
         {
-            rc = (ReturnCodes) ECMD_RING_CACHE_ENABLED;
+            rc = (fapi2::ReturnCodes) ECMD_RING_CACHE_ENABLED;
             return rc;
         }
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllPutScom(i_target, i_address, l_ecmd_buffer); 
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc;
-        }
 #else
         if (DllFnTable[ECMD_PUTSCOM] == NULL)
         {
@@ -215,11 +207,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
             (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOM];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc;
+            rc = (fapi2::ReturnCodes) l_ecmdRc;
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -240,9 +232,9 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data, const fapi2::buffer<uint64_t> i_mask) 
+    fapi2::ReturnCode putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data, const fapi2::buffer<uint64_t> i_mask) 
     {
-        ReturnCode rc;
+        fapi2::ReturnCode rc;
         uint32_t l_ecmdRc;
  
         ecmdDataBuffer l_ecmd_buffer(64), l_ecmd_buffer_mask(64);
@@ -275,17 +267,13 @@ namespace fapi2
             args.push_back((void*) &l_ecmd_buffer_mask);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"ReturnCode putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putScomUnderMask");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllPutScomUnderMask(i_target, i_address, l_ecmd_buffer, l_ecmd_buffer_mask);
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc;
-        }
 #else
         if (DllFnTable[ECMD_PUTSCOMUNDERMASK] == NULL)
         {
@@ -301,29 +289,29 @@ namespace fapi2
         uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &) = 
             (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, l_ecmd_buffer_mask);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc;
+            rc = (fapi2::ReturnCodes) l_ecmdRc;
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putScomUnderMask");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"ReturnCode putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address,  const ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address,  const ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
         }
 #endif
 
         return rc;
     }
 
-    ReturnCode platGetCfamRegister(ecmdChipTarget& i_target,
-                                   const uint32_t i_address,
-                                   buffer<uint32_t>& o_data)
+    fapi2::ReturnCode getCfamRegister(ecmdChipTarget& i_target,
+                                      const uint32_t i_address,
+                                      fapi2::buffer<uint32_t>& o_data)
     {
-        ReturnCode rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer;
@@ -356,15 +344,11 @@ namespace fapi2
         ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
         if (ecmdIsRingCacheEnabled(cacheTarget))
         {
-            rc = (ReturnCodes) ECMD_RING_CACHE_ENABLED;
+            rc = (fapi2::ReturnCodes) ECMD_RING_CACHE_ENABLED;
             return rc;
         }
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllGetCfamRegister(i_target, i_address, l_ecmd_buffer); 
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc; 
-        }
 #else
         if (DllFnTable[ECMD_GETCFAMREGISTER] == NULL)
         {
@@ -380,11 +364,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
             (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETCFAMREGISTER];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc; 
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -407,11 +391,11 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutCfamRegister(ecmdChipTarget& i_target,
-                                  const uint32_t i_address,
-                                  const buffer<uint32_t> i_data)
+    fapi2::ReturnCode putCfamRegister(ecmdChipTarget& i_target,
+                                      const uint32_t i_address,
+                                      const fapi2::buffer<uint32_t> i_data)
     {
-        ReturnCode rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer(32);
@@ -445,15 +429,11 @@ namespace fapi2
         ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
         if (ecmdIsRingCacheEnabled(cacheTarget))
         {
-            rc = (ReturnCodes) ECMD_RING_CACHE_ENABLED;
+            rc = (fapi2::ReturnCodes) ECMD_RING_CACHE_ENABLED;
             return rc;
         }
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllPutCfamRegister(i_target, i_address, l_ecmd_buffer); 
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc; 
-        }
 #else
         if (DllFnTable[ECMD_PUTCFAMREGISTER] == NULL)
         {
@@ -469,11 +449,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
             (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTCFAMREGISTER];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc; 
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -494,9 +474,9 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platGetRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & o_data, const uint32_t i_ringMode)
+    fapi2::ReturnCode getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & o_data, const uint32_t i_ringMode)
     {
-        ReturnCode rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
@@ -533,10 +513,6 @@ namespace fapi2
 
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllFapi2GetRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc; 
-        }
 #else
         if (fapi2DllFnTable[ECMD_FAPI2GETRING] == NULL)
         {
@@ -552,11 +528,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t ) = 
             (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2GETRING];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc; 
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -580,9 +556,9 @@ namespace fapi2
         return rc;
     }
 
-    ReturnCode platPutRing(ecmdChipTarget & i_target, const scanRingId_t i_address, const fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
+    fapi2::ReturnCode putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, const fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
     {
-        ReturnCode rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
@@ -592,7 +568,7 @@ namespace fapi2
         uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
         uint32_t l_currentWord = 0;
         uint32_t l_extractData = 0;
-        ReturnCode l_copy_rc(FAPI2_RC_SUCCESS);
+        fapi2::ReturnCode l_copy_rc(fapi2::FAPI2_RC_SUCCESS);
         while (l_currentWord < l_wordLength)
         {
             l_copy_rc = i_data.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
@@ -655,10 +631,6 @@ namespace fapi2
 
 #ifdef ECMD_STATIC_FUNCTIONS
         l_ecmdRc = dllFapi2PutRing(i_target, i_address, l_ecmd_buffer, i_ringMode);
-        if (l_ecmdRc)
-        {
-            rc = (ReturnCodes) l_ecmdRc; 
-        }
 #else
         if (fapi2DllFnTable[ECMD_FAPI2PUTRING] == NULL)
         {
@@ -674,11 +646,11 @@ namespace fapi2
         uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t i_ringMode) = 
             (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRING];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
+#endif
         if (l_ecmdRc)
         {
-            rc = (ReturnCodes) l_ecmdRc; 
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
         }
-#endif
 
 #ifndef ECMD_STRIP_DEBUG
         if (ecmdClientDebug != 0)
@@ -692,186 +664,78 @@ namespace fapi2
         return rc;
     }
 
-#define PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platGetScom(const Target<TARGET_TYPE>& i_target, \
-                           const uint64_t i_address, \
-                           buffer<uint64_t>& o_data) \
-    { \
-        ecmdChipTarget ecmdTarget; \
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
-        return platGetScom(ecmdTarget, i_address, o_data); \
+    fapi2::ReturnCode getScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                              const uint64_t i_address,
+                              fapi2::buffer<uint64_t>& o_data)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::getScom(ecmdTarget, i_address, o_data);
     }
 
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_GET_SCOM_TEMPLATE_MACRO
-
-#define PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platPutScom(const Target<TARGET_TYPE> & i_target, \
-                           const uint64_t i_address, \
-                           const buffer<uint64_t> i_data) \
-    { \
-        ecmdChipTarget ecmdTarget; \
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
-        return platPutScom(ecmdTarget, i_address, i_data); \
+    fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                              const uint64_t i_address,
+                              const fapi2::buffer<uint64_t> i_data)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putScom(ecmdTarget, i_address, i_data);
     }
 
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_PUT_SCOM_TEMPLATE_MACRO
-
-#define PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platPutScomUnderMask(const Target<TARGET_TYPE> & i_target, \
-                                    const uint64_t i_address, \
-                                    const buffer<uint64_t> i_data, \
-                                    const buffer<uint64_t> i_mask) \
-    { \
-        ecmdChipTarget ecmdTarget; \
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
-        return platPutScomUnderMask(ecmdTarget, i_address, i_data, i_mask); \
+    fapi2::ReturnCode putScomUnderMask(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                                       const uint64_t i_address,
+                                       const fapi2::buffer<uint64_t> i_data,
+                                       const fapi2::buffer<uint64_t> i_mask)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putScomUnderMask(ecmdTarget, i_address, i_data, i_mask);
     }
 
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO
-
-    template<>
-    ReturnCode platGetCfamRegister(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                                   const uint32_t i_address,
-                                   buffer<uint32_t>& o_data)
+    fapi2::ReturnCode getCfamRegister(const fapi2::Target<fapi2plat::TARGET_TYPE_CFAM_TARGET>& i_target,
+                                      const uint32_t i_address,
+                                      fapi2::buffer<uint32_t>& o_data)
     {
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget); 
-        return platGetCfamRegister(ecmdTarget, i_address, o_data);
+        return fapi2plat::getCfamRegister(ecmdTarget, i_address, o_data);
     }
 
-    template<>
-    ReturnCode platGetCfamRegister(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                                   const uint32_t i_address,
-                                   buffer<uint32_t>& o_data)
+    fapi2::ReturnCode putCfamRegister(const fapi2::Target<fapi2plat::TARGET_TYPE_CFAM_TARGET>& i_target,
+                                      const uint32_t i_address,
+                                      const fapi2::buffer<uint32_t> i_data)
     {
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget); 
-        return platGetCfamRegister(ecmdTarget, i_address, o_data);
+        return fapi2plat::putCfamRegister(ecmdTarget, i_address, i_data);
     }
 
-
-    template<>
-    ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                                  const uint32_t i_address,
-                                  const buffer<uint32_t> i_data)
+    fapi2::ReturnCode getRing(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                              const scanRingId_t i_address,
+                              fapi2::variable_buffer& o_data,
+                              const fapi2::RingMode i_ringMode)
     {
         ecmdChipTarget ecmdTarget;
-        fapiTargetToEcmdTarget(i_target, ecmdTarget); 
-        return platPutCfamRegister(ecmdTarget, i_address, i_data);
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::getRing(ecmdTarget, i_address, o_data, i_ringMode);
     }
 
-    template<>
-    ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                                  const uint32_t i_address,
-                                  const buffer<uint32_t> i_data)
+    fapi2::ReturnCode putRing(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                              const scanRingId_t i_address,
+                              const fapi2::variable_buffer& i_data,
+                              const fapi2::RingMode i_ringMode)
     {
         ecmdChipTarget ecmdTarget;
-        fapiTargetToEcmdTarget(i_target, ecmdTarget); 
-        return platPutCfamRegister(ecmdTarget, i_address, i_data);
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putRing(ecmdTarget, i_address, i_data, i_ringMode);
     }
 
-#define PLAT_GET_RING_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platGetRing(const Target<TARGET_TYPE>& i_target, \
-                           const scanRingId_t i_address, \
-                           variable_buffer& o_data, \
-                           const RingMode i_ringMode) \
-    { \
-        ecmdChipTarget ecmdTarget; \
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
-        return platGetRing(ecmdTarget, i_address, o_data, i_ringMode); \
-    }
+} // namespace fapi2plat
 
-    PLAT_GET_RING_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_GET_RING_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_GET_RING_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_GET_RING_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-#undef PLAT_GET_RING_TEMPLATE_MACRO
 
-#define PLAT_PUT_RING_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platPutRing(const Target<TARGET_TYPE>& i_target, \
-                           const scanRingId_t i_address, \
-                           const variable_buffer& i_data, \
-                           const RingMode i_ringMode) \
-    { \
-        ecmdChipTarget ecmdTarget; \
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);  \
-        return platPutRing(ecmdTarget, i_address, i_data, i_ringMode); \
-    }
 
-    PLAT_PUT_RING_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_PUT_RING_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_PUT_RING_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_PUT_RING_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-#undef PLAT_PUT_RING_TEMPLATE_MACRO
-
+namespace fapi2
+{
     ReturnCode getMvpdField(const MvpdRecord i_record,
                             const MvpdKeyword i_keyword,
                             const Target<TARGET_TYPE_PROC_CHIP> &i_target,

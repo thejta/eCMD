@@ -43,9 +43,37 @@
 #include <fapiMultiScom.H>
 #endif
 
-namespace fapi2
+namespace fapi2plat
 {
+    const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+                                                      fapi2::TARGET_TYPE_MEMBUF_CHIP |
+                                                      fapi2::TARGET_TYPE_EX |
+                                                      fapi2::TARGET_TYPE_MBA |
+                                                      fapi2::TARGET_TYPE_MCS |
+                                                      fapi2::TARGET_TYPE_XBUS |
+                                                      fapi2::TARGET_TYPE_ABUS |
+                                                      fapi2::TARGET_TYPE_L4 |
+                                                      fapi2::TARGET_TYPE_CORE |
+                                                      fapi2::TARGET_TYPE_EQ |
+                                                      fapi2::TARGET_TYPE_MCA |
+                                                      fapi2::TARGET_TYPE_MCBIST |
+                                                      fapi2::TARGET_TYPE_MI |
+                                                      fapi2::TARGET_TYPE_DMI |
+                                                      fapi2::TARGET_TYPE_OBUS |
+                                                      fapi2::TARGET_TYPE_NV |
+                                                      fapi2::TARGET_TYPE_SBE |
+                                                      fapi2::TARGET_TYPE_PPE |
+                                                      fapi2::TARGET_TYPE_PERV |
+                                                      fapi2::TARGET_TYPE_PEC |
+                                                      fapi2::TARGET_TYPE_PHB;
 
+    const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+                                                      fapi2::TARGET_TYPE_MEMBUF_CHIP;
+
+    const fapi2::TargetType TARGET_TYPE_SCAN_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+                                                      fapi2::TARGET_TYPE_MEMBUF_CHIP |
+                                                      fapi2::TARGET_TYPE_CORE |
+                                                      fapi2::TARGET_TYPE_EQ;
     //--------------------------------------------------------------------------
     // HW Communication Functions
     //--------------------------------------------------------------------------
@@ -53,228 +81,41 @@ namespace fapi2
     /// @brief Platform-level implementation called by GetScom()
     ///  Hardware procedures writers will not call this function.
     /// @brief Reads a SCOM register from a chip.
-    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target     HW target to operate on.
     /// @param[in]  i_address    SCOM register address to read from.
     /// @param[out] o_date       Buffer that holds data read from HW target.
     /// @return fapi::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
-    template< TargetType K >
-    ReturnCode platGetScom(const Target<K>& i_target, const uint64_t i_address,
-                           buffer<uint64_t>& o_data)
-    {
-        static_assert(true, "platGetScom called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
+    fapi2::ReturnCode getScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                              const uint64_t i_address,
+                              fapi2::buffer<uint64_t>& o_data);
 
-#define PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platGetScom(const Target<TARGET_TYPE> & i_target, \
-                           const uint64_t i_address, \
-                           buffer<uint64_t>& o_data);
+    fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                              const uint64_t i_address,
+                              const fapi2::buffer<uint64_t> i_data);
 
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_GET_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_GET_SCOM_TEMPLATE_MACRO
+    fapi2::ReturnCode putScomUnderMask(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
+                                       const uint64_t i_address,
+                                       const fapi2::buffer<uint64_t> i_data,
+                                       const fapi2::buffer<uint64_t> i_mask);
 
-    template< TargetType K >
-    ReturnCode platPutScom(const Target<K>& i_target, const uint64_t i_address,
-                           const buffer<uint64_t> i_data)
-    {
-        static_assert(true, "platPutScom called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
+    fapi2::ReturnCode getCfamRegister(const fapi2::Target<fapi2plat::TARGET_TYPE_CFAM_TARGET>& i_target,
+                                      const uint32_t i_address,
+                                      fapi2::buffer<uint32_t>& o_data);
 
-#define PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platPutScom(const Target<TARGET_TYPE> & i_target, \
-                           const uint64_t i_address, \
-                           const buffer<uint64_t> i_data);
+    fapi2::ReturnCode putCfamRegister(const fapi2::Target<fapi2plat::TARGET_TYPE_CFAM_TARGET>& i_target,
+                                      const uint32_t i_address,
+                                      const fapi2::buffer<uint32_t> i_data);
 
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_PUT_SCOM_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_PUT_SCOM_TEMPLATE_MACRO
+    fapi2::ReturnCode getRing(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                              const scanRingId_t i_address,
+                              fapi2::variable_buffer& o_data,
+                              const fapi2::RingMode i_ringMode);
 
-    template< TargetType K >
-    ReturnCode platPutScomUnderMask(const Target<K>& i_target, const uint64_t i_address,
-                                    const buffer<uint64_t> i_data, const buffer<uint64_t> i_mask)
-    {
-        static_assert(true, "platPutScomUnderMask called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
+    fapi2::ReturnCode putRing(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                              const scanRingId_t i_address,
+                              const fapi2::variable_buffer& i_data,
+                              const fapi2::RingMode i_ringMode);
 
-#define PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE) \
-    template<> \
-    ReturnCode platPutScomUnderMask(const Target<TARGET_TYPE> & i_target, \
-                                    const uint64_t i_address, \
-                                    const buffer<uint64_t> i_data, \
-                                    const buffer<uint64_t> i_mask);
-
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PROC_CHIP)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MEMBUF_CHIP)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_EX)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MBA)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_XBUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_ABUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_L4)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_CORE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_EQ)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCA)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MCBIST)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_MI)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_DMI)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_OBUS)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_NV)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_SBE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PPE)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PERV)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PEC)
-    PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO(TARGET_TYPE_PHB)
-#undef PLAT_PUT_SCOM_UNDER_MASK_TEMPLATE_MACRO
-
-    template< TargetType K >
-    ReturnCode platGetCfamRegister(const Target<K>& i_target,
-                                 const uint32_t i_address,
-                                 buffer<uint32_t>& o_data)
-    {
-        static_assert(true, "platGetCfamRegister called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
-
-    template<>
-    ReturnCode platGetCfamRegister(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                                   const uint32_t i_address,
-                                   buffer<uint32_t>& o_data);
-
-    template<>
-    ReturnCode platGetCfamRegister(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                                   const uint32_t i_address,
-                                   buffer<uint32_t>& o_data);
-
-    template< TargetType K >
-    ReturnCode platPutCfamRegister(const Target<K>& i_target,
-                                   const uint32_t i_address,
-                                   const buffer<uint32_t> i_data)
-    {
-        static_assert(true, "platPutCfamRegister called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
-
-    template<>
-    ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                                  const uint32_t i_address,
-                                  const buffer<uint32_t> i_data);
-
-    template<>
-    ReturnCode platPutCfamRegister(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                                  const uint32_t i_address,
-                                  const buffer<uint32_t> i_data);
-
-    template< TargetType K >
-    ReturnCode platGetRing(const Target<K>& i_target,
-                           const scanRingId_t i_address,
-                           variable_buffer& o_data,
-                           const RingMode i_ringMode)
-    {
-        static_assert(true, "platGetRing called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
-
-    template<>
-    ReturnCode platGetRing(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                           const scanRingId_t i_address,
-                           variable_buffer& o_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platGetRing(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                           const scanRingId_t i_address,
-                           variable_buffer& o_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platGetRing(const Target<TARGET_TYPE_CORE>& i_target,
-                           const scanRingId_t i_address,
-                           variable_buffer& o_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platGetRing(const Target<TARGET_TYPE_EQ>& i_target,
-                           const scanRingId_t i_address,
-                           variable_buffer& o_data,
-                           const RingMode i_ringMode);
-
-    template< TargetType K >
-    ReturnCode platPutRing(const Target<K>& i_target,
-                           const scanRingId_t i_address,
-                           const variable_buffer& i_data,
-                           const RingMode i_ringMode)
-    {
-        static_assert(true, "platPutRing called with incorrect TargetType");
-        return (ReturnCodes) 1;
-    }
-
-    template<>
-    ReturnCode platPutRing(const Target<TARGET_TYPE_PROC_CHIP>& i_target,
-                           const scanRingId_t i_address,
-                           const variable_buffer& i_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platPutRing(const Target<TARGET_TYPE_MEMBUF_CHIP>& i_target,
-                           const scanRingId_t i_address,
-                           const variable_buffer& i_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platPutRing(const Target<TARGET_TYPE_CORE>& i_target,
-                           const scanRingId_t i_address,
-                           const variable_buffer& i_data,
-                           const RingMode i_ringMode);
-
-    template<>
-    ReturnCode platPutRing(const Target<TARGET_TYPE_EQ>& i_target,
-                           const scanRingId_t i_address,
-                           const variable_buffer& i_data,
-                           const RingMode i_ringMode);
 };
 
 #endif // _FAPI2_PLAT_HWACCESS_H_
