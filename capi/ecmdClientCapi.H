@@ -1987,7 +1987,7 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStop
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
- @param i_mode Bit-field for new options
+ @param i_mode 0 is default, or set to MEMPROC_CACHE_INHIBIT for cache inhibit mode
 
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
@@ -2007,7 +2007,7 @@ uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_data DataBuffer object that holds data to write into memory
- @param i_mode Bit-field for new options
+ @param i_mode 0 is default, or set to MEMPROC_CACHE_INHIBIT for cache inhibit mode
 
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
