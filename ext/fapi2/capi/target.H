@@ -129,7 +129,9 @@ namespace fapi2
 
         // valid parents for MCS
         // MCS -> PROC
+        // MCS -> MCBIST
         static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
+                        (T != fapi2::TARGET_TYPE_MCBIST) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_MCS");
 
@@ -308,8 +310,10 @@ namespace fapi2
 
         // valid children for MCBIST
         // MCBIST -> MCA
+        // MCBIST -> MCS
         static_assert(!((K == fapi2::TARGET_TYPE_MCBIST) &&
-                        (T != fapi2::TARGET_TYPE_MCA)),
+                        (T != fapi2::TARGET_TYPE_MCA) &&
+                        (T != fapi2::TARGET_TYPE_MCS)),
                       "improper child of fapi2::TARGET_TYPE_MCBIST");
 
         // Cumulus Memory
