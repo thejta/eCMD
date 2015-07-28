@@ -73,7 +73,7 @@ uint32_t fapi2GetAssociatedTargets( const ecmdChipTarget & i_target, const fapi2
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-    l_rc = dllFapi2GetAssocaitedTargets(i_target, i_associatedTargetType, o_targets, i_state);
+    l_rc = dllFapi2GetAssociatedTargets(i_target, i_associatedTargetType, o_targets, i_state);
 #else
     if (fapi2DllFnTable[ECMD_FAPI2GETASSOCIATEDTARGETS] == NULL)
     {
