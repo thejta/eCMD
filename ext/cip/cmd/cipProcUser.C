@@ -2324,7 +2324,7 @@ uint32_t cipRWReadMemUser(int argc, char * argv[])
         ecmdOutputError("ciprwreadmem - Non-hex characters detected in address field\n");
         return ECMD_INVALID_ARGS;
     }
-    l_match = sscanf(argv[1], "%lx", (unsigned long *) &l_address);
+    l_match = sscanf(argv[1], "%x", &l_address);
     if (l_match != 1)
     {
         ecmdOutputError("ciprwreadmem - Error occurred processing address!\n");
@@ -2599,7 +2599,7 @@ uint32_t cipRWWriteMemUser(int argc, char * argv[])
             ecmdOutputError("ciprwwritemem - Non-hex characters detected in address field\n");
             return ECMD_INVALID_ARGS;
         }
-        l_match = sscanf(argv[1], "%lx", (unsigned long *) &l_address);
+        l_match = sscanf(argv[1], "%x", &l_address);
         if (l_match != 1)
         {
             ecmdOutputError("Error occurred processing address!\n");
