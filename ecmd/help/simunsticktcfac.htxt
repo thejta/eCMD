@@ -1,5 +1,5 @@
 
-Syntax: simunsticktcfac <facname> [<data> <length> [<row> <# of rows>]] -i<format>
+Syntax: simunsticktcfac <facname> <data> <length> [<row> <# of rows>] -i<format>
         [-quiet] [-quieterror]
         
         ECMD:           Core Common Function
@@ -10,10 +10,10 @@ Syntax: simunsticktcfac <facname> [<data> <length> [<row> <# of rows>]] -i<forma
         --------------------------------------------------------------------------------
         facname         Must be a facility name
 
-        data      [opt] Data to write with unstick
+        data            Data to write with unstick
                         Format specified by -i<format>
 
-        length    [opt] Bit length of data
+        length          Bit length of data
 
         row  [optional] Facility row
  
