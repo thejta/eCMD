@@ -17,7 +17,7 @@
 
 #include <fapi2Structs.H>
 #include <attribute_ids.H>
-#include <mvpd_access.H>
+#include <mvpd_access_defs.H>
 //#include <fapiMBvpdAccess.H>
 //#include <fapiMultiScom.H>
 //#include <fapi2Util.H>
