@@ -91,6 +91,34 @@ namespace fapi2
     template<TargetType T>
     inline Target<T> Target<K, V>::getParent(void) const
     {
+        // General compound chiplet check for proc parent
+
+        const fapi2::TargetType TARGET_TYPE_PROC_CHIPLETS = fapi2::TARGET_TYPE_EX |
+                                                            fapi2::TARGET_TYPE_MBA |
+                                                            fapi2::TARGET_TYPE_MCS |
+                                                            fapi2::TARGET_TYPE_XBUS |
+                                                            fapi2::TARGET_TYPE_ABUS |
+                                                            fapi2::TARGET_TYPE_L4 |
+                                                            fapi2::TARGET_TYPE_CORE |
+                                                            fapi2::TARGET_TYPE_EQ |
+                                                            fapi2::TARGET_TYPE_MCA |
+                                                            fapi2::TARGET_TYPE_MCBIST |
+                                                            fapi2::TARGET_TYPE_MI |
+                                                            fapi2::TARGET_TYPE_DMI |
+                                                            fapi2::TARGET_TYPE_OBUS |
+                                                            fapi2::TARGET_TYPE_NV |
+                                                            fapi2::TARGET_TYPE_SBE |
+                                                            fapi2::TARGET_TYPE_PPE |
+                                                            fapi2::TARGET_TYPE_PERV |
+                                                            fapi2::TARGET_TYPE_PEC |
+                                                            fapi2::TARGET_TYPE_PHB;
+
+        static_assert( !((T == fapi2::TARGET_TYPE_PROC_CHIP) &&
+                        ((K & TARGET_TYPE_PROC_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
+                      "fapi2::TARGET_TYPE_PROC_CHIP is not a valid parent" );
+
+        // Specific parent checks for each TargetType
+
         // valid parents for DIMM
         // DIMM -> MCA
         // DIMM -> MBA
