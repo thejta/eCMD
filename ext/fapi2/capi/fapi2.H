@@ -36,20 +36,14 @@
 #include <set_sbe_error.H>      // Generated file
 
 #include <fapi2_hwp_executor.H>
+#include <fapi2_attribute_service.H>
+#include <fapi2_chip_ec_feature.H>
 
 #include <mvpd_access.H>
 
-#include <fapi2_attribute_service.H>
-
 // Block of headers not currently in fapi2
 #ifdef FAPI2_MISSING_HEADERS
-    //#include <mbvpd_access.H>
-#endif
-
-// Block of auto generated headers not presently in fapi2
-#ifdef FAPI2_AUTOGEN_HEADERS
-  #include <attribute_ids.H>  // Generated file
-  //#include <fapi2_chip_ec_feature.H> // Generated file
+    #include <mbvpdAccess.H>
 #endif
 
 #endif // __FAPI2_TOP_LEVEL__

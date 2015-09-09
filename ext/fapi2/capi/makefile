@@ -58,6 +58,8 @@ CAPI_INCLUDES += fapi2_hwp_executor.H
 CAPI_INCLUDES += hwp_executor.H
 CAPI_INCLUDES += fapi2_attribute_service.H
 CAPI_INCLUDES += plat_attribute_service.H
+# remove the following when mbvpd_access.H is in use
+CAPI_INCLUDES += mbvpdAccess.H
 
 # fapiMBvpdAccess.H fapiMvpdAccess.H
 # fapiMultiScom.H
