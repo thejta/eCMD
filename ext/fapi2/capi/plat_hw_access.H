@@ -116,6 +116,24 @@ namespace fapi2plat
                               const fapi2::variable_buffer& i_data,
                               const fapi2::RingMode i_ringMode);
 
+    fapi2::ReturnCode getSpy(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                             const char * const i_spyId,
+                             fapi2::variable_buffer& o_data);
+
+    fapi2::ReturnCode putSpy(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                             const char * const i_spyId,
+                             const fapi2::variable_buffer& i_data);
+
+    fapi2::ReturnCode getSpyImage(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                                  const char * const i_spyId,
+                                  fapi2::variable_buffer& o_data,
+                                  const fapi2::variable_buffer& i_imageData);
+
+    fapi2::ReturnCode putSpyImage(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                                  const char* const i_spyId,
+                                  const fapi2::variable_buffer& i_data,
+                                  fapi2::variable_buffer& o_imageData);
+
 };
 
 #endif // _FAPI2_PLAT_HWACCESS_H_

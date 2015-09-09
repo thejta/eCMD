@@ -545,7 +545,7 @@ namespace fapi2
                              const spyId_t i_spyId,
                              variable_buffer& o_data)
     {
-        static_assert(K == 0, "implement getSpy (string)");
+        static_assert(K == 0, "implement getSpy (enum)");
         return ~FAPI2_RC_SUCCESS;
     }
 #endif
@@ -555,8 +555,33 @@ namespace fapi2
                              const char * const i_spyId,
                              variable_buffer& o_data)
     {
-        static_assert(K == 0, "implement getSpy (string)");
-        return ~FAPI2_RC_SUCCESS;
+        fapi2::ReturnCode l_rc;
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
+
+        // call the platform implementation
+        l_rc = fapi2plat::getSpy( i_target, i_spyId, o_data );
+
+        if (l_rc != FAPI2_RC_SUCCESS)
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            FAPI_ERR("getSpy failed - Target %s, SpyId %s",
+                     target_string, i_spyId);
+        }
+
+        if( l_traceit )
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            uint64_t l_data = 0;
+            o_data.extract(l_data, 0, 64);
+            FAPI_SCAN( "TRACE : GETSPY      : %s : %s " UINT64_HEX16_PRESC_FORMAT, 
+                       target_string,
+                       i_spyId,
+                       l_data );
+        }
+
+        return l_rc;
     }
 #endif
     /// @brief Writes a spy on a chip.
@@ -602,7 +627,7 @@ namespace fapi2
     template< TargetType K >
     inline ReturnCode putSpy(const Target<K>& i_target,
                              const spyId_t i_spyId,
-                             variable_buffer& i_data)
+                             const variable_buffer& i_data)
     {
         static_assert(K == 0, "implement putSpy (enum)");
         return ~FAPI2_RC_SUCCESS;
@@ -612,10 +637,35 @@ namespace fapi2
     template< TargetType K >
     inline ReturnCode putSpy(const Target<K>& i_target,
                              const char* const i_spyId,
-                             variable_buffer& i_data)
+                             const variable_buffer& i_data)
     {
-        static_assert(K == 0, "implement putSpy (string)");
-        return ~FAPI2_RC_SUCCESS;
+        fapi2::ReturnCode l_rc;
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
+
+        // call the platform implementation
+        l_rc = fapi2plat::putSpy( i_target, i_spyId, i_data );
+
+        if (l_rc != FAPI2_RC_SUCCESS)
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            FAPI_ERR("putSpy failed - Target %s, SpyId %s",
+                     target_string, i_spyId);
+        }
+
+        if( l_traceit )
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            uint64_t l_data = 0;
+            i_data.extract(l_data, 0, 64);
+            FAPI_SCAN( "TRACE : PUTSPY      : %s : %s " UINT64_HEX16_PRESC_FORMAT, 
+                       target_string,
+                       i_spyId,
+                       l_data );
+        }
+
+        return l_rc;
     }
 #endif
     /// @brief Writes spy data into a buffer holding ring data image
@@ -656,8 +706,33 @@ namespace fapi2
                                   const variable_buffer& i_data,
                                   variable_buffer& o_imageData)
     {
-        static_assert(K == 0, "implement putSpyImage (string)");
-        return ~FAPI2_RC_SUCCESS;
+        fapi2::ReturnCode l_rc;
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
+
+        // call the platform implementation
+        l_rc = fapi2plat::putSpyImage( i_target, i_spyId, i_data, o_imageData );
+
+        if (l_rc != FAPI2_RC_SUCCESS)
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            FAPI_ERR("putSpyImage failed - Target %s, SpyId %s",
+                     target_string, i_spyId);
+        }
+
+        if( l_traceit )
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            uint64_t l_data = 0;
+            i_data.extract(l_data, 0, 64);
+            FAPI_SCAN( "TRACE : PUTSPYIMAGE : %s : %s " UINT64_HEX16_PRESC_FORMAT, 
+                       target_string,
+                       i_spyId,
+                       l_data );
+        }
+
+        return l_rc;
     }
 #endif
     /// @brief Reads spy data from a ring image buffer
@@ -695,8 +770,33 @@ namespace fapi2
                                   variable_buffer& o_data,
                                   const variable_buffer& i_imageData)
     {
-        static_assert(K == 0, "implement getSpyImage (string)");
-        return ~FAPI2_RC_SUCCESS;
+        fapi2::ReturnCode l_rc;
+        bool l_traceit = fapi2plat::isScanTraceEnabled();
+
+        // call the platform implementation
+        l_rc = fapi2plat::getSpyImage( i_target, i_spyId, o_data, i_imageData );
+
+        if (l_rc != FAPI2_RC_SUCCESS)
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            FAPI_ERR("getSpyImage failed - Target %s, SpyId %s",
+                     target_string, i_spyId);
+        }
+
+        if( l_traceit )
+        {
+            char target_string[MAX_ECMD_STRING_LEN];
+            fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
+            uint64_t l_data = 0;
+            o_data.extract(l_data, 0, 64);
+            FAPI_SCAN( "TRACE : GETSPY      : %s : %s " UINT64_HEX16_PRESC_FORMAT, 
+                       target_string,
+                       i_spyId,
+                       l_data );
+        }
+
+        return l_rc;
     }
 #endif
 

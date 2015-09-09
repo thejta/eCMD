@@ -67,6 +67,47 @@ extern bool ecmdDebugOutput;
 namespace fapi2plat
 {
 
+    void convert(const fapi2::variable_buffer & i_buffer, ecmdDataBufferBase & o_buffer)
+    {
+        uint32_t l_ecmdRc;
+
+        uint32_t l_bitLength = i_buffer.getBitLength();
+        o_buffer.setBitLength(l_bitLength);
+        const uint32_t l_bitsPerWord = sizeof(uint32_t) * 8;
+        uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
+        uint32_t l_currentWord = 0;
+        uint32_t l_extractData = 0;
+        fapi2::ReturnCode l_copy_rc(fapi2::FAPI2_RC_SUCCESS);
+        while (l_currentWord < l_wordLength)
+        {
+            l_copy_rc = i_buffer.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                fprintf(stderr,"convert: error calling i_buffer.extract(l_extractData, %d, %d)\n", l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            }
+            l_ecmdRc = o_buffer.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
+            if (l_ecmdRc)
+            {
+                fprintf(stderr,"convert: error calling o_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            }
+            l_currentWord++;
+        }
+        if (l_bitLength > (l_wordLength * l_bitsPerWord))
+        {
+            uint32_t l_bitsRemaining = l_bitLength - (l_wordLength * l_bitsPerWord);
+            l_copy_rc = i_buffer.extract(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                fprintf(stderr,"convert: error calling i_buffer.extract(l_extractData, %d, %d)\n", l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            }
+            l_ecmdRc = o_buffer.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
+            if (l_ecmdRc)
+            {
+                fprintf(stderr,"convert: error calling o_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            }
+        }
+    }
+
     fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
                               const uint64_t i_address,
                               fapi2::buffer<uint64_t>& o_data)
@@ -143,7 +184,8 @@ namespace fapi2plat
         {
             std::string errorString;
             errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-            if (errorString.size()) ecmdOutput(errorString.c_str());
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
         }
 
         o_data = l_ecmd_buffer.getDoubleWord(0);
@@ -226,7 +268,8 @@ namespace fapi2plat
         {
             std::string errorString;
             errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-            if (errorString.size()) ecmdOutput(errorString.c_str());
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
         }
 
         return rc;
@@ -383,7 +426,8 @@ namespace fapi2plat
         {
             std::string errorString;
             errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-            if (errorString.size()) ecmdOutput(errorString.c_str());
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
         }
 
         o_data = l_ecmd_buffer.getWord(0);
@@ -468,7 +512,8 @@ namespace fapi2plat
         {
             std::string errorString;
             errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-            if (errorString.size()) ecmdOutput(errorString.c_str());
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
         }
 
         return rc;
@@ -562,41 +607,7 @@ namespace fapi2plat
         uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
-        uint32_t l_bitLength = i_data.getBitLength();
-        l_ecmd_buffer.setBitLength(l_bitLength);
-        const uint32_t l_bitsPerWord = sizeof(uint32_t) * 8;
-        uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
-        uint32_t l_currentWord = 0;
-        uint32_t l_extractData = 0;
-        fapi2::ReturnCode l_copy_rc(fapi2::FAPI2_RC_SUCCESS);
-        while (l_currentWord < l_wordLength)
-        {
-            l_copy_rc = i_data.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
-            {
-                fprintf(stderr,"dllFapi2PutRing: error calling i_data.extract(l_extractData, %d, %d)\n", l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            }
-            l_ecmdRc = l_ecmd_buffer.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
-            if (l_ecmdRc)
-            {
-                fprintf(stderr,"dllFapi2PutRing: error calling l_ecmd_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            }
-            l_currentWord++;
-        }
-        if (l_bitLength > (l_wordLength * l_bitsPerWord))
-        {
-            uint32_t l_bitsRemaining = l_bitLength - (l_wordLength * l_bitsPerWord);
-            l_copy_rc = i_data.extract(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
-            {
-                fprintf(stderr,"dllFapi2PutRing: error calling i_data.extract(l_extractData, %d, %d)\n", l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            }
-            l_ecmdRc = l_ecmd_buffer.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
-            if (l_ecmdRc)
-            {
-                fprintf(stderr,"dllFapi2PutRing: error calling l_ecmd_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            }
-        }
+        convert(i_data, l_ecmd_buffer);
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL)
@@ -660,6 +671,347 @@ namespace fapi2plat
             ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
         }
 #endif
+
+        return rc;
+    }
+
+    fapi2::ReturnCode getSpy(ecmdChipTarget & i_target,
+                             const char * const i_spyId,
+                             fapi2::variable_buffer& o_data)
+    {
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
+
+        ecmdDataBuffer l_ecmd_buffer;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+        if (dlHandle == NULL) 
+        {
+            fprintf(stderr,"dllGetSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+            exit(ECMD_DLL_INVALID);
+        }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+        int myTcount;
+        std::vector< void * > args;
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &i_target);
+            args.push_back((void*) &i_spyId);
+            args.push_back((void*) &l_ecmd_buffer);
+            fppCallCount++;
+            myTcount = fppCallCount;
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpy");
+        }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+        l_ecmdRc = dllGetSpy(i_target, i_spyId, l_ecmd_buffer);
+#else
+        if (DllFnTable[ECMD_GETSPY] == NULL)
+        {
+            DllFnTable[ECMD_GETSPY] = (void*)dlsym(dlHandle, "dllGetSpy");
+            if (DllFnTable[ECMD_GETSPY] == NULL)
+            {
+                fprintf(stderr,"dllGetSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                ecmdDisplayDllInfo();
+                exit(ECMD_DLL_INVALID);
+            }
+        }
+
+        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
+            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_GETSPY];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer);
+#endif
+        if (l_ecmdRc)
+        {
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
+        }
+
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &l_ecmdRc);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpy");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+        }
+#endif
+
+        if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE))
+        {
+            std::string errorString;
+            errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
+        }
+
+        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer);
+        if (l_data != NULL)
+        {
+            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
+        }
+        else
+        {
+            fprintf(stderr,"dllGetSpy: error getting data pointer to ecmdDataBuffer\n");
+        }
+
+        return rc;
+    }
+
+    fapi2::ReturnCode putSpy(ecmdChipTarget & i_target,
+                             const char * const i_spyId,
+                             const fapi2::variable_buffer& i_data)
+    {
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
+
+        ecmdDataBuffer l_ecmd_buffer;
+        convert(i_data, l_ecmd_buffer);
+
+#ifndef ECMD_STATIC_FUNCTIONS
+        if (dlHandle == NULL) 
+        {
+	        fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	        exit(ECMD_DLL_INVALID);
+        }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+        int myTcount;
+        std::vector< void * > args;
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &i_target);
+            args.push_back((void*) &i_spyId);
+            args.push_back((void*) &l_ecmd_buffer);
+            fppCallCount++;
+            myTcount = fppCallCount;
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putgetSpy");
+        }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+        l_ecmdRc = dllPutSpy(i_target, i_spyId, l_ecmd_buffer);
+#else
+        if (DllFnTable[ECMD_PUTSPY] == NULL)
+        {
+            DllFnTable[ECMD_PUTSPY] = (void*)dlsym(dlHandle, "dllPutSpy");
+            if (DllFnTable[ECMD_PUTSPY] == NULL)
+            {
+                fprintf(stderr,"dllPutSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                ecmdDisplayDllInfo();
+                exit(ECMD_DLL_INVALID);
+            }
+        }
+
+        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
+            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSPY];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer);
+#endif
+        if (l_ecmdRc)
+        {
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
+        }
+
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &l_ecmdRc);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpy");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+        }
+#endif
+
+        if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE))
+        {
+            std::string errorString;
+            errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
+        }
+
+        return rc;
+    }
+
+    fapi2::ReturnCode getSpyImage(ecmdChipTarget & i_target,
+                                  const char * const i_spyId,
+                                  fapi2::variable_buffer& o_data,
+                                  const fapi2::variable_buffer& i_imageData)
+    {
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
+
+        ecmdDataBuffer l_ecmd_buffer;
+        ecmdDataBuffer l_ecmd_buffer_image_data;
+        convert(i_imageData, l_ecmd_buffer_image_data);
+
+#ifndef ECMD_STATIC_FUNCTIONS
+        if (dlHandle == NULL) 
+        {
+	        fprintf(stderr,"dllGettSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	        exit(ECMD_DLL_INVALID);
+        }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+        int myTcount;
+        std::vector< void * > args;
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &i_target);
+            args.push_back((void*) &i_spyId);
+            args.push_back((void*) &l_ecmd_buffer_image_data);
+            args.push_back((void*) &l_ecmd_buffer);
+            fppCallCount++;
+            myTcount = fppCallCount;
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpyImage");
+        }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+        l_ecmdRc = dllGetSpyImage(i_target, i_spyId, l_ecmd_buffer_image_data, l_ecmd_buffer);
+#else
+        if (DllFnTable[ECMD_GETSPYIMAGE] == NULL)
+        {
+            DllFnTable[ECMD_GETSPYIMAGE] = (void*)dlsym(dlHandle, "dllGetSpyImage");
+            if (DllFnTable[ECMD_GETSPYIMAGE] == NULL)
+            {
+                fprintf(stderr,"dllGetSpyImage%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                ecmdDisplayDllInfo();
+                exit(ECMD_DLL_INVALID);
+            }
+        }
+
+        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
+            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_GETSPYIMAGE];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer_image_data, l_ecmd_buffer);
+#endif
+        if (l_ecmdRc)
+        {
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
+        }
+
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &l_ecmdRc);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpyImage");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
+        }
+#endif
+
+        if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE))
+        {
+            std::string errorString;
+            errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
+        }
+
+        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer);
+        if (l_data != NULL)
+        {
+            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
+        }
+        else
+        {
+            fprintf(stderr,"dllGetSpyImage: error getting data pointer to ecmdDataBuffer\n");
+        }
+
+        return rc;
+    }
+
+    fapi2::ReturnCode putSpyImage(ecmdChipTarget & i_target,
+                                  const char* const i_spyId,
+                                  const fapi2::variable_buffer& i_data,
+                                  fapi2::variable_buffer& o_imageData)
+    {
+        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
+        uint32_t l_ecmdRc;
+
+        ecmdDataBuffer l_ecmd_buffer;
+        convert(i_data, l_ecmd_buffer);
+
+        ecmdDataBuffer l_ecmd_buffer_image_data;
+        convert(o_imageData, l_ecmd_buffer_image_data);
+
+#ifndef ECMD_STATIC_FUNCTIONS
+        if (dlHandle == NULL) 
+        {
+	        fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	        exit(ECMD_DLL_INVALID);
+        }
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+        int myTcount;
+        std::vector< void * > args;
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &i_target);
+            args.push_back((void*) &i_spyId);
+            args.push_back((void*) &l_ecmd_buffer);
+            args.push_back((void*) &l_ecmd_buffer_image_data);
+            fppCallCount++;
+            myTcount = fppCallCount;
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpyImage");
+        }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+        l_ecmdRc = dllPutSpyImage(i_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+#else
+        if (DllFnTable[ECMD_PUTSPYIMAGE] == NULL)
+        {
+            DllFnTable[ECMD_PUTSPYIMAGE] = (void*)dlsym(dlHandle, "dllPutSpyImage");
+            if (DllFnTable[ECMD_PUTSPYIMAGE] == NULL)
+            {
+                fprintf(stderr,"dllPutSpyImage%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                ecmdDisplayDllInfo();
+                exit(ECMD_DLL_INVALID);
+            }
+        }
+
+        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
+            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_PUTSPYIMAGE];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
+#endif
+        if (l_ecmdRc)
+        {
+            rc = (fapi2::ReturnCodes) l_ecmdRc; 
+        }
+
+#ifndef ECMD_STRIP_DEBUG
+        if (ecmdClientDebug != 0)
+        {
+            args.push_back((void*) &l_ecmdRc);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpyImage");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
+        }
+#endif
+
+        if (l_ecmdRc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE))
+        {
+            std::string errorString;
+            errorString = ecmdGetErrorMsg(l_ecmdRc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+            if (errorString.size())
+                ecmdOutput(errorString.c_str());
+        }
+
+        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer_image_data);
+        if (l_data != NULL)
+        {
+            o_imageData = fapi2::variable_buffer(l_data, l_ecmd_buffer_image_data.getCapacity(), l_ecmd_buffer_image_data.getBitLength());
+        }
+        else
+        {
+            fprintf(stderr,"dllPutSpyImage: error getting data pointer to ecmdDataBuffer\n");
+        }
 
         return rc;
     }
@@ -728,6 +1080,44 @@ namespace fapi2plat
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget);
         return fapi2plat::putRing(ecmdTarget, i_address, i_data, i_ringMode);
+    }
+
+    fapi2::ReturnCode getSpy(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                             const char * const i_spyId,
+                             fapi2::variable_buffer& o_data)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::getSpy(ecmdTarget, i_spyId, o_data);
+    }
+
+    fapi2::ReturnCode putSpy(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                             const char * const i_spyId,
+                             const fapi2::variable_buffer& i_data)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putSpy(ecmdTarget, i_spyId, i_data);
+    }
+
+    fapi2::ReturnCode getSpyImage(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                                  const char * const i_spyId,
+                                  fapi2::variable_buffer& o_data,
+                                  const fapi2::variable_buffer& i_imageData)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::getSpyImage(ecmdTarget, i_spyId, o_data, i_imageData);
+    }
+
+    fapi2::ReturnCode putSpyImage(const fapi2::Target<fapi2plat::TARGET_TYPE_SCAN_TARGET>& i_target,
+                                  const char* const i_spyId,
+                                  const fapi2::variable_buffer& i_data,
+                                  fapi2::variable_buffer& o_imageData)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putSpyImage(ecmdTarget, i_spyId, i_data, o_imageData);
     }
 
 } // namespace fapi2plat

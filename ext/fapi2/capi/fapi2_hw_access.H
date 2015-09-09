@@ -357,7 +357,7 @@ namespace fapi2
     template< TargetType K >
     inline ReturnCode putSpy(const Target<K>& i_target,
                              const spyId_t i_spyId,
-                             variable_buffer& i_data);
+                             const variable_buffer& i_data);
 #endif
 
 #if defined(FAPI_SUPPORT_SPY_AS_STRING) || defined(DOXYGEN)
@@ -367,7 +367,7 @@ namespace fapi2
     template< TargetType K >
     inline ReturnCode putSpy(const Target<K>& i_target,
                              const char* const i_spyId,
-                             variable_buffer& i_data);
+                             const variable_buffer& i_data);
 #endif
 
     /// @brief Writes spy data into a buffer holding ring data image
