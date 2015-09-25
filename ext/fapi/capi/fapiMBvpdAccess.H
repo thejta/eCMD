@@ -115,14 +115,14 @@ extern "C"
  *  pointer to to retrieve the size of the record, then allocate the proper
  *  size of the buffer and call again.
  *
- *  @param[in] i_record       Record enumerator
- *  @param[in] i_keyword      Keyword enumerator
- *  @param[in] i_memBufTarget Reference to memory buffer chip target for
+ *  @param[in]     i_record       Record enumerator
+ *  @param[in]     i_keyword      Keyword enumerator
+ *  @param[in]     i_memBufTarget Reference to memory buffer chip target for
  *                            the record
- *  @param[in] i_pBuffer      Pointer to buffer where record will be stored. If
- *                            NULL then the size of record will be stored in
- *                            io_fieldSize
- *  @param[io] io_fieldSize   Size of i_pBuffer in bytes
+ *  @param[in]     i_pBuffer      Pointer to buffer where record will be stored. If
+ *                                NULL then the size of record will be stored in
+ *                                io_fieldSize
+ *  @param[in,out] io_fieldSize   Size of i_pBuffer in bytes
  *
  *  @return fapi::ReturnCode. FAPI_RC_SUCCESS, or failure value.
  */
@@ -137,12 +137,12 @@ fapi::ReturnCode fapiGetMBvpdField(const fapi::MBvpdRecord i_record,
  *
  *  A Memory Buffer VPD field is specified using a record and keyword enumerator
  *
- *  @param[in] i_record       Record enumerator
- *  @param[in] i_keyword      Keyword enumerator
- *  @param[in] i_memBufTarget Reference to memory buffer chip target for
- *                            the record
- *  @param[in] i_pBuffer      Pointer to buffer where data to set is stored
- *  @param[io] i_fieldSize    Size of i_pBuffer in bytes
+ *  @param[in]     i_record       Record enumerator
+ *  @param[in]     i_keyword      Keyword enumerator
+ *  @param[in]     i_memBufTarget Reference to memory buffer chip target for
+ *                                the record
+ *  @param[in]     i_pBuffer      Pointer to buffer where data to set is stored
+ *  @param[in,out] i_fieldSize    Size of i_pBuffer in bytes
  *
  *  @return fapi::ReturnCode. FAPI_RC_SUCCESS, or failure value.
  */

@@ -7,7 +7,7 @@
  *         FAPI_SET_HWP_ERROR (when a HWP creates an error) and 
  *         FAPI_ADD_INFO_TO_HWP_ERROR (when an FFDC HWP adds error information
  *         to an existing error) if the error XML contains a
- *         <collectRegisterFfdc> element. This function should not be called
+ *         \<fapiCollectRegFfdc\> element. This function should not be called
  *         directly by any user code. The function implementation is
  *         automatically generated from FAPI Error XML files.
  */

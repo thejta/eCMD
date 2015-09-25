@@ -83,7 +83,7 @@ namespace fapi2plat
     /// @brief Reads a SCOM register from a chip.
     /// @param[in]  i_target     HW target to operate on.
     /// @param[in]  i_address    SCOM register address to read from.
-    /// @param[out] o_date       Buffer that holds data read from HW target.
+    /// @param[out] o_data       Buffer that holds data read from HW target.
     /// @return fapi::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     fapi2::ReturnCode getScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET>& i_target,
                               const uint64_t i_address,

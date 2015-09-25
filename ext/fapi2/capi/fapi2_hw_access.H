@@ -255,9 +255,9 @@ namespace fapi2
 #ifndef __PPE__
     /// @brief Reads a spy from a chip.
     /// @tparam K template parameter, passed in target.
-    /// @param[in]  i_target   Target to operate on.
-    /// @param[in]  i_spyId    Id of the spy whose data to be read.
-    /// @param[out] o_data     Buffer that holds data read from HW target.
+    /// @param[in]  TARGET   Target to operate on.
+    /// @param[in]  ID       Id of the spy whose data to be read.
+    /// @param[out] DATA     Buffer that holds data read from HW target.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///
     /// @note:  The string version is only supported for cronus.
@@ -313,9 +313,9 @@ namespace fapi2
 
     /// @brief Writes a spy on a chip.
     /// @tparam K template parameter, passed in target.
-    /// @param[in]  i_target   Target to operate on.
-    /// @param[in]  i_spyId    Id of the spy to write data to.
-    /// @param[out] i_data     Buffer that holds data to write into spy.
+    /// @param[in]  TARGET   Target to operate on.
+    /// @param[in]  ID       Id of the spy to write data to.
+    /// @param[out] DATA     Buffer that holds data to write into spy.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///
     /// @note:  The string version is only supported for cronus.
@@ -374,11 +374,11 @@ namespace fapi2
     ///        This API is used by L2/L3 repair to put column repair data
     ///        into a ring buffer image.
     /// @tparam K template parameter, passed in target.
-    /// @param[in]  i_target Target to operate on.
-    /// @param[in]  i_spyId  Id of the spy.
-    /// @param[in]  i_data   Buffer that holds spy data to write into ring
+    /// @param[in]  TARGET Target to operate on.
+    /// @param[in]  ID     Id of the spy.
+    /// @param[in]  DATA1  Buffer that holds spy data to write into ring
     ///                      image.
-    /// @param[out] o_data   Buffer that holds updated ring image.
+    /// @param[out] DATA2  Buffer that holds updated ring image.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///
     /// @note:  The string version is only supported for cronus.
@@ -416,10 +416,10 @@ namespace fapi2
 #endif
 
     /// @brief Reads spy data from a ring image buffer
-    /// @param[in]   i_target      Target to operate on
-    /// @param[in]   i_spyId       The spy's id
-    /// @param[out]  o_data        Buffer that holds data read from ring image.
-    /// @param[in]   i_imageData   Buffer that holds ring image to read data
+    /// @param[in]   TARGET      Target to operate on
+    /// @param[in]   ID          The spy's id
+    /// @param[out]  DATA1       Buffer that holds data read from ring image.
+    /// @param[in]   DATA2       Buffer that holds ring image to read data
     ///                            from.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///

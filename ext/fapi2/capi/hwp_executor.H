@@ -16,7 +16,7 @@
 //  
 // IBM_PROLOG_END_TAG 
 /**
- *  @file fapi2PlatHwpExecutor.H
+ *  @file hwp_executor.H
  *
  *  @brief Defines the FAPI HWP Executor Macro.
  *

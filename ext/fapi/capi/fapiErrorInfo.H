@@ -118,7 +118,7 @@ enum CalloutPriority
 }
 
 /**
- * @enum Enumeration of firmware traces
+ * @enum CollectTrace
  *
  * This enumeration defines the possible firmware traces to collect
  */
@@ -425,8 +425,8 @@ struct ErrorInfoChildrenCDG
     /**
      * @brief Constructor.
      *
-     * @param[in] i_parent      Reference to the parent target
-     * @oaram[in] i_childType   Child target type to c/d/g
+     * @param[in] i_parentChip  Reference to the parent target
+     * @param[in] i_childType   Child target type to c/d/g
      * @param[in] i_callout     True if Target should be called out
      * @param[in] i_deconfigure True if Target should be deconfigured
      * @param[in] i_gard        True if Target should be GARDed
@@ -499,7 +499,7 @@ struct ErrorInfoCollectTrace
     /**
      * @brief Constructor.
      *
-     * @param[in] i_trace
+     * @param[in] i_traceId
      */
     ErrorInfoCollectTrace(CollectTraces::CollectTrace i_traceId);
 

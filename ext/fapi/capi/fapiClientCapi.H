@@ -2,7 +2,7 @@
  * @file fapiClientCapi.H
  * @brief Hardware Procedure Framework (fapi) eCMD Extension
 
- * Extension Owner : John Farrugia
+ * Extension Owner : Matt Light
 */
 
 #ifndef fapiClientCapi_H 

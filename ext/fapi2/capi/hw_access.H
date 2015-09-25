@@ -97,10 +97,10 @@ namespace fapi2
 
     ///
     /// @brief Platform-level implementation of getScom()
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target   HW target to operate on.
     /// @param[in]  i_address  SCOM register address to read from.
-    /// @param[out] o_date     Buffer that holds data read from HW target.
+    /// @param[out] o_data     Buffer that holds data read from HW target.
     /// @return fapi::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///
     template< TargetType K >
@@ -136,7 +136,7 @@ namespace fapi2
     }
 
     /// @brief Platform-level implementation of putScom()
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in] i_target     HW target to operate on.
     /// @param[in] i_address    SCOM register address to write to.
     /// @param[in] i_data       Buffer that holds data to write into address.
@@ -217,7 +217,7 @@ namespace fapi2
     ///
     /// @brief Platform-level implementation called by getCfamRegister()
     /// Hardware procedures writers will not call this function.
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target   HW target to operate on.
     /// @param[in]  i_address  CFAM address to read from.
     /// @param[out] o_data     32-bit buffer that holds data read from HW target.
@@ -258,7 +258,7 @@ namespace fapi2
     ///
     /// @brief Platform-level implementation of putCfamRegister()
     /// Hardware procedures writers will not call this function.
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target   HW target to operate on.
     /// @param[in]  i_address  CFAM address to write to.
     /// @param[out] i_data     32-bit buffer that holds data to write into address.
@@ -300,7 +300,7 @@ namespace fapi2
     ///
     /// @brief Platform-level implementation of modifyCfamRegister()
     /// Hardware procedures writers will not call this function.
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target     HW target to operate on.
     /// @param[in]  i_address    CFAM register address to modify.
     /// @param[out] i_data       32-bit buffer that holds data to modify.
@@ -330,7 +330,7 @@ namespace fapi2
     ///
     /// @brief Platform-level implementation of getRing()
     /// Hardware procedures writers will not call this function.
-    /// @Tparam K template parameter, passed in target.
+    /// @tparam K template parameter, passed in target.
     /// @param[in]  i_target   HW target to operate on.
     /// @param[in]  i_address  Ring address to read from.
     /// @param[out] o_data     Buffer that holds ring data read from HW target.
@@ -672,11 +672,11 @@ namespace fapi2
     ///        This API is used by L2/L3 repair to put column repair data
     ///        into a ring buffer image.
     /// @tparam K template parameter, passed in target.
-    /// @param[in]  i_target Target to operate on.
-    /// @param[in]  i_spyId  Id of the spy.
-    /// @param[in]  i_data   Buffer that holds spy data to write into ring
-    ///                      image.
-    /// @param[out] o_data   Buffer that holds updated ring image.
+    /// @param[in]  i_target      Target to operate on.
+    /// @param[in]  i_spyId       Id of the spy.
+    /// @param[in]  i_data        Buffer that holds spy data to write into ring
+    ///                           image.
+    /// @param[out] o_imageData   Buffer that holds updated ring image.
     /// @return fapi2::ReturnCode. FAPI2_RC_SUCCESS if success, else error code.
     ///
     /// @note:  The string version is only supported for cronus.

@@ -108,10 +108,10 @@ fapi::ReturnCode platPutScomUnderMask(const fapi::Target& i_target,
  * @brief Platform-level implementation called by fapiMultiScom()
  * Hardware procedures writers will not call this function.
  *
- * @param[in]    i_target         Target to operate on
- * @param[inout] io_multiScomList MultiScom object pre-populated with SCOMs to
- *                                be performed on i_target
- * @return       ReturnCode       Zero on success, else platform specified error
+ * @param[in]     i_target         Target to operate on
+ * @param[in,out] io_multiScomList MultiScom object pre-populated with SCOMs to
+ *                                 be performed on i_target
+ * @return        ReturnCode       Zero on success, else platform specified error
  */
 fapi::ReturnCode platMultiScom (const fapi::Target&    i_target,
                                       fapi::MultiScom& io_multiScomList);
@@ -201,11 +201,12 @@ fapi::ReturnCode platPutRing(const fapi::Target& i_target,
  * @brief Platform-level implementation called by fapiModifyRing()
  * Hardware procedures writers will not call this function.
  *
- * @param[in] i_target  Target to operate on
- * @param[in] i_address Ring address to modify
- * @param[in] i_data    ecmdDataBufferBase object that holds data to write into
- *                      address
- * @param[in] i_ringMode Any number of mode options from fapi::RingMode ORed
+ * @param[in] i_target     Target to operate on
+ * @param[in] i_address    Ring address to modify
+ * @param[in] i_data       ecmdDataBufferBase object that holds data to write into
+ *                         address
+ * @param[in] i_modifyMode The modify mode (or/and/xor)
+ * @param[in] i_ringMode   Any number of mode options from fapi::RingMode ORed
  * @return ReturnCode. Zero on success, else platform specified error
  */
 fapi::ReturnCode platModifyRing(const fapi::Target& i_target,

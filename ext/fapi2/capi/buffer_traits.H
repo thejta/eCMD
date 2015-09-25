@@ -82,7 +82,7 @@ namespace fapi2
         ///
         /// @brief Return the size of the buffer in E units
         /// @tparam E, the element size.
-        /// @param[in] io_buffer the buffer which to size
+        /// @param[in] i_buffer the buffer which to size
         /// @return The size of the buffer in E's rounded up
         ///
         template<typename E>
@@ -95,7 +95,7 @@ namespace fapi2
 
         ///
         /// @brief Return the size of the buffer itself
-        /// @param[in] io_buffer the buffer which to size
+        /// @param[in] i_buffer the buffer which to size
         /// @return The size of the buffer in bits (not units)
         ///
         constexpr static B bit_length(const T&)
@@ -173,7 +173,7 @@ namespace fapi2
         ///
         /// @brief Return the size of the buffer in E units
         /// @tparam E, the element size.
-        /// @param[in] io_buffer the buffer which to size
+        /// @param[in] i_buffer the buffer which to size
         /// @return The size of the buffer in E's rounded up
         ///
         template<typename E>
@@ -186,7 +186,7 @@ namespace fapi2
 
         ///
         /// @brief Return the size of the buffer itself
-        /// @param[in,out] io_buffer the buffer which to size
+        /// @param[in] i_buffer the buffer which to size
         /// @return The size of the buffer in bits (not units)
         ///
         static inline uint32_t bit_length(const bits_container& i_buffer)

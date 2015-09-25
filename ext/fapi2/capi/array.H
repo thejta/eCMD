@@ -67,8 +67,8 @@ namespace fapi2
 
         ///
         /// @brief Create an array
-        /// @param[in] the size of the array
-        /// @param[in] a pointer to memory of appropriate size
+        /// @param[in] i_size the size of the array
+        /// @param[in] i_data a pointer to memory of appropriate size
         ///   defaults to nullptr which causes the platform to
         ///   allocate memory of size * element_type
         /// @warning fapi2::arrays, like arrays, can not be re-sized after
@@ -83,7 +83,7 @@ namespace fapi2
 
         ///
         /// @brief operator[]
-        /// @param[in] the index of the element
+        /// @param[in] i_index the index of the element
         /// @return a reference to the element in question.
         /// @note array[0] = 0 works as well as foo = array[0]
         ///
@@ -91,7 +91,7 @@ namespace fapi2
 
         ///
         /// @brief operator=()
-        /// @param[in] the other array
+        /// @param[in] i_other the other array
         /// @return a reference to this, after the assignement
         ///
         array& operator=(const array& i_other);

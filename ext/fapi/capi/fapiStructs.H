@@ -19,7 +19,7 @@
  * @file fapiStructs.H
  * @brief fapi eCMD Extension Structures
 
- * Extension Owner : John Farrugia
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------

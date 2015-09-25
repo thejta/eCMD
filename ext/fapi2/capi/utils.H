@@ -83,7 +83,7 @@ ReturnCode delay(uint64_t i_nanoSeconds, uint64_t i_simCycles,
 ///
 /// @brief Assert a condition, and halt
 ///
-/// @param[in] a boolean representing the assertion
+/// @param[in] i_expression a boolean representing the assertion
 ///
 void Assert(bool i_expression);
 };
