@@ -7,7 +7,7 @@
  * @file cipClientCapi.H
  * @brief Cronus & IP eCMD Extension
 
- * Extension Owner : Jason Albert/Michael Baiocchi
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------

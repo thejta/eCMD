@@ -20,7 +20,7 @@
  * @file cipStructs.H
  * @brief Cronus & IP eCMD Extension Structures
 
- * Extension Owner : Chris Engel
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------
