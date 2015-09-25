@@ -5,8 +5,10 @@ use strict;
 
 my $command;
 my $rc;
+# use xsite path as default to get newer version - can chage this with -dox_path
+my $doxygen_path = "/opt/xsite/cte/tools/doxygen/";
 
-if ($#ARGV != 2) {
+if (($#ARGV != 2) && ($#ARGV != 4)) {
   printf("Invalid number of command line options given!\n");
   exit(1);
 }
@@ -30,6 +32,21 @@ my $cvsBase = shift(@ARGV);
 # ARGV[2] will be the release we are generating
 my $version = shift(@ARGV);
 
+# If we still have args, assume they are some optional ones
+if ($#ARGV != -1) {
+  for (my $x = 0; $x <= $#ARGV; $x++) {
+      my $ARG = shift @ARGV;
+      if ($ARG eq "-dox_path") {
+	  $doxygen_path = shift @ARGV;
+      }
+      else {
+	  printf("Invalid command line option given!\n");
+	  exit(1);
+      }
+  }
+}
+
+
 system("mkdir -p $outputDirectory");
 
 # Set the environment for the script to have the latex install in CTE at the front of the path
@@ -38,6 +55,7 @@ system("mkdir -p $outputDirectory");
 # Do the C-API
 printf("Creating C-API Documentation (html)...\n\n");
 system("mkdir -p $outputDirectory/Capi");
+system("mkdir -p $outputDirectory/Capi/examples");
 
 # Copy over the header files we are going to process
 $rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Capi/.");
@@ -54,6 +72,13 @@ $rc = system("cp $cvsBase/capi/ecmdClientCapi.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 $rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
+
+# Copy over example files
+$rc = system("cp $cvsBase/docs/examples/ecmdclient.C $outputDirectory/Capi/examples/.");
+if ($rc) { return $rc; }
+$rc = system("cp $cvsBase/docs/examples/makefile $outputDirectory/Capi/examples/.");
+if ($rc) { return $rc; }
+
 
 # Now copy over all of the extension file headers that are available
 # Filter the list down based upon the environment variable if it is set
@@ -79,34 +104,22 @@ for (my $x = 0; $x <= $#extensions; $x++) {
   $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
 
-  # fapi specific stuff
-  if ($extensions[$x] eq "fapi"){
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]HwAccess.H $outputDirectory/Capi/.");
+  # fapi/fapi2 specific stuff
+  # There are a lot of extra header files in these extensions, and so that this script doesn't have to get modified
+  # every time a new one is added, we'll just copy all of them over.
+  if (($extensions[$x] eq "fapi") || ($extensions[$x] eq "fapi2")) {
+    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/*.H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SystemConfig.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Target.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCode.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ReturnCodes.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x].H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Util.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatTrace.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]PlatHwpExecutor.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]SharedUtils.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]AttributeService.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MvpdAccess.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]MultiScom.H $outputDirectory/Capi/.");
-    if ($rc) { return $rc; }
+    # removing a few  files that blow up the memory in latex pdf creation later. 
+    # Including them also made the webpage doc difficult to find more useful info
+    if ($extensions[$x] eq "fapi") {
+	$rc = system("rm $outputDirectory/Capi/fapiAttributeIds.H $outputDirectory/Capi/fapiHwpReturnCodes.H $outputDirectory/Capi/fapiHwpErrorInfo.H");
+	if ($rc) { return $rc; }
+    }
+    if ($extensions[$x] eq "fapi2") {
+	$rc = system("rm $outputDirectory/Capi/attribute_ids.H");
+	if ($rc) { return $rc; }
+    }
   }
 }
 
@@ -119,7 +132,7 @@ if ($rc) { return $rc; }
 $rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Capi; doxygen ecmdDoxygen.config");
+$rc = system("cd $outputDirectory/Capi; $doxygen_path/doxygen ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 printf("Creating C-API Documentation (pdf)...\n\n");
@@ -129,6 +142,7 @@ $rc = system("cd $outputDirectory/Capi/latex; make; mv refman.pdf ecmdClientCapi
 # Now do the Perl-API
 printf("\n\nCreating Perl-API Documentation (html) ...\n\n");
 system("mkdir -p $outputDirectory/Perlapi");
+system("mkdir -p $outputDirectory/Perlapi/examples");
 
 # Copy over the header files we are going to process
 $rc = system("cp $cvsBase/perlapi/ecmdBit64.H $outputDirectory/Perlapi/.");
@@ -144,6 +158,10 @@ if ($rc) { return $rc; }
 $rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
 
+# Copy over example files
+$rc = system("cp $cvsBase/docs/examples/example.pl $outputDirectory/Perlapi/examples/.");
+if ($rc) { return $rc; }
+
 # Generate the base
 $rc = system("cd $cvsBase/perlapi/;$cvsBase/perlapi/makepm.pl ecmd ecmdClientPerlapiFunc.H");
 if ($rc) { return $rc; }
@@ -155,7 +173,7 @@ if ($rc) { return $rc; }
 
 # Now copy over all of the extension file headers that are available
 for (my $x = 0; $x <= $#extensions; $x++) {
-  if ($extensions[$x] ne "fapi"){
+  if (($extensions[$x] ne "fapi") && ($extensions[$x] ne "fapi2")) {
     $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;$cvsBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
     if ($rc) { return $rc; }
     # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
@@ -224,7 +242,7 @@ if ($rc) { return $rc; }
 $rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Perlapi; doxygen ecmdDoxygenPm.config");
+$rc = system("cd $outputDirectory/Perlapi; $doxygen_path/doxygen ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 printf("Creating Perl-API Documentation (pdf)...\n\n");
@@ -234,6 +252,7 @@ $rc = system("cd $outputDirectory/Perlapi/latex; make; mv refman.pdf ecmdClientP
 # Do the Python API
 printf("Creating Python API Documentation (html)...\n\n");
 system("mkdir -p $outputDirectory/Pythonapi");
+system("mkdir -p $outputDirectory/Pythonapi/examples");
 
 # Copy over the header files we are going to process
 $rc = system("cp $cvsBase/pyapi/ecmdPyApiTypes.H $outputDirectory/Pythonapi/.");
@@ -260,12 +279,16 @@ if ($rc) { return $rc; }
 $rc = system("cat $cvsBase/pyapi/ecmdClientPyapi.H $cvsBase/capi/ecmdClientCapi.H > $outputDirectory/Pythonapi/ecmdClientPyapi.H");
 if ($rc) { return $rc; }
 
+# Copy over example files
+$rc = system("cp $cvsBase/docs/examples/example.py $outputDirectory/Pythonapi/examples/.");
+if ($rc) { return $rc; }
+
 
 for (my $x = 0; $x <= $#extensions; $x++) {
   
-  # When doing fapi, only do the Pyapi file that has the init extension in it
+  # When doing fapi[2], only do the Pyapi file that has the init extension in it
   # For all other extensions, do them all
-  if ($extensions[$x] ne "fapi"){
+  if (($extensions[$x] ne "fapi") && ($extensions[$x] ne "fapi2")) {
     # I'm grepping out the *Capi.H to eliminate a doxygen error that happens from having a filename
     # in the comments that is different from the actual file
     $rc = system("cat $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $cvsBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H | grep -v $extensions[$x]ClientCapi.H > $outputDirectory/Pythonapi/$extensions[$x]ClientPyapi.H");
@@ -314,7 +337,7 @@ if ($rc) { return $rc; }
 $rc = system("sed -i \"s!ECMDEXTDEFINES!$extensionDefines!g\" $outputDirectory/Pythonapi/ecmdDoxygenPython.config");
 if ($rc) { return $rc; }
 
-$rc = system("cd $outputDirectory/Pythonapi; doxygen ecmdDoxygenPython.config");
+$rc = system("cd $outputDirectory/Pythonapi; $doxygen_path/doxygen ecmdDoxygenPython.config");
 if ($rc) { return $rc; }
 
 printf("Creating Python API Documentation (pdf)...\n\n");
