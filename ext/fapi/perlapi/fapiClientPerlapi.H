@@ -7,7 +7,7 @@
  * @file fapiClientPerlapi.H
  * @brief Cronus & IP eCMD Perlapi Extension
 
- * Extension Owner : Chris Engel
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------
