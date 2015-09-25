@@ -129,8 +129,6 @@ char * ecmdParseOptionWithArgs(char ** io_argv, const char * i_option);
 <br><br>
  The API interface is implemented as an "ecmd" object.  The ecmd class has methods to initialize eCMD, use the ecmdDataBuffer and make standard function calls. 
 <br>
-This Document Last Approved: July 23rd, 2014
- <br>
  <hr>
  @section files Related Information
   NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the Python API and documentation.  Treat as Python functions and especially look at any usage information associated with each function description
@@ -266,6 +264,15 @@ Include files :
 </ul>
 \endif
 
+\if ECMD_FAPI2_EXTENSION_SUPPORT
+@subsection fapi2 FAPI2 (Hardware Procedure Framework) Extension
+In Python only extension intialization is provided
+Include files :
+<ul>
+<li> fapi2ClientPyapi.H</li>
+</ul>
+\endif
+
 <br><br>
 
  <hr>
@@ -308,7 +315,7 @@ extension example but all extensions work the same way just replace the prefix w
  <br>
  <hr>
  @section dform Data Passing
- @subsection ecmdDataBuffer ecmdDataBuffer's
+ @subsection ecmdDataBuffer ecmdDataBuffer
  Data is passed between the client Python script and the eCMD shared object in the form of the same ecmdDataBuffer that is part of the C-Api.  The function set is the identical.  For additional documentation on the ecmdDataBuffer see the C/C++ Api Documentation.
 <br>
 Here is an example usage of the ecmdDataBuffer:
@@ -401,8 +408,7 @@ Python functions use the same ecmdChipTarget structure as the C-Api.
  <hr>
  @section pythonscript Example Python Script
 
- Please see the eCMD web page under 'Use eCMD' for an example Python script at : http://rhea.rch.stglabs.ibm.com/eCMD/
-
+ \include example.py
 
 */
 
