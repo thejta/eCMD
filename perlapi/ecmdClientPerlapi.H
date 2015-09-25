@@ -147,8 +147,6 @@ namespace ECMDPERLAPI {
 <br><br>
  The API interface is implemented as a "ecmdClientPerlapi" object.  The ecmdClientPerlapi class has methods to initialize eCMD, make standard function calls. 
 <br>
-This Document Last Approved: March 22nd, 2006
- <br>
  <hr>
  @section files Related Information
   NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the PerlAPI and documentation.  Treat as Perl functions and especially look at any usage information associated with each function description
@@ -275,6 +273,26 @@ Include files :
 </ul>
 \endif
 
+\if ECMD_FAPI_EXTENSION_SUPPORT
+@subsection fapi FAPI (Hardware Procedure Framework) Extension
+In Perl only extension intialization is provided<br>
+
+Include files :
+<ul>
+<li> fapiClientPerlapi.H </li>
+</ul>
+\endif
+
+\if ECMD_FAPI2_EXTENSION_SUPPORT
+@subsection fapi2 FAPI2 (Hardware Procedure Framework) Extension
+In Perl only extension intialization is provided.<br>
+
+Include files :
+<ul>
+<li> fapi2ClientPerlapi.H </li>
+</ul>
+\endif
+
 <br><br>
 
  <hr>
@@ -335,7 +353,7 @@ extension example but all extensions work the same way just replace the prefix w
  <br>
  <hr>
  @section dform Data Passing
- @subsection ecmdDataBuffer ecmdDataBuffer's
+ @subsection ecmdDataBuffer ecmdDataBuffer
  Data is passed between the client Perl script and the eCMD shared object in the form of the same ecmdDataBuffer that is part of the C-Api.  The function set is the identical.  For additional documentation on the ecmdDataBuffer see the C/C++ Api Documentation.
 <br>
 Here is an example usage of the ecmdDataBuffer:
@@ -460,7 +478,7 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
  <hr>
  @section perlscript Example Perl Script
 
- Please see the eCMD web page under 'Use eCMD' for an example Perl script at : http://rhea.rch.stglabs.ibm.com/eCMD/
+ \include example.pl
 
 
 */
