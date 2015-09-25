@@ -4252,8 +4252,6 @@ Common Hardware Access Programming Interface (eCMD)
 
 This is the documentation of the eCMD C/C++ Programming Api
 
-Last Approved: October 23rd 2012
-
 @section inc eCMD Core Include Files
 
 To compile client code to use the C++ API, the following header files are required:
@@ -4278,6 +4276,13 @@ To create Linux x86 binaries, the following is required:
 <li>ecmdClientCapi.a
 <li>libecmd.so
 <li>g++ 4.1.2
+</ul>
+
+To create Linux x86_64 binaries, the following is required:
+<ul>
+<li>ecmdClientCapi.a
+<li>libecmd.so
+<li>g++ 4.8.1
 </ul>
 
 <hr>
@@ -4407,7 +4412,7 @@ Include files :
 
 \if ECMD_FAPI_EXTENSION_SUPPORT
 @subsection fapi FAPI (Hardware Procedure Framework) Extension
-This extension provides HWPF fapi only interfaces.  More information about writing fapi procedures can be found here (link will be added later).
+This extension provides HWPF fapi only interfaces.  
 <ul>
 <li> eCMD specific headers</li>
   <p><b>NOTE: These are needed in eCMD procedures ONLY not actual fapi procedures that will be consumed by FW</b></p>
@@ -4428,14 +4433,56 @@ This extension provides HWPF fapi only interfaces.  More information about writi
        <li>fapiHwAccess.H</li>
        <li>fapiSystemConfig.H</li>
        <li>fapiPlatTrace.H</li>
-       <li>fapiPlatHwpExecutor.H</li>
+       <li>fapiHwpExecutor.H</li>
        <li>fapiAttributeService.H</li>
+       <li>fapiChipEcFeature.H</li>
+       <li>fapiHwpReturnCodes.H</li>
+       <li>fapiHwpErrorInfo.H</li>
+       <li>fapiAttributeIds.H</li>
+       <li>fapiSetSbeError.H</li>
        <li>fapiMvpdAccess.H</li>
+       <li>fapiMBvpdAccess.H</li>
        <li>ecmdDataBufferBase.H</li>
        </ul>
     </ul>
 <li> Library : fapiClientCapi.a</li>
 <li> Library : libfapi.so</li>
+</ul>
+\endif
+
+\if ECMD_FAPI2_EXTENSION_SUPPORT
+@subsection fapi2 FAPI2 (Hardware Procedure Framework) Extension
+This extension provides HWPF fapi2 only interfaces.  
+<ul>
+<li> eCMD specific headers</li>
+  <p><b>NOTE: These are needed in eCMD procedures ONLY not actual fapi procedures that will be consumed by FW</b></p>
+    <ul>
+    <li> fapi2ClientCapi.H</li>
+    <li> fapi2SharedUtils.H</li>
+    </ul>
+
+<li>Hardware Procedure Framework (HWPF) specific headers</li>
+  <p><b>NOTE: fapi2.H includes all the headers below.  You should include the fapi2.H header in a fapi2 Hardware Procedure (HWP)</b></p>
+    <ul>
+    <li> fapi2.H </li>
+       <ul>
+       <li>target.H </li> 
+       <li>return_code.H</li>
+       <li>buffer.H</li>
+       <li>hw_access.H</li>
+       <li>utils.H</li>
+       <li>plat_trace.H</li>
+       <li>error_scope.H</li>
+       <li>set_sbe_error.H</li>
+       <li>fapi2_hwp_executor.H</li>
+       <li>fapi2_attribute_service.H</li>
+       <li>fapi2_chip_ec_feature.H</li>
+       <li>mvpd_access.H</li>
+       <li>mbvpdAccess.H</li>
+       </ul>
+    </ul>
+<li> Library : fapi2ClientCapi.a</li>
+<li> Library : libfapi2.so</li>
 </ul>
 \endif
 
@@ -4454,7 +4501,14 @@ The ecmdDataBuffer maintains data both as unsigned integers and as a character s
 <hr>
 @section example Examples
 
-For Makefile and Client examples please go to 'Use eCMD' on the eCMD web page : http://rhea.rch.stglabs.ibm.com/eCMD/
+<b>Makefile example for Linux x86_64 using cmd extension:</b>
+\include makefile
+
+
+<b>C/C++ Client Example</b>
+\include ecmdclient.C
+
+
 
 */
 #endif // ECMD_PERLAPI && ECMD_PYAPI
