@@ -20,7 +20,7 @@
  * @file cmdStructs.H
  * @brief eCMD Command line Extension Structures
 
- * Extension Owner : Chris Engel
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------

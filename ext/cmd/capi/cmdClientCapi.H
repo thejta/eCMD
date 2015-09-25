@@ -7,7 +7,7 @@
  * @file cmdClientCapi.H
  * @brief eCMD Command line extension
 
- * Extension Owner : Jason Albert
+ * Extension Owner : Matt Light
 */
 
 //--------------------------------------------------------------------
