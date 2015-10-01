@@ -11,7 +11,7 @@
 #include <ecmdDataBufferBase.H>
 
 #include <target_states.H>
-#include <hw_access_def.H>
+//#include <hw_access_def.H>
 #include <error_info_defs.H>
 #include <return_code.H>
 
@@ -32,13 +32,13 @@ uint32_t dllFapi2InitExtensionInPlugin();
 
 uint32_t dllFapi2GetRing(
 	const ecmdChipTarget & i_target,
-	const scanRingId_t i_address, 
+	const uint64_t i_address, 
 	ecmdDataBufferBase & o_data, 
 	const uint32_t i_ringMode); 
 
 uint32_t dllFapi2PutRing(
 	const ecmdChipTarget & i_target, 
-	const scanRingId_t i_address, 
+	const uint64_t i_address, 
 	ecmdDataBufferBase & i_data, 
 	const uint32_t i_ringMode); 
 #if 0

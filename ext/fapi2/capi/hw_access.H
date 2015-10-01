@@ -353,7 +353,7 @@ namespace fapi2
         {
             char target_string[MAX_ECMD_STRING_LEN];
             fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
-            FAPI_ERR("getRing failed - Target %s, Addr 0x%.8X", 
+            FAPI_ERR("getRing failed - Target %s, Addr 0x" UINT64_HEX16_PRESC_FORMAT,
                      target_string, i_address);
         }
 
@@ -363,7 +363,7 @@ namespace fapi2
             fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             uint64_t l_data = 0;
             o_data.extract(l_data, 0, 64);
-            FAPI_SCAN( "TRACE : GETRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT, 
+            FAPI_SCAN( "TRACE : GETRING     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT, 
                        target_string,
                        i_address,
                        l_data );
@@ -397,7 +397,7 @@ namespace fapi2
         {
             char target_string[MAX_ECMD_STRING_LEN];
             fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
-            FAPI_ERR("putRing failed - Target %s, Addr 0x%.8X", 
+            FAPI_ERR("putRing failed - Target %s, Addr 0x" UINT64_HEX16_PRESC_FORMAT,
                      target_string, i_address);
         }
 
@@ -407,7 +407,7 @@ namespace fapi2
             fapi2::toString(i_target, target_string, MAX_ECMD_STRING_LEN);
             uint64_t l_data = 0;
             i_data.extract(l_data, 0, 64);
-            FAPI_SCAN( "TRACE : PUTRING     : %s : %.8X " UINT64_HEX16_PRESC_FORMAT, 
+            FAPI_SCAN( "TRACE : PUTRING     : %s : " UINT64_HEX16_PRESC_FORMAT " " UINT64_HEX16_PRESC_FORMAT, 
                        target_string,
                        i_address,
                        l_data );
