@@ -38,24 +38,32 @@ enum AttributeId
     ATTR_POS = 0x0962a16,
     ATTR_SCRATCH_UINT8_1 = 0xd16a035,
     ATTR_SCRATCH_UINT8_2 = 0xd53bc45,
+    ATTR_SCRATCH_UINT16_1 = 0xab94c04,
+    ATTR_SCRATCH_UINT16_2 = 0xe8d4de7,
     ATTR_SCRATCH_UINT32_1 = 0x6e35711,
     ATTR_SCRATCH_UINT32_2 = 0xb6b04cf,
     ATTR_SCRATCH_UINT64_1 = 0x97c0c12,
     ATTR_SCRATCH_UINT64_2 = 0xa09fac0,
     ATTR_SCRATCH_UINT8_ARRAY_1 = 0x4b2b986,
     ATTR_SCRATCH_UINT8_ARRAY_2 = 0x466dcc2,
+    ATTR_SCRATCH_UINT16_ARRAY_1 = 0x8a5735b,
+    ATTR_SCRATCH_UINT16_ARRAY_2 = 0x4983f95,
     ATTR_SCRATCH_UINT32_ARRAY_1 = 0x330cac1,
     ATTR_SCRATCH_UINT32_ARRAY_2 = 0x9c880f8,
     ATTR_SCRATCH_UINT64_ARRAY_1 = 0x14d36df,
     ATTR_SCRATCH_UINT64_ARRAY_2 = 0x065e855,
     ATTR_SCRATCH_INT8_1 = 0x8d69f35,
     ATTR_SCRATCH_INT8_2 = 0xd0a271b,
+    ATTR_SCRATCH_INT16_1 = 0xd43da62,
+    ATTR_SCRATCH_INT16_2 = 0xd03c109,
     ATTR_SCRATCH_INT32_1 = 0xb5d67e7,
     ATTR_SCRATCH_INT32_2 = 0xedc4c34,
     ATTR_SCRATCH_INT64_1 = 0x439b62e,
     ATTR_SCRATCH_INT64_2 = 0x1201173,
     ATTR_SCRATCH_INT8_ARRAY_1 = 0x0ec9885,
     ATTR_SCRATCH_INT8_ARRAY_2 = 0xe1dc9a4,
+    ATTR_SCRATCH_INT16_ARRAY_1 = 0x82f8643,
+    ATTR_SCRATCH_INT16_ARRAY_2 = 0x9c5c56f,
     ATTR_SCRATCH_INT32_ARRAY_1 = 0x8a67e1b,
     ATTR_SCRATCH_INT32_ARRAY_2 = 0xfd6895b,
     ATTR_SCRATCH_INT64_ARRAY_1 = 0xf7388dd,
@@ -314,6 +322,20 @@ const bool ATTR_SCRATCH_UINT8_2_InitToZero = false;
 const fapi2::TargetType ATTR_SCRATCH_UINT8_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
 const bool ATTR_SCRATCH_UINT8_2_PlatInit = false;
 
+/* ATTR_SCRATCH_UINT16_1 */
+typedef uint16_t ATTR_SCRATCH_UINT16_1_Type;
+const bool ATTR_SCRATCH_UINT16_1_Privileged = false;
+const bool ATTR_SCRATCH_UINT16_1_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_UINT16_1_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_UINT16_1_PlatInit = false;
+
+/* ATTR_SCRATCH_UINT16_2 */
+typedef uint16_t ATTR_SCRATCH_UINT16_2_Type;
+const bool ATTR_SCRATCH_UINT16_2_Privileged = false;
+const bool ATTR_SCRATCH_UINT16_2_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_UINT16_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_UINT16_2_PlatInit = false;
+
 /* ATTR_SCRATCH_UINT32_1 */
 typedef uint32_t ATTR_SCRATCH_UINT32_1_Type;
 const bool ATTR_SCRATCH_UINT32_1_Privileged = false;
@@ -361,6 +383,20 @@ const bool ATTR_SCRATCH_UINT8_ARRAY_2_Privileged = false;
 const bool ATTR_SCRATCH_UINT8_ARRAY_2_InitToZero = false;
 const fapi2::TargetType ATTR_SCRATCH_UINT8_ARRAY_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
 const bool ATTR_SCRATCH_UINT8_ARRAY_2_PlatInit = false;
+
+/* ATTR_SCRATCH_UINT16_ARRAY_1 */
+typedef uint16_t ATTR_SCRATCH_UINT16_ARRAY_1_Type[16];
+const bool ATTR_SCRATCH_UINT16_ARRAY_1_Privileged = false;
+const bool ATTR_SCRATCH_UINT16_ARRAY_1_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_UINT16_ARRAY_1_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_UINT16_ARRAY_1_PlatInit = false;
+
+/* ATTR_SCRATCH_UINT16_ARRAY_2 */
+typedef uint16_t ATTR_SCRATCH_UINT16_ARRAY_2_Type[2][3][2];
+const bool ATTR_SCRATCH_UINT16_ARRAY_2_Privileged = false;
+const bool ATTR_SCRATCH_UINT16_ARRAY_2_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_UINT16_ARRAY_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_UINT16_ARRAY_2_PlatInit = false;
 
 /* ATTR_SCRATCH_UINT32_ARRAY_1 */
 typedef uint32_t ATTR_SCRATCH_UINT32_ARRAY_1_Type[8];
@@ -410,6 +446,20 @@ const bool ATTR_SCRATCH_INT8_2_InitToZero = false;
 const fapi2::TargetType ATTR_SCRATCH_INT8_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
 const bool ATTR_SCRATCH_INT8_2_PlatInit = false;
 
+/* ATTR_SCRATCH_INT16_1 */
+typedef int16_t ATTR_SCRATCH_INT16_1_Type;
+const bool ATTR_SCRATCH_INT16_1_Privileged = false;
+const bool ATTR_SCRATCH_INT16_1_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_INT16_1_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_INT16_1_PlatInit = false;
+
+/* ATTR_SCRATCH_INT16_2 */
+typedef int16_t ATTR_SCRATCH_INT16_2_Type;
+const bool ATTR_SCRATCH_INT16_2_Privileged = false;
+const bool ATTR_SCRATCH_INT16_2_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_INT16_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_INT16_2_PlatInit = false;
+
 /* ATTR_SCRATCH_INT32_1 */
 typedef int32_t ATTR_SCRATCH_INT32_1_Type;
 const bool ATTR_SCRATCH_INT32_1_Privileged = false;
@@ -457,6 +507,20 @@ const bool ATTR_SCRATCH_INT8_ARRAY_2_Privileged = false;
 const bool ATTR_SCRATCH_INT8_ARRAY_2_InitToZero = false;
 const fapi2::TargetType ATTR_SCRATCH_INT8_ARRAY_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
 const bool ATTR_SCRATCH_INT8_ARRAY_2_PlatInit = false;
+
+/* ATTR_SCRATCH_INT16_ARRAY_1 */
+typedef int16_t ATTR_SCRATCH_INT16_ARRAY_1_Type[16];
+const bool ATTR_SCRATCH_INT16_ARRAY_1_Privileged = false;
+const bool ATTR_SCRATCH_INT16_ARRAY_1_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_INT16_ARRAY_1_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_INT16_ARRAY_1_PlatInit = false;
+
+/* ATTR_SCRATCH_INT16_ARRAY_2 */
+typedef int16_t ATTR_SCRATCH_INT16_ARRAY_2_Type[2][3][2];
+const bool ATTR_SCRATCH_INT16_ARRAY_2_Privileged = false;
+const bool ATTR_SCRATCH_INT16_ARRAY_2_InitToZero = false;
+const fapi2::TargetType ATTR_SCRATCH_INT16_ARRAY_2_TargetType = fapi2::TARGET_TYPE_SYSTEM;
+const bool ATTR_SCRATCH_INT16_ARRAY_2_PlatInit = false;
 
 /* ATTR_SCRATCH_INT32_ARRAY_1 */
 typedef int32_t ATTR_SCRATCH_INT32_ARRAY_1_Type[8];

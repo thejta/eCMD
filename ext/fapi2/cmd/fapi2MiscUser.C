@@ -189,6 +189,10 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   {
       attributeData.faUint8ary = new uint8_t[l_numOfEntries];
   }
+  else if (attributeType == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
+  {
+      attributeData.faUint16ary = new uint16_t[l_numOfEntries];
+  }
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
   {
       attributeData.faUint32ary = new uint32_t[l_numOfEntries];
@@ -200,6 +204,10 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT8ARY)
   {
       attributeData.faInt8ary = new int8_t[l_numOfEntries];
+  }
+  else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT16ARY)
+  {
+      attributeData.faInt16ary = new int16_t[l_numOfEntries];
   }
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT32ARY)
   {
@@ -277,6 +285,10 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   {
     delete [] attributeData.faUint8ary;
   }
+  else if (attributeType == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
+  {
+    delete [] attributeData.faUint16ary;
+  }
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
   {
     delete [] attributeData.faUint32ary;
@@ -288,6 +300,10 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT8ARY)
   {
     delete [] attributeData.faInt8ary;
+  }
+  else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT16ARY)
+  {
+    delete [] attributeData.faInt16ary;
   }
   else if (attributeType == FAPI_ATTRIBUTE_TYPE_INT32ARY)
   {
@@ -578,6 +594,10 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 {
                     attributeData.faUint8ary = new uint8_t[attributeInfoIter->second.numOfEntries];
                 }
+                else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
+                {
+                    attributeData.faUint16ary = new uint16_t[attributeInfoIter->second.numOfEntries];
+                }
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
                 {
                     attributeData.faUint32ary = new uint32_t[attributeInfoIter->second.numOfEntries];
@@ -589,6 +609,10 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT8ARY)
                 {
                     attributeData.faInt8ary = new int8_t[attributeInfoIter->second.numOfEntries];
+                }
+                else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT16ARY)
+                {
+                    attributeData.faInt16ary = new int16_t[attributeInfoIter->second.numOfEntries];
                 }
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT32ARY)
                 {
@@ -631,6 +655,10 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 {
                     delete [] attributeData.faUint8ary;
                 }
+                else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
+                {
+                    delete [] attributeData.faUint16ary;
+                }
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
                 {
                     delete [] attributeData.faUint32ary;
@@ -642,6 +670,10 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT8ARY)
                 {
                     delete [] attributeData.faInt8ary;
+                }
+                else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT16ARY)
+                {
+                    delete [] attributeData.faInt16ary;
                 }
                 else if (attributeInfoIter->second.attributeType == FAPI_ATTRIBUTE_TYPE_INT32ARY)
                 {

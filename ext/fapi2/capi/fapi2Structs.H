@@ -68,6 +68,10 @@ enum AttributeSource
 #define FAPI_ATTRIBUTE_TYPE_INT8ARY     0x00040000
 #define FAPI_ATTRIBUTE_TYPE_INT32ARY    0x00020000
 #define FAPI_ATTRIBUTE_TYPE_INT64ARY    0x00010000
+#define FAPI_ATTRIBUTE_TYPE_UINT16      0x08000000
+#define FAPI_ATTRIBUTE_TYPE_UINT16ARY   0x00800000
+#define FAPI_ATTRIBUTE_TYPE_INT16       0x00080000
+#define FAPI_ATTRIBUTE_TYPE_INT16ARY    0x00008000
 
 #define FAPI_ATTRIBUTE_MODE_CONST       0x80000000
 /**
@@ -91,6 +95,10 @@ struct AttributeData {
     int8_t              faInt8;       ///< If the output data is a int8_t, will be populated
   };
   union {
+    uint16_t            faUint16;      ///< If the output data is a uint16_t, will be populated
+    int16_t             faInt16;       ///< If the output data is a int16_t, will be populated
+  };
+  union {
     uint32_t            faUint32;     ///< If the output data is a uint32_t, will be populated
     int32_t             faInt32;      ///< If the output data is a int32_t, will be populated
   };
@@ -101,6 +109,10 @@ struct AttributeData {
   union {
     uint8_t *           faUint8ary;   ///< If the output data is a uint8_t array, will be populated
     int8_t *            faInt8ary;    ///< If the output data is a int8_t array, will be populated
+  };
+  union {
+    uint16_t *          faUint16ary;  ///< If the output data is a uint16_t array, will be populated
+    int16_t *           faInt16ary;   ///< If the output data is a int16_t array, will be populated
   };
   union {
     uint32_t *          faUint32ary;  ///< If the output data is a uint32_t array, will be populated
@@ -126,9 +138,9 @@ faValidMask(0x0),
 // char * 
 faString(NULL),   
 // integers
-faUint8(0x0),         faUint32(0x0),       faUint64(0x0),  
+faUint8(0x0),         faUint16(0x0),       faUint32(0x0),       faUint64(0x0),  
 // arrays
-faUint8ary(NULL),     faUint32ary(NULL),   faUint64ary(NULL),
+faUint8ary(NULL),     faUint16ary(NULL),      faUint32ary(NULL),   faUint64ary(NULL),
 // name of attribute in string form
 faName("blah"),       
 // enum 
