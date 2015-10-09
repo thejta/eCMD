@@ -368,16 +368,20 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getbits")) {
           rc = ecmdGetBitsUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_RING_FUNCTIONS
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
         } else if (!strcmp(argv[0], "getcfam")) {
           rc = ecmdGetCfamUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
         } else if (!strcmp(argv[0], "getclockspeed")) {
           rc = ecmdGetClockSpeedUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
         } else if (!strcmp(argv[0], "getconfig")) {
           rc = ecmdGetConfigUser(argc - 1, argv + 1);
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
         } else if (!strcmp(argv[0], "getecid")) {
           rc = ecmdGetEcidUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "getfpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_FPR);
@@ -394,8 +398,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getgpr")) {
           rc = ecmdGetGprFprUser(argc - 1, argv + 1, ECMD_GPR);
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
         } else if (!strcmp(argv[0], "getgpreg")) {
           rc = ecmdGetGpRegisterUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
         } else if (!strcmp(argv[0], "geti2c")) {
           rc = ecmdGetI2cUser(argc - 1, argv + 1);
@@ -420,10 +426,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getringdump")) {
           rc = ecmdGetRingDumpUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS && ECMD_REMOVE_RING_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
         } else if (!strcmp(argv[0], "getscom")) {
           rc = ecmdGetScomUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "getscomgroup")) {
           rc = ecmdGetScomgroupUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "getspr")) {
           rc = ecmdGetSprUser(argc - 1, argv + 1);
@@ -466,10 +474,14 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'i':
 
-        if (!strcmp(argv[0], "initchipfromfile")) {
+        if (0) {
+          // Empty if to always start things in case the below gets compiled out
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
+        } else if (!strcmp(argv[0], "initchipfromfile")) {
           rc = ecmdInitChipFromFileUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "istep")) {
           rc = ecmdIstepUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
         } else if (!strcmp(argv[0], "i2cmultiple")) {
           rc = ecmdI2cMultipleUser(argc - 1, argv + 1);
@@ -522,8 +534,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "putbits")) {
           rc = ecmdPutBitsUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_RING_FUNCTIONS
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
         } else if (!strcmp(argv[0], "putcfam")) {
           rc = ecmdPutCfamUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "putfpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_FPR);
@@ -538,14 +552,18 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "putgpr")) {
           rc = ecmdPutGprFprUser(argc - 1, argv + 1, ECMD_GPR);
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
         } else if (!strcmp(argv[0], "putgpreg")) {
           rc = ecmdPutGpRegisterUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_I2C_FUNCTIONS
         } else if (!strcmp(argv[0], "puti2c")) {
           rc = ecmdPutI2cUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_I2C_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
         } else if (!strcmp(argv[0], "pollscom")) {
           rc = ecmdPollScomUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
         } else if (!strcmp(argv[0], "putlatch")) {
           rc = ecmdPutLatchUser(argc - 1, argv + 1);
@@ -566,8 +584,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "putpattern")) {
           rc = ecmdPutPatternUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_RING_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
         } else if (!strcmp(argv[0], "putscom")) {
           rc = ecmdPutScomUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
         } else if (!strcmp(argv[0], "putspr")) {
           rc = ecmdPutSprUser(argc - 1, argv + 1);
@@ -633,8 +653,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 
       case 's':
 
-        if (!strcmp(argv[0], "sendcmd")) {
+        if (0) {
+          // empty in case sendcmd gets compiled out
+#ifndef ECMD_REMOVE_JTAG_FUNCTIONS
+        } else if (!strcmp(argv[0], "sendcmd")) {
           rc = ecmdSendCmdUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_JTAG_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
         } else if (!strcmp(argv[0], "setclockspeed")) {
           rc = ecmdSetClockSpeedUser(argc - 1, argv + 1);
@@ -715,8 +739,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "systempower")) {
           rc = ecmdSystemPowerUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_POWER_FUNCTIONS
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
         } else if (!strcmp(argv[0], "synciplmode")) {
           rc = ecmdSyncIplModeUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

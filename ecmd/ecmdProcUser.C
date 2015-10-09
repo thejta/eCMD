@@ -749,7 +749,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
         validPosFound = true;     
       }
 
-      printed = ecmdWriteTarget(subTarget) + "\n";;
+      printed = ecmdWriteTarget(subTarget) + "\n";
       ecmdOutput( printed.c_str() );
       for (std::list<ecmdIndexEntry>::iterator nameIter = entries_copy.begin(); nameIter != entries_copy.end(); nameIter ++) {
 
