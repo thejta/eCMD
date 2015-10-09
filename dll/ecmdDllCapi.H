@@ -76,8 +76,10 @@ uint32_t dllQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_q
 uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName, ecmdQueryDetail_t i_detail); 
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 uint32_t dllQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName, ecmdQueryDetail_t i_detail); 
 
@@ -110,6 +112,7 @@ uint32_t dllGetRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, u
 uint32_t dllPutRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data); 
@@ -118,8 +121,12 @@ uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmd
 
 uint32_t dllDoScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries); 
 
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
+#ifndef ECMD_REMOVE_JTAG_FUNCTIONS
 uint32_t dllSendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status); 
 
+#endif // ECMD_REMOVE_JTAG_FUNCTIONS
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t dllGetCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data); 
@@ -128,6 +135,7 @@ uint32_t dllGetEcid(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData
 
 uint32_t dllGetEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecidData, std::vector<std::string> & o_additionalInfo); 
 
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data); 
 
@@ -184,6 +192,7 @@ uint32_t dllSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uin
 uint32_t dllSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider); 
 
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 uint32_t dllIStepsByNumber(ecmdDataBuffer & i_steps); 
 
 uint32_t dllIStepsByName(std::string i_stepName); 
@@ -194,6 +203,7 @@ uint32_t dllIStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNam
 
 uint32_t dllInitChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode); 
 
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 #ifndef ECMD_REMOVE_PROCESSOR_FUNCTIONS
 uint32_t dllQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data); 
 
@@ -298,12 +308,14 @@ void dllOutputWarning(const char* i_message);
 
 void dllOutput(const char* i_message); 
 
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t dllGetGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
 
 uint32_t dllPutGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data); 
 
 uint32_t dllPutGpRegisterUnderMask(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
 
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t dllGetGlobalVar(ecmdGlobalVarType_t i_type); 
 
 uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value); 
@@ -318,8 +330,10 @@ uint32_t dllMakeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_co
 
 uint32_t dllSyncPluginState(ecmdChipTarget & i_target); 
 
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 uint32_t dllSyncIplMode(int i_unused); 
 
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 uint32_t dllChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode); 
 
 uint32_t dllCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address); 

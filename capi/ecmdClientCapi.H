@@ -407,6 +407,7 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_
 uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 /**
  @brief Query Scom information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -422,6 +423,7 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
 
 /**
  @brief Query Scomgroup information from the DLL
@@ -454,6 +456,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET STATES : Unused<br>
 */
 uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion);
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 /**
@@ -718,7 +721,7 @@ uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
 
 
 
-
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 /** @name Scom Functions  */
 //@{
 
@@ -810,11 +813,11 @@ uint32_t doScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io
 
 //@}
 /* End Scom Functions */
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 
 
-
-
+#ifndef ECMD_REMOVE_JTAG_FUNCTIONS
 /** @name Jtag Functions */
 //@{
 
@@ -838,11 +841,11 @@ uint32_t sendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_m
 
 //@}
 /* End Jtag Functions */
+#endif // ECMD_REMOVE_JTAG_FUNCTIONS
 
 
 
-
-
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 /** @name FSI Functions */
 //@{
 
@@ -913,7 +916,7 @@ uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecid
 
 //@}
 /* End FSI Functions */
-
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 
 
@@ -1438,6 +1441,7 @@ uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, 
 //@}
 
 
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 /** @name Initialization Functions */
 //@{
 
@@ -1509,7 +1513,7 @@ uint32_t iStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEn
 uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode);
 
 //@}
-
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 
 
 
@@ -1890,6 +1894,7 @@ uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
 
 //@}
 /* End Processor Functions */
+
 
 /** @name Memory Preserving IPL (MPIPL) Functions */
 //@{
@@ -2361,6 +2366,7 @@ void ecmdOutput(const char* i_message);
 /** @name Misc Functions */
 //@{
 
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 /**
  @brief Reads a GP Register from CFAM/Access on the selected chip into the data buffer
  @retval ECMD_INVALID_GP_REGISTER if GP Regiter is not valid for target
@@ -2418,6 +2424,7 @@ uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDat
 
 */
 uint32_t putGpRegisterUnderMask(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 /**
  @brief Retrieve the value of some ecmdGlobalVars
@@ -2484,12 +2491,14 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
 */
 uint32_t syncPluginState(ecmdChipTarget & i_target);
 
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 /**
  @brief Synchronizes the ipl mode between fsp and
  *      hostboot b/w normal and debug modes
 
 */
 uint32_t syncIplMode(int i_unused);
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 
 /**
  @brief Cleans up the chip to enable DA of memory after a checkstop

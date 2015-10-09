@@ -71,10 +71,15 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  // A never entered conditional to start us off so we don't have to worry about
+  // being compiled out
+  if (0) {
+
   /* ----------- */
   /* scoms       */
   /* ----------- */
-  if (!strcmp(argv[0], "scoms")) {
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
+  } else if (!strcmp(argv[0], "scoms")) {
 
     std::string isChipUnit = "N";
     uint64_t address =0xFFFFFFFFFFFFFFFFull;
@@ -189,7 +194,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
-
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
     /* ----------- */
     /* spys        */
@@ -1810,6 +1815,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
     /* scomgroup    */
     /* ---------- */
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
   } else if (!strcmp(argv[0],"scomgroup")) {
     if (argc < 3) {
       ecmdOutputError("ecmdquery - Too few arguments specified for scomgroup; you need at least a query scomgroup <chipname> and groupName.\n");
@@ -1947,6 +1953,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       }
     }
 
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");

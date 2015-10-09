@@ -720,6 +720,7 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   return rc;
 }
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 // does the queryScomgroup and the doScomMultiple all in one
 uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion) {
   uint32_t rc = ECMD_SUCCESS;
@@ -775,7 +776,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
 
   return rc;
 }
-
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 /* ------------------------------------------------------------------------------------ */
 /* Below are the functions that pass straigh through to the Dll                         */

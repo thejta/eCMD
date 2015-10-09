@@ -396,6 +396,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   return rc;
 }
 
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
@@ -817,6 +818,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -1158,7 +1160,7 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
   return rc;
 }
 
-
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t ecmdGetGpRegisterUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
@@ -1545,6 +1547,7 @@ uint32_t ecmdPutGpRegisterUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 uint32_t ecmdEchoUser(int argc, char * argv[]) {
 
@@ -2434,6 +2437,7 @@ uint32_t ecmdSyncPluginStateUser(int argc, char * argv[]) {
   return rc;
 }
 
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 //Synchronizes the ipl mode between fsp and
 // hostboot b/w normal and debug modes
 uint32_t ecmdSyncIplModeUser(int argc, char * argv[]) 
@@ -2450,7 +2454,9 @@ uint32_t ecmdSyncIplModeUser(int argc, char * argv[])
   }
   return rc;
 }
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
 
+#ifndef ECMD_REMOVE_FSI_FUNCTIONS
 uint32_t ecmdGetEcidUser(int argc, char* argv[])
 {
     uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -2635,7 +2641,7 @@ uint32_t ecmdGetEcidUser(int argc, char* argv[])
 
     return rc;
 }
-
+#endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 #ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
 uint32_t ecmdMpiplClearCheckstopUser(int argc, char* argv[])
@@ -2871,7 +2877,7 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
 
     return rc;
 }
-#endif //ECMD_REMOVE_MPIPL_FUNCTIONS
+#endif // ECMD_REMOVE_MPIPL_FUNCTIONS
 
 uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString)
 {
