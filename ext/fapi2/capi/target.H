@@ -94,16 +94,14 @@ namespace fapi2
         // General compound chiplet check for proc parent
 
         const fapi2::TargetType TARGET_TYPE_PROC_CHIPLETS = fapi2::TARGET_TYPE_EX |
-                                                            fapi2::TARGET_TYPE_MBA |
                                                             fapi2::TARGET_TYPE_MCS |
                                                             fapi2::TARGET_TYPE_XBUS |
-                                                            fapi2::TARGET_TYPE_ABUS |
-                                                            fapi2::TARGET_TYPE_L4 |
                                                             fapi2::TARGET_TYPE_CORE |
                                                             fapi2::TARGET_TYPE_EQ |
                                                             fapi2::TARGET_TYPE_MCA |
                                                             fapi2::TARGET_TYPE_MCBIST |
                                                             fapi2::TARGET_TYPE_MI |
+                                                            fapi2::TARGET_TYPE_CAPP |
                                                             fapi2::TARGET_TYPE_DMI |
                                                             fapi2::TARGET_TYPE_OBUS |
                                                             fapi2::TARGET_TYPE_NV |
@@ -116,6 +114,24 @@ namespace fapi2
         static_assert( !((T == fapi2::TARGET_TYPE_PROC_CHIP) &&
                         ((K & TARGET_TYPE_PROC_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
                       "fapi2::TARGET_TYPE_PROC_CHIP is not a valid parent" );
+
+        const fapi2::TargetType TARGET_TYPE_PERV_CHIPLETS = fapi2::TARGET_TYPE_EQ |
+                                                            fapi2::TARGET_TYPE_CORE |
+                                                            fapi2::TARGET_TYPE_XBUS |
+                                                            fapi2::TARGET_TYPE_OBUS |
+                                                            fapi2::TARGET_TYPE_CAPP |
+                                                            fapi2::TARGET_TYPE_NV |
+                                                            fapi2::TARGET_TYPE_MCBIST |
+                                                            fapi2::TARGET_TYPE_MCS |
+                                                            fapi2::TARGET_TYPE_MCA |
+                                                            fapi2::TARGET_TYPE_MI |
+                                                            fapi2::TARGET_TYPE_DMI |
+                                                            fapi2::TARGET_TYPE_PEC |
+                                                            fapi2::TARGET_TYPE_PHB;
+
+        static_assert( !((T == fapi2::TARGET_TYPE_PERV) &&
+                        ((K & TARGET_TYPE_PERV_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
+                      "fapi2::TARGET_TYPE_PERV is not a valid parent" );
 
         // Specific parent checks for each TargetType
 
@@ -156,10 +172,12 @@ namespace fapi2
                       "improper parent of fapi2::TARGET_TYPE_MBA");
 
         // valid parents for MCS
-        // MCS -> PROC
         // MCS -> MCBIST
+        // MCS -> PERV
+        // MCS -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
                         (T != fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_MCS");
 
@@ -172,46 +190,58 @@ namespace fapi2
         // valid parents for CORE
         // CORE -> EX
         // CORE -> EQ
+        // CORE -> PERV
         // CORE -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_CORE) &&
                         (T != fapi2::TARGET_TYPE_EX) &&
                         (T != fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_CORE");
 
         // valid parents for EQ
         // EQ -> PROC
+        // EQ -> PERV
         static_assert(!((K == fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_EQ");
 
         // valid parents for MCA
         // MCA -> MCS
         // MCA -> MCBIST
+        // MCA -> PERV
         // MCA -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_MCA) &&
                         (T != fapi2::TARGET_TYPE_MCS) &&
                         (T != fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_MCA");
 
         // valid parents for MCBIST
+        // MCBIST -> PERV
         // MCBIST -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_MCBIST");
 
         // valid parents for MI
+        // MI -> PERV
         // MI -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_MI");
 
         // valid parents for DMI
         // DMI -> MI
+        // DMI -> PERV
         // DMI -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_DMI) &&
                         (T != fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_DMI");
 
@@ -234,20 +264,52 @@ namespace fapi2
                       "improper parent of fapi2::TARGET_TYPE_PERV");
 
         // valid parents for PEC
+        // PEC -> PERV
         // PEC -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_PEC) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_PEC");
 
         // valid parents for PHB
+        // PHB -> PERV
         // PHB -> PROC
         static_assert(!((K == fapi2::TARGET_TYPE_PHB) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
                         (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                       "improper parent of fapi2::TARGET_TYPE_PHB");
 
-// FIXME        TARGET_TYPE_XBUS
-// FIXME        TARGET_TYPE_OBUS
-// FIXME        TARGET_TYPE_NV
+        // valid parents for XBUS
+        // XBUS -> PERV
+        // XBUS -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_XBUS) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_XBUS");
+
+        // valid parents for OBUS
+        // OBUS -> PERV
+        // OBUS -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_OBUS) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_OBUS");
+
+        // valid parents for NV
+        // NV -> PERV
+        // NV -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_NV) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_NV");
+
+        // valid parents for CAPP
+        // CAPP -> PERV
+        // CAPP -> PROC
+        static_assert(!((K == fapi2::TARGET_TYPE_CAPP) &&
+                        (T != fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                      "improper parent of fapi2::TARGET_TYPE_CAPP");
 
         std::list<const ecmdChipTarget *> l_targets;
 
@@ -291,6 +353,36 @@ namespace fapi2
         INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MEMBUF_CHIP)
         INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MBA)
 #undef INVALID_CHILD
+
+        // valid children for PERV
+        // PERV -> EQ
+        // PERV -> CORE
+        // PERV -> XBUS
+        // PERV -> OBUS
+        // PERV -> CAPP
+        // PERV -> NV
+        // PERV -> MCBIST
+        // PERV -> MCS
+        // PERV -> MCA
+        // PERV -> PEC
+        // PERV -> PHB
+        // PERV -> MI
+        // PERV -> DMI
+        static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
+                        (T != fapi2::TARGET_TYPE_EQ) &&
+                        (T != fapi2::TARGET_TYPE_CORE) &&
+                        (T != fapi2::TARGET_TYPE_XBUS) &&
+                        (T != fapi2::TARGET_TYPE_OBUS) &&
+                        (T != fapi2::TARGET_TYPE_CAPP) &&
+                        (T != fapi2::TARGET_TYPE_NV) &&
+                        (T != fapi2::TARGET_TYPE_MCBIST) &&
+                        (T != fapi2::TARGET_TYPE_MCS) &&
+                        (T != fapi2::TARGET_TYPE_MCA) &&
+                        (T != fapi2::TARGET_TYPE_PEC) &&
+                        (T != fapi2::TARGET_TYPE_PHB) &&
+                        (T != fapi2::TARGET_TYPE_MI) &&
+                        (T != fapi2::TARGET_TYPE_DMI)),
+                      "improper child of fapi2::TARGET_TYPE_PERV");
 
         // valid children for MEMBUF
         // MEMBUF -> L4
