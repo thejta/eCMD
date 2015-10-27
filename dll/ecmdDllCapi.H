@@ -578,8 +578,10 @@ std::string dllGetCurrentCmdline();
 
 void dllSetCurrentCmdline(int argc, char* argv[]); 
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 } //extern C
 
 #endif

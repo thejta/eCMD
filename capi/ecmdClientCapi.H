@@ -4225,6 +4225,7 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 //@}
 #endif
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 /**
  @brief Query Scom information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -4240,6 +4241,7 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 #ifndef DOCUMENTATION
 }  //extern "C"
