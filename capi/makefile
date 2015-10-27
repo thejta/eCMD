@@ -56,6 +56,7 @@ install: create_links
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
+	chmod 644 ${INSTALL_PATH}/capi/*
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
