@@ -10,6 +10,10 @@ DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_2
 SUBDIR := ext/${EXTENSION_NAME}/capi/
 include ../../../makefile.rules
 
+SCRIPTS := scripts/fapi2CreateAttrGetSetMacros.pl
+SCRIPTS += scripts/parseAttributeInfo.pl
+SCRIPTS += scripts/parseErrorInfo.pl
+
 # Additional Source files for the Client API
 CAPI_SOURCE := fapi2DllCapi.C
 CAPI_SOURCE += plat_utils.C
