@@ -960,3 +960,91 @@ if (!fapi2Initialized) {
 
   return rc;
 }
+
+bool fapi2IsOutputLabEnabled(){
+
+  bool rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapi2IsOutputLabEnabled%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+if (!fapi2Initialized) {
+   fprintf(stderr,"dllFapi2IsOutputLabEnabled: eCMD Extension not initialized before function called\n");
+   fprintf(stderr,"dllFapi2IsOutputLabEnabled: OR eCMD fapi2 Extension not supported by plugin\n");
+   exit(ECMD_DLL_INVALID);
+}
+
+#ifndef ECMD_STRIP_DEBUG
+  int myTcount;
+  std::vector< void * > args;
+  if (ecmdClientDebug != 0) {
+     fppCallCount++;
+     myTcount = fppCallCount;
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"",args);
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2IsOutputManufacturingEnabled");
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  rc = dllFapi2IsOutputLabEnabled();
+#else
+  if (fapi2DllFnTable[ECMD_FAPI2ISOUTPUTLABENABLED] == NULL) {
+     fapi2DllFnTable[ECMD_FAPI2ISOUTPUTLABENABLED] = (void*)dlsym(dlHandle, "dllFapi2IsOutputLabEnabled");
+     if (fapi2DllFnTable[ECMD_FAPI2ISOUTPUTLABENABLED] == NULL) {
+       fprintf(stderr,"dllFapi2IsOutputLabEnabled%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  bool (*Function)() = 
+      (bool (*)())fapi2DllFnTable[ECMD_FAPI2ISOUTPUTLABENABLED];
+  rc =    (*Function)();
+#endif
+
+#ifndef ECMD_STRIP_DEBUG
+  if (ecmdClientDebug != 0) {
+     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2IsOutputLabEnabled");
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"", args);
+   }
+#endif
+
+  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
+    std::string errorString;
+    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
+    if (errorString.size()) ecmdOutput(errorString.c_str());
+  }
+
+  return rc;
+}
+
+void fapi2OutputLab(const char* i_message) {
+
+#ifndef ECMD_STATIC_FUNCTIONS
+  if (dlHandle == NULL) {
+    fprintf(stderr,"dllFapi2OutputLab%s",ECMD_DLL_NOT_LOADED_ERROR);
+    exit(ECMD_DLL_INVALID);
+  }
+#endif
+
+#ifdef ECMD_STATIC_FUNCTIONS
+  dllFapi2OutputLab(i_message);
+#else
+  if (fapi2DllFnTable[ECMD_FAPI2OUTPUTLAB] == NULL) {
+     fapi2DllFnTable[ECMD_FAPI2OUTPUTLAB] = (void*)dlsym(dlHandle, "dllFapi2OutputLab");
+     if (fapi2DllFnTable[ECMD_FAPI2OUTPUTLAB] == NULL) {
+       fprintf(stderr,"dllFapi2OutputLab%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+       ecmdDisplayDllInfo();
+       exit(ECMD_DLL_INVALID);
+     }
+  }
+
+  void (*Function)(const char*) = 
+      (void(*)(const char*))fapi2DllFnTable[ECMD_FAPI2OUTPUTLAB];
+   (*Function)(i_message);
+#endif
+}

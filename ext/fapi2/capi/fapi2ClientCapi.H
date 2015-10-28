@@ -211,6 +211,9 @@ bool fapi2IsOutputManufacturingEnabled();
 
 uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
 
+bool fapi2IsOutputLabEnabled();
+void fapi2OutputLab(const char* i_message);
+
 } //extern c
 
 #endif

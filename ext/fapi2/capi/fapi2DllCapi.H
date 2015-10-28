@@ -206,6 +206,10 @@ uint32_t dllFapi2GetAssociatedTargets(
 
 uint32_t dllFapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
 
+bool dllFapi2IsOutputLabEnabled(); 
+
+void dllFapi2OutputLab(const char* i_message); 
+
 } //extern C
 
 #endif

@@ -75,6 +75,27 @@ namespace fapi2
     static const uint32_t MAX_ECMD_STRING_LEN = 64;
 };
 
+// Lab traces (go into fast trace buffer that can wrap often)
+#ifdef _LP64
+#define FAPI_LAB(_fmt_, _args_...) \
+if(fapi2IsOutputLabEnabled()) \
+{   char lab_user_str[512]; \
+    const char* input = "" _fmt_ "\n"; \
+    size_t fmtSize = (strlen(input) + 1); \
+    char fmt_cpy[fmtSize]; \
+    fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
+    snprintf(lab_user_str, 512, fmt_cpy, ##_args_); \
+    fapi2OutputLab(lab_user_str); \
+}
+#else
+#define FAPI_LAB(_fmt_, _args_...) \
+if(fapi2IsOutputLabEnabled()) \
+{   char lab_user_str[512]; \
+    snprintf(lab_user_str, 512, "" _fmt_ "\n", ##_args_); \
+    fapi2OutputLab(lab_user_str); \
+}
+#endif
+
 // Information traces (go into fast trace buffer that can wrap often)
 #ifdef _LP64
 #define FAPI_INF(_fmt_, _args_...) \
