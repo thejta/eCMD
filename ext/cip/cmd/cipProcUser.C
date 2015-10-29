@@ -1372,7 +1372,6 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
   uint32_t pbaMode = CIP_PBA_MODE_LCO;  ///< Procedure mode to use - default to lco
-
   /************************************************************************/
   /* Setup the cmdlineName variable                                       */
   /************************************************************************/
@@ -1452,12 +1451,30 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
+
+  //Identify the chipType and find the appropriate chipUnitType
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  std::string  processingUnitName;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  //< So we can determine processing unit name
+  while ( ecmdLooperNext(target, looperdata) ) {
+    rc = ecmdGetProcessingUnit(target,processingUnitName);
+    if (rc) return rc;
+    break; // Only one time through
+  }
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   if (pbaMode == CIP_PBA_MODE_LCO) {
-    target.chipUnitType = "ex";
+    target.chipUnitType = processingUnitName;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = ECMD_TARGET_FIELD_UNUSED;
