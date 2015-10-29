@@ -102,6 +102,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdCipGetMemProcUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "cipgetmempba")) {
           rc = cipGetMemPbaUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipgetmemprocvar")) {
+          rc = cipGetMemProcVarUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VR_FUNCTIONS
 #ifndef CIP_REMOVE_VR_FUNCTIONS
         } else if (!strcmp(argv[0], "cipgetvr")) {
@@ -154,6 +156,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
           rc = ecmdCipPutMemProcUser(argc - 1, argv + 1);
         } else if (!strcmp(argv[0], "cipputmempba")) {
           rc = cipPutMemPbaUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipputmemprocvar")) {
+          rc = cipPutMemProcVarUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_VR_FUNCTIONS
 #ifndef CIP_REMOVE_VR_FUNCTIONS
         } else if (!strcmp(argv[0], "cipputvr")) {

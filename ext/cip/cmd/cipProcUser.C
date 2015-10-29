@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <fstream>
+#include <algorithm> // for transform
 
 //----------------------------------------------------------------------
 //  User Types
@@ -1372,6 +1373,7 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
   uint32_t pbaMode = CIP_PBA_MODE_LCO;  ///< Procedure mode to use - default to lco
+
   /************************************************************************/
   /* Setup the cmdlineName variable                                       */
   /************************************************************************/
@@ -3844,3 +3846,458 @@ uint32_t cipPutPmcVoltageUser(int argc, char * argv[])
     return l_rc;
 }
 #endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
+
+#ifndef CIP_REMOVE_MEMORY_FUNCTIONS
+uint32_t cipGetMemProcVarUser(int argc, char * argv[])
+{
+  uint32_t rc = ECMD_SUCCESS;
+  char buf[2000];
+  uint32_t coeRc = ECMD_SUCCESS;
+  std::string printed;
+  std::string temp;
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
+  ecmdLooperData looperdata;
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  uint32_t l_addressSize;
+  bool addrTypeSet= false;
+
+  // Declare/setup additional parameters.
+  ecmdDataBuffer l_bufTags, l_bufECC, l_bufErr;
+  ecmdDataBuffer l_address_96(96);
+  ecmdDataBuffer l_memDataRead;
+  ecmdDataBuffer l_realAddress;
+  uint32_t       l_bytes = 0;
+  cipXlateVariables l_xlate;
+
+
+  // set defaults to xlate structure
+  l_xlate.tagsActive = true;
+  l_xlate.mode32bit = false;
+  l_xlate.writeECC = false;
+  l_xlate.manualXlateFlag = false;
+  l_xlate.addrType = CIP_MAINSTORE_REAL_ADDR;
+  l_xlate.partitionId = 0;
+ 
+  // current option is to override the partition Id, if the user does not provide any
+  // we set the partition id to 0
+  char* partionId= ecmdParseOptionWithArgs(&argc, &argv, "-partitionId");
+  if (partionId != NULL ){
+      if (!ecmdIsAllDecimal(partionId)) {
+           ecmdOutputError("cipgetmemprocvar- Non-Decimal characters detected in partition field\n");
+           return ECMD_INVALID_ARGS;
+      }else{
+           l_xlate.partitionId = (uint32_t)atoi(partionId);
+      }
+  }
+
+  // clear all the databuffers
+  l_bufTags.clear();
+  l_bufECC.clear();
+  l_bufErr.clear();
+  l_memDataRead.clear();
+  l_realAddress.clear();
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+
+  if (argc < 2) { 
+    ecmdOutputError("cipgetmemprocvar - Too few arguments specified; you need Address type and address.\n");
+    ecmdOutputError("cipgetmemprocvar - Type 'cipgetmemprocvar -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  // now check to see what is the type of address we are looking at
+  if( argc >=1){
+      temp = argv[0];
+      transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
+          if(temp == "real"){
+            l_xlate.addrType = CIP_MAINSTORE_REAL_ADDR;
+            addrTypeSet=true;
+          } else if (temp == "effective") {
+            l_xlate.addrType = CIP_MAINSTORE_EFFECTIVE_ADDR;
+            addrTypeSet=true;
+          } else if (temp == "virtual"){
+            l_xlate.addrType = CIP_MAINSTORE_VIRTUAL_ADDR;
+            addrTypeSet=true;
+          } else {
+              ecmdOutputError("cipgetmemprocvar- Address type needs to be one of the address types(real/effective/virtual).\n");
+              return ECMD_INVALID_ARGS;
+         }
+  }
+
+  //check for address if the type is set
+  if(addrTypeSet){
+     // check if the address supplied is valid hex
+      if( argc >=2 ){
+          if (!ecmdIsAllHex(argv[1])) {
+            ecmdOutputError("cipgetmemprocvar- Non-hex characters detected in address field\n");
+            return ECMD_INVALID_ARGS;
+          }
+          //  we are restricting address to 96 bits
+          if ( strlen(argv[1]) > 24 ) // strlen does NOT count NULL terminator
+          {
+             ecmdOutputError("cipgetmemprocvar- Address field is too large (>24 chars). It is restricted to 96 bits (12bytes)\n");
+             return ECMD_INVALID_ARGS;
+          }
+          l_address_96.flushTo0();
+          l_addressSize = strlen(argv[1]) * 4; //total bits
+          rc = l_address_96.insertFromHexRight(argv[1], (l_address_96.getBitLength() - l_addressSize),l_addressSize );
+      } else {
+          ecmdOutputError("cipgetmemprocvar- Adress needs to be provided to get mem\n");
+          return ECMD_INVALID_ARGS;
+      }
+  }
+
+  // now look for # of bytes, we need to make sure that this is at word boundary and multiple of 8 bytes
+  if( argc >=3){
+    // if we come here then validate the # of bytes
+    uint32_t noBytes = (uint32_t)atoi(argv[2]);
+    if(noBytes % 8) 
+    {
+       ecmdOutputError("cipgetmemprocvar- No of bytes must be at word boundary and multiples of 8 bytes\n");
+       return ECMD_INVALID_ARGS;
+    }
+    // now set the bytes
+    l_bytes = noBytes;
+  }
+
+  // find chipUnit type
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  std::string  processingUnitName;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  //< So we can determine processing unit name
+  if ( ecmdLooperNext(target, looperdata) ) {
+    rc = ecmdGetProcessingUnit(target,processingUnitName);
+    if (rc) return rc;
+  }
+
+  if (processingUnitName.empty()) {
+    ecmdOutputError("cipputgetprocvar- unable to find chipunit type for this command\n");
+    return ECMD_INVALID_ARGS;
+  }
+  // set up target at chipUnit level
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitType = processingUnitName;
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  // setting the thread state to wildcard to accept any thread value passed by user
+  target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  // I dont think we need a looper here, but does not harm.
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+       rc = cipGetMemProcVariousAddrType(target,           // input
+                                        l_address_96,         // input
+                                        l_bytes,           // input
+                                        l_xlate,           // input
+                                        l_memDataRead,     // ouput
+                                        l_bufTags,         // output (tags)
+                                        l_bufECC,          // output (ecc)
+                                        l_bufErr,          // output (err)
+                                        l_realAddress);    // output
+       if (rc != ECMD_SUCCESS)
+       {
+          // Failed to read mem now set message and bail out
+          printed="\n";printed+=ecmdWriteTarget(target); printed+="\n"; ecmdOutput(printed.c_str());
+          sprintf(buf, "cipgetmemprocvar - Failed to read from address 0x%s, rc = 0x%x\n", l_address_96.genHexLeftStr().c_str(), rc);
+          coeRc=rc;
+          ecmdOutputError(buf);
+       }else{
+         //the max bit length is 80 bits for the VA, so I will copy the 96 bits to 80bits and display
+         ecmdDataBuffer ll_address_80(80);
+         rc = l_address_96.extractPreserve(ll_address_80,16,80);
+         if (rc != ECMD_SUCCESS)
+         {
+            // Failed to read mem now set message and bail out
+            sprintf(buf, "cipgetmemprocvar - Failed extractPreserve\n");
+            coeRc=rc;
+            ecmdOutputError(buf);
+            // we dont want to continue if there is ecmdDB issue, so break
+            break;
+         }
+         // for looper inlcude the target info in the file.
+         printed=ecmdWriteTarget(target); printed+="\n"; ecmdOutput(printed.c_str());
+         printed= "Address Req          Bytes Req Mem Tags Mem ECC Err\n"; ecmdOutput(printed.c_str());
+         printed= "==================== ========= ======== ===========\n"; ecmdOutput(printed.c_str());
+         sprintf(buf,"%-20s %9d %-8s %-11s\n",ll_address_80.genHexLeftStr().c_str(),l_bytes,
+                      l_bufTags.genHexLeftStr().c_str(),l_bufErr.genHexLeftStr().c_str());
+         ecmdOutput(buf);
+         // now display the  data
+         ecmdOutput("GETMEM DATA READ\n");
+         ecmdOutput("================\n");
+         printed  = ecmdWriteDataFormatted(l_memDataRead,"mem", l_realAddress.getDoubleWord(0));
+         ecmdOutput(printed.c_str());
+         // ECC varies depending on the size of data, so display it at the end
+         ecmdOutput("Memory ECC\n");
+         ecmdOutput("==========\n");
+         sprintf(buf,"%-32s\n",l_bufECC.genHexLeftStr().c_str());
+         ecmdOutput(buf);
+       }
+
+      validPosFound = true;//setting true as we did find a target to make sensor call
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("cipgetmemprocvar - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  return rc;
+}
+
+uint32_t cipPutMemProcVarUser(int argc, char * argv[])
+{
+  uint32_t rc = ECMD_SUCCESS;
+  char buf[2000];
+  uint32_t coeRc = ECMD_SUCCESS;
+  std::string printed;
+  std::string temp;
+  ecmdChipTarget target;                        ///< Current target being operated on
+  ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
+  ecmdLooperData looperdata;
+  bool validPosFound = false;                   ///< Did the looper find anything?
+  uint32_t l_addressSize;
+  bool addrTypeSet= false;
+
+  // Declare/setup additional parameters.
+  ecmdDataBuffer l_bufTags, l_Data;
+  ecmdDataBuffer l_address_96(96);
+  ecmdDataBuffer l_realAddress;
+  uint32_t       l_bytes = 8;
+  cipXlateVariables l_xlate;
+
+
+  // set defaults to xlate structure
+  l_xlate.tagsActive = true;
+  l_xlate.mode32bit = false;
+  l_xlate.writeECC = false;
+  l_xlate.manualXlateFlag = false;
+  l_xlate.addrType = CIP_MAINSTORE_REAL_ADDR;
+  l_xlate.partitionId = 0;
+
+  // current option is to override the partition Id, if the user does not provide any
+  // we set the partition id to 0
+  char* partionId= ecmdParseOptionWithArgs(&argc, &argv, "-partitionId");
+  if (partionId != NULL ){
+      if (!ecmdIsAllDecimal(partionId)) {
+           ecmdOutputError("cipputmemprocvar- Non-Decimal characters detected in partition field\n");
+           return ECMD_INVALID_ARGS;
+      }else{
+           l_xlate.partitionId = (uint32_t)atoi(partionId);
+      }
+  }
+
+  // make sure we clear all the DB's
+  l_bufTags.clear();
+  l_Data.clear();
+  l_realAddress.clear();
+
+  /************************************************************************/
+  /* Parse Common Cmdline Args                                            */
+  /************************************************************************/
+  rc = ecmdCommandArgs(&argc, &argv);
+  if (rc) return rc;
+
+  /* Global args have been parsed, we can read if -coe was given */
+  bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+
+  if (argc < 2) { 
+    ecmdOutputError("cipputmemprocvar - Too few arguments specified; you need Address type and address.\n");
+    ecmdOutputError("cipputmemprocvar - Type 'cipputmemprocvar -h' for usage.\n");
+    return ECMD_INVALID_ARGS;
+  }
+  
+  // now check to see what is the type of address we are looking at
+  if( argc >=1){
+      temp = argv[0];
+      transform(temp.begin(), temp.end(), temp.begin(), (int(*)(int)) tolower);
+          if(temp == "real"){
+            l_xlate.addrType = CIP_MAINSTORE_REAL_ADDR;
+            addrTypeSet=true;
+          } else if (temp == "effective") {
+            l_xlate.addrType = CIP_MAINSTORE_EFFECTIVE_ADDR;
+            addrTypeSet=true;
+          } else if (temp == "virtual"){
+            l_xlate.addrType = CIP_MAINSTORE_VIRTUAL_ADDR;
+            addrTypeSet=true;
+          } else {
+              ecmdOutputError("cipputmemprocvar- Address type needs to be one of the address types(real/effective/virtual).\n");
+              return ECMD_INVALID_ARGS;
+         }
+  }
+
+  //check for address if the type is set
+  if(addrTypeSet){
+     // check if the address supplied is valid hex
+      if( argc >=2 ){
+          if (!ecmdIsAllHex(argv[1])) {
+            ecmdOutputError("cipputmemprocvar- Non-hex characters detected in address field\n");
+            return ECMD_INVALID_ARGS;
+          }
+          //  we are restricting address to 96 bits
+          if ( strlen(argv[1]) > 24 ) // strlen does NOT count NULL terminator
+          {
+             ecmdOutputError("cipputmemprocvar- Address field is too large (>24 chars). It is restricted to 96 bits (12bytes)\n");
+             return ECMD_INVALID_ARGS;
+          }
+          l_address_96.flushTo0();
+          l_addressSize = strlen(argv[1]) * 4; //total bits, 4=nibble=1 character
+          rc = l_address_96.insertFromHexRight(argv[1], (l_address_96.getBitLength() - l_addressSize),l_addressSize );
+      } else {
+          ecmdOutputError("cipputmemprocvar- Adress needs to be provided to get mem\n");
+          return ECMD_INVALID_ARGS;
+      }
+  }
+
+  // now look for # of bytes, we need to make sure that this is at word boundary and multiple of 8 bytes
+  if( argc >=3){
+          // if we come here then validate the # of bytes
+          uint32_t noBytes = (uint32_t)atoi(argv[2]);
+          if(noBytes % 8) 
+          {
+            ecmdOutputError("cipputmemprocvar- No of bytes must be at word boundary and multiples of 8 bytes\n");
+            return ECMD_INVALID_ARGS;
+          }
+          // now set the bytes
+          l_bytes = noBytes;
+  }
+
+  // we will need to get the data from user, make sure all the data is in hex format
+  if( argc >=4 ){
+          if (!ecmdIsAllHex(argv[3])) {
+            ecmdOutputError("cipputmemprocvar- Non-hex characters detected in data field\n");
+            return ECMD_INVALID_ARGS;
+          }
+          //  we are restricting address to 96 bits
+          if ( strlen(argv[3]) > (l_bytes * 2) ) // strlen does NOT count NULL terminator
+          {
+             sprintf(buf,"cipputmemprocvar- Data Overflow, Size required - %d bytes\n",l_bytes);
+             ecmdOutputError(buf);
+             return ECMD_INVALID_ARGS;
+          }else if ( strlen(argv[3]) <  (l_bytes * 2) )
+          {
+             sprintf(buf,"cipputmemprocvar- Data underflow, Size required - %d bytes\n",l_bytes);
+             ecmdOutputError(buf);
+             return ECMD_INVALID_ARGS;
+          } else {
+          uint32_t l_DataSize = strlen(argv[3]) * 4; //total bits
+          // set the size dor databuffer
+          l_Data.setBitLength(l_DataSize);
+          rc = l_Data.insertFromHexRight(argv[3], 0,l_DataSize );
+          }
+  }
+
+  // find chipUnit type
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  std::string  processingUnitName;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
+  //< So we can determine processing unit name
+  if ( ecmdLooperNext(target, looperdata) ) {
+    rc = ecmdGetProcessingUnit(target,processingUnitName);
+    if (rc) return rc;
+  }
+
+  if (processingUnitName.empty()) {
+    ecmdOutputError("cipputmemprocvar- unable to find chipunit type for this command\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+  // set up target at chipUnit level
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitType = processingUnitName;
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  // setting the thread state to wildcard to accept any thread value passed by user
+  target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+
+  /************************************************************************/
+  /* Kickoff Looping Stuff                                                */
+  /************************************************************************/
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+  // I dont think we need a looper here, but does not harm.
+  while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
+
+       rc = cipPutMemProcVariousAddrType(target,           // input
+                                        l_address_96,         // input
+                                        l_bytes,           // input
+                                        l_xlate,           // input
+                                        l_Data,            // input
+                                        l_bufTags,         // in/output (tags)
+                                        l_realAddress);    // output
+       if (rc != ECMD_SUCCESS)
+       {
+          // Failed to put mem now set message and bail out
+          printed="\n";printed+=ecmdWriteTarget(target); printed+="\n"; ecmdOutput(printed.c_str());
+          sprintf(buf, "cipputmemprocvar - Failed to write address 0x%s, rc = 0x%x\n", l_address_96.genHexLeftStr().c_str(), rc);
+          coeRc=rc;
+          ecmdOutputError(buf);
+       }else{
+         //the max bit length is 80 bits for the VA, so I will copy the 96 bits to 80bits and display
+         ecmdDataBuffer ll_address_80(80);
+         l_address_96.extractPreserve(ll_address_80,16,80);
+         if (rc != ECMD_SUCCESS)
+         {
+            // Failed to read mem now set message and bail out
+            sprintf(buf, "cipputmemprocvar - Failed extractPreserve\n");
+            coeRc=rc;
+            ecmdOutputError(buf);
+            // we dont want to continue if we have an ecmdDB issue
+            break;
+         }
+         printed=ecmdWriteTarget(target); printed+="\n"; ecmdOutput(printed.c_str());
+         sprintf(buf, "cipputmemprocvar - Writting address 0x%s Success\n",ll_address_80.genHexLeftStr().c_str());
+         ecmdOutput(buf);
+       }
+
+      validPosFound = true;//setting true as we did find a target to make sensor call
+  }
+  // coeRc will be the return code from in the loop, coe mode or not.
+  if (coeRc) return coeRc;
+
+  // This is an error common across all UI functions
+  if (!validPosFound) {
+    ecmdOutputError("cipgetmemprocvar - Unable to find a valid chip to execute command on\n");
+    return ECMD_TARGET_NOT_CONFIGURED;
+  }
+  return rc;
+}
+#endif

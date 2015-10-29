@@ -204,6 +204,29 @@ struct cipSysInfo_t
 //   uint32_t gip_server_client_version; ///< ECMD_GIP_SERVER_CLIENT_VERSION in 0xMMmm format
 };
 
+/**
+ @brief Enum used to identify Mainstore Address Type
+ */
+typedef enum { 
+CIP_MAINSTORE_UNKNOWN_ADDR_TYPE, ///< Unknown Address Type
+CIP_MAINSTORE_REAL_ADDR, ///< Real Address 
+CIP_MAINSTORE_EFFECTIVE_ADDR, ///< Effective Address 
+CIP_MAINSTORE_VIRTUAL_ADDR, ///< Virtual Address 
+CIP_MAINSTORE_ADDR_TYPE_MASK = 0x0007  // @06a
+} cipMainstoreAddrType_t; 
+
+/**
+ @brief Struct used for Translate variables in Mainstore Memory D/A and Breakpoint Interfaces
+ */
+struct cipXlateVariables {
+  bool tagsActive;			///< 1 = Tags Active Mode; 0 = Tags Inactive Mode
+  bool mode32bit;			///< 1 = 32 bit mode; 0 = 64 bit mode
+  bool writeECC;			///< 1 = write ECC using ECC buffer as input; 0 = have ECC calculated
+  bool manualXlateFlag;			///< 1 = Manual Translation Needed; 0 = Manual Translation Not Needed
+  cipMainstoreAddrType_t  addrType;	///< Type of Mainstore Address being used
+  uint32_t partitionId;			///< Id of the partition to be acted on
+} ;
+
 #endif /* cipStructs_h */
 
 // Change Log *********************************************************

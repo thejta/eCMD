@@ -974,6 +974,61 @@ uint32_t cipPutPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32
 */
 uint32_t cipGetSysInfo(cipSysInfo_t & o_sysInfo);
 
+/** @name Memory Functions */
+//@{
+#ifndef CIP_REMOVE_MEMORY_FUNCTIONS
+/**
+ @brief Reads System Mainstore through the processor chip using an effective address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param i_xlateVars Scruct with numerous translation variables
+ @param o_memoryData DataBuffer object that holds data read from memory
+ @param o_memoryTags 1 Tag bit for every 64 bits of memory data
+ @param o_memoryEcc 8 ECC bits for every 64 bits of memory data
+ @param o_memoryEccError 1 ECC Error bit for every 64 bits of memory data
+ @param o_realAddress Caculated Real Address
+
+ NOTE : This function requires that the address be aligned on an 8-byte boundary<br>
+
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipGetMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_realAddress);
+
+/**
+ @brief Writes System Mainstore through the processor chip using an effective address
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param i_xlateVars Scruct with numerous translation variables
+ @param i_memoryData DataBuffer object that holds data read from memory
+ @param io_memoryTags 1 Tag bit for every 64 bits of memory data (If this has length of zero, the user wants the HW to generate this info; otherwise, use their their values.)
+ @param o_realAddress Caculated Real Address
+
+ NOTE : This function requires that the address be aligned on an 8-byte boundary<br>
+
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t cipPutMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & io_memoryTags, ecmdDataBuffer & o_realAddress);
+#endif // CIP_REMOVE_MEMORY_FUNCTIONS
+//@}
+/* End Memory Functions */
 
 #ifndef DOCUMENTATION
 } /* end extern "c" */

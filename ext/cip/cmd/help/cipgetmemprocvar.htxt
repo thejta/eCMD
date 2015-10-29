@@ -1,0 +1,16 @@
+Syntax: cipgetmemprocvar <AddressType> <Address> [bytes] [-partitionId <partitionId>]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Reads System Mainstore through the processor chip 
+                        using an effective address.
+        Parameters:
+        ------------------------------------------------------------------------
+        AddressType  - real | effective | virtual
+        Address      - 12 bytes max hex. (word alligned)
+        bytes        - Total bytes to read(multiples of 8 bytes)
+        partitionId  - Id of the partition to be acted on, defaults to 0
+        ------------------------------------------------------------------------
+        Examples:       > cipgetmemprocvar real 1000 8 1
+                        > cipgetmemprocvar virtual FEDCBA9876543370 16 -c6
+

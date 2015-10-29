@@ -1,0 +1,15 @@
+Syntax: cipputmemprocvar <AddressType> <Address> [bytes] <data> [-partitionId <partitionId>]
+
+        ECMD:           CIP (Cronus/IP) Extension
+
+        Function:       Write System Mainstore through the processor chip 
+                        using an effective address.
+        Parameters:
+        ------------------------------------------------------------------------
+        AddressType  - real | effective | virtual
+        Address      - 12 bytes max hex. (word alligned)
+        bytes        - Total bytes to read(multiples of 8 bytes)
+        data         - Data to write
+        partitionId  - Id of the partition to be acted on, defaults to 0
+        ------------------------------------------------------------------------
+        Examples:       > cipputmemprocvar real 1000 4 ABCDABCD  partitionId 1
