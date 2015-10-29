@@ -1156,3 +1156,21 @@ std::string  getBestEcmd(std::string i_ecmd)
   }
   return i_ecmd ;
 }
+
+uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName)
+{
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipData chipData;
+  rc = ecmdGetChipData(i_target, chipData);
+  if (rc) return rc;
+
+  o_processingUnitName = "core";  //p7 and prior processors
+  if ( (chipData.chipType == "p8") || (chipData.chipType == "s1") || (chipData.chipType == "n1") ) {
+    o_processingUnitName = "ex"; // we use ex
+  } else if ( (chipData.chipType == "p9c") || (chipData.chipType == "p9n") ) {
+    o_processingUnitName = "c"; // we use core
+  }
+
+  return rc;
+}
+
