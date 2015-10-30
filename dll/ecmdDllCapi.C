@@ -3848,13 +3848,18 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef REMOVE_SIM
-uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1) {
+uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval)
+{
+    return dllSimPOLLFACHidden(i_facname, i_bitlength, i_expect, i_row, i_offset, i_maxcycles, i_pollinterval);
+}
+
+uint32_t dllSimPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
 
   while (curcycles < i_maxcycles) {
-    rc = dllSimGETFAC(i_facname,i_bitlength,actual_data,i_row,i_offset);
+    rc = dllSimGETFACHidden(i_facname,i_bitlength,actual_data,i_row,i_offset);
     if (rc) return rc;
 
     /* We found what we expected */
@@ -3871,13 +3876,18 @@ uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuff
 }
 
 
-uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval)
+{
+    return dllSimpolltcfac(i_tcfacname, i_expect, i_row, i_startbit, i_bitlength, i_maxcycles, i_pollinterval);
+}
+
+uint32_t dllSimpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
 
   while (curcycles < i_maxcycles) {
-    rc = dllSimgettcfac(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
+    rc = dllSimgettcfacHidden(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
     if (rc) return rc;
 
     /* We found what we expected */

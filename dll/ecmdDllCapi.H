@@ -497,35 +497,61 @@ uint32_t dllSimexit(uint32_t i_rc, const char* i_message);
 
 uint32_t dllSimEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimEXPECTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row); 
+
+uint32_t dllSimexpecttcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row); 
 
 uint32_t dllSimgetcurrentcycle(uint64_t & o_cyclecount); 
 
 uint32_t dllSimGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimGETFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimGETFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength); 
+
+uint32_t dllSimgettcfacHidden(const char* i_tcfacname, ecmdDataBuffer & o_data, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength); 
 
 uint32_t dllSiminit(const char* i_checkpoint); 
 
 uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval); 
 
+uint32_t dllSimPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval); 
+
 uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval); 
+
+uint32_t dllSimpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval); 
 
 uint32_t dllSimPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimPUTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimPUTFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimputtcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_numrows); 
 
 uint32_t dllSimrestart(const char* i_checkpoint); 
 
 uint32_t dllSimSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimSTKFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimSTKFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimstktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_numrows); 
 
 uint32_t dllSimSUBCMD(const char* i_command); 
 
@@ -533,7 +559,11 @@ uint32_t dllSimtckinterval(uint32_t i_tckinterval);
 
 uint32_t dllSimUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row, uint32_t i_offset); 
 
+uint32_t dllSimUNSTICKHidden(const char* i_facname, uint32_t i_bitlength, uint64_t i_row, uint32_t i_offset); 
+
 uint32_t dllSimunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row, uint32_t i_numrows); 
+
+uint32_t dllSimunsticktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row, uint32_t i_numrows); 
 
 uint32_t dllSimGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy); 
 
