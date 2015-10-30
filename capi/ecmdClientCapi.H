@@ -2276,6 +2276,16 @@ uint32_t ecmdRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const c
 uint32_t ecmdFlushRegisteredErrorMsgs(uint32_t i_returnCode);
 
 /**
+ @brief Flush registered error message for a specific error code and message
+ @param i_returnCode Error code of the message to erase
+ @param i_searchString Sub-string to match from error message
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+*/
+uint32_t ecmdFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_searchString);
+
+
+/**
  @brief Retrieve the target associated with the errorcode, if there is one
  @param i_returnCode Error code to lookup up message for
  @param o_errorTargets A list of the target associated with the error code, if it exists
