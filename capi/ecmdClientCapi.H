@@ -3744,6 +3744,19 @@ uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
 uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Perform expect on facility using name
+ @param i_facname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @param i_offset Optional: Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simEXPECTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Perform expect on TCFAC facility
  @param i_tcfacname Facility name
  @param i_expect Value to expect on facility
@@ -3754,6 +3767,18 @@ uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffe
  @retval nonzero on failure
 */
 uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
+
+/**
+ @brief Perform expect on TCFAC facility
+ @param i_tcfacname Facility name
+ @param i_expect Value to expect on facility
+ @param i_bitlength Length of data to expect
+ @param i_row Optional: Array Facility row
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simexpecttcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0);
 
 /**
  @brief Fetch current model cycle count
@@ -3778,6 +3803,19 @@ uint32_t simgetcurrentcycle(uint64_t & o_cyclecount);
 uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Retrieve a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simGETFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Retrieve a Facility using a name - preserving Xstate
  @param i_facname Facility name
  @param i_bitlength Bit length to read from facility
@@ -3791,6 +3829,19 @@ uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer &
 uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Retrieve a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to read from facility
+ @param o_data Data read from facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simGETFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Retrieve a TCFAC facility
  @param i_tcfacname TCFAC name
  @param o_data Value read
@@ -3802,6 +3853,19 @@ uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval nonzero on failure
 */
 uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
+
+/**
+ @brief Retrieve a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param o_data Value read
+ @param i_row Optional: Array Facility row
+ @param i_startbit Optional: Startbit to read
+ @param i_bitlength Optional: Length of data to read
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simgettcfacHidden(const char* i_tcfacname, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
 
 /**
  @brief Initialize the simulation
@@ -3830,6 +3894,22 @@ uint32_t siminit(const char* i_checkpoint);
 uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 /**
+ @brief Poll a facility waiting for expected value
+ @param i_facname Facility name
+ @param i_bitlength Bit length to expect
+ @param i_expect Data to expect in facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @param i_maxcycles Optional : Maximum number of cycles to run 
+ @param i_pollinterval Option : Number of clock cycles to run between each poll
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
+/**
  @brief Poll a TCFAC facility waiting for expected value
  @param i_tcfacname Facility name
  @param i_bitlength Bit length to expect
@@ -3844,6 +3924,22 @@ uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval nonzero on failure
 */
 uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+
+/**
+ @brief Poll a TCFAC facility waiting for expected value
+ @param i_tcfacname Facility name
+ @param i_bitlength Bit length to expect
+ @param i_expect Data to expect in facility
+ @param i_row Optional: Array row
+ @param i_startbit Optional : Facility startbit
+ @param i_maxcycles Optional : Maximum number of cycles to run 
+ @param i_pollinterval Option : Number of clock cycles to run between each poll
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 
 
@@ -3861,6 +3957,19 @@ uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32
 uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Write a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPUTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Write a Facility using a name - preserving Xstate
  @param i_facname Facility name
  @param i_bitlength Bit length to write to facility
@@ -3874,6 +3983,19 @@ uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer &
 uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Write a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to write to facility
+ @param i_data Data to write
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simPUTFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Write a TCFAC facility
  @param i_tcfacname TCFAC name
  @param i_data Value to write
@@ -3885,6 +4007,19 @@ uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval nonzero on failure
 */
 uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
+
+/**
+ @brief Write a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to write
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to write
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simputtcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Load a checkpoint into model
@@ -3909,6 +4044,19 @@ uint32_t simrestart(const char* i_checkpoint);
 uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Stick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to stick to facility
+ @param i_data Data to stick
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simSTKFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Stick a Facility using a name - preserving Xstate
  @param i_facname Facility name
  @param i_bitlength Bit length to stick to facility
@@ -3922,6 +4070,19 @@ uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer &
 uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Stick a Facility using a name - preserving Xstate
+ @param i_facname Facility name
+ @param i_bitlength Bit length to stick to facility
+ @param i_data Data to stick
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simSTKFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Stick a TCFAC facility
  @param i_tcfacname TCFAC name
  @param i_data Value to stick
@@ -3933,6 +4094,19 @@ uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval nonzero on failure
 */
 uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
+
+/**
+ @brief Stick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to stick
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to stick
+ @param i_bitlength Bit length to write to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simstktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Run RTX SUBCMD
@@ -3965,6 +4139,18 @@ uint32_t simtckinterval(uint32_t i_tckinterval);
 uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
 
 /**
+ @brief Unstick a Facility using a name
+ @param i_facname Facility name
+ @param i_bitlength Bit length to unstick to facility
+ @param i_row Optional: Array row
+ @param i_offset Optional : Facility offset
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval nonzero on failure
+*/
+uint32_t simUNSTICKHidden(const char* i_facname, uint32_t i_bitlength, uint64_t i_row = 0, uint32_t i_offset = 0);
+
+/**
  @brief Unstick a TCFAC facility
  @param i_tcfacname TCFAC name
  @param i_data Value to unstick to 
@@ -3976,6 +4162,19 @@ uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row 
  @retval nonzero on failure
 */
 uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
+
+/**
+ @brief Unstick a TCFAC facility
+ @param i_tcfacname TCFAC name
+ @param i_data Value to unstick to 
+ @param i_row Optional: Array Facility row
+ @param i_numrows Optional: Number of rows to unstick
+ @param i_bitlength Bit length to unstick to facility
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t simunsticktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0); 
 
 /**
  @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
