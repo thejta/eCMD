@@ -122,7 +122,7 @@ uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   }
   ecmdGenB32FromHexRight(&instruction, argv[1], 32);
 
-  if (strlen(argv[2]) > 6) {
+  if (strlen(argv[2]) > 8) { 
     ecmdOutputError("sendcmd - The modifier has to be <= 24 bits\n");
     return ECMD_INVALID_ARGS;
   } else if (!ecmdIsAllHex(argv[2])) {
