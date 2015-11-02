@@ -378,7 +378,6 @@ typedef enum {
   ECMD_GLOBALVAR_QUIETERRORMODE,        ///< Retrieve the value of the quiet error mode debug flag. Set by -quieterror
   ECMD_GLOBALVAR_LOOPMODE,              ///< Retrieve the value of the loopMode mode flag set by -exist default = ECMD_CONFIG_LOOP
   ECMD_GLOBALVAR_CMDLINEMODE,           ///< Retrieve the value of the cmdLine mode value.  cmdline default = 1, other = 0
-  ECMD_GLOBALVAR_FUSEDCORE              ///< Retrieve the value of the cmdLine fused core mode value, set by -fc  cmdline default = 1, other = 0
 } ecmdGlobalVarType_t;
 
 /**
@@ -389,6 +388,7 @@ typedef enum {
   ECMD_I2C_BUSSPEED_50KHZ,      ///< Run I2c bus at 50Khz
   ECMD_I2C_BUSSPEED_100KHZ,     ///< Run I2c bus at 100Khz
   ECMD_I2C_BUSSPEED_400KHZ,     ///< Run I2c bus at 400Khz
+  ECMD_I2C_BUSSPEED_1MHZ,       ///< Run I2c bus at 1Mhz
 } ecmdI2cBusSpeed_t;
 
 /**
@@ -1614,7 +1614,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
 #endif
 
-
 /**
  @brief Used for the ecmdQueryLatch function to return latch info
 */
@@ -2309,12 +2308,5 @@ struct ecmdDTSData{
  Defines for getMemProc and putMemProc
 */
 #define MEMPROC_CACHE_INHIBIT  0x00000001
-
-typedef enum {
-  ECMD_FUSED_CORE_DISABLED,  ///< Flag indicating fused core mode is disabled
-  ECMD_FUSED_CORE_ENABLED,   ///< Flag indicating fused core mode is enabled
-  ECMD_FUSED_CORE_REGISTER,  ///< Flag indicating fused core mode is enabled for a core register
-  ECMD_FUSED_CORE_SCOM,      ///< Flag indicating fused core mode is enabled for a scom 
-} ecmdFusedCoreMode_t;
 
 #endif
