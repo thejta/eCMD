@@ -29,6 +29,7 @@
 #include <inttypes.h>
 
 #include <ecmdStructs.H>
+#include <ecmdUtils.H>
 
 #include <target.H>
 #include <variable_buffer.H>
@@ -99,7 +100,7 @@ namespace fapi2
         l_ecmdRc = o_dest.setBitLength(l_bitLength);
         if (l_ecmdRc)
         {
-            FAPI_ERR("Error calling o_dest.setBitLength(%d) rc = 0x08X\n",
+            FAPI_ERR("Error calling o_dest.setBitLength(%d) rc = 0x%08X\n",
                      l_bitLength, l_ecmdRc);
             rc = l_ecmdRc;
         }
@@ -117,7 +118,7 @@ namespace fapi2
             l_ecmdRc = o_dest.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
             if (l_ecmdRc)
             {
-                FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x08X\n",
+                FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x%08X\n",
                          l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, l_ecmdRc);
                 rc = l_ecmdRc;
                 break;
@@ -139,7 +140,7 @@ namespace fapi2
                 l_ecmdRc = o_dest.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
                 if (l_ecmdRc)
                 {
-                    FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x08X\n",
+                    FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x%08X\n",
                              l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, l_ecmdRc);
                     rc = l_ecmdRc;
                 }
