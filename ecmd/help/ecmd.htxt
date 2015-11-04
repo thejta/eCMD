@@ -61,6 +61,7 @@ Syntax: ecmd
         cipbreakpoint            
         cipgetmempba             
         cipgetmemproc            
+        cipgetmemprocvar         
         cipgetpmcvoltage         
         cipgetvr                 
         cipgetvsr                
@@ -72,6 +73,7 @@ Syntax: ecmd
         cipporequeryimage        
         cipputmempba             
         cipputmemproc            
+        cipputmemprocvar         
         cipputpmcvoltage         
         cipputvr                 
         cipputvsr                
@@ -117,6 +119,7 @@ Syntax: ecmd
         croresettap              
         croruninitfile           
         crorwprobe               
+        crosendtestercmd         
         crosetconfig             
         crosysxcmd               
         crotestdimmattr          
