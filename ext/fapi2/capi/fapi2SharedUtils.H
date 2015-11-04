@@ -31,6 +31,9 @@
 #include <ecmdStructs.H>
 
 #include <target.H>
+#include <variable_buffer.H>
+#include <return_code_defs.H>
+#include <plat_trace.H>
 
 namespace fapi2
 {
@@ -39,11 +42,11 @@ namespace fapi2
 
     /**
      * @brief Copies contents of a fapi target (fapi2::Target) to an eCMD chip target (ecmdChipTarget)
-     * @param i_fapiTarget fapi2::Target to convert
-     * @param o_ecmdTarget generated ecmdChipTarget 
+     * @param[in] i_fapiTarget fapi2::Target to convert
+     * @param[out] o_ecmdTarget generated ecmdChipTarget 
      */
     template< TargetType K >
-    void fapiTargetToEcmdTarget(const fapi2::Target<K> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
+    inline void fapiTargetToEcmdTarget(const fapi2::Target<K> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
         if (i_fapiTarget.get() != NULL)
         {
@@ -56,8 +59,13 @@ namespace fapi2
         }
     }
 
+    /**
+     * @brief Copies contents of a fapi target pointer (fapi2::Target *) to an eCMD chip target (ecmdChipTarget)
+     * @param[in] i_pfapiTarget fapi2::Target pointer to convert
+     * @param[out] o_ecmdTarget generated ecmdChipTarget 
+     */
     template< TargetType K >
-    void fapiTargetPointerToEcmdTarget(const fapi2::Target<K> * const i_pFapiTarget, ecmdChipTarget & o_ecmdTarget)
+    inline void fapiTargetPointerToEcmdTarget(const fapi2::Target<K> * const i_pFapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
         if (i_pFapiTarget != NULL)
         {
@@ -71,18 +79,96 @@ namespace fapi2
     }
 
 
-#if 0
     /**
-     * @brief Turns an eCMD chip target (ecmdChipTarget) into a fapi target (fapi2::Target)
-     * @param i_ecmdTarget ecmdChipTarget to convert
-     * @param o_fapiTarget generated fapi2::Target
+     * @brief Copies contents of fapi2::variable_buffer to a ecmdDataBufferBase
+     * @param[in] i_src fapi::variable_buffer to copy from
+     * @param[out] o_dest ecmdDataBufferBase to copy to
+     * @return uint32_t return code zero if success
      */
-    template< TargetType K >
-    void ecmdTargetToFapiTarget(ecmdChipTarget & i_ecmdTarget, fapi2::Target<K> & o_fapiTarget)
+    inline uint32_t bufferCopy(ecmdDataBufferBase & o_dest, const fapi2::variable_buffer & i_src)
     {
-        o_fapiTarget = Target<K>(&i_ecmdTarget);
+        uint32_t rc = 0;
+        uint32_t l_ecmdRc = 0;
+        uint32_t l_bitLength = i_src.getBitLength();
+        const uint32_t l_bitsPerWord = sizeof(uint32_t) * 8;
+        uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
+        uint32_t l_currentWord = 0;
+        uint32_t l_extractData = 0;
+        fapi2::ReturnCodes l_copy_rc = fapi2::FAPI2_RC_SUCCESS;
+
+        l_ecmdRc = o_dest.setBitLength(l_bitLength);
+        if (l_ecmdRc)
+        {
+            FAPI_ERR("Error calling o_dest.setBitLength(%d) rc = 0x08X\n",
+                     l_bitLength, l_ecmdRc);
+            rc = l_ecmdRc;
+        }
+
+        while ((l_currentWord < l_wordLength) && (rc == 0))
+        {
+            l_copy_rc = i_src.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                FAPI_ERR("Error calling i_src.extract(l_extractData, %d, %d) rc = 0x" UINT64_HEX16_FORMAT "\n",
+                         l_currentWord * l_bitsPerWord, l_bitsPerWord, static_cast<uint64_t>(l_copy_rc));
+                rc = static_cast<uint64_t>(l_copy_rc);
+                break;
+            }
+            l_ecmdRc = o_dest.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
+            if (l_ecmdRc)
+            {
+                FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x08X\n",
+                         l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, l_ecmdRc);
+                rc = l_ecmdRc;
+                break;
+            }
+            l_currentWord++;
+        }
+        if ((l_bitLength > (l_wordLength * l_bitsPerWord)) && (rc == 0))
+        {
+            uint32_t l_bitsRemaining = l_bitLength - (l_wordLength * l_bitsPerWord);
+            l_copy_rc = i_src.extract(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
+            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
+            {
+                FAPI_ERR("error calling i_src.extract(l_extractData, %d, %d) rc = 0x" UINT64_HEX16_FORMAT "\n",
+                         l_wordLength * l_bitsPerWord, l_bitsRemaining, static_cast<uint64_t>(l_copy_rc));
+                rc = static_cast<uint64_t>(l_copy_rc);
+            }
+            else
+            {
+                l_ecmdRc = o_dest.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
+                if (l_ecmdRc)
+                {
+                    FAPI_ERR("Error calling o_dest.insert(%08X, %d, %d, 0) rc = 0x08X\n",
+                             l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, l_ecmdRc);
+                    rc = l_ecmdRc;
+                }
+            }
+        }
+        return rc;
     }
-#endif
+
+    /**
+     * @brief Copies contents of ecmdDataBufferBase to a fapi2::variable_buffer
+     * @param[in] i_src ecmdDataBufferBase to copy from
+     * @param[out] o_dest fapi::variable_buffer to copy to
+     * @return uint32_t return code zero if success
+     */
+    inline uint32_t bufferCopy(fapi2::variable_buffer & o_dest, ecmdDataBufferBase & i_src)
+    {
+        uint32_t rc = 0;
+        uint32_t* l_data = ecmdDataBufferBaseImplementationHelper::getDataPtr(&i_src);
+        if (l_data != NULL)
+        {
+            o_dest = fapi2::variable_buffer(l_data, i_src.getCapacity(), i_src.getBitLength());
+        }
+        else
+        {
+            FAPI_ERR("Error getting data pointer to ecmdDataBufferBase\n");
+            rc = 1;
+        }
+        return rc;
+    }
 
     //@}
 

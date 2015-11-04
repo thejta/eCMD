@@ -66,48 +66,6 @@ extern bool ecmdDebugOutput;
 
 namespace fapi2plat
 {
-
-    void convert(const fapi2::variable_buffer & i_buffer, ecmdDataBufferBase & o_buffer)
-    {
-        uint32_t l_ecmdRc;
-
-        uint32_t l_bitLength = i_buffer.getBitLength();
-        o_buffer.setBitLength(l_bitLength);
-        const uint32_t l_bitsPerWord = sizeof(uint32_t) * 8;
-        uint32_t l_wordLength = l_bitLength / l_bitsPerWord;
-        uint32_t l_currentWord = 0;
-        uint32_t l_extractData = 0;
-        fapi2::ReturnCode l_copy_rc(fapi2::FAPI2_RC_SUCCESS);
-        while (l_currentWord < l_wordLength)
-        {
-            l_copy_rc = i_buffer.extract(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
-            {
-                fprintf(stderr,"convert: error calling i_buffer.extract(l_extractData, %d, %d)\n", l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            }
-            l_ecmdRc = o_buffer.insert(l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord, 0);
-            if (l_ecmdRc)
-            {
-                fprintf(stderr,"convert: error calling o_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_currentWord * l_bitsPerWord, l_bitsPerWord);
-            }
-            l_currentWord++;
-        }
-        if (l_bitLength > (l_wordLength * l_bitsPerWord))
-        {
-            uint32_t l_bitsRemaining = l_bitLength - (l_wordLength * l_bitsPerWord);
-            l_copy_rc = i_buffer.extract(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            if (l_copy_rc != fapi2::FAPI2_RC_SUCCESS)
-            {
-                fprintf(stderr,"convert: error calling i_buffer.extract(l_extractData, %d, %d)\n", l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            }
-            l_ecmdRc = o_buffer.insert(l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining, 0);
-            if (l_ecmdRc)
-            {
-                fprintf(stderr,"convert: error calling o_buffer.insert(%08X, %d, %d, 0)\n", l_extractData, l_wordLength * l_bitsPerWord, l_bitsRemaining);
-            }
-        }
-    }
-
     fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
                               const uint64_t i_address,
                               fapi2::buffer<uint64_t>& o_data)
@@ -588,14 +546,10 @@ namespace fapi2plat
         }
 #endif
 
-        uint32_t* l_data = ecmdDataBufferBaseImplementationHelper::getDataPtr(&l_ecmd_buffer);
-        if (l_data != NULL)
+        l_ecmdRc = fapi2::bufferCopy(o_data, l_ecmd_buffer);
+        if (l_ecmdRc)
         {
-            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
-        }
-        else
-        {
-            fprintf(stderr,"dllFapi2GetRing: error getting data pointer to ecmdDataBufferBase\n");
+            return (fapi2::ReturnCodes) l_ecmdRc; 
         }
 
         return rc;
@@ -607,7 +561,11 @@ namespace fapi2plat
         uint32_t l_ecmdRc;
         ecmdDataBufferBase l_ecmd_buffer;
 
-        convert(i_data, l_ecmd_buffer);
+        l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer, i_data);
+        if (l_ecmdRc)
+        {
+            return (fapi2::ReturnCodes) l_ecmdRc; 
+        }
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL)
@@ -747,14 +705,10 @@ namespace fapi2plat
                 ecmdOutput(errorString.c_str());
         }
 
-        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer);
-        if (l_data != NULL)
+        l_ecmdRc = fapi2::bufferCopy(o_data, l_ecmd_buffer);
+        if (l_ecmdRc)
         {
-            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
-        }
-        else
-        {
-            fprintf(stderr,"dllGetSpy: error getting data pointer to ecmdDataBuffer\n");
+            return (fapi2::ReturnCodes) l_ecmdRc; 
         }
 
         return rc;
@@ -768,7 +722,11 @@ namespace fapi2plat
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer;
-        convert(i_data, l_ecmd_buffer);
+        l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer, i_data);
+        if (l_ecmdRc)
+        {
+            return (fapi2::ReturnCodes) l_ecmdRc; 
+        }
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
@@ -846,7 +804,11 @@ namespace fapi2plat
 
         ecmdDataBuffer l_ecmd_buffer;
         ecmdDataBuffer l_ecmd_buffer_image_data;
-        convert(i_imageData, l_ecmd_buffer_image_data);
+        l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer_image_data, i_imageData);
+        if (l_ecmdRc)
+        {
+            return (fapi2::ReturnCodes) l_ecmdRc; 
+        }
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
@@ -912,14 +874,10 @@ namespace fapi2plat
                 ecmdOutput(errorString.c_str());
         }
 
-        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer);
-        if (l_data != NULL)
+        l_ecmdRc = fapi2::bufferCopy(o_data, l_ecmd_buffer);
+        if (l_ecmdRc)
         {
-            o_data = fapi2::variable_buffer(l_data, l_ecmd_buffer.getCapacity(), l_ecmd_buffer.getBitLength());
-        }
-        else
-        {
-            fprintf(stderr,"dllGetSpyImage: error getting data pointer to ecmdDataBuffer\n");
+            return (fapi2::ReturnCodes) l_ecmdRc; 
         }
 
         return rc;
@@ -934,10 +892,18 @@ namespace fapi2plat
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer;
-        convert(i_data, l_ecmd_buffer);
+        l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer, i_data);
+        if (l_ecmdRc)
+        {
+            return (fapi2::ReturnCodes) l_ecmdRc; 
+        }
 
         ecmdDataBuffer l_ecmd_buffer_image_data;
-        convert(o_imageData, l_ecmd_buffer_image_data);
+        l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer_image_data, o_imageData);
+        if (l_ecmdRc)
+        {
+            return (fapi2::ReturnCodes) l_ecmdRc; 
+        }
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
@@ -1003,14 +969,10 @@ namespace fapi2plat
                 ecmdOutput(errorString.c_str());
         }
 
-        uint32_t* l_data = ecmdDataBufferImplementationHelper::getDataPtr(&l_ecmd_buffer_image_data);
-        if (l_data != NULL)
+        l_ecmdRc = fapi2::bufferCopy(o_imageData, l_ecmd_buffer_image_data);
+        if (l_ecmdRc)
         {
-            o_imageData = fapi2::variable_buffer(l_data, l_ecmd_buffer_image_data.getCapacity(), l_ecmd_buffer_image_data.getBitLength());
-        }
-        else
-        {
-            fprintf(stderr,"dllPutSpyImage: error getting data pointer to ecmdDataBuffer\n");
+            return (fapi2::ReturnCodes) l_ecmdRc; 
         }
 
         return rc;
