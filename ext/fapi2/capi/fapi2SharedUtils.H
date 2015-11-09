@@ -62,7 +62,7 @@ namespace fapi2
 
     /**
      * @brief Copies contents of a fapi target pointer (fapi2::Target *) to an eCMD chip target (ecmdChipTarget)
-     * @param[in] i_pfapiTarget fapi2::Target pointer to convert
+     * @param[in] i_pFapiTarget fapi2::Target pointer to convert
      * @param[out] o_ecmdTarget generated ecmdChipTarget 
      */
     template< TargetType K >
