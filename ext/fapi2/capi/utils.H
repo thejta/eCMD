@@ -45,7 +45,7 @@ namespace fapi2
 /// @note Implemented by platform code
 ///
 void logError(
-    fapi2::ReturnCode & io_rc,
+    fapi2::ReturnCode& io_rc,
     fapi2::errlSeverity_t i_sev = fapi2::FAPI2_ERRL_SEV_UNRECOVERABLE,
     bool i_unitTestError = false );
 
