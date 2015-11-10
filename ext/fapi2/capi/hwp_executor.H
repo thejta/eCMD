@@ -57,10 +57,10 @@
     void * l_pLibHandle = NULL; \
     void * l_pSymAddr = NULL; \
     uint32_t l_u32_rc_xyzabc = ECMD_SUCCESS; \
-    l_u32_rc_xyzabc = openSharedLib(#FUNC, l_pLibHandle); \
+    l_u32_rc_xyzabc = fapi2plat::openSharedLib(#FUNC, l_pLibHandle); \
     if (l_u32_rc_xyzabc == 0) \
     { \
-        l_u32_rc_xyzabc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        l_u32_rc_xyzabc = fapi2plat::getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
         if (l_u32_rc_xyzabc == 0) \
         { \
             FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
@@ -70,7 +70,7 @@
 	{ \
           RC = (fapi2::ReturnCodes) l_u32_rc_xyzabc; \
 	} \
-        closeSharedLib(l_pLibHandle); \
+        fapi2plat::closeSharedLib(l_pLibHandle); \
     } \
     else \
     { \
@@ -85,10 +85,10 @@
     void * l_pSymAddr = NULL; \
     uint32_t l_u32_rc_xyzabc = ECMD_SUCCESS; \
     fapi2::ReturnCode rc; \
-    l_u32_rc_xyzabc = openSharedLib(#FUNC, l_pLibHandle); \
+    l_u32_rc_xyzabc = fapi2plat::openSharedLib(#FUNC, l_pLibHandle); \
     if (l_u32_rc_xyzabc == 0) \
     { \
-        l_u32_rc_xyzabc = getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
+        l_u32_rc_xyzabc = fapi2plat::getSymAddr(#FUNC, l_pLibHandle, l_pSymAddr); \
         if (l_u32_rc_xyzabc == 0) \
         { \
             FUNC##_FP_t l_pFunc = reinterpret_cast<FUNC##_FP_t> (l_pSymAddr); \
@@ -98,7 +98,7 @@
 	{ \
           rc = (fapi2::ReturnCodes) l_u32_rc_xyzabc; \
 	} \
-        closeSharedLib(l_pLibHandle); \
+        fapi2plat::closeSharedLib(l_pLibHandle); \
     } \
     else \
     { \
@@ -107,9 +107,12 @@
     return rc;\
 }()
 
-int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);
-int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr);
-void closeSharedLib(void * i_pLibHandle);
+namespace fapi2plat
+{
+    int openSharedLib(const std::string & i_libName, void * & o_pLibHandle);
+    int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr);
+    void closeSharedLib(void * i_pLibHandle);
+}
 
 
 

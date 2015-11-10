@@ -31,72 +31,75 @@
    
 #define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: " _fmt_ "\n", ##_args_)   //JFDEBUG local defined due to dll load errors
 
-// dlopens a shared library and returns the handle
-int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
+namespace fapi2plat
 {
-    uint32_t rc = fapi2::FAPI2_RC_SUCCESS;
-    std::string sharedLibPath;
+    // dlopens a shared library and returns the handle
+    int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
+    {
+        uint32_t rc = fapi2::FAPI2_RC_SUCCESS;
+        std::string sharedLibPath;
 
 #ifdef LINUX
 #ifdef _LP64
 #ifdef __powerpc__
-    std::string tmp = (i_libName + "_ppc64.so");
+        std::string tmp = (i_libName + "_ppc64.so");
 #else
-    std::string tmp = (i_libName + "_x86_64.so");
+        std::string tmp = (i_libName + "_x86_64.so");
 #endif // end _LP64
 #else
-    std::string tmp = (i_libName + "_x86.so");
+        std::string tmp = (i_libName + "_x86.so");
 #endif //end _LINUX
 #else
 #ifdef _LP64
-    std::string tmp = (i_libName + "_aix64.so");
+        std::string tmp = (i_libName + "_aix64.so");
 #else
-    std::string tmp = (i_libName + "_aix.so");
+        std::string tmp = (i_libName + "_aix.so");
 #endif
 #endif 
 
 #if defined(ECMD_STATIC_FUNCTIONS) || defined(FAPIARCHIVE)
-    rc = fapi2QueryFileLocation(fapi2::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
+        rc = fapi2QueryFileLocation(fapi2::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
 #else 
-    rc = dllFapi2QueryFileLocation(fapi2::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
+        rc = dllFapi2QueryFileLocation(fapi2::FAPI_FILE_HWP, tmp, sharedLibPath, "default");
 #endif 
-    if (rc)
-    {
-        FAPI_ERR("fapi2QueryFileLocation failed with rc = 0x%x\n", rc);
+        if (rc)
+        {
+            FAPI_ERR("fapi2QueryFileLocation failed with rc = 0x%x\n", rc);
+            return rc;
+        }
+    
+        o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY);
+        if (o_pLibHandle == NULL)
+        {
+            FAPI_ERR("dlopen error '%s'\n", dlerror());
+            return ECMD_FAILURE;
+        }
+
         return rc;
     }
-    
-    o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY);
-    if (o_pLibHandle == NULL)
+
+    // Gets a function symbol address from a dlopened shared library
+    int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr)
     {
-        FAPI_ERR("dlopen error '%s'\n", dlerror());
-        return ECMD_FAILURE;
+        o_pSymAddr = dlsym(i_pLibHandle, i_pFuncName);
+
+        if (o_pSymAddr == NULL)
+        {
+            FAPI_ERR("dlsym error '%s'\n", dlerror());
+            return ECMD_FAILURE;
+        }
+
+        return fapi2::FAPI2_RC_SUCCESS;
     }
 
-    return rc;
-}
-
-// Gets a function symbol address from a dlopened shared library
-int getSymAddr(const char * i_pFuncName, void * i_pLibHandle, void * & o_pSymAddr)
-{
-    o_pSymAddr = dlsym(i_pLibHandle, i_pFuncName);
-
-    if (o_pSymAddr == NULL)
+    // dlcloses a shared library
+    void closeSharedLib(void * i_pLibHandle)
     {
-        FAPI_ERR("dlsym error '%s'\n", dlerror());
-        return ECMD_FAILURE;
+        int l_res = dlclose(i_pLibHandle);
+
+        if (l_res)
+        {
+            FAPI_ERR("dlclose error '%s'\n", dlerror());
+        }
     }
-
-    return fapi2::FAPI2_RC_SUCCESS;
-}
-
-// dlcloses a shared library
-void closeSharedLib(void * i_pLibHandle)
-{
-    int l_res = dlclose(i_pLibHandle);
-
-    if (l_res)
-    {
-        FAPI_ERR("dlclose error '%s'\n", dlerror());
-    }
-}
+} // namespace fapi2plat
