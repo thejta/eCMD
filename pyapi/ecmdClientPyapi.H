@@ -56,7 +56,7 @@
    do not affect your script.
 
    USAGE :<br>
-   if (ecmdLoadDll("","ver13,ver14")) { die "Fatal errors initializing DLL"; }<br>
+   if (ecmd.ecmdLoadDll("","ver13,ver14")) { die "Fatal errors initializing DLL"; }<br>
 
 */
 uint32_t ecmdLoadDll(const char * i_dllName, const char * i_clientVersion);
@@ -76,7 +76,7 @@ uint32_t ecmdLoadDll(const char * i_dllName, const char * i_clientVersion);
    NOTE : This function does not affect ring caching<br>
 
    USAGE :<br>
-   ecmdCommandArgs(sys.argv)<br>
+   ecmd.ecmdCommandArgs(sys.argv)<br>
 
 */
 uint32_t ecmdCommandArgs(char** io_argv); 
@@ -94,7 +94,7 @@ uint32_t ecmdCommandArgs(char** io_argv);
  * @see ecmdParseOptionWithArgs
  
    USAGE :<br>
-   ecmdParseOption(sys.argv, "-h")<br>
+   ecmd.ecmdParseOption(sys.argv, "-h")<br>
  */
 bool ecmdParseOption (char ** io_argv, const char * i_option);
 
@@ -106,7 +106,7 @@ bool ecmdParseOption (char ** io_argv, const char * i_option);
  * @see ecmdParseOptionWithArgs
  
    USAGE :<br>
-   threads = ecmdParseOptionWithArgs(sys.argv, "-t")<br>
+   threads = ecmd.ecmdParseOptionWithArgs(sys.argv, "-t")<br>
 */
 char * ecmdParseOptionWithArgs(char ** io_argv, const char * i_option);
 
@@ -286,7 +286,7 @@ Include files :
 
  # Initialize the Plugin - has to be first thing done
  # Here we pass in that we know this script supports eCMD Releases 1.x if we know we support more we could pass like "ver1,ver2"
- if (ecmdLoadDll("", "ver1")):
+ if (ecmd.ecmdLoadDll("", "ver1")):
     print("ERROR: Fatal errors initializing DLL")
     return 1
  </pre>
@@ -301,12 +301,12 @@ extension example but all extensions work the same way just replace the prefix w
 <pre>
 
  # Initialize the Plugin - has to be first thing done 
- if (ecmdLoadDll("", "ver1")):
+ if (ecmd.ecmdLoadDll("", "ver1")):
     print("ERROR: Fatal errors initializing DLL")
     return 1
 
  # Now initialize the extension as well
- if (cipInitExtension("ver1")):
+ if (ecmd.cipInitExtension("ver1")):
     print("Fatal errors initializing CIP Extension")
     return 1
 
