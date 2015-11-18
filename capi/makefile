@@ -15,6 +15,8 @@ SEDC_INCLUDES := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H sedcDefine
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C sedcCommonParser.C sedcCommonClasses.C
 VPATH         := ${VPATH}sedcScomdef
 CFLAGS        := ${CFLAGS} -IsedcScomdef
+# Compile libecmd optimized
+SLIB_CFLAGS   := ${CFLAGS} ${OPT_LEVEL}
 
 # Variables used for the build
 INCLUDES      := ${CAPI_INCLUDES} ${SEDC_INCLUDES}
@@ -90,7 +92,7 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************

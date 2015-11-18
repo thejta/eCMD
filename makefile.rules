@@ -132,6 +132,9 @@ include ${ECMD_ROOT}mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
 # Include the makefile.config, this will override anything above
 -include ${ECMD_ROOT}/makefile.config
 
+# If not set in the included makefiles, set optimization level 3 for libecmd.so
+OPT_LEVEL ?= -O3
+
 # If not disabled in the included makefiles, enable build tests
 TEST_BUILD ?= yes
 

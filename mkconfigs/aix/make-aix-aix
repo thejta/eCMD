@@ -13,6 +13,7 @@ LDFLAGS  := ${LDFLAGS}
 SLDFLAGS := ${SLDFLAGS} -qmkshrobj -brtl
 AR       := /usr/bin/ar
 CFLAGS   := ${CFLAGS} -I/gsa/${GSACELL}/projects/e/ecmd/utils/aix/include
+OPT_LEVEL := -O2
 
 ##
 # The location of SWIG and any swig options
