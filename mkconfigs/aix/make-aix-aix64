@@ -12,6 +12,7 @@ AR       := /opt/xsite/cte/tools/simarama/gcc/bin/ar -X64
 CFLAGS   := ${CFLAGS} -fPIC -ftemplate-depth-25 -Wall -maix64
 LDFLAGS  := ${LDFLAGS} -fPIC -maix64 -Wl,-brtl -Wl,-bexpall -Wl,-bhalt:5
 SLDFLAGS := ${SLDFLAGS} -maix64 -fPIC -shared -Wl,-G -Wl,-bexpall -Wl,-bhalt:5
+OPT_LEVEL := -O0
 
 ##
 # The location of SWIG and any swig options
