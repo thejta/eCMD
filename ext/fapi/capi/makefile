@@ -9,6 +9,11 @@ DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_SUPPORT
 SUBDIR     := ext/${EXTENSION_NAME}/capi/
 include ../../../makefile.rules
 
+SCRIPTS := scripts/fapiCreateAttrGetSetMacros.pl
+SCRIPTS += scripts/fapiCreateIfAttrService.pl
+SCRIPTS += scripts/fapiParseAttributeInfo.pl
+SCRIPTS += scripts/fapiParseErrorInfo.pl
+
 # Additional Source files for the Client API
 CAPI_SOURCE  := fapiDllCapi.C fapiPlatUtil.C fapiHwAccess.C fapiPlatHwAccess.C fapiPlatHwpExecutor.C fapiPlatSystemConfig.C fapiMultiScom.C
 

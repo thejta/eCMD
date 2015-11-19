@@ -72,6 +72,9 @@ install: create_links
         endif
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Includes to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Scripts to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts ..."
+	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts
+	cp ${SCRIPTS} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts/.
 
 create_links:
   ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
