@@ -34,7 +34,7 @@
 #include <target.H>
 
 #ifdef FAPI_SUPPORT_MULTI_SCOM
-    #include <fapiMultiScom.H>
+//    #include <fapiMultiScom.H>
 #endif
 
 namespace fapi2plat
