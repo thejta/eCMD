@@ -29,6 +29,7 @@
 
 // these should be in the fapi namespace, right? -farrugia JFDEBUG
    
+#undef FAPI_ERR
 #define FAPI_ERR(_fmt_, _args_...) printf("FAPI ERR>: " _fmt_ "\n", ##_args_)   //JFDEBUG local defined due to dll load errors
 
 namespace fapi2plat
