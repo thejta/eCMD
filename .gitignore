@@ -2,5 +2,15 @@
 obj_*
 src_*
 # Ignore generated source
-*Func.C
-*Func.H
+ext/*/capi/*Func.*
+ext/*/perlapi/*Func.*
+ext/*/capi/*DllCapi.*
+ext/*/capi/*ClientCapi.C
+ext/*/capi/*ClientEnums.H
+ext/*/perlapi/*ClientPerlapi*
+ext/*/pyapi/*ClientPyapi*
+perlapi/ecmdClientPerlapiFunc.*
+perlapi/ecmdClientPerlapiIterators.H
+capi/ecmdClientCapiFunc.C
+capi/ecmdClientEnums.H
+capi/ecmdDllCapi.H
