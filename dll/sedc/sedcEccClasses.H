@@ -1,6 +1,5 @@
 #ifndef sedcEccClasses_h
 #define sedcEccClasses_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcEccClasses.H                                               

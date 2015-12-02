@@ -1,5 +1,3 @@
-// $Id$
-// $Source$
 
 /**
  *  @file fapiMvpdAccess.H

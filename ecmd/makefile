@@ -1,4 +1,3 @@
-# $Header$
 # Makefile for the ecmd cmdline
 
 # Base info and default build rules

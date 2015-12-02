@@ -1,5 +1,3 @@
-// $Id$
-// $Source$
 
 /**
  *  @file fapiHwAccess.C

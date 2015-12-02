@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-# $Id$
 # Purpose:  This perl script will parse HWP Error XML files and create required
 #           FAPI code.
 #

@@ -1,7 +1,6 @@
 #ifndef cipClientCapi_h
 #define cipClientCapi_h
 
-/* $Header$ */
 
 /**
  * @file cipClientCapi.H

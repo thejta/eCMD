@@ -1,6 +1,5 @@
 #ifndef ecmdStructs_H
 #define ecmdStructs_H
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdStructs.H                                               

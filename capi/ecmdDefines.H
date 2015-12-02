@@ -1,6 +1,5 @@
 #ifndef ecmdDefines_H 
 #define ecmdDefines_H
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdDefines.H                                               

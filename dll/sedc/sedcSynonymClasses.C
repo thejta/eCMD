@@ -1,4 +1,3 @@
-/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File sedcSynonymClasses.C                                   

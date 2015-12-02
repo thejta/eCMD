@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 # Purpose:  This perl script will parse HWP Attribute XML files and
 # initfile attr files and create the fapiGetInitFileAttr() function
 # in a file called fapiAttributeService.C

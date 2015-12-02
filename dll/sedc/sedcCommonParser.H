@@ -1,6 +1,5 @@
 #ifndef sedcCommonParser_H
 #define sedcCommonParser_H
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcCommonParser.H                                               

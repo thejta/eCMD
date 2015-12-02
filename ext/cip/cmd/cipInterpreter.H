@@ -15,7 +15,6 @@
 //                                                                      
 // End Copyright ******************************************************
 
-/* $Header$ */
 
 /**
  @file cipInterpreter.H

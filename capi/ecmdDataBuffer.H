@@ -1,6 +1,5 @@
 #ifndef ecmdDataBuffer_H 
 #define ecmdDataBuffer_H
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdDataBuffer.H                                               

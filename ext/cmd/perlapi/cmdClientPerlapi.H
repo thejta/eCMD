@@ -1,7 +1,6 @@
 #ifndef cmdClientPerlapi_h
 #define cmdClientPerlapi_h
 
-/* $Header$ */
 
 /**
  * @file cmdClientPerlapi.H

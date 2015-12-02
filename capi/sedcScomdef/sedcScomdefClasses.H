@@ -1,6 +1,5 @@
 #ifndef sedcScomdefClasses_h
 #define sedcScomdefClasses_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcScomdefClasses.H                                               

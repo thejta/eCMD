@@ -1,7 +1,6 @@
 #ifndef cmdClientCapi_h
 #define cmdClientCapi_h
 
-/* $Header$ */
 
 /**
  * @file cmdClientCapi.H

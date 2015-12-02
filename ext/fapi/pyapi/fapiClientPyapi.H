@@ -1,7 +1,6 @@
 #ifndef fapiClientPyapi_h
 #define fapiClientPyapi_h
 
-/* $Header$ */
 
 /**
  * @file fapiClientPyapi.H

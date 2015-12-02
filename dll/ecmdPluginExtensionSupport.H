@@ -1,6 +1,5 @@
 #ifndef ecmdPluginExtensionSupport_h
 #define ecmdPluginExtensionSupport_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdPluginExtensionSupport.H                                               

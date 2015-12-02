@@ -1,7 +1,6 @@
 #ifndef fapi2ClientPerlapi_h
 #define fapi2ClientPerlapi_h
 
-/* $Header$ */
 
 /**
  * @file fapi2ClientPerlapi.H

@@ -1,4 +1,3 @@
-# $Header$
 # The main makefile for all rules
 
 # Base info and default build rules

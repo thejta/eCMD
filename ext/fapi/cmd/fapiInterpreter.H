@@ -1,6 +1,5 @@
 #ifndef fapiInterpreter_h
 #define fapiInterpreter_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File fapiInterpreter.H                                               

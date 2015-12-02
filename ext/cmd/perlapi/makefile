@@ -1,7 +1,6 @@
 # Makefile for the ecmd Extensions
 # Written by Chris Engel
 
-# $Header$
 
 
 

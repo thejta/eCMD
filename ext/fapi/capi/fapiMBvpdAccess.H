@@ -1,4 +1,3 @@
-// $Id$
 /**
  *  @file fapiMBvpdAccess.H
  *

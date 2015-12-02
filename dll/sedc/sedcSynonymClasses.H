@@ -1,6 +1,5 @@
 #ifndef sedcSynonymClasses_h
 #define sedcSynonymClasses_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcSynonymClasses.H                                               

@@ -1,4 +1,3 @@
-# $Header$
 # Makefile for the ecmd Extensions
 
 EXTENSION_NAME   := fapi

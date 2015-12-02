@@ -1,4 +1,3 @@
-// $Id$
 /**
  *  @file fapiCollectRegFfdc.H
  *

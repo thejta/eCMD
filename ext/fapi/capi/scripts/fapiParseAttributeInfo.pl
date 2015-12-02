@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 #
 # Purpose:  This perl script will parse HWP Attribute XML files
 # and add attribute information to a file called fapiAttributeIds.H

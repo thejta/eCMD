@@ -1,6 +1,5 @@
 #ifndef sedcDefines_h
 #define sedcDefines_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcDefines.H                                               
