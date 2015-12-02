@@ -1,0 +1,6 @@
+# Ignore generated obj and src dirs
+obj_*
+src_*
+# Ignore generated source
+*Func.C
+*Func.H
