@@ -1,6 +1,5 @@
 #ifndef ecmdCommandUtils_h
 #define ecmdCommandUtils_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdCommandUtils.H                                               

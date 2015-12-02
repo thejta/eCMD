@@ -1,4 +1,3 @@
-# $Header$
 # Makefile for the ecmd capi
 
 # Base info and default build rules

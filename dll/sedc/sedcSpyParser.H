@@ -1,6 +1,5 @@
 #ifndef sedcSpyParser_H
 #define sedcSpyParser_H
-/* $Header$ */
 // Copyright **********************************************************
 //
 // File sedcSpyParser.H

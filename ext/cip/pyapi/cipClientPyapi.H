@@ -1,7 +1,6 @@
 #ifndef cipClientPyapi_h
 #define cipClientPyapi_h
 
-/* $Header$ */
 
 /**
  * @file cipClientPyapi.H

@@ -1,7 +1,6 @@
 # Makefile for the ecmd Capi
 # Written by Chris Engel
 
-# $Header$
 
 OS           := $(shell uname)
 

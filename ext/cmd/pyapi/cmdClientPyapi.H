@@ -1,7 +1,6 @@
 #ifndef cmdClientPyapi_h
 #define cmdClientPyapi_h
 
-/* $Header$ */
 
 /**
  * @file cmdClientPyapi.H

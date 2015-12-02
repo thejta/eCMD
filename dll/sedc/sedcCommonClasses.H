@@ -1,6 +1,5 @@
 #ifndef sedcCommonClasses_h
 #define sedcCommonClasses_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcCommonClasses.H                                               

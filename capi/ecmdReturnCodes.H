@@ -1,6 +1,5 @@
 #ifndef ecmdReturnCodes_h
 #define ecmdReturnCodes_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File ecmdReturnCodes.H                                               

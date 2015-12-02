@@ -1,4 +1,3 @@
-# $Header$
 # Makefile for the ecmd Python Module
 
 # Base info and default build rules

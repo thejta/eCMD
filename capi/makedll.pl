@@ -14,7 +14,6 @@ exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
 if 0;
 
 # File makedll.pl created by Joshua Wills at 12:45:07 on Fri Sep 19 2003. 
-# $Header$
 
 use strict;
 

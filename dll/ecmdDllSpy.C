@@ -12,7 +12,6 @@
 // deposited with the U.S. Copyright Office.                            
 //                                                                      
 // End Copyright *******************************************************
-/* $Header$ */
 // Module Description **************************************************
 //
 // Description: Functions to handle spies on top of eCMD

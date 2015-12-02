@@ -1,6 +1,5 @@
 #ifndef sedcSpyContainer_h
 #define sedcSpyContainer_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcSpyContainer.H                                               

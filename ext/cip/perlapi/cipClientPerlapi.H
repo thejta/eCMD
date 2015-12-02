@@ -1,7 +1,6 @@
 #ifndef cipClientPerlapi_h
 #define cipClientPerlapi_h
 
-/* $Header$ */
 
 /**
  * @file cipClientPerlapi.H

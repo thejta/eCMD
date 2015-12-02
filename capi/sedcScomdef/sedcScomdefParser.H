@@ -1,6 +1,5 @@
 #ifndef sedcScomdefParser_h
 #define sedcScomdefParser_h
-/* $Header$ */
 // Copyright **********************************************************
 //                                                                      
 // File sedcScomdefParser.H                                               

@@ -13,7 +13,6 @@ exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
 if 0;
 
 # File makepm.pl created by Chris Engel
-# $Header$
 
 use strict;
 

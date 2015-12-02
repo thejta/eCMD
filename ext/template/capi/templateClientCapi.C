@@ -2,7 +2,6 @@
 /* DO NOT EDIT THISFILE (unless you are editing the temp-late */
 
 
-/* $Header$ */
 // Copyright ***********************************************************
 //                                                                      
 // File templateClientCapi.C                                   
