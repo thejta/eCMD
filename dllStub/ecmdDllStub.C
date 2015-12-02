@@ -35,15 +35,6 @@
 /* For use by dllQueryConfig and dllQueryExist */
 uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              willsj Initial Creation
-//
-// End Change Log *****************************************************
-
-
 //--------------------------------------------------------------------
 //  Function Definitions                                               
 //--------------------------------------------------------------------

@@ -13,13 +13,6 @@
 // deposited with the U.S. Copyright Office.
 //
 // End Copyright *******************************************************
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STGC7449      04/18/05 prahl     Fix up Beam messages.
-//   
-// End Change Log *****************************************************
 
 //lint -e571 The casts are necessary in ecmdHashString - JTA
 //lint -e744 We don't want there to be a default in the ecmdHashString case - JTA

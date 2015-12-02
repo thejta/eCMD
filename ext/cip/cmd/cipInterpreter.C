@@ -240,11 +240,3 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 
   return rc;
 }
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

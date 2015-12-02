@@ -1963,16 +1963,3 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
 
   return rc;
 }
-
-
-
-
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

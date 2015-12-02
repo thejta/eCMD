@@ -9,13 +9,6 @@ to update this file
 
 
 ************************************************************/
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  initial Creation   04/20/07 Shashank  Common TestCase framework to compare 
-//                                        and analyze old and new function in ecmdDataBuffer.C
-// End Change Log *****************************************************
 
 #include <list>
 #include <string>
