@@ -74,31 +74,3 @@ int dummy1 (ecmdChipTarget & target, vector<ecmdCageData> & queryData) {
   return 0;
 
 }
-
-/* Change Log
-<@log@>
-
-Wed Sep 24 2003  11:28:07  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 24 2003  11:27:36  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 24 2003  11:22:57  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 17 2003  17:10:33  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 17 2003  15:25:53  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 17 2003  15:21:28  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 17 2003  15:19:07  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-
-Wed Sep 17 2003  14:00:30  by Joshua Wills
-<reason><version><Brief description and why change was made.>
-*/

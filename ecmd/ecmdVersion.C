@@ -135,12 +135,3 @@ uint32_t ecmdCheckDllVersion(const char* options) {
   /* The dllCheckDllVersion does an exit so we will never get here */
   return rc;
 }
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

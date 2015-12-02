@@ -14,13 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
                                
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-// End Change Log *****************************************************
-
 // Get rid of some annoying lint errors that aren't real - cje
 //lint -e613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity
 //lint -e668 Possible passing of a null pointer, same thing as above

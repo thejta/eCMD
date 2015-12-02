@@ -6,20 +6,6 @@
 #
 # Author: Mike Jones
 #
-# Change Log **********************************************************
-#
-#  Flag  Track#    Userid    Date      Description
-#  ----  --------  --------  --------  -----------
-#                  mjjones   11/15/11  Copied from fapiParseAttributeInfo
-#                  mjjones   12/12/11  Support all attributes if no if-attr
-#                                      files specified (for Cronus)
-#                  mjjones   01/13/12  Use new ReturnCode interfaces
-#                  mjjones   02/08/12  Handle attribute files with 1 entry
-#                  mjjones   06/12/12  Handle privileged attributes
-#                  mjjones   09/28/12  Minor change to add FFDC on error
-#                  mjjones   10/26/12  Output attrId/targType on error
-#
-# End Change Log ******************************************************
 
 use strict;
 

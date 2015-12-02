@@ -84,13 +84,3 @@ int templateInitExtension(const char * i_clientVersion) {
   }
   return templateInitExtension();
 }
-
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

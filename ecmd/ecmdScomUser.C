@@ -1334,13 +1334,3 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
 
   return rc;
 }
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//                              HJH      coe
-//
-// End Change Log *****************************************************

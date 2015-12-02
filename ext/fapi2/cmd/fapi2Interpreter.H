@@ -56,11 +56,3 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[]);
 //@}
 
 #endif /* fapi2Interpreter_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************

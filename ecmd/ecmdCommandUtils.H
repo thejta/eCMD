@@ -174,11 +174,3 @@ std::string  getBestEcmd(std::string i_ecmd);
 */
 uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName);
 #endif /* ecmdCommandUtils_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              willsj Initial Creation
-//
-// End Change Log *****************************************************

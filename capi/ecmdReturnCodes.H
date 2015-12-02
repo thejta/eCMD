@@ -169,11 +169,3 @@
 #define ECMD_GET_ALL_REMAINING_ERRORS            (ECMD_ERR_ECMD | 0xFFFF) ///< Retrieve all errors from getErrorMsg.  Not to be used.
 
 #endif /* ecmdReturnCodes_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************

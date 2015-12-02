@@ -92,11 +92,3 @@ uint32_t cmdRunCommandFileCaptureOutput(std::string i_file, std::string & o_outp
 #endif
 
 #endif /* cmdClientCapi_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************

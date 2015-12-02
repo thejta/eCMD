@@ -13,15 +13,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//  @02  STGC7449      04/18/05 prahl             "
-//  @03  stgc12609     06/02/05 v2cdipv   Fixed printing of uint64_t in fpp
-//   
-// End Change Log *****************************************************
 
 //--------------------------------------------------------------------
 // Includes

@@ -56,11 +56,3 @@ int fapi2InitExtension(const char * i_clientVersion);
 
 
 #endif /* fapi2ClientCapi_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************

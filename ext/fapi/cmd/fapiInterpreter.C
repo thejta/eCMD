@@ -126,11 +126,3 @@ uint32_t fapiCommandInterpreter(int argc, char* argv[]) {
 
   return rc;
 }
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

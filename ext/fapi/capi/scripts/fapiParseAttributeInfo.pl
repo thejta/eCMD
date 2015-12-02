@@ -9,50 +9,6 @@
 #
 # Version: 1.0
 #
-# Change Log **********************************************************
-#
-#  Flag  Track#    Userid    Date      Description
-#  ----  --------  --------  --------  -----------
-#                  camvanng  06/03/11  Created
-#                  mjjones   06/06/11  Minor updates for integration
-#                  mjjones   06/10/11  Added "use strict;"
-#                  mjjones   06/23/11  Parse more info
-#                  mjjones   07/05/11  Take output dir as parameter
-#                  mjjones   09/06/11  Remove string/defaultVal support 
-#                  mjjones   10/07/11  Create fapiAttributeService.C
-#                  mjjones   10/17/11  Support enums with values
-#                  mjjones   10/18/11  Support multiple attr files and
-#                                      multi-line descriptions
-#                  camvanng  10/20/11  Changed i_pTarget to "const" ptr
-#                  camvanng  11/09/11  Prepend "ENUM_" to attribute
-#                                      enums
-#                  mjjones   11/15/11  Move gen of fapiAttributeService.C
-#                                      to a different file
-#                  mjjones   12/16/11  Generate fapiAttributePlatCheck.H
-#                                      Generate fapiAttributesSupported.html
-#                  mjjones   02/08/12  Handle attribute files with 1 entry
-#                  mjjones   03/22/12  Generate hash values for enums
-#                  mjjones   04/10/12  Process Chip EC Feature attributes
-#                  mjjones   05/15/12  Detect duplicate attr ids and append
-#                                      ULL after 64bit enumerator
-#                  mjjones   05/21/12  Detect duplicate ids/hashes across files
-#                  mjjones   05/21/12  Ignore newlines and whitespace when
-#                                      parsing enumerations
-#                  mjjones   06/12/12  Add new include file to fapiChipEcFeature.C
-#                  mjjones   08/08/12  Output target types and if PlatInit
-#                  mjjones   09/28/12  Minor change to add FFDC on error
-#                  mjjones   11/05/12  Generate fapiAttributeIds.txt
-#                                      Generate fapiAttributeEnums.txt
-#                  mjjones   03/21/13  Add fapi namespace to Chip EC Feature macro
-#                  mjjones   02/27/13  Generate fapiAttrInfo.csv
-#                                      Generate fapiAttrEnumInfo.csv
-#                  mjjones   04/11/13  Allow platform to override Chip EC Feature
-#                  mjjones   05/02/13  Allow Chip EC feature to be queried from
-#                                      chiplet
-#                  mklight   09/29/14  Handle initToZero tag
-#
-# End Change Log ******************************************************
-
 use strict;
 
 #------------------------------------------------------------------------------

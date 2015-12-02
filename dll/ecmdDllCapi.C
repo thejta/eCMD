@@ -14,17 +14,6 @@
 //                                                                      
 // End Copyright *******************************************************
 
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder     Description                       
-//  ---- -------- ---- -------- -----     -----------------------------
-//  @01  STG4466       03/10/05 Prahl     Fix up Beam errors
-//  @02  STG44847      02/08/06 prahl     Fix up Lint messages.  Got most but
-//                                        still a bunch of 713, 732 & 737 left.
-//  @03                05/08/07 hjh       add of the continue on error option -coe
-//  @04                06/18/07 hjh       add warning if latch could not be found in hashfile
-//   
-// End Change Log *****************************************************
 //lint -e825 We deliberately want to fall through in ecmdIncrementLooperIterators - JTA
 
 //----------------------------------------------------------------------
@@ -4157,13 +4146,3 @@ void dllSetCurrentCmdline(int argc, char* argv[])
     ecmdGlobal_currentCmdline += " ";
   }
 }
-
-
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

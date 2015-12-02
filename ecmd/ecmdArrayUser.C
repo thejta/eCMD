@@ -1076,13 +1076,3 @@ uint32_t ecmdGetTraceArrayUser(int argc, char * argv[]) {
   return rc;
 }
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//  none STGC7449      04/18/05 prahl    Clean up Beam messages.
-//  @01  STGC12283     05/25/05 prahl    Fix memory leak of add_buffer
-//  @02  F620122       08/22/07 shashank Add support for "continue on error" for the command lines
-// End Change Log *****************************************************

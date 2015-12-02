@@ -697,11 +697,3 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
 
     return rc;
 }
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder    Description                       
-//  ---- -------- ---- -------- -------- ------------------------------   
-//                              CENGEL   Initial Creation
-//
-// End Change Log *****************************************************

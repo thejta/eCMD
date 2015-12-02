@@ -16,14 +16,6 @@
 /*                                                                        */
 /* IBM_PROLOG_END_TAG                                                     */
 
-// Change Log *****************************************************************
-//
-//  Flag Reason  Vers Date     Coder    Description
-//  ---- ------- ---- -------- -------- --------------------------------------
-//       F478331 f225 10/07/04 iawillia Initial file creation.
-//  @00  D676534 f710 10/10/08 baiocchi Use nfptypes include for aix
-//
-// End Change Log *************************************************************
 
 
 /* Enable both the defines required to make the code work */

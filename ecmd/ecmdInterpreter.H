@@ -212,11 +212,3 @@ uint32_t ecmdAdalPsiUser(int argc, char * argv[]);
 
 
 #endif /* ecmdInterpreter_h */
-
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Vers Date     Coder  Description                       
-//  ---- -------- ---- -------- -----  -------------------------------   
-//                              cengel Initial Creation
-//
-// End Change Log *****************************************************

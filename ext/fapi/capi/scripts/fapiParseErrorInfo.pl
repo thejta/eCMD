@@ -6,52 +6,6 @@
 #
 # Author: CamVan Nguyen and Mike Jones
 #
-# Change Log **********************************************************
-#
-#  Flag  Track#    Userid    Date      Description
-#  ----  --------  --------  --------  -----------
-#                  camvanng  06/03/11  Created
-#                  mjjones   06/06/11  Minor updates for integration
-#                  mjjones   06/10/11  Added "use strict;"
-#                  mjjones   07/05/11  Take output dir as parameter
-#                  mjjones   08/08/11  Large update to create more code
-#                  mjjones   08/24/11  Parse GARD info
-#                  mjjones   09/22/11  New Error Info Design
-#                  camvanng  10/20/11  Fix bug
-#                  mjjones   12/16/11  Improved usage statement
-#                  mjjones   02/10/12  Allow err file with one element
-#                  mjjones   03/22/12  Generate hash values for enums
-#                  mjjones   05/15/12  Detect duplicate error rcs
-#                  mjjones   05/21/12  Detect duplicate ids/hashes across files
-#                  mjjones   06/27/12  Add assembler output for SBE usage
-#                  mjjones   09/19/12  Generate FFDC ID enumeration
-#                                      Generate fapiCollectRegFfdc.C file
-#                  mjjones   10/23/12  Minor fix for Cronus compile failure
-#                  mjjones   11/09/12  Generate fapiSetSbeError.H
-#                  mjjones   01/09/13  Fix CFAM register capture
-#                  mjjones   03/14/13  Allow 64bit literals for SCOM reg capture
-#                  mjjones   03/22/13  Support Procedure Callouts
-#                  mjjones   04/25/13  Allow multiple register ffdc ids in a
-#                                      collectRegisterFfdc element
-#                  mjjones   05/20/13  Support Bus Callouts
-#                  mjjones   06/24/13  Support Children CDGs
-#                  mjjones   08/20/13  Use constants for Reg FFDC collection
-#                  mjjones   08/26/13  Support HW Callouts
-#                  dedahle   09/30/13  Support chiplet register FFDC collection
-#                  rjknight  09/24/13  Allow callout/deconfigure/gard of
-#                                      DIMM(s) related to MBA
-#                  dedahle   10/15/13  Support register FFDC collection based on
-#                                      present children
-#                  whs       03/11/14  Add FW traces to error logs
-#                  mjjones   03/20/14  Fix register FFDC collection bug when
-#                                      collecting chiplet registers
-#                  mjjones   03/26/14  Generate HWP error on unknown SBE error
-#                  maploetz  06/11/14  Callout deconfig/gard target on all SBE
-#                                      errors
-#                  rjknight  05/27/15  Include hwInstance parsing for PCI clock
-#                                      callouts
-#
-# End Change Log *****************************************************
 #
 # Usage:
 # fapiParseErrorInfo.pl <output dir> <filename1> <filename2> ...

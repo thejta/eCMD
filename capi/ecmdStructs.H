@@ -15,19 +15,6 @@
 // deposited with the U.S. Copyright Office.                             
 //                                                                      
 // End Copyright ******************************************************
-// Change Log *********************************************************
-//                                                                      
-//  Flag Reason   Date      Coder     Description                       
-//  ---- -------- --------  --------  -------------------------------   
-//  @01x CQ32245  11/08/05  prahl     Clean up Beam errors
-//       FW038339 03/30/06  scottw    Change i_len parms to pass by value
-//  @02  FW038451 03/30/06  scottw    Add std methods to ecmdI2CCmdEntry
-
-//  @03                05/08/07 hjh       add of the continue on error option -coe
-//  @04  U6037    07/07/09  jaschnei  Oscillator Interface Changes
-//  @05  SW142634 06/17/12  gonaveen  Adding P8, centaur chiptype defines
-//  @06  SW177194 12/03/12  gonaveen  Moved P8 defines to ecmdIpP8ChipDefines
-//  @07  SW186750 02/11/13  nkumar    increased ECMD_ARG_LIMIT to 100
 /**
   @file ecmdStructs.H
   @brief All the Structures required for the eCMD Capi
