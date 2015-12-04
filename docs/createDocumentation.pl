@@ -27,8 +27,8 @@ if (`uname` eq "AIX\n") {
 
 # ARGV[0] will be the place to write this all out to
 my $outputDirectory = shift(@ARGV);
-# ARGV[1] will be the root of the ecmd CVS
-my $cvsBase = shift(@ARGV);
+# ARGV[1] will be the root of the ecmd repository
+my $repoBase = shift(@ARGV);
 # ARGV[2] will be the release we are generating
 my $version = shift(@ARGV);
 
@@ -58,25 +58,25 @@ system("mkdir -p $outputDirectory/Capi");
 system("mkdir -p $outputDirectory/Capi/examples");
 
 # Copy over the header files we are going to process
-$rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdStructs.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdDataBuffer.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdDataBuffer.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdDataBufferBase.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdDataBufferBase.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdReturnCodes.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdReturnCodes.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdUtils.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdUtils.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdClientCapi.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdClientCapi.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Capi/.");
+$rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 
 # Copy over example files
-$rc = system("cp $cvsBase/docs/examples/ecmdclient.C $outputDirectory/Capi/examples/.");
+$rc = system("cp $repoBase/docs/examples/ecmdclient.C $outputDirectory/Capi/examples/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/docs/examples/makefile $outputDirectory/Capi/examples/.");
+$rc = system("cp $repoBase/docs/examples/makefile $outputDirectory/Capi/examples/.");
 if ($rc) { return $rc; }
 
 
@@ -86,7 +86,7 @@ my @extensions;
 if ($ENV{"EXTENSIONS"} ne "") {
   @extensions = split(/\s+/, $ENV{"EXTENSIONS"})
 } else {
-  @extensions = split(/\s+/, `ls $cvsBase/ext/ | grep -v CVS | grep -v template`);
+  @extensions = split(/\s+/, `ls $repoBase/ext/ | grep -v template`);
 }
 
 # Create the list of extension defines to be fed into doxygen
@@ -98,17 +98,17 @@ for (my $x = 0; $x <= $#extensions; $x++) {
   # Create the extension define
   $extensionDefines .= "ECMD_" . uc($extensions[$x]) . "_EXTENSION_SUPPORT ";
 
-  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
+  $rc = system("cp $repoBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
 
-  $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Capi/.");
+  $rc = system("cp $repoBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Capi/.");
   if ($rc) { return $rc; }
 
   # fapi/fapi2 specific stuff
   # There are a lot of extra header files in these extensions, and so that this script doesn't have to get modified
   # every time a new one is added, we'll just copy all of them over.
   if (($extensions[$x] eq "fapi") || ($extensions[$x] eq "fapi2")) {
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/*.H $outputDirectory/Capi/.");
+    $rc = system("cp $repoBase/ext/$extensions[$x]/capi/*.H $outputDirectory/Capi/.");
     if ($rc) { return $rc; }
     # removing a few  files that blow up the memory in latex pdf creation later. 
     # Including them also made the webpage doc difficult to find more useful info
@@ -125,7 +125,7 @@ for (my $x = 0; $x <= $#extensions; $x++) {
 
 # Update the version strings
 #system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
-$rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
+$rc = system("sed \"s!ECMDVERSION!$version!g\" $repoBase/docs/ecmdDoxygen.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Capi!g\" > $outputDirectory/Capi/ecmdDoxygen.config");
 if ($rc) { return $rc; }
 
 # Update extension defines
@@ -145,46 +145,46 @@ system("mkdir -p $outputDirectory/Perlapi");
 system("mkdir -p $outputDirectory/Perlapi/examples");
 
 # Copy over the header files we are going to process
-$rc = system("cp $cvsBase/perlapi/ecmdBit64.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/perlapi/ecmdBit64.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/perlapi/ecmdPerlApiTypes.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/perlapi/ecmdPerlApiTypes.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdDataBuffer.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/capi/ecmdDataBuffer.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/capi/ecmdStructs.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdUtils.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/capi/ecmdUtils.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Perlapi/.");
+$rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
 
 # Copy over example files
-$rc = system("cp $cvsBase/docs/examples/example.pl $outputDirectory/Perlapi/examples/.");
+$rc = system("cp $repoBase/docs/examples/example.pl $outputDirectory/Perlapi/examples/.");
 if ($rc) { return $rc; }
 
 # Generate the base
-$rc = system("cd $cvsBase/perlapi/;$cvsBase/perlapi/makepm.pl ecmd ecmdClientPerlapiFunc.H");
+$rc = system("cd $repoBase/perlapi/;$repoBase/perlapi/makepm.pl ecmd ecmdClientPerlapiFunc.H");
 if ($rc) { return $rc; }
 
 # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
 # in the comments that is different from the actual file
-$rc = system("cat $cvsBase/perlapi/ecmdClientPerlapi.H $cvsBase/perlapi/ecmdClientPerlapiFunc.H | grep -v ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
+$rc = system("cat $repoBase/perlapi/ecmdClientPerlapi.H $repoBase/perlapi/ecmdClientPerlapiFunc.H | grep -v ecmdClientPerlapiFunc.H > $outputDirectory/Perlapi/ecmdClientPerlapi.H");
 if ($rc) { return $rc; }
 
 # Now copy over all of the extension file headers that are available
 for (my $x = 0; $x <= $#extensions; $x++) {
   if (($extensions[$x] ne "fapi") && ($extensions[$x] ne "fapi2")) {
-    $rc = system("cd $cvsBase/ext/$extensions[$x]/perlapi/;$cvsBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
+    $rc = system("cd $repoBase/ext/$extensions[$x]/perlapi/;$repoBase/perlapi/makepm.pl $extensions[$x] $extensions[$x]ClientPerlapiFunc.H");
     if ($rc) { return $rc; }
     # I'm grepping out the *PerlapiFunc.H to eliminate a doxygen error that happens from having a filename
     # in the comments that is different from the actual file
-    $rc = system("cat $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
+    $rc = system("cat $repoBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $repoBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapiFunc.H | grep -v $extensions[$x]ClientPerlapiFunc.H > $outputDirectory/Perlapi/$extensions[$x]ClientPerlapi.H");
     if ($rc) { return $rc; }
     # Grab the structs files too
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Perlapi/.");
+    $rc = system("cp $repoBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Perlapi/.");
     if ($rc) { return $rc; }
   } else {
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $outputDirectory/Perlapi/.");
+    $rc = system("cp $repoBase/ext/$extensions[$x]/perlapi/$extensions[$x]ClientPerlapi.H $outputDirectory/Perlapi/.");
     if ($rc) { return $rc; }
   }
 }
@@ -235,7 +235,7 @@ for (my $x = 0; $x <= $#files; $x++) {
 
 # Update the version strings
 #system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
-$rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
+$rc = system("sed \"s!ECMDVERSION!$version!g\" $repoBase/docs/ecmdDoxygenPm.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Perlapi!g\" > $outputDirectory/Perlapi/ecmdDoxygenPm.config");
 if ($rc) { return $rc; }
 
 # Update extension defines
@@ -255,32 +255,32 @@ system("mkdir -p $outputDirectory/Pythonapi");
 system("mkdir -p $outputDirectory/Pythonapi/examples");
 
 # Copy over the header files we are going to process
-$rc = system("cp $cvsBase/pyapi/ecmdPyApiTypes.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/pyapi/ecmdPyApiTypes.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdStructs.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdStructs.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdDataBuffer.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdDataBuffer.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdDataBufferBase.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdDataBufferBase.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdReturnCodes.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdReturnCodes.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdUtils.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdUtils.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdClientCapi.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdClientCapi.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
-$rc = system("cp $cvsBase/capi/ecmdSharedUtils.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
 # The one additional python file that is needed
-$rc = system("cp $cvsBase/pyapi/ecmdClientPyapi.H $outputDirectory/Pythonapi/.");
+$rc = system("cp $repoBase/pyapi/ecmdClientPyapi.H $outputDirectory/Pythonapi/.");
 if ($rc) { return $rc; }
 
 # Combine ecmdClientCapi.H and ecmdClientPyApi.H into one file
-$rc = system("cat $cvsBase/pyapi/ecmdClientPyapi.H $cvsBase/capi/ecmdClientCapi.H > $outputDirectory/Pythonapi/ecmdClientPyapi.H");
+$rc = system("cat $repoBase/pyapi/ecmdClientPyapi.H $repoBase/capi/ecmdClientCapi.H > $outputDirectory/Pythonapi/ecmdClientPyapi.H");
 if ($rc) { return $rc; }
 
 # Copy over example files
-$rc = system("cp $cvsBase/docs/examples/example.py $outputDirectory/Pythonapi/examples/.");
+$rc = system("cp $repoBase/docs/examples/example.py $outputDirectory/Pythonapi/examples/.");
 if ($rc) { return $rc; }
 
 
@@ -291,13 +291,13 @@ for (my $x = 0; $x <= $#extensions; $x++) {
   if (($extensions[$x] ne "fapi") && ($extensions[$x] ne "fapi2")) {
     # I'm grepping out the *Capi.H to eliminate a doxygen error that happens from having a filename
     # in the comments that is different from the actual file
-    $rc = system("cat $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $cvsBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H | grep -v $extensions[$x]ClientCapi.H > $outputDirectory/Pythonapi/$extensions[$x]ClientPyapi.H");
+    $rc = system("cat $repoBase/ext/$extensions[$x]/capi/$extensions[$x]ClientCapi.H $repoBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H | grep -v $extensions[$x]ClientCapi.H > $outputDirectory/Pythonapi/$extensions[$x]ClientPyapi.H");
     if ($rc) { return $rc; }
 
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Pythonapi/.");
+    $rc = system("cp $repoBase/ext/$extensions[$x]/capi/$extensions[$x]Structs.H $outputDirectory/Pythonapi/.");
     if ($rc) { return $rc; }
   } else {
-    $rc = system("cp $cvsBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H $outputDirectory/Pythonapi/.");
+    $rc = system("cp $repoBase/ext/$extensions[$x]/pyapi/$extensions[$x]ClientPyapi.H $outputDirectory/Pythonapi/.");
     if ($rc) { return $rc; }
   }
 }
@@ -330,7 +330,7 @@ for (my $x = 0; $x <= $#files; $x++) {
 
 # Update the version strings
 #system("sed \"s/VERSION/$version/g\" ecmdDoxygen.config | sed \"s/RELEASE/$release/g\" > $outputDirectory/ecmdDoxygen.config");
-$rc = system("sed \"s!ECMDVERSION!$version!g\" $cvsBase/docs/ecmdDoxygenPython.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Pythonapi!g\" > $outputDirectory/Pythonapi/ecmdDoxygenPython.config");
+$rc = system("sed \"s!ECMDVERSION!$version!g\" $repoBase/docs/ecmdDoxygenPython.config | sed \"s!INPUTOUTPUT_PATH!$outputDirectory/Pythonapi!g\" > $outputDirectory/Pythonapi/ecmdDoxygenPython.config");
 if ($rc) { return $rc; }
 
 # Update extension defines
