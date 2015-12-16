@@ -336,8 +336,8 @@ install_setup:
 
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
-	@cp -R `find bin/* | grep -v CVS` ${INSTALL_PATH}/bin/.
-	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/bin/ ]; then find ext/${ext}/bin -type f ! -path "*/CVS/*" -exec cp {} ${INSTALL_PATH}/bin/. \; ; fi;)
+	@cp -R `find bin/*` ${INSTALL_PATH}/bin/.
+	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/bin/ ]; then find ext/${ext}/bin -type f -exec cp {} ${INSTALL_PATH}/bin/. \; ; fi;)
 	@echo " "
 
 	@echo "Creating ${TARGET_ARCH}/bin dir ..."
@@ -359,8 +359,8 @@ install_setup:
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
-	@cp -R `find ecmd/help/* | grep -v CVS` ${INSTALL_PATH}/help/.
-	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/cmd/help ]; then find ext/${ext}/cmd/help -type f ! -path "*/CVS/*" -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
+	@cp -R `find ecmd/help/*` ${INSTALL_PATH}/help/.
+	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/cmd/help ]; then find ext/${ext}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
         # Do the IP istep help files
         # Eclipz
 	@cp systems/ip/eclipz/help/istep_ipeclipz.htxt ${INSTALL_PATH}/help/.
