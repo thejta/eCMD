@@ -1,6 +1,7 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* This is an automatically generated prolog.                             */
 /*                                                                        */
+/* $Source: hwpf/fapi2/include/fapi2_target.H $                           */
 /*                                                                        */
 /* IBM CONFIDENTIAL                                                       */
 /*                                                                        */
@@ -32,6 +33,7 @@
 
 namespace fapi2
 {
+
 ///
 /// @brief Class representing a FAPI2 Target
 /// @tparam K the type (Kind) of target
@@ -251,6 +253,19 @@ class Target
         template< TargetType T>
         inline std::vector<Target<T> >
         getChildren(const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
+
+        ///
+        /// @brief Get this target's children, filtered
+        /// @tparam T The type of the parent
+        /// @param[in], i_filter The desired chiplet filter
+        /// @param[in] i_state The desired TargetState of the children
+        /// @return std::vector<Target<T> > a vector of present/functional
+        /// children
+        ///
+        template< TargetType T>
+        inline std::vector<Target<T> >
+        getChildren(const TargetFilter i_filter,
+                    const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
 
         ///
         /// @brief Get the target at the other end of a bus - dimm included
@@ -484,8 +499,6 @@ inline constexpr bool is_same(void)
 {
     return (K & T) != 0;
 }
-
-
 }
 
 #endif

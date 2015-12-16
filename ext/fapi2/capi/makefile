@@ -53,7 +53,6 @@ CAPI_INCLUDES += hwp_ffdc_classes.H
 CAPI_INCLUDES += set_sbe_error.H
 CAPI_INCLUDES += utils.H
 CAPI_INCLUDES += plat_utils.H
-CAPI_INCLUDES += array.H
 CAPI_INCLUDES += fapi2SharedUtils.H
 CAPI_INCLUDES += fapi2DllCapi.H
 CAPI_INCLUDES += fapi2ClientEnums.H
@@ -77,7 +76,6 @@ CAPI_INCLUDES += fapi2_chip_ec_feature.C
 # Additional Source files for the Shared Lib
 SLIB_SOURCE := ffdc.C
 SLIB_SOURCE += error_info.C
-SLIB_SOURCE += array.C
 
 # Include the common extension makefile to do all the work
 # include ../../template/capi/makefile.capi

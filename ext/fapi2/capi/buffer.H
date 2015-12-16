@@ -1,6 +1,7 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* This is an automatically generated prolog.                             */
 /*                                                                        */
+/* $Source: hwpf/fapi2/include/buffer.H $                                 */
 /*                                                                        */
 /* IBM CONFIDENTIAL                                                       */
 /*                                                                        */
@@ -476,8 +477,8 @@ class buffer
                                            (target_length - TS);
 
             // Get mask value for Target buffer
-            // Note: Need "& 0UL" because bit shift left for Target buffer doesn't roll off
-            uint64_t mask = ((~0UL << (parameterTraits<uint64_t>::bit_length() - L)) & ~0UL)
+            // Note: Need "& 0ULL" because bit shift left for Target buffer doesn't roll off
+            uint64_t mask = ((~0ULL << (parameterTraits<uint64_t>::bit_length() - L)) & ~0ULL)
                             >> target_start;
 
             // Align the source to the target. Make things signed so we know which way to shift.
@@ -550,9 +551,9 @@ class buffer
                                            (target_length - i_targetStart);
 
             // Get mask value for Target buffer
-            // Note: Need "& 0UL" because bit shift left for Target buffer doesn't roll off
-            uint64_t mask = ((~0UL << (parameterTraits<uint64_t>::bit_length() - i_len)) &
-                             ~0UL) >> target_start;
+            // Note: Need "& 0ULL" because bit shift left for Target buffer doesn't roll off
+            uint64_t mask = ((~0ULL << (parameterTraits<uint64_t>::bit_length() - i_len)) &
+                             ~0ULL) >> target_start;
 
             // Align the source to the target. Make things signed so we know which way to shift.
             int32_t shift = source_start - target_start;
