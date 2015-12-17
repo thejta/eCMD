@@ -483,6 +483,86 @@ Target<K, V>::getChildren(const TargetState i_state) const
 }
 
 ///
+/// @brief Get this target's children, filtered
+/// @tparam T The type of the parent
+/// @param[in], i_filter The desired chiplet filter
+/// @param[in] i_state The desired TargetState of the children
+/// @return std::vector<Target<T> > a vector of present/functional
+/// children
+///
+template<TargetType K, typename V>
+template< TargetType T>
+inline std::vector<Target<T> >
+Target<K, V>::getChildren(const TargetFilter i_filter,
+    const TargetState i_state) const
+{
+    const fapi2::TargetType TARGET_TYPE_FILTER_CHIPLETS =
+            fapi2::TARGET_TYPE_XBUS |
+            fapi2::TARGET_TYPE_OBUS |
+            fapi2::TARGET_TYPE_CAPP |
+            fapi2::TARGET_TYPE_NV |
+            fapi2::TARGET_TYPE_MCBIST |
+            fapi2::TARGET_TYPE_MCS |
+            fapi2::TARGET_TYPE_MCA |
+            fapi2::TARGET_TYPE_MI |
+            fapi2::TARGET_TYPE_DMI |
+            fapi2::TARGET_TYPE_PEC |
+            fapi2::TARGET_TYPE_PHB |
+            fapi2::TARGET_TYPE_PERV;
+
+    static_assert( !((T & TARGET_TYPE_FILTER_CHIPLETS) == fapi2::TARGET_TYPE_NONE),
+                   "not a valid chiplet for filtering" );
+
+    auto l_children = Target<K, V>::getChildren<T>(i_state);
+    auto l_child = l_children.begin();
+
+    while (l_child != l_children.end())
+    {
+        uint32_t l_filter_mask = 0x0;
+        if (T == fapi2::TARGET_TYPE_PERV)
+        {
+            // use chipunit of the pervasive target
+            uint32_t l_pervasive_chipunit = l_child->get()->chipUnitNum;
+            // only enable chipunits 1-15
+            if ((l_pervasive_chipunit > 0x0) && (l_pervasive_chipunit < 0x10))
+            {
+                l_filter_mask = 0x1 << (32 - l_pervasive_chipunit);
+            }
+        }
+        else
+        {
+            // get pervasive parent target
+            std::list<const ecmdChipTarget*> l_targets;
+
+            uint32_t l_rc = fapi2GetAssociatedTargets(*(l_child->get()), fapi2::TARGET_TYPE_PERV, l_targets, TARGET_STATE_FUNCTIONAL);
+
+            // check if we get back a valid target
+            if ((l_rc == 0) && (!l_targets.empty()))
+            {
+                uint32_t l_pervasive_chipunit = l_targets.front()->chipUnitNum;
+                // only enable chipunits 1-15
+                if ((l_pervasive_chipunit > 0x0) && (l_pervasive_chipunit < 0x10))
+                {
+                    l_filter_mask = 0x1 << (32 - l_pervasive_chipunit);
+                }
+            }
+        }
+
+        if ((l_filter_mask & i_filter) == 0x0)
+        {
+            // filter out
+            l_child = l_children.erase(l_child);
+        }
+        else
+        {
+            l_child++;
+        }
+    }
+
+    return l_children;
+}
+
+///
 /// @brief Get the target at the other end of a bus - dimm included
 /// @tparam T The type of the parent
 /// @param[in] i_state The desired TargetState of the children
