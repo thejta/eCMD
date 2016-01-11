@@ -2107,6 +2107,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           // On those chips, the hardware is taking care of doing the check, so clear the data
           if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
             ringBuffer.clearBit(0, 32);
+          } else if (chipData.chipFlags & ECMD_CHIPFLAG_64BIT_HEADERCHECK) {
+              ringBuffer.clearBit(0, 64);  
           } else {
             ringBuffer.setWord(0, checkPattern);  //write the pattern
           }
@@ -2193,6 +2195,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           // On non-headercheck chips, check the starting pattern
           if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
             readRingBuffer.clearBit(0,32);
+          } else if (chipData.chipFlags & ECMD_CHIPFLAG_64BIT_HEADERCHECK) {
+              readRingBuffer.clearBit(0,64);
           } else {
             if (readRingBuffer.getWord(0) != checkPattern) {
               sprintf(outstr, "checkrings - Data fetched from ring %s did not match expected header: %.08X.  Found: %.08X\n", ringName.c_str(), checkPattern, readRingBuffer.getWord(0));
