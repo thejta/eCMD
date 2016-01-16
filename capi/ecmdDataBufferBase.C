@@ -1,17 +1,3 @@
-// Copyright ***********************************************************
-//                                                                      
-// File ecmdDataBufferBase.C                                   
-//                                                                      
-// IBM Confidential                                                     
-// OCO Source Materials                                                 
-// 9400 Licensed Internal Code                                          
-// (C) COPYRIGHT IBM CORP. 2002                                        
-//                                                                      
-// The source code for this program is not published or otherwise       
-// divested of its trade secrets, irrespective of what has been         
-// deposited with the U.S. Copyright Office.                            
-//                                                                      
-// End Copyright *******************************************************
                                
 // Get rid of some annoying lint errors that aren't real - cje
 //lint -e613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity
