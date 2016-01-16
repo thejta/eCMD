@@ -1018,6 +1018,7 @@ inline ecmdChipUnitData::~ecmdChipUnitData() { }
 #define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used)
 
 #define ECMD_CHIPFLAG_32BIT_HEADERCHECK  0x08000000 
+#define ECMD_CHIPFLAG_64BIT_HEADERCHECK  0x04000000
 
 #define ECMD_FLAG_STATEMASK         0x0000001F
 #define ECMD_FLAG_CONFIGED_USEABLE  0x00000001
