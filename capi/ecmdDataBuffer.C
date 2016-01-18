@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
                                
 // Get rid of some annoying lint errors that aren't real - cje
 //lint -e613 Possible use of null pointer, lint doesn't understand we use iv_NumBits to check length and pointer validity

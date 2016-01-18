@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 /************************************************************
 USAGE:  This file is used to test a new implementation of an 
 ecmdDataBuffer Member Function.  It runs the new implementation

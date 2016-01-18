@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 #ifndef cipStructs_h
 #define cipStructs_h
 

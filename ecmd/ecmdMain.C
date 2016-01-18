@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 /**
  @file ecmdMain.C
  @brief Main Program entry point for ecmdDllClient Application

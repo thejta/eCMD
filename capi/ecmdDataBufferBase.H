@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 #ifndef ecmdDataBufferBase_H 
 #define ecmdDataBufferBase_H
 

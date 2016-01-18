@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 /**
  @file ecmdVersion.C
  @brief Utility program to display just the eCMD Version in a string to use as a path for CTE

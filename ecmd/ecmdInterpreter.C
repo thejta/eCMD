@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 
 /* This file tells us what extensions are supported by the plugin env we are compiling in (default is all) */
 #include <ecmdPluginExtensionSupport.H>

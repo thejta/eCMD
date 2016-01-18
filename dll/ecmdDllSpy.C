@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 // Module Description **************************************************
 //
 // Description: Functions to handle spies on top of eCMD

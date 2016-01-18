@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 #ifndef ecmdReturnCodes_h
 #define ecmdReturnCodes_h
 

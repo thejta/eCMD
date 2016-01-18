@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 /* NOTE : This file has been generated from the eCMD extension temp-late */
 /* DO NOT EDIT THISFILE (unless you are editing the temp-late */
 

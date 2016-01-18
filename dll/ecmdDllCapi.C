@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 
 //lint -e825 We deliberately want to fall through in ecmdIncrementLooperIterators - JTA
 

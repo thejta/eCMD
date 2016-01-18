@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 #ifndef sedcEccClasses_h
 #define sedcEccClasses_h
 

@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 
 //lint -e571 The casts are necessary in ecmdHashString - JTA
 //lint -e744 We don't want there to be a default in the ecmdHashString case - JTA

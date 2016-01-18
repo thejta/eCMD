@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 /* File structTest.C created by Joshua Wills on Wed Sep 17 2003. */
 
 /* Change Activity: */

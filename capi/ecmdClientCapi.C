@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 
 // Get rid of lint errors that will just happen
 /*lint -e611 Get rid of suspicious cast warning */

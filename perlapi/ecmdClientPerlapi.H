@@ -1,3 +1,6 @@
+//IBM_PROLOG_BEGIN_TAG
+//IBM_PROLOG_END_TAG
+
 #ifndef _ecmdClientPerlapi_H
 #define _ecmdClientPerlapi_H
 
