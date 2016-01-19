@@ -44,52 +44,8 @@
 #include "ecmdUtils.H"
 #include "ecmdSharedUtils.H"
 
-#include "ecmdPluginExtensionSupport.H"
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
-  #include "aipClientPerlapi.H"
-  #include "aipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_BML_EXTENSION_SUPPORT
-  #include "bmlClientPerlapi.H"
-  #include "bmlClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-  #include "cipClientPerlapi.H"
-  #include "cipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_CMD_EXTENSION_SUPPORT
-  #include "cmdClientPerlapi.H"
-  #include "cmdClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
-  #include "croClientPerlapi.H"
-  #include "croClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
-  #include "eipClientPerlapi.H"
-  #include "eipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_GIP_EXTENSION_SUPPORT
-  #include "gipClientPerlapi.H"
-  #include "gipClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
-  #include "mboClientPerlapi.H"
-  #include "mboClientPerlapiFunc.H"
-#endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  #include "zseStructs.H"
-  #include "zseClientPerlapi.H"
-  #include "zseClientPerlapiFunc.H"
-  #include "zseClientPerlapiIterators.H"
-#endif
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-  #include "fapiClientPerlapi.H"
-#endif
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-  #include "fapi2ClientPerlapi.H"
-#endif
 %}
+%include "ecmdExtensionInserts.i"
 /*********** End Insert Code ***********/
 
 /*********** Start Templates ***********/
@@ -139,41 +95,7 @@
 %include "ecmdSharedUtils.H"
 %include "ecmdReturnCodes.H"
 
-// The extensions
-%include "ecmdPluginExtensionSupport.H"
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
-  %include aipClientPerlapi.i
-#endif
-#ifdef ECMD_BML_EXTENSION_SUPPORT
-  %include bmlClientPerlapi.i
-#endif
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-  %include cipClientPerlapi.i
-#endif
-#ifdef ECMD_CMD_EXTENSION_SUPPORT
-  %include cmdClientPerlapi.i
-#endif
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
-  %include croClientPerlapi.i
-#endif
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
-  %include eipClientPerlapi.i
-#endif
-#ifdef ECMD_GIP_EXTENSION_SUPPORT
-  %include gipClientPerlapi.i
-#endif
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
-  %include mboClientPerlapi.i
-#endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  %include zseClientPerlapi.i
-#endif
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-  %include fapiClientPerlapi.i
-#endif
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-  %include fapi2ClientPerlapi.i
-#endif
+%include "ecmdExtensionIncludes.i"
 /*********** End Files to swigify ***********/
 
 %pragma(perl5) include="ecmdClientPerlapi.pl"
