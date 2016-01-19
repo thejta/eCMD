@@ -21,6 +21,11 @@ endif
 EXT_TARGETS := $(subst cmd,,${EXTENSIONS})
 EXT_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
 
+# All of our extensions build with the same rules, create the list here
+EXT_CAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}capi)
+EXT_PERLAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
+EXT_PYAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
+
 # These variables can be controlled from the distro or makefile.config to determine if python/perl should be built
 # The default here is yes
 CREATE_PERLAPI ?= yes
@@ -80,233 +85,23 @@ ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@cd py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-# All of the individual extensions
 ########################
-# CIP Extension
+# Build EXTENSIONSxs
 ########################
-cipcapi: ecmdcapi
-	@echo "Cronus/IP Extension C API ${TARGET_ARCH} ..."
-	@cd ext/cip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/cip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+${EXT_CAPI_RULES}: ecmdcapi
+	@echo "$(subst capi,,$@) Extension C API ${TARGET_ARCH} ..."
+	@cd ext/$(subst capi,,$@)/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ext/$(subst capi,,$@)/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cipperlapi:
-	@echo "Cronus/IP Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/cip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+${EXT_PERLAPI_RULES}:
+	@echo "$(subst perlapi,,$@) Extension Perl API ${TARGET_ARCH} ..."
+	@cd ext/$(subst perlapi,,$@)/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-cippyapi:
-	@echo "Cronus/IP Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/cip/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# CRO Extension
-########################
-crocapi: ecmdcapi
-	@echo "Cronus Extension C API ${TARGET_ARCH} ..."
-	@cd ext/cro/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/cro/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-croperlapi:
-	@echo "Cronus Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/cro/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-cropyapi:
-	@echo "Cronus Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/cro/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# Scand Extension
-########################
-scandcapi: ecmdcapi
-	@echo "Scand Extension C API ${TARGET_ARCH} ..."
-	@cd ext/scand/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-scandperlapi:
-	@echo "Scand Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/scand/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-scandpyapi:
-	@echo "Scand Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/scand/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# EIP Extension
-########################
-eip: eipcapi
-
-eipcapi: ecmdcapi
-	@echo "Eclipz IP Extension C API ${TARGET_ARCH} ..."
-	@cd ext/eip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/eip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-eipperlapi:
-	@echo "Eclipz IP Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/eip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-eippyapi:
-	@echo "Eclipz IP Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/eip/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# AIP Extension
-########################
-aipcapi: ecmdcapi
-	@echo "Apollo IP Extension C API ${TARGET_ARCH} ..."
-	@cd ext/aip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/aip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-aipperlapi:
-	@echo "Apollo IP Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/aip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-aippyapi:
-	@echo "Apollo IP Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/aip/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# GIP Extension
-########################
-gipcapi: ecmdcapi
-	@echo "GFW IP Extension C API ${TARGET_ARCH} ..."
-	@cd ext/gip/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/gip/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-gipperlapi:
-	@echo "GFW IP Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/gip/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-gippyapi:
-	@echo "GFW IP Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/gip/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# ZSE Extension
-########################
-zsecapi: ecmdcapi
-	@echo "Z Series Extension C API ${TARGET_ARCH} ..."
-	@cd ext/zse/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/zse/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-zseperlapi:
-	@echo "Z Series Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/zse/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-zsepyapi:
-	@echo "Z Series Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/zse/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# MBO Extension
-########################
-mbocapi: ecmdcapi
-	@echo "Mambo Extension C API ${TARGET_ARCH} ..."
-	@cd ext/mbo/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/mbo/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-mboperlapi:
-	@echo "Mambo Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/mbo/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-mbopyapi:
-	@echo "Mambo Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/mbo/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# BML Extension
-########################
-bmlcapi: ecmdcapi
-	@echo "BML Extension C API ${TARGET_ARCH} ..."
-	@cd ext/bml/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/bml/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-bmlperlapi:
-	@echo "BML Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/bml/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-bmlpyapi:
-	@echo "BML Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/bml/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# fapi Extension
-########################
-fapicapi: ecmdcapi
-	@echo "FAPI Extension C API ${TARGET_ARCH} ..."
-	@cd ext/fapi/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/fapi/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-fapiperlapi:
-	@echo "FAPI Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/fapi/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-fapipyapi:
-	@echo "FAPI Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/fapi/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# fapi Extension
-########################
-fapi2capi: ecmdcapi
-	@echo "FAPI2 Extension C API ${TARGET_ARCH} ..."
-	@cd ext/fapi2/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/fapi2/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-fapi2perlapi:
-	@echo "FAPI2 Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/fapi2/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-fapi2pyapi:
-	@echo "FAPI2 Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/fapi2/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-########################
-# CMD Extension
-########################
-cmdcapi: ecmdcmd
-	@echo "Command line Extension C API ${TARGET_ARCH} ..."
-	@cd ext/cmd/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-cmdperlapi:
-	@echo "Command line Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/cmd/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@echo " "
-
-cmdpyapi:
-	@echo "Command line Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/cmd/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+${EXT_PYAPI_RULES}:
+	@echo "$(subst pyapi,,$@) Extension Python API ${TARGET_ARCH} ..."
+	@cd ext/$(subst pyapi,,$@)/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
