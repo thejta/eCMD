@@ -1,7 +1,7 @@
 # Makefile for the ecmd cmdline
 
 # Base info and default build rules
-SUBDIR     := ecmd/
+SUBDIR     := cmd/
 include ../makefile.rules
 
 VPATH        := ../capi

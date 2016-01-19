@@ -67,7 +67,7 @@ ecmdcapi:
 
 ecmdcmd: ecmdcapi ${EXT_TARGETS}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
-	@cd ecmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdperlapi: ecmdcmd $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
@@ -86,7 +86,7 @@ ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@echo " "
 
 ########################
-# Build EXTENSIONSxs
+# Build EXTENSIONS
 ########################
 ${EXT_CAPI_RULES}: ecmdcapi
 	@echo "$(subst capi,,$@) Extension C API ${TARGET_ARCH} ..."

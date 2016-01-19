@@ -20,7 +20,7 @@ EXTENSIONS := $(subst scand,,${EXTENSIONS})
 EXTENSIONS := $(subst fapi2,,${EXTENSIONS})
 EXTENSIONS := $(subst fapi,,${EXTENSIONS})
 
-VPATH        := ${VPATH}:${OBJROOT}/ecmd/${OBJDIR}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../../${ext}/capi:../../${ext}/cmd)
+VPATH        := ${VPATH}:${OBJROOT}/cmd/${OBJDIR}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../../${ext}/capi:../../${ext}/cmd)
 # We need to tack on a seperator to get the vpath right in makefile.capi
 VPATH          := ${VPATH}:
 
@@ -32,7 +32,7 @@ VPATH := $(subst ${space},,${VPATH})
 # These are includes not to be exported
 INT_INCLUDES     := ${INT_INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
-CFLAGS       := ${CFLAGS} -I../../../capi -I../../../ecmd
+CFLAGS       := ${CFLAGS} -I../../../capi -I../../../cmd
 #######################
 # Extension Objects   #
 #######################
@@ -43,10 +43,10 @@ LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROO
 LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/*.o) )
 
 # The Core Interpreter
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ${OBJROOT}/ecmd/${OBJDIR}/*.o)
+LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ${OBJROOT}/cmd/${OBJDIR}/*.o)
 
 # We need to pull unwanted objects like ecmdMain.o and others from the list
-REMOVE_OBJS := ${OBJROOT}/ecmd/${OBJDIR}/ecmdMain.o ${OBJROOT}/ecmd/${OBJDIR}/ecmdVersion.o
+REMOVE_OBJS := ${OBJROOT}/cmd/${OBJDIR}/ecmdMain.o ${OBJROOT}/cmd/${OBJDIR}/ecmdVersion.o
 LINK_OBJS := $(filter-out ${REMOVE_OBJS},${LINK_OBJS})
 
 
