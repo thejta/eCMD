@@ -2,10 +2,6 @@
 //IBM_PROLOG_END_TAG
 
 
-/* This file tells us what extensions are supported by the plugin env we are compiling in (default is all) */
-#include <ecmdPluginExtensionSupport.H>
-
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -16,53 +12,10 @@
 
 #include <ecmdClientCapi.H>
 #include <ecmdInterpreter.H>
+#include <ecmdExtInterpreter.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdCommandUtils.H>
 #include <ecmdSharedUtils.H>
-
-/* Extension Interpreters */
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-#include <fapiClientCapi.H>
-#include <fapiInterpreter.H>
-#endif
-
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-#include <fapi2ClientCapi.H>
-#include <fapi2Interpreter.H>
-#endif
-
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
- #include <cipInterpreter.H>
- #include <cipClientCapi.H>
-#endif
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
- #include <croClientCapi.H>
- #include <croInterpreter.H>
-#endif
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
- #include <eipClientCapi.H>
- #include <eipInterpreter.H>
-#endif
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
- #include <aipClientCapi.H>
- #include <aipInterpreter.H>
-#endif
-#ifdef ECMD_GIP_EXTENSION_SUPPORT
- #include <gipClientCapi.H>
- #include <gipInterpreter.H>
-#endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
- #include <zseClientCapi.H>
- #include <zseInterpreter.H>
-#endif
-#ifdef ECMD_BML_EXTENSION_SUPPORT
- #include <bmlClientCapi.H>
- #include <bmlInterpreter.H>
-#endif
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
- #include <mboClientCapi.H>
- #include <mboInterpreter.H>
-#endif
 
 //----------------------------------------------------------------------
 //  User Types
@@ -101,138 +54,10 @@ uint32_t ecmdCallInterpreters(int argc, char* argv[]) {
   /* Core interpreter */
   rc = ecmdCommandInterpreter(argc, argv);
 
-#ifdef ECMD_CIP_EXTENSION_SUPPORT
-  /* Cronus/IP Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cip",argv[0],3))) {
-    rc = cipInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = cipCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_CRO_EXTENSION_SUPPORT
-  /* Cronus Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("cro",argv[0],3))) {
-    rc = croInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = croCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_EIP_EXTENSION_SUPPORT
-  /* Eclipz IP Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("eip",argv[0],3))) {
-    rc = eipInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = eipCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_AIP_EXTENSION_SUPPORT
-  /* Apollo IP Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("aip",argv[0],3))) {
-    rc = aipInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = aipCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_GIP_EXTENSION_SUPPORT
-  /* GFW IP Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("gip",argv[0],3))) {
-    rc = gipInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = gipCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  /* Z Series Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("zse",argv[0],3))) {
-    //    rc = zseInitExtension();  moved to zseCommandInterpreter hjh 07/2009
-    // --------------------------------------------------------------
-    // call   rc = zseCommandInterpreter(argc, argv)  dynamically 
-    // --------------------------------------------------------------
-    void * zseInterpreterFunction = NULL;
-    void * soHandle = NULL;
-    const char* soError;
-    char* tmpptr = getenv("ECMD_ZSE_DLL_FILE");
-    std::string zseDllFile = tmpptr;
-
-    soHandle = dlopen(zseDllFile.c_str(), RTLD_LAZY);
-    if (!soHandle) {
-      if ((soError = dlerror()) != NULL) {
-        fprintf(stderr,"ERROR loading zse DLL:  : %s\n",  soError);
-        return ECMD_DLL_LOAD_FAILURE;          /* file leak */                //done by unloadDll
-      }
-    }
-           
-    zseInterpreterFunction = (void *)dlsym(soHandle, "zseCommandInterpreter");
-    if (zseInterpreterFunction == NULL)
-    {
-      if ((soError = dlerror()) != NULL) {
-        fprintf(stderr,"ERROR: ecmdLoad Function zseCommandInterpreter error:  : %s\n",  soError);
-	dlclose(soHandle);
-        return ECMD_DLL_LOAD_FAILURE;          /* file leak */       //done by unloadDll
-
-      }
-  
-    }
-     // fprintf(stderr,"NoERROR: pointer %u \n",  (uint32_t)zseInterpreterFunction);
-     //uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;
-     uint32_t (*function)(int,  char*[]) = (uint32_t(*)(int,  char*[]))zseInterpreterFunction;  
-     rc =  (*function)(argc, argv);   /* null function */
-  
-     //   rc = zseCommandInterpreter(argc, argv);
-    if(soHandle != NULL)
-	dlclose(soHandle);
-  }
-#endif    /* file leak */                                           
-
-#ifdef ECMD_BML_EXTENSION_SUPPORT
-  /* BML Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("bml",argv[0],3))) {
-    rc = bmlInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = bmlCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_MBO_EXTENSION_SUPPORT
-  /* Mambo Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("mbo",argv[0],3))) {
-    rc = mboInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = mboCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-  /* Fapi Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi",argv[0],4)) && (strncmp("fapi2",argv[0],5))) {
-    rc = fapiInitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = fapiCommandInterpreter(argc, argv);
-    }
-  }
-#endif
-
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-  /* Fapi2 Extension */
-  if ((rc == ECMD_INT_UNKNOWN_COMMAND) && (!strncmp("fapi2",argv[0],5))) {
-    rc = fapi2InitExtension();
-    if (rc == ECMD_SUCCESS) {
-      rc = fapi2CommandInterpreter(argc, argv);
-    }
-  }
-#endif
+  /* Call the extension command interpreters */
+  /* The functions handles calling to the enabled extensions */
+  uint32_t ext_rc = ecmdCallExtInterpreters(argc, argv, rc);
+  if (ext_rc) return ext_rc;
 
   return rc;
 }

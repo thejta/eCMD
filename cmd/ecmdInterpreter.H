@@ -21,7 +21,7 @@
 
 /**
 @brief An enum to tell us what path to call through in some command line functions
-*/
+f*/
 typedef enum {  
   ECMD_MEM_DMA,
   ECMD_MEM_MEMCTRL,
