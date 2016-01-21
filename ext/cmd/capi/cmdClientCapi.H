@@ -10,6 +10,17 @@
  * @brief eCMD Command line extension
 
  * Extension Owner : Matt Light
+
+ @section cmd CMD Command line Extension
+ This extension provides interfaces to call command line functions and have formatted data displayed to stdout or returned to the caller.  It supports command from the core command line and also all extensions.<br>
+
+ Include files :
+ <ul>
+ <li> cmdClientCapi.H</li>
+ <li> cmdStructs.H</li>
+ <li> Library : cmdClientCapi.a</li>
+ </ul>
+
 */
 
 //--------------------------------------------------------------------

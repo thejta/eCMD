@@ -66,3 +66,14 @@ for ext in extcmdlist:
 extfile.write("  return rc;\n")
 extfile.write("}\n")
 extfile.close()
+
+# -----------------------
+# Python files
+# -----------------------
+
+# -----------------------
+# Perl files
+# -----------------------
+
+
+### Try using the \htmlinclude in the top level API files to reference the extensions

@@ -10,6 +10,17 @@
  * @brief Cronus & IP eCMD Extension
 
  * Extension Owner : Matt Light
+
+ @section cip CIP (Cronus/IP) Extension
+ This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+
+ Include files :
+ <ul>
+ <li> cipClientCapi.H</li>
+ <li> cipStructs.H</li>
+ <li> Library : cipClientCapi.a</li>
+ </ul>
+
 */
 
 //--------------------------------------------------------------------
