@@ -14,3 +14,4 @@ perlapi/ecmdClientPerlapiIterators.H
 capi/ecmdClientCapiFunc.C
 capi/ecmdClientEnums.H
 capi/ecmdDllCapi.H
+cmd/ecmdExtInterpreter.C
