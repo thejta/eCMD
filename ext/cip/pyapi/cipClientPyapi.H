@@ -10,6 +10,16 @@
  * @brief Cronus & IP eCMD Pyapi Extension
 
  * Extension Owner : Matt Light
+
+ @section cip CIP (Cronus/IP) Extension
+ This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+
+ Include files :
+ <ul>
+ <li> cipClientPyapi.H </li>
+ <li> cipStructs.H</li>
+ </ul>
+
 */
 
 //--------------------------------------------------------------------

@@ -10,6 +10,16 @@
  * @brief Cronus & IP eCMD Perlapi Extension
 
  * Extension Owner : Matt Light
+
+ @section cip CIP (Cronus/IP) Extension
+ This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
+
+ Include files :
+ <ul>
+ <li> cipClientPerlapi.H </li>
+ <li> cipStructs.H</li>
+ </ul>
+
 */
 
 //--------------------------------------------------------------------
