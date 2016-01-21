@@ -78,6 +78,7 @@ VPATH     := ${VPATH}:${OBJPATH}
 all: dir ${TARGET} ${VER_TARGET}
 
 clean: objclean
+	rm -f ${GENERATED_SOURCE}
 
 objclean:
 	rm -rf ${OBJPATH}
@@ -154,7 +155,7 @@ endif
 # *****************************************************************************
 ${GENERATED_SOURCE}:
 	@echo "==== Auto Generating $@"
-	@${ECMD_ROOT}/mkscripts/makeext.py cmd $@
+	@${ECMD_ROOT}/mkscripts/makeext.py cmd
 
 # *****************************************************************************
 # Debug rule for any makefile testing 

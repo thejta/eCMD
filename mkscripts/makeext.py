@@ -70,6 +70,42 @@ if (sys.argv[1] == "cmd"):
 # -----------------------
 # Python files
 # -----------------------
+if (sys.argv[1] == "pyapi"):
+  
+  # Open our file and start writing
+  extfile = open(os.environ["ECMD_ROOT"] + "/pyapi/ecmdExtIncludes.i", 'w')
+
+  extfile.write("/*********** Start Files to swigify ***********/\n")
+  extfile.write("// The extensions\n")
+  extfile.write("%include \"ecmdPluginExtensionSupport.H\"\n")
+  
+  # Now auto generate the rest based on the list
+  for ext in extlist:
+    extfile.write("#ifdef ECMD_" + ext.upper() + "_EXTENSION_SUPPORT\n")
+    extfile.write("  %include " + ext + "ClientPyapi.i\n")
+    extfile.write("#endif\n")
+
+  extfile.write("/*********** End Files to swigify ***********/\n")
+  extfile.close()
+
+  # Open our file and start writing
+  extfile = open(os.environ["ECMD_ROOT"] + "/pyapi/ecmdExtInserts.i", 'w')
+
+  extfile.write("/*********** Start Insert Code ***********/\n")
+  extfile.write("// Insert C code into the file swig generates\n")
+  extfile.write("%{\n")
+  extfile.write("#include \"ecmdPluginExtensionSupport.H\"\n")
+  
+  # Now auto generate the rest based on the list
+  for ext in extlist:
+    snippetfile = open(os.environ["ECMD_ROOT"] + "/ext/" + ext + "/pyapi/snippet/extInsert.i", 'r')
+    for line in snippetfile.readlines():
+      extfile.write(line)
+    snippetfile.close()	
+
+  extfile.write("\%}\n")
+  extfile.close()
+
 
 # -----------------------
 # Perl files

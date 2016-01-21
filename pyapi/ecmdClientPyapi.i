@@ -31,7 +31,7 @@
 // Header file needed to compile with newer gcc
 #include <stddef.h>
 %}
-%include "ecmdExtensionInserts.i"
+%include "ecmdExtInserts.i"
 /*********** End Insert Code ***********/
 
 /*********** Start Templates ***********/
@@ -78,5 +78,5 @@
 %include "ecmdSharedUtils.H"
 %include "ecmdReturnCodes.H"
 
-%include "ecmdExtensionIncludes.i"
+%include "ecmdExtIncludes.i"
 /*********** End Files to swigify ***********/

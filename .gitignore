@@ -15,3 +15,5 @@ capi/ecmdClientCapiFunc.C
 capi/ecmdClientEnums.H
 capi/ecmdDllCapi.H
 cmd/ecmdExtInterpreter.C
+cmd/ecmdExtIncludes.i
+cmd/ecmdExtInserts.i
