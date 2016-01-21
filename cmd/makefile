@@ -4,7 +4,7 @@
 SUBDIR     := cmd/
 include ../makefile.rules
 
-VPATH        := ../capi
+VPATH        := ../capi:${SRCPATH}
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdInterpreter.H ecmdExtInterpreter.H ecmdCommandUtils.H
 SOURCE       := ecmdMain.C ecmdInterpreter.C ecmdExtInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
@@ -79,6 +79,7 @@ clean: objclean
 
 objclean:
 	rm -rf ${OBJPATH}
+	rm -rf ${SRCPATH}
 
 dir:
 	@mkdir -p ${OBJPATH}
