@@ -16,6 +16,7 @@ MAKEFILE_RULES := y
 # Setup the ECMD_ROOT
 # Strip the subdir off the end of the path so it points to the root of the repository
 ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@${SUBDIR}$$@@')
+export ECMD_ROOT
 
 #These are needed to define a space char for substitutions later on
 empty :=
