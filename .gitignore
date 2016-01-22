@@ -17,3 +17,5 @@ capi/ecmdDllCapi.H
 cmd/ecmdExtInterpreter.C
 pyapi/ecmdExtIncludes.i
 pyapi/ecmdExtInserts.i
+perlapi/ecmdExtIncludes.i
+perlapi/ecmdExtInserts.i
