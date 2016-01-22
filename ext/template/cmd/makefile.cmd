@@ -35,8 +35,7 @@ clean: objclean
 objclean:
 	rm -rf ${OBJPATH}
 
-#Remove create_links after fair warning has been given to users to update paths
-install: create_links
+install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
@@ -44,13 +43,6 @@ install: create_links
 	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
-
-create_links:
-  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
-	@echo "Creating temporary symlinks for ${EXTENSION_NAME_u} eCMD Extension Command Interpreter"
-	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
-	@ln -sf ../../../${TARGET_ARCH}/lib/${TARGET} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/${EXTENSION_NAME}CmdInterpreter_${TARGET_ARCH}.a
-  endif
 
 dir:
 	@mkdir -p ${OBJPATH}

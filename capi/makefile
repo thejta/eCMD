@@ -50,8 +50,7 @@ clean: objclean
 objclean:
 	rm -rf ${OBJPATH} 
 
-#Remove create_links after fair warning has been given to users to update paths
-install: create_links
+install:
 	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
@@ -60,15 +59,6 @@ install: create_links
 	chmod 644 ${INSTALL_PATH}/capi/*
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-
-create_links:
-  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
-	@echo "Creating temporary symlinks for eCMD Client API and Shared Lib"
-	@mkdir -p ${INSTALL_PATH}/capi/
-	@ln -sf ../${TARGET_ARCH}/lib/${TARGET} ${INSTALL_PATH}/capi/ecmdClientCapi_${TARGET_ARCH}.a
-	@mkdir -p ${INSTALL_PATH}/lib/
-	@ln -sf ../${TARGET_ARCH}/lib/${SLIB} ${INSTALL_PATH}/lib/libecmd_${TARGET_ARCH}.so	
-  endif
 
 dir:
 	@mkdir -p ${OBJPATH}

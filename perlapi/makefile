@@ -89,19 +89,10 @@ objclean:
 	rm -rf ${SRCPATH}
 	rm -f *.o
 
-#Remove create_links after fair warning has been given to users to update paths
-install: create_links
+install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/${TARGET_ARCH}/perl ..."
 	cp ${OBJPATH}${PM_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
-
-create_links:
-  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
-	@echo "Creating temporary symlinks for perl module and shared object"
-	@mkdir -p ${INSTALL_PATH}/perlapi/`uname`/
-	@ln -sf ../../${TARGET_ARCH}/perl/${PM_TARGET} ${INSTALL_PATH}/perlapi/`uname`/${PM_TARGET}
-	@ln -sf ../../${TARGET_ARCH}/perl/${SO_TARGET} ${INSTALL_PATH}/perlapi/`uname`/${SO_TARGET}	
-  endif
 
 test: ${SO_TARGET}
     # Only do the build test if enabled

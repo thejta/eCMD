@@ -86,17 +86,9 @@ objclean:
 dir:
 	@mkdir -p ${OBJPATH}
 
-#Remove create_links after fair warning has been given to users to update paths
-install: create_links
+install:
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 	cp ${OBJPATH}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
-
-create_links:
-  ifeq (${TARGET_ARCH},$(filter ${TARGET_ARCH},x86 aix))
-	@echo "Creating temporary symlinks for ecmd and ecmdVersion"
-	@ln -sf ../${TARGET_ARCH}/bin/${TARGET} ${INSTALL_PATH}/bin/${TARGET}_${TARGET_ARCH}
-	@ln -sf ../${TARGET_ARCH}/bin/${VER_TARGET} ${INSTALL_PATH}/bin/${VER_TARGET}_${TARGET_ARCH}	
-  endif
 
 # Build the extensions
 extensions:
