@@ -150,9 +150,7 @@ namespace ECMDPERLAPI {
 
 <hr>
 @section ext eCMD Extensions
-These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
-
-<br><br>
+Check ecmdExtPerlapi.H to see the supported extensions and how to use them
 
  <hr>
  @section perlv Perl Version

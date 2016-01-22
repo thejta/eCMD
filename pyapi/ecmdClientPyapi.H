@@ -132,9 +132,7 @@ char * ecmdParseOptionWithArgs(char ** io_argv, const char * i_option);
 
 <hr>
 @section ext eCMD Extensions
-These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
-
-<br><br>
+Check ecmdExtPyapi.H to see the supported extensions and how to use them
 
  <hr>
  @section pyv Python Version

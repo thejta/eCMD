@@ -68,6 +68,38 @@ if (sys.argv[1] == "cmd"):
   extfile.close()
 
 # -----------------------
+# Doxygen files
+# -----------------------
+if (sys.argv[1] == "doxygen"):
+
+  # arg1 is doxygen
+  # arg2 is the api
+  # arg3 is where to write the file
+
+  # We're going to write out a header file to be used by doxygen to get the extensions
+
+  # Open our file and start writing
+  extfile = open(sys.argv[3] + "/ecmdExt" + sys.argv[2].title() + ".H", 'w')
+
+  # Write out all the static stuff
+  extfile.write("/**\n\n")
+  extfile.write(" @file ecmdExt" + sys.argv[2].title() + ".H\n")
+  extfile.write(" @brief eCMD Extension Information\n\n")
+  extfile.write(" @section ext eCMD Extensions\n")
+  extfile.write(" These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>\n")
+  extfile.write(" To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>\n\n")
+  extfile.write("<ul>\n")
+
+  # Now loop through all the extensions and write out their includes
+  for ext in extlist:
+    extfile.write("<li> " + ext + "Client" + sys.argv[2].title() + ".H\n")
+
+  # Write the end of the file
+  extfile.write("</ul>\n\n")
+  extfile.write("*/")
+  extfile.close()
+
+# -----------------------
 # Python files
 # -----------------------
 if (sys.argv[1] == "pyapi"):

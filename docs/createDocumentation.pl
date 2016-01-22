@@ -72,11 +72,15 @@ $rc = system("cp $repoBase/capi/ecmdClientCapi.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
 $rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Capi/.");
 if ($rc) { return $rc; }
+$rc = system($ENV{ECMD_ROOT} . "/mkscripts/makeext.py doxygen capi $outputDirectory/Capi/");
+if ($rc) { return $rc; }
 
 # Copy over example files
 $rc = system("cp $repoBase/docs/examples/ecmdclient.C $outputDirectory/Capi/examples/.");
 if ($rc) { return $rc; }
 $rc = system("cp $repoBase/docs/examples/makefile $outputDirectory/Capi/examples/.");
+if ($rc) { return $rc; }
+$rc = system("cp $repoBase/capi/capi.dox $outputDirectory/Capi/examples/.");
 if ($rc) { return $rc; }
 
 
@@ -156,6 +160,8 @@ if ($rc) { return $rc; }
 $rc = system("cp $repoBase/capi/ecmdUtils.H $outputDirectory/Perlapi/.");
 if ($rc) { return $rc; }
 $rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Perlapi/.");
+if ($rc) { return $rc; }
+$rc = system($ENV{ECMD_ROOT} . "/mkscripts/makeext.py doxygen perlapi $outputDirectory/Perlapi/");
 if ($rc) { return $rc; }
 
 # Copy over example files
@@ -273,6 +279,8 @@ $rc = system("cp $repoBase/capi/ecmdSharedUtils.H $outputDirectory/Pythonapi/.")
 if ($rc) { return $rc; }
 # The one additional python file that is needed
 $rc = system("cp $repoBase/pyapi/ecmdClientPyapi.H $outputDirectory/Pythonapi/.");
+if ($rc) { return $rc; }
+$rc = system($ENV{ECMD_ROOT} . "/mkscripts/makeext.py doxygen pyapi $outputDirectory/Pythonapi/");
 if ($rc) { return $rc; }
 
 # Combine ecmdClientCapi.H and ecmdClientPyApi.H into one file

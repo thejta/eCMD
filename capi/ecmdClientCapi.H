@@ -4509,11 +4509,7 @@ To create Linux x86_64 binaries, the following is required:
 
 <hr>
 @section ext eCMD Extensions
-These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>
-To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>
-<ul>
-<li> ecmdExtensionSupport.H
-</ul>
+Check ecmdExtCapi.H to see the supported extensions and how to use them
 
 <hr>
 @section dllv DLL Version
