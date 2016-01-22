@@ -19,19 +19,19 @@
 #ifdef ECMD_EIP_EXTENSION_SUPPORT
   %include eipClientPerlapi.i
 #endif
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+  %include fapiClientPerlapi.i
+#endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
   %include gipClientPerlapi.i
 #endif
 #ifdef ECMD_MBO_EXTENSION_SUPPORT
   %include mboClientPerlapi.i
 #endif
+#ifdef ECMD_SCAND_EXTENSION_SUPPORT
+  %include scandClientPerlapi.i
+#endif
 #ifdef ECMD_ZSE_EXTENSION_SUPPORT
   %include zseClientPerlapi.i
-#endif
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-  %include fapiClientPerlapi.i
-#endif
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-  %include fapi2ClientPerlapi.i
 #endif
 /*********** End Files to swigify ***********/

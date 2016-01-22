@@ -110,6 +110,41 @@ if (sys.argv[1] == "pyapi"):
 # -----------------------
 # Perl files
 # -----------------------
+if (sys.argv[1] == "perlapi"):
+  
+  # Open our file and start writing
+  extfile = open(os.environ["ECMD_ROOT"] + "/perlapi/ecmdExtIncludes.i", 'w')
+
+  extfile.write("/*********** Start Files to swigify ***********/\n")
+  extfile.write("// The extensions\n")
+  extfile.write("%include \"ecmdPluginExtensionSupport.H\"\n")
+  
+  # Now auto generate the rest based on the list
+  for ext in extlist:
+    extfile.write("#ifdef ECMD_" + ext.upper() + "_EXTENSION_SUPPORT\n")
+    extfile.write("  %include " + ext + "ClientPerlapi.i\n")
+    extfile.write("#endif\n")
+
+  extfile.write("/*********** End Files to swigify ***********/\n")
+  extfile.close()
+
+  # Open our file and start writing
+  extfile = open(os.environ["ECMD_ROOT"] + "/perlapi/ecmdExtInserts.i", 'w')
+
+  extfile.write("/*********** Start Insert Code ***********/\n")
+  extfile.write("// Insert C code into the file swig generates\n")
+  extfile.write("%{\n")
+  extfile.write("#include \"ecmdPluginExtensionSupport.H\"\n")
+  
+  # Now auto generate the rest based on the list
+  for ext in extlist:
+    snippetfile = open(os.environ["ECMD_ROOT"] + "/ext/" + ext + "/perlapi/snippet/extInsert.i", 'r')
+    for line in snippetfile.readlines():
+      extfile.write(line)
+    snippetfile.close()	
+
+  extfile.write("\%}\n")
+  extfile.close()
 
 
 ### Try using the \htmlinclude in the top level API files to reference the extensions

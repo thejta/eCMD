@@ -26,6 +26,9 @@
   #include "eipClientPerlapi.H"
   #include "eipClientPerlapiFunc.H"
 #endif
+#ifdef ECMD_FAPI_EXTENSION_SUPPORT
+  #include "fapiClientPerlapi.H"
+#endif
 #ifdef ECMD_GIP_EXTENSION_SUPPORT
   #include "gipClientPerlapi.H"
   #include "gipClientPerlapiFunc.H"
@@ -34,17 +37,3 @@
   #include "mboClientPerlapi.H"
   #include "mboClientPerlapiFunc.H"
 #endif
-#ifdef ECMD_ZSE_EXTENSION_SUPPORT
-  #include "zseStructs.H"
-  #include "zseClientPerlapi.H"
-  #include "zseClientPerlapiFunc.H"
-  #include "zseClientPerlapiIterators.H"
-#endif
-#ifdef ECMD_FAPI_EXTENSION_SUPPORT
-  #include "fapiClientPerlapi.H"
-#endif
-#ifdef ECMD_FAPI2_EXTENSION_SUPPORT
-  #include "fapi2ClientPerlapi.H"
-#endif
-%}
-
