@@ -8,3 +8,5 @@
 all: ;
 
 clean: ;
+
+install: ;

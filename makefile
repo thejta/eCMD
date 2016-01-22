@@ -154,7 +154,7 @@ install_setup:
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
-	@cp -R `find ecmd/help/*` ${INSTALL_PATH}/help/.
+	@cp -R `find cmd/help/*` ${INSTALL_PATH}/help/.
 	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/cmd/help ]; then find ext/${ext}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
         # Do the IP istep help files
         # Eclipz
