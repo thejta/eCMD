@@ -769,9 +769,9 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[],const char *targetField
        }
        else if(isCore) {
          if (!targetFieldList.compare(0,2,"0x")) //input is hex
-           target.core = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
+           target.chipUnitNum = (uint32_t)strtol(targetFieldList.c_str(),NULL,16);
          else  // dec
-           target.core = (uint8_t)atoi(targetFieldList.c_str());
+           target.chipUnitNum = (uint8_t)atoi(targetFieldList.c_str());
        }
        else if(isThread) {
 
@@ -795,7 +795,7 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[],const char *targetField
          target.pos = 0x0;
        }
        else if(isCore) {
-         target.core = 0x0;
+         target.chipUnitNum = 0x0;
        }
        else if(isThread) {
          target.thread = 0x0;
@@ -827,14 +827,14 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[],const char *targetField
     target.nodeState = ECMD_TARGET_FIELD_VALID;
     target.slotState = ECMD_TARGET_FIELD_VALID;
     target.posState = ECMD_TARGET_FIELD_VALID;
-    target.coreState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
    } 
    else if(isThread) {
     target.cageState = ECMD_TARGET_FIELD_VALID;
     target.nodeState = ECMD_TARGET_FIELD_VALID;
     target.slotState = ECMD_TARGET_FIELD_VALID;
     target.posState = ECMD_TARGET_FIELD_VALID;
-    target.coreState = ECMD_TARGET_FIELD_VALID;
+    target.chipUnitNumState = ECMD_TARGET_FIELD_VALID;
     target.threadState = ECMD_TARGET_FIELD_VALID;
    }
    
@@ -853,7 +853,7 @@ uint32_t ecmdParseTargetFields(int *argc, char ** argv[],const char *targetField
      target.pos = 0x0;
     }
     else if(isCore) {
-     target.core = 0x0;
+     target.chipUnitNum = 0x0;
     }
     else if(isThread) {
      target.thread = 0x0;
