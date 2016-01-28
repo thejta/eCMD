@@ -492,7 +492,7 @@ uint32_t ecmdChipTarget::flattenSize() const {
         + (chipUnitType.size() + 1));
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdChipTarget::printStruct() const {
 
 	// Print struct data.
@@ -656,7 +656,7 @@ bool ecmdThreadData::operator<(const ecmdThreadData& rhs) const {
   return false;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdThreadData::printStruct() {
 
 	printf("\n\t\t\t\t\t\t\tThread Data:\n");
@@ -937,7 +937,7 @@ uint32_t ecmdChipUnitData::flattenSize() {
     return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdChipUnitData::printStruct() {
 
     std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
@@ -1290,7 +1290,7 @@ bool ecmdChipData::operator<(const ecmdChipData& rhs) const {
 }
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdChipData::printStruct() {
 
     std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
@@ -1561,7 +1561,7 @@ bool ecmdSlotData::operator<(const ecmdSlotData& rhs) const {
   return false;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdSlotData::printStruct() {
 
 	std::list<ecmdChipData>::iterator chipitor = chipData.begin();
@@ -1834,7 +1834,7 @@ bool ecmdNodeData::operator<(const ecmdNodeData& rhs) const {
   return false;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdNodeData::printStruct() {
 
 	std::list<ecmdSlotData>::iterator slotitor = slotData.begin();
@@ -2106,7 +2106,7 @@ bool ecmdCageData::operator<(const ecmdCageData& rhs) const {
   return false;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdCageData::printStruct() {
 
 	std::list<ecmdNodeData>::iterator nodeitor = nodeData.begin();
@@ -2358,7 +2358,7 @@ uint32_t ecmdQueryData::flattenSize() {
 	return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdQueryData::printStruct() {
 
 	std::list<ecmdCageData>::iterator cageitor = cageData.begin();
@@ -2764,7 +2764,7 @@ uint32_t ecmdSpyData::flattenSize() {
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdSpyData::printStruct() {
 
         uint32_t enumsListSize  = enums.size();
@@ -2978,7 +2978,7 @@ uint32_t ecmdArrayEntry::flattenSize() const {
 }  
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdArrayEntry::printStruct() const {
 
     uint32_t tmpData = 0;
@@ -3367,7 +3367,7 @@ uint32_t ecmdRingData::flattenSize() {
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdRingData::printStruct() {
 
         uint32_t ringNamesListSize  = ringNames.size();
@@ -3419,7 +3419,7 @@ void  ecmdRingData::printStruct() {
         }
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 /*
@@ -3705,7 +3705,7 @@ uint32_t ecmdArrayData::flattenSize() {
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdArrayData::printStruct() {
 
         printf("\n\t--- Array Data Structure ---\n");
@@ -3725,7 +3725,7 @@ void  ecmdArrayData::printStruct() {
         printf("\tClock State: 0x%08x\n", (uint32_t) clockState);
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 /*
@@ -3892,7 +3892,7 @@ uint32_t ecmdIndexEntry::flattenSize() {
 }  
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdIndexEntry::printStruct() {
 
     uint32_t tmpData = 0;
@@ -4142,7 +4142,7 @@ uint32_t ecmdTraceArrayData::flattenSize()
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdTraceArrayData::printStruct() {
 
         printf("\n\t--- Trace Array Data Structure ---\n");
@@ -4158,7 +4158,7 @@ void  ecmdTraceArrayData::printStruct() {
         printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 /*
  * The following methods for the ecmdFastArrayData struct will flatten, 
@@ -4391,7 +4391,7 @@ uint32_t ecmdFastArrayData::flattenSize()
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdFastArrayData::printStruct() {
 
         printf("\n\t--- Fast Array Data Structure ---\n");
@@ -4407,7 +4407,7 @@ void  ecmdFastArrayData::printStruct() {
         printf("\tClock State: 0x%08x\n", (uint32_t)clockState );
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 // @05 start
@@ -4671,7 +4671,7 @@ uint32_t ecmdScomData::flattenSize()
 }
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdScomData::printStruct()
 {
 
@@ -4691,7 +4691,7 @@ void  ecmdScomData::printStruct()
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
         
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 // @05 end
 
 // @06 start
@@ -4938,7 +4938,7 @@ uint32_t ecmdLatchData::flattenSize() const
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdLatchData::printStruct() const
 {
 
@@ -4956,7 +4956,7 @@ void  ecmdLatchData::printStruct() const
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 // @06 end
 
 
@@ -5222,7 +5222,7 @@ uint32_t ecmdI2CCmdEntry::flattenSize() const
 }
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdI2CCmdEntry::printStruct() const
 {
         uint32_t bufSize = 0;
@@ -5245,7 +5245,7 @@ void  ecmdI2CCmdEntry::printStruct() const
         printf("\tData: contents = %s\n", bufString.c_str() );
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 // @07 end
 
 
@@ -5266,7 +5266,7 @@ uint32_t ecmdNameEntry::flattenSize() {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdNameEntry::printStruct() {
 
         printf("\n\t--- Name Entry Structure ---\n");
@@ -5274,7 +5274,7 @@ void  ecmdNameEntry::printStruct() {
         // Print non-list data.
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 /*
  * The following methods for the ecmdNameVectorEntry struct will flatten, unflatten &
@@ -5293,7 +5293,7 @@ uint32_t ecmdNameVectorEntry::flattenSize() {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdNameVectorEntry::printStruct() {
 
         printf("\n\t--- Name Vector Entry Structure ---\n");
@@ -5301,7 +5301,7 @@ void  ecmdNameVectorEntry::printStruct() {
         // Print non-list data.
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 /*
@@ -5518,7 +5518,7 @@ uint32_t ecmdIndexVectorEntry::flattenSize()
         return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdIndexVectorEntry::printStruct() {
 
         printf("\n\t--- Index Vector Entry Structure ---\n");
@@ -5530,7 +5530,7 @@ void  ecmdIndexVectorEntry::printStruct() {
         printf("\tNumber of elements in buffer vector: %lu\n", (unsigned long)buffer.size());
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 /*
  * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
@@ -5549,7 +5549,7 @@ uint32_t ecmdLatchEntry::flattenSize() {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdLatchEntry::printStruct() {
 
         printf("\n\t--- Latch Entry Structure ---\n");
@@ -5557,7 +5557,7 @@ void  ecmdLatchEntry::printStruct() {
         // Print non-list data.
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 /*
  * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
@@ -5701,7 +5701,7 @@ uint32_t ecmdProcRegisterInfo::flattenSize()
    // @0aa - above
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdProcRegisterInfo::printStruct()
 {
 
@@ -5718,7 +5718,7 @@ void  ecmdProcRegisterInfo::printStruct()
    // @0aa - above
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 /*
  * The following methods for the ecmdCacheData struct will flatten, unflatten &
@@ -5832,7 +5832,7 @@ uint32_t ecmdCacheData::flattenSize()
    return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdCacheData::printStruct()
 {
 
@@ -5844,7 +5844,7 @@ void  ecmdCacheData::printStruct()
    printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 /*
@@ -6048,7 +6048,7 @@ uint32_t ecmdScomEntry::flattenSize() {
 }
 
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void ecmdScomEntry::printStruct() {
 
     printf("\n\t\teCMD Scom Entry:\n");
@@ -6093,7 +6093,7 @@ uint32_t ecmdSimModelInfo::flattenSize() {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdSimModelInfo::printStruct() {
 
         printf("\n\t--- Proc Register Info Structure ---\n");
@@ -6101,7 +6101,7 @@ void  ecmdSimModelInfo::printStruct() {
         // Print non-list data.
 
 }
-#endif  // end of REMOVE_SIM
+#endif  // end of ECMD_STRIP_DEBUG
 
 
 
@@ -6306,7 +6306,7 @@ uint32_t ecmdConnectionData::flattenSize() {
   return flatSize;
 }
 
-#ifndef REMOVE_SIM
+#ifndef ECMD_STRIP_DEBUG
 void  ecmdConnectionData::printStruct() {
 
   printf("\n\t--- Connection Data Structure ---\n");
