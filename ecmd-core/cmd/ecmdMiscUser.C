@@ -1760,9 +1760,9 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
     target.nodeState     = ECMD_TARGET_FIELD_UNUSED;
     target.slotState     = ECMD_TARGET_FIELD_UNUSED;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.posState      = ECMD_TARGET_FIELD_UNUSED;
-    target.coreState     = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState  = ECMD_TARGET_FIELD_UNUSED;
     target.threadState   = ECMD_TARGET_FIELD_UNUSED;
 
     rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
