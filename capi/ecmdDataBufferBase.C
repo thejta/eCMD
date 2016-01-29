@@ -18,32 +18,15 @@
 #include <ecmdDataBufferBase.H>
 #include <prdfCompressBuffer.H>
 
-#ifndef __HOSTBOOT_MODULE
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
 #ifdef AIX
-#include "/usr/include/zlib.h"
+  #include "/usr/include/zlib.h"
 #else
-#include <zlib.h>
+  #include <zlib.h>
 #endif
 #include <netinet/in.h>
-#else
-#include <fapiUtil.H>
-#include <fapiPlatTrace.H>
-#define htonl(foo) (foo)
-#define ntohl(foo) (foo)
-#endif
-
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
-#ifdef FIPSODE
-tracDesc_t g_etrc; /** Trace Descriptor **/
-TRAC_INIT(&g_etrc, "ECMD", 0x1000);
-#elif defined ZSERIES_SWITCH
-#define TRACE_ID ECMDBUF
-#endif
 
 //----------------------------------------------------------------------
 //  Constants

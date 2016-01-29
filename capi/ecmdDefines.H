@@ -122,32 +122,7 @@
 
 
 /*************************************************************************/
-/*  These Compile Flags are used to remove functions from GIP Extension  */
-/*   CAPI & cmdline                                                      */
-/*************************************************************************/
-/* The GIP flags should only be used if ECMD_GIP_EXTENSION SUPPORT it active */
-//#ifdef ECMD_GIP_EXTENSION_SUPPORT
-
-/* Removes Memory interfaces from GIP api and cmdline code */
-//#define GIP_REMOVE_MEMORY_FUNCTIONS
-
-/* Removes Breakpoint interfaces from GIP api and cmdline code */
-//#define GIP_REMOVE_BREAKPOINT_FUNCTIONS
-
-//#endif  // ECMD_GIP_EXTENSION_SUPPORT
-
-/*************************************************************************/
 /*  These Compile Flags are used for Specific ECMD Extensions            */
 /*************************************************************************/
-
-
-/* Turned on only in a GIP FSP build environment */
-//#define FIPSODE
-
-/* Turned on only in ZSE build environment */
-//#define ZSERIES_SWITCH
-
-/* Turned on in a BML Build environment only */
-//#define BML
 
 #endif

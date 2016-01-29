@@ -18,18 +18,11 @@
 #include <vector>
 #include <stdint.h>
 
-
 #ifdef ENABLE_MPATROL
  #include <mpatrol.h>
 #endif
 
-#ifdef FIPSODE
-#include <fips_trace.H>
-#elif defined ZSERIES_SWITCH
-#include <yemtraceinterface.h>
-#elif defined __HOSTBOOT_MODULE
-#include <fapiPlatTrace.H>
-#endif
+#include <ecmdTraceDefines.H>
 
 // Determine endianness of the machine we are building for
 // Since AIX and Linux do it different, we are creating our own defines
@@ -62,11 +55,6 @@
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
-#ifdef FIPSODE
-extern tracDesc_t g_etrc; /** Trace Descriptor **/
-#elif defined ZSERIES_SWITCH
-#define g_etrc TRACE_ID
-#endif
 
 //----------------------------------------------------------------------
 //  Constants
@@ -95,95 +83,11 @@ extern tracDesc_t g_etrc; /** Trace Descriptor **/
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-#ifdef FIPSODE
-#define ETRAC0(fmt) \
-  TRACFCOMP0(g_etrc, fmt);
-#define ETRAC1(fmt, arg1) \
-  TRACFCOMP1(g_etrc, fmt, arg1)
-#define ETRAC2(fmt, arg1, arg2) \
-  TRACFCOMP2(g_etrc, fmt, arg1, arg2)
-#define ETRAC3(fmt, arg1, arg2, arg3) \
-  TRACFCOMP3(g_etrc, fmt, arg1, arg2, arg3)
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) \
-  TRACFCOMP4(g_etrc, fmt, arg1, arg2, arg3, arg4)
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  TRACFCOMP5(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5)
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  TRACFCOMP6(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  TRACFCOMP7(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7)
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  TRACFCOMP8(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8)
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  TRACFCOMP9(g_etrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8, arg9)
-#elif defined ZSERIES_SWITCH
-#define ETRAC0(fmt) \
-  FTRACE(SYS_TB, fmt)
-#define ETRAC1(fmt, arg1) \
-  FTRACE1(SYS_TB, fmt, arg1)
-#define ETRAC2(fmt, arg1, arg2) \
-  FTRACE2(SYS_TB, fmt, arg1, arg2)
-#define ETRAC3(fmt, arg1, arg2, arg3) \
-  FTRACE3(SYS_TB, fmt, arg1, arg2, arg3)
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) \
-  FTRACE4(SYS_TB, fmt, arg1, arg2, arg3, arg4)
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  FTRACE5(SYS_TB, fmt, arg1, arg2, arg3, arg4, arg5)
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  FTRACE6(SYS_TB, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  FTRACE7(SYS_TB, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7)
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  FTRACE8(SYS_TB, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8)
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  FTRACE9(SYS_TB, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8, arg9)
-#elif defined __HOSTBOOT_MODULE
-#define ETRAC0(fmt) FAPI_ERR(fmt);
-#define ETRAC1(fmt, arg1) FAPI_ERR(fmt, arg1);
-#define ETRAC2(fmt, arg1, arg2) FAPI_ERR(fmt, arg1, arg2);
-#define ETRAC3(fmt, arg1, arg2, arg3) FAPI_ERR(fmt, arg1, arg2, arg3);
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) FAPI_ERR(fmt, arg1, arg2, arg4);
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) FAPI_ERR(fmt, arg1, arg2, arg5);
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) FAPI_ERR(fmt, arg1, arg2, arg6);
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) FAPI_ERR(fmt, arg1, arg2, arg7);
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) FAPI_ERR(fmt, arg1, arg2, arg8);
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) FAPI_ERR(fmt, arg1, arg2, arg9);
-#else
-#define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
-#define ETRAC1(fmt, arg1) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1);
-#define ETRAC2(fmt, arg1, arg2) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2);
-#define ETRAC3(fmt, arg1, arg2, arg3) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3);
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4);
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5);
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6);
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-#endif
-
-#ifdef FIPSODE
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
     ETRAC2("**** ERROR : %s : Argument %s is NULL", __PRETTY_FUNCTION__, #ptr); \
     return ECMD_DBUF_NULL_POINTER; \
   };
-#else
-#define  ECMD_NULL_PTR_CHECK(ptr) \
-  if ( ptr == NULL ) { \
-    ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \
-    return ECMD_DBUF_NULL_POINTER; \
-  };
-#endif
-
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 //  Defines                                                

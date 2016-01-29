@@ -92,14 +92,6 @@ void debugFunctionOuput(const char* outbuf);
 uint32_t readScomDefFile(uint64_t i_address, std::ifstream &io_scomdefFile);
 #endif
 
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
-#ifdef FIPSODE
-tracDesc_t g_ptrc=0; /** Procedure Trace Descriptor **/
-TRAC_INIT(&g_ptrc, "PTRC", 0x8000);
-#endif
-
 uint32_t ecmdReadDataFormatted(ecmdDataBuffer & o_data, const char * i_dataStr, std::string i_format, int i_expectedLength) {
   uint32_t rc = ECMD_SUCCESS;
 

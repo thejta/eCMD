@@ -19,16 +19,7 @@
 
 #include <ecmdDefines.H>
 #include <ecmdClientCapi.H>
-#ifdef FIPSODE
-#include <fips_trace.H>
-#endif
-
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
-#ifdef FIPSODE
-extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
-#endif
+#include <ecmdTraceDefines.H>
 
 //----------------------------------------------------------------------
 //  Constants
@@ -50,85 +41,6 @@ extern tracDesc_t g_ptrc; /** Procedure Trace Descriptor **/
 #define UINT64_DEC_FORMAT "%lld"
 #endif
 
-#ifndef ECMD_PERLAPI
-
-#ifdef FIPSODE
-#define PTRAC0(fmt) \
-  TRACFCOMP0(g_ptrc, fmt);
-#define PTRAC1(fmt, arg1) \
-  TRACFCOMP1(g_ptrc, fmt, arg1)
-#define PTRAC2(fmt, arg1, arg2) \
-  TRACFCOMP2(g_ptrc, fmt, arg1, arg2)
-#define PTRAC3(fmt, arg1, arg2, arg3) \
-  TRACFCOMP3(g_ptrc, fmt, arg1, arg2, arg3)
-#define PTRAC4(fmt, arg1, arg2, arg3, arg4) \
-  TRACFCOMP4(g_ptrc, fmt, arg1, arg2, arg3, arg4)
-#define PTRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  TRACFCOMP5(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5)
-#define PTRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  TRACFCOMP6(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6)
-#define PTRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  TRACFCOMP7(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7)
-#define PTRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  TRACFCOMP8(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8)
-#define PTRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  TRACFCOMP9(g_ptrc, fmt, arg1, arg2, arg3, arg4, arg5, arg6, \
-  arg7, arg8, arg9)
-#else
-#define PTRAC0(fmt) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__); \
-  ecmdOutput(buffer);}
-#define PTRAC1(fmt, arg1) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1); \
-  ecmdOutput(buffer);}
-#define PTRAC2(fmt, arg1, arg2) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2); \
-  ecmdOutput(buffer);}
-#define PTRAC3(fmt, arg1, arg2, arg3) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3); \
-  ecmdOutput(buffer);}
-#define PTRAC4(fmt, arg1, arg2, arg3, arg4) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, \
-  arg4); \
-  ecmdOutput(buffer);}
-#define PTRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5); \
-  ecmdOutput(buffer);}
-#define PTRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6); \
-  ecmdOutput(buffer);}
-#define PTRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7); \
-  ecmdOutput(buffer);}
-#define PTRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7, arg8); \
-  ecmdOutput(buffer);}
-#define PTRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7, arg8, arg9); \
-  ecmdOutput(buffer);}
-#endif
-
-#endif // ifndef ECMD_PERLAPI
-//----------------------------------------------------------------------
-//  Global Variables
-//----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
 //  User Types
