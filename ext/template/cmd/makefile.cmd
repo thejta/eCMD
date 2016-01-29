@@ -62,14 +62,16 @@ SOURCE_OBJS := $(addsuffix .o, ${SOURCE_OBJS})
 # file has changed.
 # *****************************************************************************
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${AR} r ${OBJPATH}${TARGET} $^
+	@echo Creating static client library $<
+	${VERBOSE}${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Debug rule for any makefile testing 

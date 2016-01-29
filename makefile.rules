@@ -6,6 +6,9 @@ ifeq (${MAKEFILE_RULES},)
 
 MAKEFILE_RULES := y
 
+# Turn on when debugging build problems to see more output
+VERBOSE := @
+
 # Turn off implicit source checkout rules in gmake to speed it up
 %: %,v
 %: RCS/%,v

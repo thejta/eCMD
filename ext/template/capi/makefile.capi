@@ -87,23 +87,26 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 # file has changed.
 # *****************************************************************************
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${CFLAGS} ${SLIBCFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} ${SLIBCFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
-	${AR} r ${OBJPATH}${TARGET} $^
+	@echo Creating static client library $<
+	${VERBOSE}${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
-	@echo "Linking Shared Library ..."
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^
+	@echo Linking shared library $<
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

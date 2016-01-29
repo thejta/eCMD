@@ -79,29 +79,31 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 # file has changed.
 # *****************************************************************************
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
-	@echo "Creating static client library ..."
-	${AR} r ${OBJPATH}${TARGET} $^
+	@echo Creating static client library $<
+	${VERBOSE}${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
-	@echo "Linking shared library ..."
+	@echo Linking $<
   ifeq (${TARGET_ARCH},aix)
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/aix/lib/libz.a
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/aix/lib/libz.a
   else ifeq (${TARGET_ARCH},x86)
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/x86/lib/libz.a
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/x86/lib/libz.a
   else
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ -lz
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ -lz
   endif
 
 # *****************************************************************************

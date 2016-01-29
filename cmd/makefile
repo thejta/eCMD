@@ -120,26 +120,30 @@ VER_SOURCE_OBJS := $(addsuffix .o, $(VER_SOURCE_OBJS))
 # file has changed.
 # *****************************************************************************
 $(SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
-$(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} 
-	$(CC) -c $(CFLAGS) $< -o $@ $(DEFINES)
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+$(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES}
+	@echo Compiling $< 
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 
 # *****************************************************************************
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${TARGET} ${LDLIBS}
+	@echo Linking $<
+	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OBJPATH}${TARGET} ${LDLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
+	@echo Linking $<
 ifeq (${TARGET_OS},aix)
 ifeq (${TARGET_ARCH},aix64)
-	${LD} ${LDFLAGS} -Wl,-brtl $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} -Wl,-brtl $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
 else
-	${LD} ${LDFLAGS} -brtl -w $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} -brtl -w $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
 endif
 else
-	${LD} ${LDFLAGS} $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OBJPATH}${VER_TARGET} ${LDLIBS}
 endif
 
 # *****************************************************************************

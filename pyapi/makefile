@@ -120,19 +120,23 @@ ${SRCPATH} ${OBJPATH}:
 # file has changed.
 # *****************************************************************************
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} | ${OBJPATH}
-	${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
 ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT} | ${SRCPATH} ${OBJPATH}
-	${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OBJPATH} ../pyapi/ecmdClientPyapi.i
+	@echo Compiling $<
+	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OBJPATH} ../pyapi/ecmdClientPyapi.i
 
 ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE} | ${OBJPATH}
-	${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
 # *****************************************************************************
 # Create the Python Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OBJPATH}${SO_TARGET} ${LDLIBS}
+	@echo Linking $<
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OBJPATH}${SO_TARGET} ${LDLIBS}
 
 # *****************************************************************************
 # Autogenerate some of the extension swig

@@ -126,19 +126,23 @@ ${SRCPATH} ${OBJPATH}:
 # file has changed.
 # *****************************************************************************
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES} | ${SRCPATH}
-	${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
 ${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ${SWIG_INPUT} | ${SRCPATH} ${OBJPATH}
-	${SWIG} ${SWIGFLAGS} ${DEFINES} ${PERLDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OBJPATH} ecmdClientPerlapi.i
+	@echo Running swig
+	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PERLDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OBJPATH} ecmdClientPerlapi.i
 
 ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE} | ${SRCPATH}
-	${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
 # *****************************************************************************
 # Create the Perl Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OBJPATH}${SO_TARGET} ${LDLIBS}
+	@echo Linking $<
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OBJPATH}${SO_TARGET} ${LDLIBS}
 
 
 # *****************************************************************************
