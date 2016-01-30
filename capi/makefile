@@ -90,14 +90,14 @@ ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS}
-	@echo Creating static client library $<
+	@echo Creating $@
 	${VERBOSE}${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
-	@echo Linking $<
+	@echo Linking $@
   ifeq (${TARGET_ARCH},aix)
 	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^ /gsa/${GSACELL}/projects/e/ecmd/utils/aix/lib/libz.a
   else ifeq (${TARGET_ARCH},x86)

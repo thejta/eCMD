@@ -98,14 +98,14 @@ ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 # Create the Client Archive
 # *****************************************************************************
 ${TARGET}: ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
-	@echo Creating static client library $<
+	@echo Creating $@
 	${VERBOSE}${AR} r ${OBJPATH}${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS}
-	@echo Linking shared library $<
+	@echo Linking $@
 	${VERBOSE}${LD} ${SLDFLAGS} -o ${OBJPATH}${SLIB} $^
 
 # *****************************************************************************
