@@ -18,7 +18,8 @@ VERBOSE := @
 
 # Setup the ECMD_ROOT
 # Strip the subdir off the end of the path so it points to the root of the repository
-ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@${SUBDIR}$$@@')
+#ECMD_ROOT := $(shell echo ${PWD}/ | sed 's@ecmd-core/${SUBDIR}$$@@')
+ECMD_ROOT := /home/albertj/ecmd
 export ECMD_ROOT
 
 #These are needed to define a space char for substitutions later on
@@ -67,7 +68,7 @@ endif
 # Remove any trailing slashes at the end
 OBJROOT   := $(shell echo ${OBJROOT} | sed 's@/*$$@@g')
 OBJDIR    := obj_${TARGET_ARCH}
-OBJPATH   := ${OBJROOT}/${SUBDIR}/${OBJDIR}/
+OBJPATH   := ${OBJROOT}/${OBJDIR}/
 # Cleanup multiple //'s in the path built above
 OBJPATH   := $(shell echo ${OBJPATH} | sed 's@/\+@/@g')
 # Now export it all so it can be used in scripts, etc..
@@ -84,13 +85,26 @@ endif
 # Remove any trailing slashes at the end
 SRCROOT   := $(shell echo ${SRCROOT} | sed 's@/*$$@@g')
 SRCDIR    := src_${TARGET_ARCH}
-SRCPATH   := ${SRCROOT}/${SUBDIR}/${SRCDIR}/
+SRCPATH   := ${SRCROOT}/${SRCDIR}
 # Cleanup multiple //'s in the path built above
 SRCPATH   := $(shell echo ${SRCPATH} | sed 's@/\+@/@g')
 # Now export it all so it can be used in scripts, etc..
 export SRCROOT
 export SRCDIR
 export SRCPATH
+
+# Jason Test
+OUTROOT  := ${ECMD_ROOT}
+OUTDIR   := out_${TARGET_ARCH}
+OUTPATH  := ${OUTROOT}/${OUTDIR}
+OUTBIN   := ${OUTPATH}/bin
+OUTLIB   := ${OUTPATH}/lib
+OUTPERL  := ${OUTPATH}/perl
+OUTPY    := ${OUTPATH}/pyapi
+OUTPY3   := ${OUTPATH}/py3api
+export OUTROOT
+export OUTDIR
+export OUTPATH
 
 # Common compile flags across any OS
 CFLAGS    := -g -I.
@@ -131,7 +145,7 @@ ifneq (,$(findstring fapi2,${EXTENSIONS}))
 endif
 
 # Include the makefile for this build type
-include ${ECMD_ROOT}mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
+include ${ECMD_ROOT}/mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
 
 # Include the makefile.config, this will override anything above
 -include ${ECMD_ROOT}/makefile.config

@@ -8,8 +8,8 @@ include ../makefile.rules
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := stub.dll
-CFLAGS       := ${CFLAGS} -I ../capi -I ../dll
-VPATH        := ${VPATH}:../capi:../dll
+CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll
 
 # *****************************************************************************
 # Setup all the files going into the build
@@ -65,7 +65,7 @@ ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 # Create the Target
 # *****************************************************************************
 ${TARGET}: ${TGT_SOURCE_OBJS}
-	${LD} ${SLDFLAGS} -o ${OBJPATH}${TARGET} $^ ${OBJROOT}/capi/${OBJDIR}/ecmdClientCapi.a -L${OBJROOT}/capi/${OBJDIR} -lecmd
+	${LD} ${SLDFLAGS} -o ${OUTLIB}/${TARGET} $^ ${OUTLIB}/ecmdClientCapi.a -L${OUTLIB} -lecmd
 
 # *****************************************************************************
 # Debug rule for any makefile testing 

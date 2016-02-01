@@ -62,27 +62,27 @@ objclean: ${BUILD_TARGETS} ecmdutils
 # The core eCMD pieces
 ecmdcapi:
 	@echo "eCMD Core Client C-API ${TARGET_ARCH} ..."
-	@cd capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdcmd: ecmdcapi ${EXT_TARGETS}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
-	@cd cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdperlapi: ecmdcmd $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
-	@cd perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdpyapi: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
-	@cd pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
-	@cd py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
@@ -90,18 +90,18 @@ ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
 ########################
 ${EXT_CAPI_RULES}: ecmdcapi
 	@echo "$(subst capi,,$@) Extension C API ${TARGET_ARCH} ..."
-	@cd ext/$(subst capi,,$@)/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ext/$(subst capi,,$@)/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/ext/$(subst capi,,$@)/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/ext/$(subst capi,,$@)/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ${EXT_PERLAPI_RULES}:
 	@echo "$(subst perlapi,,$@) Extension Perl API ${TARGET_ARCH} ..."
-	@cd ext/$(subst perlapi,,$@)/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/ext/$(subst perlapi,,$@)/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ${EXT_PYAPI_RULES}:
 	@echo "$(subst pyapi,,$@) Extension Python API ${TARGET_ARCH} ..."
-	@cd ext/$(subst pyapi,,$@)/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@cd ecmd-core/ext/$(subst pyapi,,$@)/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
