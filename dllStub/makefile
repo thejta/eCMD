@@ -8,8 +8,8 @@ include ../makefile.rules
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := stub.dll
-CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll
+CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}
 
 # *****************************************************************************
 # Setup all the files going into the build

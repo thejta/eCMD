@@ -12,7 +12,7 @@ CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}Cl
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H  ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
 
 #DEFINES      := 
-CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../cmd/ -I../../../dll
+CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../cmd/ -I../../../dll -I${SRCPATH}
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
@@ -22,7 +22,7 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 #TARGET = ${EXTENSION_NAME}CmdInterpreter_${OS}.a
 TARGET = ${EXTENSION_NAME}CmdInterpreter.a
 
-VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi
+VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi:${SRCPATH}
 
 
 # *****************************************************************************

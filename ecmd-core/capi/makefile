@@ -13,7 +13,7 @@ SLIB_SOURCE   := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedU
 SEDC_INCLUDES := ${INCLUDES} sedcScomdefParser.H sedcScomdefClasses.H sedcDefines.H sedcCommonParser.H sedcCommonClasses.H
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C sedcCommonParser.C sedcCommonClasses.C
 VPATH         := ${VPATH}sedcScomdef
-CFLAGS        := ${CFLAGS} -IsedcScomdef
+CFLAGS        := ${CFLAGS} -IsedcScomdef -I${SRCPATH}
 # Compile libecmd optimized
 SLIB_CFLAGS   := ${CFLAGS} ${OPT_LEVEL}
 
@@ -35,7 +35,7 @@ SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, ${SEDC_INCLUDES})
 TARGET   := ecmdClientCapi.a
 SLIB     := libecmd.so
 
-VPATH := ${VPATH}:${OBJPATH}
+VPATH := ${VPATH}:${OBJPATH}:${SRCPATH}
 
 # *****************************************************************************
 # The Main Targets

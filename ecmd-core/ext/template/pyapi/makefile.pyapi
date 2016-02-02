@@ -36,7 +36,7 @@ install:
 ifeq ($(strip ${DISABLE_AUTOGEN}),)
   ${TEMPLATE_SOURCE}: ${EXTENSION_NAME}% : template%
 	@echo "==== Auto Generating $@"
-	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > $@
+	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > ${SRCPATH}/$@
 endif
 
 # *****************************************************************************

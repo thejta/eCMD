@@ -45,7 +45,7 @@
 #include "ecmdSharedUtils.H"
 
 %}
-%include "ecmdExtInserts.i"
+%include "ecmdExtPerlInserts.i"
 /*********** End Insert Code ***********/
 
 /*********** Start Templates ***********/
@@ -95,7 +95,7 @@
 %include "ecmdSharedUtils.H"
 %include "ecmdReturnCodes.H"
 
-%include "ecmdExtIncludes.i"
+%include "ecmdExtPerlIncludes.i"
 /*********** End Files to swigify ***********/
 
 %pragma(perl5) include="ecmdClientPerlapi.pl"

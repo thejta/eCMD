@@ -20,7 +20,7 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
   INCLUDES    := ${INCLUDES} ${EXTENSION_NAME}DllCapi.H ${EXTENSION_NAME}ClientEnums.H
 endif
 
-CFLAGS        := ${CFLAGS} -I../../../capi
+CFLAGS        := ${CFLAGS} -I../../../capi -I${SRCPATH}
 
 # Variables used for the build
 INCLUDES      := ${INCLUDES} ${CAPI_INCLUDES}
@@ -39,7 +39,7 @@ ifneq (${SLIB_SOURCE},)
   SLIB    := lib${EXTENSION_NAME}.so
 endif
 
-VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi
+VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:${SRCPATH}
 
 
 # *****************************************************************************
@@ -124,7 +124,7 @@ endif
 ifeq ($(strip ${DISABLE_AUTOGEN}),)
   ${TEMPLATE_SOURCE}: ${EXTENSION_NAME}% : template%
 	@echo "==== Auto Generating $@"
-	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > $@
+	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > ${SRCPATH}/$@
 else
   ${EXTENSION_NAME}DllCapi.C:
 	@echo "This is a phony, don't need this if we are not auto-genning" > /dev/null

@@ -8,7 +8,7 @@ VPATH        := ../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
 INT_INCLUDES := ecmdInterpreter.H ecmdExtInterpreter.H ecmdCommandUtils.H
 SOURCE       := ecmdMain.C ecmdExtInterpreter.C ecmdInterpreter.C ecmdScomUser.C ecmdCommandUtils.C ecmdRingUser.C ecmdQueryUser.C ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
-CFLAGS       := ${CFLAGS} -I../capi -I../dll 
+CFLAGS       := ${CFLAGS} -I../capi -I../dll -I${SRCPATH}
 
 VER_SOURCE   := ecmdVersion.C
 
@@ -23,7 +23,7 @@ EXTENSIONS   := $(subst scand,,${EXTENSIONS})
 EXTENSIONS   := $(subst fapi2,,${EXTENSIONS})
 EXTENSIONS   := $(subst fapi,,${EXTENSIONS})
 
-VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../ext/${ext}/cmd/:../ext/${ext}/capi/)
+VPATH        := ${VPATH}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../ext/${ext}/cmd/:../ext/${ext}/capi/):${SRCPATH}
 VPATH := $(subst ${space},,${VPATH})
 
 INCLUDES     := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
