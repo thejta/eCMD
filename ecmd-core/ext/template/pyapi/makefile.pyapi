@@ -1,8 +1,10 @@
 # Makefile for the ecmd Extensions
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/pyapi/
-include ../../../../makefile.rules
+include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -17,14 +19,19 @@ VPATH := ${VPATH}:.${OBJROOT}/capi/${OBJDIR}:../../template/pyapi
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: ${TEMPLATE_SOURCE}
 
-clean: objclean
-      ifeq ($(strip ${DISABLE_AUTOGEN}),)
-	rm -f ${TEMPLATE_SOURCE}
-      endif
+# The all rule variables are defined in makefile.rules
+all:
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 
-objclean:
+gensource: ${TEMPLATE_SOURCE}
+
+buildsource:
   # Do nothing
 
 install:
@@ -40,8 +47,6 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
 endif
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
+include ${ECMD_ROOT}/makefile.rules

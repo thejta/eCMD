@@ -1,8 +1,10 @@
 # Makefile for the ecmd Perl Module
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := perlapi/
-include ../../makefile.rules
+include ../../makefile.vars
 
 ifeq (aix,${DISTRO})
   INC_DISTRO := ${DISTRO}
@@ -62,32 +64,20 @@ LDLIBS    := ${LDLIBS} -L${OUTLIB} -lecmd
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
+# The all rule variables are defined in makefile.vars
 all:
-	@echo "Generating source ..."
-	@${MAKE} gensource ${GMAKEFLAGS} --no-print-directory
-	@echo "Calling swig ..."
-	@${MAKE} swig ${GMAKEFLAGS} --no-print-directory
-	@echo "Compiling source ..."
-	@${MAKE} buildsource ${GMAKEFLAGS} --no-print-directory
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 	@echo "Testing build ..."
 	@${MAKE} test ${GMAKEFLAGS} --no-print-directory
-	@echo " "
 
-swig: ${SWIG_SOURCE}
-
-gensource: ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
+gensource: ${SWIG_SOURCE} ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 
 buildsource: ${SO_TARGET}
-
-clean: objclean
-	rm -f ${GENERATED_SOURCE}
-	rm -f ${GENERATED_INCLUDES}
-	rm -f ${GENERATED_SWIG_INPUT}
-
-objclean:
-	rm -rf ${OBJPATH}
-	rm -rf ${SRCPATH}
-	rm -f *.o
 
 install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/${TARGET_ARCH}/perl ..."
@@ -165,8 +155,6 @@ ${GENERATED_SWIG_INPUT}:
 	@${ECMD_ROOT}/mkscripts/makeext.py perlapi
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
+include ${ECMD_ROOT}/makefile.rules

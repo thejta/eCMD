@@ -1,9 +1,6 @@
 # Makefile for the ecmd Extensions
 
-EXTENSION_NAME   := cip
-
-# Base info
-SUBDIR     := ext/${EXTENSION_NAME}/capi/
+EXTENSION_NAME := cip
 
 # Additional Source files for the Client API
 CAPI_SOURCE  :=

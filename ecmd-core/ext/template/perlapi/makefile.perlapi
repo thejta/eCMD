@@ -1,8 +1,10 @@
 # Makefile for the ecmd Extensions
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/perlapi/
-include ../../../../makefile.rules
+include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -24,16 +26,18 @@ VPATH := ${VPATH}:${SRCPATH}:${OBJPATH}:../../template/perlapi
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all:  ${GENERATED_INCLUDES} ${GENERATED_SOURCE} ${TEMPLATE_SOURCE}
+# The all rule variables are defined in makefile.rules
+all:
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 
-clean: objclean
-      ifeq ($(strip ${DISABLE_AUTOGEN}),)
-	rm -f ${GENERATED_SOURCE}
-	rm -f ${GENERATED_INCLUDES}
-	rm -f ${TEMPLATE_SOURCE}
-      endif
+gensource:  ${GENERATED_INCLUDES} ${GENERATED_SOURCE} ${TEMPLATE_SOURCE}
 
-objclean:
+buildsource:
   # Do nothing
 
 install:
@@ -64,8 +68,6 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
 endif
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
+include ${ECMD_ROOT}/makefile.rules

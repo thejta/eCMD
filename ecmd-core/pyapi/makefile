@@ -1,8 +1,10 @@
 # Makefile for the ecmd Python Module
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := pyapi/
-include ../../makefile.rules
+include ../../makefile.vars
 
 VPATH        := ${VPATH}:../capi:${SRCPATH}
 INCLUDES     := ecmdClientCapi.H ecmdClientPyapi.H ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H
@@ -58,26 +60,20 @@ VERINSTALL ?= pyapi_install
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
+# The all rule variables are defined in makefile.vars
 all:
-	@echo "Calling swig ..."
-	@${MAKE} swig ${GMAKEFLAGS} --no-print-directory
-	@echo "Compiling source ..."
-	@${MAKE} buildsource ${GMAKEFLAGS} --no-print-directory
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 	@echo "Testing build ..."
 	@${MAKE} test ${GMAKEFLAGS} --no-print-directory
-	@echo " "
 
-swig: ${SWIG_SOURCE}
+gensource: ${SWIG_SOURCE}
 
 buildsource: ${SO_TARGET}
-
-clean: objclean
-	rm -f ${GENERATED_SWIG_INPUT}
-
-objclean:
-	rm -rf ${OBJPATH}
-	rm -rf ${SRCPATH}
-	rm -f *.o
 
 install: ${VERINSTALL}
 
@@ -146,11 +142,6 @@ ${GENERATED_SWIG_INPUT}:
 	@${ECMD_ROOT}/mkscripts/makeext.py pyapi
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
-	@echo ${SWIG_SOURCE}
-	@echo ${VPATH}
-	@echo ${INCLUDES}
+include ${ECMD_ROOT}/makefile.rules

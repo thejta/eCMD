@@ -2,9 +2,11 @@
 
 EXTENSION_NAME   := cmd
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/capi/
-include ../../../../makefile.rules
+include ../../../../makefile.vars
 
 # This is Additional extension for the client api
 SOURCE       := 
@@ -20,7 +22,7 @@ EXTENSIONS := $(subst scand,,${EXTENSIONS})
 EXTENSIONS := $(subst fapi2,,${EXTENSIONS})
 EXTENSIONS := $(subst fapi,,${EXTENSIONS})
 
-VPATH        := ${VPATH}:${OBJROOT}/cmd/${OBJDIR}$(foreach ext, ${EXTENSIONS},:${OBJROOT}/ext/${ext}/cmd/${OBJDIR}:${OBJROOT}/ext/${ext}/capi/${OBJDIR}:../../${ext}/capi:../../${ext}/cmd)
+VPATH        := ${VPATH}:${OBJPATH})
 # We need to tack on a seperator to get the vpath right in makefile.capi
 VPATH          := ${VPATH}:
 
@@ -46,7 +48,7 @@ LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROO
 LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ${OBJROOT}/cmd/${OBJDIR}/*.o)
 
 # We need to pull unwanted objects like ecmdMain.o and others from the list
-REMOVE_OBJS := ${OBJROOT}/cmd/${OBJDIR}/ecmdMain.o ${OBJROOT}/cmd/${OBJDIR}/ecmdVersion.o
+REMOVE_OBJS := ${OBJPATH}/ecmdMain.o ${OBJPATH}/ecmdVersion.o
 LINK_OBJS := $(filter-out ${REMOVE_OBJS},${LINK_OBJS})
 
 
@@ -55,6 +57,3 @@ LINK_OBJS := $(filter-out ${REMOVE_OBJS},${LINK_OBJS})
 # For this extension we don't want any autogenned source though
 DISABLE_AUTOGEN = yes
 include ../../template/capi/makefile.capi
-
-test:
-	echo ${VPATH}

@@ -1,8 +1,10 @@
 # Makefile for the ecmd cmdline
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := cmd/
-include ../../makefile.rules
+include ../../makefile.vars
 
 VPATH        := ../capi
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H
@@ -75,17 +77,18 @@ VPATH     := ${VPATH}:${OBJPATH}
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET} ${VER_TARGET}
+# The all rule variables are defined in makefile.rules
+all:
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 
-clean: objclean
-	rm -f ${GENERATED_SOURCE}
+gensource: ${GENERATED_SOURCE}
 
-objclean:
-	rm -rf ${OBJPATH}
-
-dir:
-	@mkdir -p ${OBJPATH}
-	@mkdir -p ${OUTBIN}
+buildsource: ${TARGET} ${VER_TARGET}
 
 install:
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
@@ -127,16 +130,15 @@ $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $< 
 	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
-
 # *****************************************************************************
 # Create the Client 
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
-	@echo Linking $<
+	@echo Linking $@
 	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
-	@echo Linking $<
+	@echo Linking $@
 ifeq (${TARGET_OS},aix)
 ifeq (${TARGET_ARCH},aix64)
 	${VERBOSE}${LD} ${LDFLAGS} -Wl,-brtl $^ -o ${OUTBIN}/${VER_TARGET} ${LDLIBS}
@@ -155,8 +157,6 @@ ${GENERATED_SOURCE}:
 	@${ECMD_ROOT}/mkscripts/makeext.py cmd
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
+include ${ECMD_ROOT}/makefile.rules

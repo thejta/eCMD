@@ -2,9 +2,6 @@
 
 EXTENSION_NAME   := cip
 
-# Base info
-SUBDIR     := ext/${EXTENSION_NAME}/cmd/
-
 # This is Additional extension for the client api
 SOURCE       := cipProcUser.C cipPoreUser.C
 

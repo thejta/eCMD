@@ -1,8 +1,10 @@
 # Makefile for the ecmd Extensions
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/cmd/
-include ../../../../makefile.rules
+include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -11,7 +13,6 @@ INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
 INT_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H  ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
 
-#DEFINES      := 
 CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../cmd/ -I../../../dll -I${SRCPATH}
 
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
@@ -19,7 +20,6 @@ SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-#TARGET = ${EXTENSION_NAME}CmdInterpreter_${OS}.a
 TARGET = ${EXTENSION_NAME}CmdInterpreter.a
 
 VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi:${SRCPATH}
@@ -28,12 +28,18 @@ VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi:${SRCPATH
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET} 
+# The all rule variables are defined in makefile.vars
+all:
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
 
-clean: objclean
+gensource: ;
 
-objclean:
-	rm -rf ${OBJPATH}
+buildsource: ${TARGET}
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
@@ -43,10 +49,6 @@ install:
 	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
-
-dir:
-	@mkdir -p ${OBJPATH}
-
 
 
 # *****************************************************************************
@@ -74,9 +76,6 @@ ${TARGET}: ${SOURCE_OBJS} ${LINK_OBJS}
 	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${ECMD_ROOT}
-	@echo ${SUBDIR}
-
+include ${ECMD_ROOT}/makefile.rules

@@ -1,8 +1,10 @@
 # The main makefile for all rules
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := " "
-include makefile.rules
+include makefile.vars
 
 # *****************************************************************************
 # Some basic setup before we start trying to build stuff
@@ -44,20 +46,25 @@ ifeq (${CREATE_PY3API},yes)
 endif
 
 # Now create our build targets
-BUILD_TARGETS := ecmdcapi ${EXT_TARGETS} ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
+BUILD_TARGETS := ecmdcapi ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
 
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
 
+# The default rule is going to do a number of things:
+# 1) Create the output directories
+# 2) Generate all the source
+# 3) Call the actual build
+
 # The default
-all: ${BUILD_TARGETS}
+all: dir ${BUILD_TARGETS}
+	@${MAKE} gensource ${GMAKEFLAGS} --no-print-directory
+	@${MAKE} buildsource ${GMAKEFLAGS} --no-print-directory
 
-# Runs the objclean targets in addition to removing generated source
-clean: ${BUILD_TARGETS} ecmdutils
+gensource: ${BUILD_TARGETS}
 
-# Remove the obj_* dir for the system type you are building on
-objclean: ${BUILD_TARGETS} ecmdutils
+buildsource: ${BUILD_TARGETS}
 
 # The core eCMD pieces
 ecmdcapi:
@@ -65,22 +72,22 @@ ecmdcapi:
 	@cd ecmd-core/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdcmd: ecmdcapi ${EXT_TARGETS}
+ecmdcmd: ecmdcapi ${EXT_CAPI_RULES}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
 	@cd ecmd-core/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdperlapi: ecmdcmd $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
+ecmdperlapi: ecmdcmd ${EXT_PERLAPI_RULES}
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
 	@cd ecmd-core/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdpyapi: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
+ecmdpyapi: ecmdcmd ${EXT_PYAPI_RULES}
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
 	@cd ecmd-core/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdpy3api: ecmdcmd  $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
+ecmdpy3api: ecmdcmd ${EXT_PYAPI_RULES}
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
 	@cd ecmd-core/py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
@@ -195,9 +202,6 @@ endif
 	@echo ""
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug: ${BUILD_TARGETS}
-	@echo ${OBJROOT}
-	@echo ${ECMD_ROOT}
-
+include ${ECMD_ROOT}/makefile.rules
