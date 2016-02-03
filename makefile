@@ -19,14 +19,18 @@ CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEP
 ifneq (,$(findstring cmd,${EXTENSIONS}))
   CMD_EXT_BUILD := cmdcapi
 endif
-# Pull cmd then use the list to build the {ext}capi targets
+# Pull cmd then use the list to build ext targets
 EXT_TARGETS := $(subst cmd,,${EXTENSIONS})
-EXT_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
 
 # All of our extensions build with the same rules, create the list here
-EXT_CAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}capi)
+EXT_CAPI_RULES    := $(foreach ext, ${EXTENSIONS}, ${ext}capi)
+EXT_CMD_RULES     := $(foreach ext, ${EXTENSIONS}, ${ext}cmd)
 EXT_PERLAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
-EXT_PYAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
+EXT_PYAPI_RULES   := $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
+EXT_CAPI_TARGETS    := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
+EXT_CMD_TARGETS     := $(foreach ext, ${EXT_TARGETS}, ${ext}cmd)
+EXT_PERLAPI_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}perlapi)
+EXT_PYAPI_TARGETS   := $(foreach ext, ${EXT_TARGETS}, ${ext}pyapi)
 
 # These variables can be controlled from the distro or makefile.config to determine if python/perl should be built
 # The default here is yes
@@ -58,38 +62,40 @@ BUILD_TARGETS := ecmdcapi ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PY
 # 3) Call the actual build
 
 # The default
-all: dir ${BUILD_TARGETS}
-	@${MAKE} gensource ${GMAKEFLAGS} --no-print-directory
-	@${MAKE} buildsource ${GMAKEFLAGS} --no-print-directory
+all: dir
+	@${CMD_GEN_MSG}
+	@${MAKE} generate ${GMAKEFLAGS} --no-print-directory
+	@${CMD_BLD_MSG}
+	@${MAKE} build ${GMAKEFLAGS} --no-print-directory
 
-gensource: ${BUILD_TARGETS}
+generate: ${BUILD_TARGETS}
 
-buildsource: ${BUILD_TARGETS}
+build: ${BUILD_TARGETS}
 
 # The core eCMD pieces
 ecmdcapi:
 	@echo "eCMD Core Client C-API ${TARGET_ARCH} ..."
-	@cd ecmd-core/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/capi ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
-ecmdcmd: ecmdcapi ${EXT_CAPI_RULES}
+ecmdcmd: ecmdcapi ${EXT_CAPI_TARGETS} ${EXT_CMD_TARGETS}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
-	@cd ecmd-core/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/cmd ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdperlapi: ecmdcmd ${EXT_PERLAPI_RULES}
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
-	@cd ecmd-core/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/perlapi ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdpyapi: ecmdcmd ${EXT_PYAPI_RULES}
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
-	@cd ecmd-core/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/pyapi ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ecmdpy3api: ecmdcmd ${EXT_PYAPI_RULES}
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
-	@cd ecmd-core/py3api && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/py3api ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
@@ -97,18 +103,22 @@ ecmdpy3api: ecmdcmd ${EXT_PYAPI_RULES}
 ########################
 ${EXT_CAPI_RULES}: ecmdcapi
 	@echo "$(subst capi,,$@) Extension C API ${TARGET_ARCH} ..."
-	@cd ecmd-core/ext/$(subst capi,,$@)/capi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
-	@cd ecmd-core/ext/$(subst capi,,$@)/cmd && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/ext/$(subst capi,,$@)/capi ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@echo " "
+
+${EXT_CMD_RULES}: ecmdcapi
+	@echo "$(subst cmd,,$@) Extension cmdline ${TARGET_ARCH} ..."
+	@${MAKE} -C ecmd-core/ext/$(subst cmd,,$@)/cmd ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ${EXT_PERLAPI_RULES}:
 	@echo "$(subst perlapi,,$@) Extension Perl API ${TARGET_ARCH} ..."
-	@cd ecmd-core/ext/$(subst perlapi,,$@)/perlapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/ext/$(subst perlapi,,$@)/perlapi ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ${EXT_PYAPI_RULES}:
 	@echo "$(subst pyapi,,$@) Extension Python API ${TARGET_ARCH} ..."
-	@cd ecmd-core/ext/$(subst pyapi,,$@)/pyapi && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C ecmd-core/ext/$(subst pyapi,,$@)/pyapi ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
@@ -116,7 +126,7 @@ ${EXT_PYAPI_RULES}:
 ########################
 ecmdutils:
 	@echo "eCMD Utilities ${TARGET_ARCH} ..."
-	@cd utils && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C utils ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 ########################
@@ -124,7 +134,7 @@ ecmdutils:
 ########################
 dllstub:
 	@echo "eCMD DLL Stub ${TARGET_ARCH} ..."
-	@cd dllStub && ${MAKE} ${MAKECMDGOALS} ${GMAKEFLAGS}
+	@${MAKE} -C dllStub ${MAKECMDGOALS} ${GMAKEFLAGS}
 	@echo " "
 
 # Runs the install routines for all targets

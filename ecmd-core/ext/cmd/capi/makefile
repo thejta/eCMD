@@ -26,9 +26,6 @@ VPATH        := ${VPATH}:${OBJPATH})
 # We need to tack on a seperator to get the vpath right in makefile.capi
 VPATH          := ${VPATH}:
 
-#These are needed to define a space char for substitutions later on
-empty :=
-space := ${empty} ${empty}
 VPATH := $(subst ${space},,${VPATH})
 
 # These are includes not to be exported
@@ -40,18 +37,14 @@ CFLAGS       := ${CFLAGS} -I../../../capi -I../../../cmd
 #######################
 
 # LINK_OBJS - Capi
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/*.o) )
+#LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROOT}/ext/${ext}/capi/${OBJDIR}/*.o) )
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell ar t ${OUTLIB}/${ext}ClientCapi.a))
 # LINK_OBJS - Cmd
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/*.o) )
+#LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell /bin/ls ${OBJROOT}/ext/${ext}/cmd/${OBJDIR}/*.o) )
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXTENSIONS}, $(shell ar t ${OUTLIB}/${ext}CmdInterpreter.a)) 
 
 # The Core Interpreter
-LINK_OBJS := ${LINK_OBJS} $(shell /bin/ls ${OBJROOT}/cmd/${OBJDIR}/*.o)
-
-# We need to pull unwanted objects like ecmdMain.o and others from the list
-REMOVE_OBJS := ${OBJPATH}/ecmdMain.o ${OBJPATH}/ecmdVersion.o
-LINK_OBJS := $(filter-out ${REMOVE_OBJS},${LINK_OBJS})
-
-
+LINK_OBJS := ${LINK_OBJS} $(shell ar t ${OUTLIB}/ecmdClientCmd.a)
 
 # Include the common extension makefile to do all the work
 # For this extension we don't want any autogenned source though

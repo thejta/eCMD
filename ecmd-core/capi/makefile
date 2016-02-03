@@ -63,9 +63,9 @@ all:
 	@${CMD_BLD_MSG}
 	@${CMD_BLD}
 
-gensource: ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
+generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 
-buildsource: ${TARGET} ${SLIB}
+build: ${TARGET} ${SLIB}
 
 install:
 	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
@@ -119,7 +119,7 @@ ${SLIB}: ${SLIB_SOURCE_OBJS}
 # Autogenerate the Client side of the Dll
 # *****************************************************************************
 ${GENERATED_SOURCE} ${GENERATED_INCLUDES}: ecmdClientCapi.H ${ECMD_ROOT}/mkscripts/makedll.pl
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makedll.pl ecmd $@
 
 # *****************************************************************************

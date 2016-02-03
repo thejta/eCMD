@@ -71,9 +71,9 @@ all:
 	@echo "Testing build ..."
 	@${MAKE} test ${GMAKEFLAGS} --no-print-directory
 
-gensource: ${SWIG_SOURCE}
+generate: ${SWIG_SOURCE}
 
-buildsource: ${SO_TARGET}
+build: ${SO_TARGET}
 
 install: ${VERINSTALL}
 
@@ -105,27 +105,17 @@ SWIG_OBJS   := $(addprefix ${OBJPATH}, ${SWIG_OBJS})
 SWIG_OBJS   := $(addsuffix .o, ${SWIG_OBJS})
 
 # *****************************************************************************
-# Create directories from order only dependencies
-# *****************************************************************************
-${SRCPATH} ${OBJPATH} ${OUTPY}:
-	@mkdir -p $@
-
-# *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} | ${OBJPATH}
+${SOURCE_OBJS} ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
-${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT} | ${SRCPATH} ${OBJPATH} ${OUTPY}
-	@echo Compiling $<
+${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
+	@echo Swigging $@
 	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OUTPY} ../pyapi/ecmdClientPyapi.i
-
-${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE} | ${OBJPATH}
-	@echo Compiling $<
-	${VERBOSE}${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
 # *****************************************************************************
 # Create the Python Shared Library
@@ -138,7 +128,7 @@ ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 # Autogenerate some of the extension swig
 # *****************************************************************************
 ${GENERATED_SWIG_INPUT}:
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makeext.py pyapi
 
 # *****************************************************************************

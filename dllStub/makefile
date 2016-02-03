@@ -1,8 +1,10 @@
 # Makefile for a very simple DLL.  Can be used to test builds
 
-# Base info and default build rules
+# *****************************************************************************
+# Define base info and include any global variables
+# *****************************************************************************
 SUBDIR     := dllStub/
-include ../makefile.rules
+include ../makefile.vars
 
 # *****************************************************************************
 # The Common Setup stuff
@@ -31,20 +33,24 @@ DEFINES := ${DEFINES} -DREMOVE_SIM
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-all: dir ${TARGET}
+# The all rule variables are defined in makefile.vars
+all:
+	@${CMD_DIR_MSG}
+	@${CMD_DIR}
+	@${CMD_GEN_MSG}
+	@${CMD_GEN}
+	@${CMD_BLD_MSG}
+	@${CMD_BLD}
+
+generate:
+  # Do nothing
+
+build: ${TARGET}
         # Remove the object after each build to force a rebuild to update the date
 	@rm ${OBJPATH}/ecmdDllStubInfo.o
 
-clean: objclean
-
 install:
   # Do nothing
-
-objclean:
-	rm -rf ${OBJPATH} 
-
-dir:
-	@mkdir -p ${OBJPATH}
 
 # *****************************************************************************
 # Object Build Targets
@@ -59,19 +65,17 @@ TGT_SOURCE_OBJS := $(addsuffix .o, ${TGT_SOURCE_OBJS})
 # file has changed.
 # *****************************************************************************
 ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
-	${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Target
 # *****************************************************************************
 ${TARGET}: ${TGT_SOURCE_OBJS}
-	${LD} ${SLDFLAGS} -o ${OUTLIB}/${TARGET} $^ ${OUTLIB}/ecmdClientCapi.a -L${OUTLIB} -lecmd
+	@echo Linking $@
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${TARGET} $^ ${OUTLIB}/ecmdClientCapi.a -L${OUTLIB} -lecmd
 
 # *****************************************************************************
-# Debug rule for any makefile testing 
+# Include any global default rules
 # *****************************************************************************
-debug:
-	@echo ${OBJROOT}
-	@echo ${VPATH}
-
-
+include ${ECMD_ROOT}/makefile.rules

@@ -7,23 +7,25 @@ ifeq (${MAKEFILE_RULES},)
 MAKEFILE_RULES := y
 
 # The directory creation rule
+# The if conditions make it so it only prints when it's creating missing directories
+# This was done because the dir rule is called quite often and would look empty otherwise
 dir:
-	${VERBOSE}mkdir -p ${OBJPATH}
-	${VERBOSE}mkdir -p ${SRCPATH}
-	${VERBOSE}mkdir -p ${OUTBIN}
-	${VERBOSE}mkdir -p ${OUTLIB}
-	${VERBOSE}mkdir -p ${OUTPERL}
-	${VERBOSE}mkdir -p ${OUTPY}
-	${VERBOSE}mkdir -p ${OUTPY3}
+	@if [ ! -d ${OBJPATH} ]; then mkdir -p ${OBJPATH}; echo mkdir -p ${OBJPATH}; fi
+	@if [ ! -d ${SRCPATH} ]; then mkdir -p ${SRCPATH}; echo mkdir -p ${SRCPATH}; fi
+	@if [ ! -d ${OUTBIN} ]; then mkdir -p ${OUTBIN}; echo mkdir -p ${OUTBIN}; fi
+	@if [ ! -d ${OUTLIB} ]; then mkdir -p ${OUTLIB}; echo mkdir -p ${OUTLIB}; fi
+	@if [ ! -d ${OUTPERL} ]; then mkdir -p ${OUTPERL}; echo mkdir -p ${OUTPERL}; fi
+	@if [ ! -d ${OUTPY} ]; then mkdir -p ${OUTPY}; echo mkdir -p ${OUTPY}; fi
+	@if [ ! -d ${OUTPY3} ]; then mkdir -p ${OUTPY3}; echo mkdir -p ${OUTPY3}; fi
 
 # Runs the objclean rule in addition to removing generated source and binaries
 clean: objclean
-	${VERBOSE}rm -rf ${SRCPATH}
-	${VERBOSE}rm -rf ${OUTPATH}
+	rm -rf ${SRCPATH}
+	rm -rf ${OUTPATH}
 
 # Remove the obj_* dir for the system type you are building on
 objclean:
-	${VERBOSE}rm -rf ${OBJPATH}
+	rm -rf ${OBJPATH}
 
 # Allows you to print any variable by doing this:
 # make print-BUILD_TARGETS

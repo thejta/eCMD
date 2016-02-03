@@ -35,9 +35,9 @@ all:
 	@${CMD_BLD_MSG}
 	@${CMD_BLD}
 
-gensource:  ${GENERATED_INCLUDES} ${GENERATED_SOURCE} ${TEMPLATE_SOURCE}
+generate:  ${GENERATED_INCLUDES} ${GENERATED_SOURCE} ${TEMPLATE_SOURCE}
 
-buildsource:
+build:
   # Do nothing
 
 install:
@@ -49,11 +49,11 @@ install:
 # These have to be two separate targets because the generate include has to be there to build to generated source
 ifeq ($(strip ${DISABLE_AUTOGEN}),)
   ${GENERATED_INCLUDES}: ${EXTENSION_NAME}ClientPerlapi.H ${ECMD_ROOT}/mkscripts/makepm.pl
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makepm.pl ${EXTENSION_NAME} $@
 
   ${GENERATED_SOURCE}: ${GENERATED_INCLUDES} ${ECMD_ROOT}/mkscripts/makepm.pl
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makepm.pl ${EXTENSION_NAME} $@
 endif
 
@@ -63,7 +63,7 @@ endif
 # *****************************************************************************
 ifeq ($(strip ${DISABLE_AUTOGEN}),)
   ${TEMPLATE_SOURCE}: ${EXTENSION_NAME}% : template%
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@sed "s/template/${EXTENSION_NAME}/g" $< | sed "s/TEMPLATE/${EXTENSION_NAME_u}/g" | sed "s/Template/${EXTENSION_NAME_u1}/g" > ${SRCPATH}/$@
 endif
 

@@ -37,9 +37,10 @@ all:
 	@${CMD_BLD_MSG}
 	@${CMD_BLD}
 
-gensource: ;
+generate:
+  # Do nothing
 
-buildsource: ${TARGET}
+build: ${TARGET}
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."

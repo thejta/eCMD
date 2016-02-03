@@ -75,9 +75,9 @@ all:
 	@echo "Testing build ..."
 	@${MAKE} test ${GMAKEFLAGS} --no-print-directory
 
-gensource: ${SWIG_SOURCE} ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
+generate: ${SWIG_SOURCE} ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 
-buildsource: ${SO_TARGET}
+build: ${SO_TARGET}
 
 install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/${TARGET_ARCH}/perl ..."
@@ -105,25 +105,19 @@ SWIG_OBJS   := $(addprefix ${OBJPATH}, ${SWIG_OBJS})
 SWIG_OBJS   := $(addsuffix .o, ${SWIG_OBJS})
 
 # *****************************************************************************
-# Create directories from order only dependencies
-# *****************************************************************************
-${SRCPATH} ${OBJPATH} ${OUTPERL}:
-	@mkdir -p $@
-
-# *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
 # file has changed.
 # *****************************************************************************
-${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES} | ${SRCPATH}
+${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
-${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ${SWIG_INPUT} | ${SRCPATH} ${OBJPATH} ${OUTPERL}
-	@echo Running swig
+${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ${SWIG_INPUT}
+	@echo Swigging $@
 	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PERLDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OUTPERL} ecmdClientPerlapi.i
 
-${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE} | ${SRCPATH}
+${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE}
 	@echo Compiling $<
 	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
@@ -131,7 +125,7 @@ ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE} | ${SRCPATH}
 # Create the Perl Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	@echo Linking $<
+	@echo Linking $@
 	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OUTPERL}/${SO_TARGET} ${LDLIBS}
 
 
@@ -140,18 +134,18 @@ ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 # *****************************************************************************
 # These have to be two separate targets because the generate include has to be there to build to generated source
 ${GENERATED_INCLUDES}: ${INCLUDES} ${ECMD_ROOT}/mkscripts/makepm.pl 
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makepm.pl ecmd $@
 
 ${GENERATED_SOURCE}: ${GENERATED_INCLUDES} ${ECMD_ROOT}/mkscripts/makepm.pl 
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makepm.pl ecmd $@
 
 # *****************************************************************************
 # Autogenerate some of the extension swig
 # *****************************************************************************
 ${GENERATED_SWIG_INPUT}:
-	@echo "==== Auto Generating $@"
+	@echo "Generating $@"
 	@${ECMD_ROOT}/mkscripts/makeext.py perlapi
 
 # *****************************************************************************
