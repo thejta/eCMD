@@ -9,21 +9,24 @@ include ../../../../makefile.vars
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 
-INCLUDES     := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H 
+### Includes
+INCLUDES      := ${INCLUDES} ${EXTENSION_NAME}Interpreter.H 
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}Structs.H ${EXTENSION_NAME}ClientCapi.H
-INT_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H  ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ${CAPI_INCLUDES}
+INT_INCLUDES  := ${INT_INCLUDES} ecmdClientCapi.H ecmdDataBufferBase.H ecmdDataBuffer.H
+INT_INCLUDES  := ${INT_INCLUDES} ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 
-CFLAGS       := ${CFLAGS} -I../../../capi -I../capi -I../../../cmd/ -I../../../dll -I${SRCPATH}
-
+### Source
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
+### Variables used for the build
+CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I../capi -I${ECMD_CORE}/cmd/ -I${ECMD_CORE}/dll -I${SRCPATH}
+INCLUDES := ${INCLUDES} ${CAPI_INCLUDES}
+VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:../../template/capi:../capi:${SRCPATH}
+
 # *****************************************************************************
-# The Common Setup stuff
+# Define our output files
 # *****************************************************************************
 TARGET = ${EXTENSION_NAME}CmdInterpreter.a
-
-VPATH := ${VPATH}:${OBJPATH}:../../../capi:../../template/capi:../capi:${SRCPATH}
-
 
 # *****************************************************************************
 # The Main Targets
@@ -67,7 +70,6 @@ SOURCE_OBJS := $(addsuffix .o, ${SOURCE_OBJS})
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
-
 
 # *****************************************************************************
 # Create the Client Archive
