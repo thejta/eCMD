@@ -29,9 +29,3 @@ function _ecmdsetup
 {
    eval `$PWD/ecmdsetup.pl ksh $*`
 }
-
-##########################################
-# Include Cronus specific aliases
-#
-# I'm pulling these, no one has used them - JTA 10/27/06
-#. $PWD/../plugins/cro/croaliases.ksh

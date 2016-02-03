@@ -11,9 +11,3 @@ alias target 'setenv TARGET_VARIABLES '\''\!*'\''; source $PWD/target.csh; unset
 # alias for setting ecmdsetup script
 ##########################################
 alias ecmdsetup 'eval `$PWD/ecmdsetup.pl csh \!*`'
-
-##########################################
-# Include Cronus specific aliases
-#
-# I'm pulling these, no one has used them - JTA 10/27/06
-#source $PWD/../plugins/cro/croaliases.csh
