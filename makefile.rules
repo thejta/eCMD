@@ -10,6 +10,7 @@ MAKEFILE_RULES := y
 # The if conditions make it so it only prints when it's creating missing directories
 # This was done because the dir rule is called quite often and would look empty otherwise
 dir:
+	@echo "==== Creating Dirs ===="
 	@if [ ! -d ${OBJPATH} ]; then mkdir -p ${OBJPATH}; echo mkdir -p ${OBJPATH}; fi
 	@if [ ! -d ${SRCPATH} ]; then mkdir -p ${SRCPATH}; echo mkdir -p ${SRCPATH}; fi
 	@if [ ! -d ${OUTBIN} ]; then mkdir -p ${OUTBIN}; echo mkdir -p ${OUTBIN}; fi
@@ -25,7 +26,21 @@ clean: objclean
 
 # Remove the obj_* dir for the system type you are building on
 objclean:
+	@echo "==== Removing Dirs ===="
 	rm -rf ${OBJPATH}
+
+define run-all
+	${VERBOSE}${MAKE} dir ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}echo ""
+	${VERBOSE}echo "==== Generating Source ===="
+	${VERBOSE}${MAKE} generate ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}echo ""
+	${VERBOSE}echo "==== Building Source ===="
+	${VERBOSE}${MAKE} build ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}echo ""
+	${VERBOSE}echo "==== Testing Build ===="
+	${VERBOSE}${MAKE} test ${GMAKEFLAGS} --no-print-directory
+endef
 
 # Allows you to print any variable by doing this:
 # make print-BUILD_TARGETS

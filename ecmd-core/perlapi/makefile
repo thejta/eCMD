@@ -78,16 +78,9 @@ SO_TARGET := ecmd.so
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-# The all rule variables are defined in makefile.vars
+# The run-all rule is defined in makefile.rules
 all:
-	@${CMD_DIR_MSG}
-	@${CMD_DIR}
-	@${CMD_GEN_MSG}
-	@${CMD_GEN}
-	@${CMD_BLD_MSG}
-	@${CMD_BLD}
-	@echo "Testing build ..."
-	@${MAKE} test ${GMAKEFLAGS} --no-print-directory
+	${run-all}
 
 generate: ${SWIG_SOURCE} ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 

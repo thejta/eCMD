@@ -33,21 +33,20 @@ DEFINES := ${DEFINES} -DREMOVE_SIM
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-# The all rule variables are defined in makefile.vars
+# The run-all rule is defined in makefile.rules
 all:
-	@${CMD_DIR_MSG}
-	@${CMD_DIR}
-	@${CMD_GEN_MSG}
-	@${CMD_GEN}
-	@${CMD_BLD_MSG}
-	@${CMD_BLD}
+	${run-all}
 
 generate:
   # Do nothing
 
 build: ${TARGET}
-        # Remove the object after each build to force a rebuild to update the date
+        # Remove the object after each build to force a rebuild
+        # This forces the date to update
 	@rm ${OBJPATH}/ecmdDllStubInfo.o
+
+test:
+  # Do nothing
 
 install:
   # Do nothing

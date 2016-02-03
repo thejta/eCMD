@@ -62,15 +62,14 @@ BUILD_TARGETS := ecmdcapi ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PY
 # 3) Call the actual build
 
 # The default
-all: dir
-	@${CMD_GEN_MSG}
-	@${MAKE} generate ${GMAKEFLAGS} --no-print-directory
-	@${CMD_BLD_MSG}
-	@${MAKE} build ${GMAKEFLAGS} --no-print-directory
+all:
+	${run-all}
 
 generate: ${BUILD_TARGETS}
 
 build: ${BUILD_TARGETS}
+
+test: ${BUILD_TARGETS}
 
 # The core eCMD pieces
 ecmdcapi:

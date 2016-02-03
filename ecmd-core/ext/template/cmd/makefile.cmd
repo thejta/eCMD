@@ -31,19 +31,17 @@ TARGET = ${EXTENSION_NAME}CmdInterpreter.a
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-# The all rule variables are defined in makefile.vars
+# The run-all rule is defined in makefile.rules
 all:
-	@${CMD_DIR_MSG}
-	@${CMD_DIR}
-	@${CMD_GEN_MSG}
-	@${CMD_GEN}
-	@${CMD_BLD_MSG}
-	@${CMD_BLD}
+	${run-all}
 
 generate:
   # Do nothing
 
 build: ${TARGET}
+
+test:
+  # Do nothing
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."

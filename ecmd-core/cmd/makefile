@@ -92,18 +92,16 @@ endif
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
-# The all rule variables are defined in makefile.rules
+# The run-all rule is defined in makefile.rules
 all:
-	@${CMD_DIR_MSG}
-	@${CMD_DIR}
-	@${CMD_GEN_MSG}
-	@${CMD_GEN}
-	@${CMD_BLD_MSG}
-	@${CMD_BLD}
+	${run-all}
 
 generate: ${GENERATED_SOURCE}
 
 build: ${TARGET} ${VER_TARGET} ${AR_TARGET}
+
+test:
+  # Do nothing
 
 install:
 	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
