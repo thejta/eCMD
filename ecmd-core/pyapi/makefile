@@ -125,14 +125,14 @@ ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
 # Create the Python Shared Library
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
-	@echo Linking $<
+	@echo Linking $@
 	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OUTPY}/${SO_TARGET} ${LDLIBS}
 
 # *****************************************************************************
 # Autogenerate some of the extension swig
 # *****************************************************************************
 ${GENERATED_SWIG_INPUT}:
-	@echo "Generating $@"
+	@echo Generating $@
 	@${ECMD_ROOT}/mkscripts/makeext.py pyapi
 
 # *****************************************************************************
