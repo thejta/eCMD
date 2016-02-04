@@ -8,20 +8,20 @@ if [ "X$ECMDPERLBIN" = "X" ]; then
      if [ $? -eq 0 ]; then
      export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
      export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib64/5.8.1:$OBJROOT/perlapi/obj_$ECMD_ARCH/;
+     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib64/5.8.1:$OUTPERL;
      if [[ `uname` = "Linux" ]]; then
-       export LD_LIBRARY_PATH="$OBJROOT/capi/obj_$ECMD_ARCH/";
+       export LD_LIBRARY_PATH="$OUTLIB";
      else
-       export LIBPATH="$OBJROOT/capi/obj_$ECMD_ARCH";
+       export LIBPATH="$OUTLIB";
      fi
    else
      export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
      export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OBJROOT/perlapi/obj_$ECMD_ARCH/;
+     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OUTPERL;
      if [[ `uname` = "Linux" ]]; then
-       export LD_LIBRARY_PATH="$OBJROOT/capi/obj_$ECMD_ARCH/";
+       export LD_LIBRARY_PATH="$OUTLIB";
      else
-       export LIBPATH="$OBJROOT/capi/obj_$ECMD_ARCH";
+       export LIBPATH="$OUTLIB";
      fi
    fi
 fi
