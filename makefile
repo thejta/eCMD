@@ -126,7 +126,7 @@ ${EXT_PYAPI_RULES}:
 ########################
 ecmdutils:
 	@echo "eCMD Utilities ${TARGET_ARCH} ..."
-	@${MAKE} -C utils ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ecmd-core/utils ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ########################
