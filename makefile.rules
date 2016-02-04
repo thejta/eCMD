@@ -30,16 +30,16 @@ objclean:
 	rm -rf ${OBJPATH}
 
 define run-all
-	${VERBOSE}${MAKE} dir ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}${MAKE} dir ${MAKEFLAGS} --no-print-directory
 	${VERBOSE}echo ""
 	${VERBOSE}echo "==== Generating Source ===="
-	${VERBOSE}${MAKE} generate ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}${MAKE} generate ${MAKEFLAGS} --no-print-directory
 	${VERBOSE}echo ""
 	${VERBOSE}echo "==== Building Source ===="
-	${VERBOSE}${MAKE} build ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}${MAKE} build ${MAKEFLAGS} --no-print-directory
 	${VERBOSE}echo ""
 	${VERBOSE}echo "==== Testing Build ===="
-	${VERBOSE}${MAKE} test ${GMAKEFLAGS} --no-print-directory
+	${VERBOSE}${MAKE} test ${MAKEFLAGS} --no-print-directory
 endef
 
 # Allows you to print any variable by doing this:
