@@ -99,6 +99,10 @@ uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
 
 uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
+uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags); 
+
+uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags); 
+
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode); 
@@ -149,6 +153,14 @@ uint32_t dllGetSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const
 
 uint32_t dllGetSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue); 
 
+uint32_t dllGetSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags); 
+
+uint32_t dllGetSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags); 
+
+uint32_t dllGetSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags); 
+
+uint32_t dllGetSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags); 
+
 uint32_t dllPutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data); 
 
 uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue); 
@@ -156,6 +168,10 @@ uint32_t dllPutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const 
 uint32_t dllPutSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, ecmdDataBuffer & io_ringImage); 
 
 uint32_t dllPutSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage); 
+
+uint32_t dllPutSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags); 
+
+uint32_t dllPutSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags); 
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t dllEnableRingCache(ecmdChipTarget & i_target); 

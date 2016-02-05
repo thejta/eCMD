@@ -1,5 +1,5 @@
 
-Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-exp <data>] [-o<format>] [-i<format>] 
+Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-sparse] [-exp <data>] [-o<format>] [-i<format>] 
         getbits <Chip[.ChipUnit]> <RingName> -f<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -26,6 +26,9 @@ Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-exp <data>] 
 
         NumBits         Specifies number of bits to get from starting position (Decimal)
                         Specify the keyword 'end' to fetch from startPos to end of ring.
+
+        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
+                        Only valid on clock-off spy accesses
 
         -exp [optional] Provide expected data.  Returns error if expected != actual.  No
                         error/no data returned if expected == actual.  

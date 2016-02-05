@@ -277,6 +277,19 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 }
 
 /**
+  This function specification is the same as defined in ecmdClientCapi.H as getSpyHidden
+*/
+uint32_t dllGetSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
+  uint32_t rc = ECMD_SUCCESS;
+
+  //Drop the flags and just call the standard getspy
+  rc = dllGetSpy(i_target, i_spyName, o_data);
+
+
+  return rc;
+}
+
+/**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
 */
 uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue){
@@ -291,6 +304,18 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
   return rc;
 }
 
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnumHidden
+*/
+uint32_t dllGetSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
+  uint32_t rc = ECMD_SUCCESS;
+
+  //Drop the flags and just call the standard getspyenum
+  rc = dllGetSpyEnum(i_target,i_spyName,o_enumValue);
+  
+  return rc;
+}
+
 uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups) {
   uint32_t rc = ECMD_SUCCESS;
   dllSpyData fdata;
@@ -298,6 +323,15 @@ uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std:
   fdata.group_data = &o_groups;
 
   rc = dllGetSpy(i_target,i_spyName,fdata);
+  return rc;
+
+}
+
+uint32_t dllGetSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
+  uint32_t rc = ECMD_SUCCESS;
+
+  //Drop the flags and just call the standard getspygroups
+  rc = dllGetSpyGroups(i_target,i_spyName,o_groups);
   return rc;
 
 }
@@ -897,6 +931,18 @@ uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGro
   return rc;
 }
 
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckersHidden
+*/
+uint32_t dllGetSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
+    uint32_t rc = ECMD_SUCCESS;
+
+
+    rc = dllGetSpyEpCheckers(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
+
+  return rc;
+}
+
 
 /**
   This function specification is the same as defined in ecmdClientCapi.H as PutSpy
@@ -909,6 +955,16 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 
 
   return dllPutSpy(i_target,i_spyName,fdata);
+}
+
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as putSpyHidden
+*/
+uint32_t dllPutSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
+
+    uint32_t rc = ECMD_SUCCESS;
+    rc = dllPutSpy(i_target, i_spyName, i_data);
+    return rc;
 }
 
 
@@ -924,6 +980,17 @@ uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const
   fdata.int_data = NULL;
 
   return dllPutSpy(i_target,i_spyName,fdata);
+
+}
+
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as putSpyEnumHidden
+*/
+uint32_t dllPutSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
+
+    uint32_t rc = ECMD_SUCCESS;
+    rc = dllPutSpy(i_target, i_spyName, i_enumValue);
+    return rc;
 
 }
 

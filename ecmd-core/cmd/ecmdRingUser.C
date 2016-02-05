@@ -1,7 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 //IBM_PROLOG_END_TAG
 
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -516,6 +515,8 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
 
+  uint32_t ringMode = 0;                        ///< Full or sparse ring access?
+
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -538,6 +539,14 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (use_sparse)
+  {
+      ringMode = FLAG_USE_SPARSE_RING_ACCESS;
+  }
+
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -721,9 +730,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	   
       /* Let's go grab our data */
       if (ringName.length() != 0)
-	rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchEntry, latchMode);
+        rc = getLatchHidden(cuTarget, ringName.c_str(), latchName.c_str(), latchEntry, latchMode, ringMode);
       else
-	rc = getLatch(cuTarget, NULL, latchName.c_str(), latchEntry, latchMode);
+        rc = getLatchHidden(cuTarget, NULL, latchName.c_str(), latchEntry, latchMode, ringMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
 	printed = "getlatch - Error occurred performing getlatch on ";
 	printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -890,6 +899,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer ringBuffer;            ///< Buffer for entire ring
   ecmdDataBuffer buffer;                ///< Buffer for portion user requested
   ecmdDataBuffer expected;              ///< Buffer to store expected data
+  ecmdDataBuffer sparse_mask;           ///< Buffer to use for sparse mask
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   bool inputformatflag = false; 
@@ -923,6 +933,10 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   } 
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1028,6 +1042,24 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
     ringData = queryRingData.begin();
 
+    // Set our sparse_mask buffer length and values
+    if (use_sparse)
+    {
+        rc = sparse_mask.setBitLength(ringData->bitLength);
+        if (rc) break;
+
+        if (numBits == ECMD_UNSET)
+        {
+            rc = sparse_mask.setBit(startBit, (ringData->bitLength - startBit));
+            if (rc) break;
+        }
+        else 
+        {
+            rc = sparse_mask.setBit(startBit, numBits);
+            if (rc) break;
+        }
+    }
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
@@ -1068,19 +1100,38 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-      if (rc) {
-        printed = "getbits - Error occurred performing getring on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-      }
-      else {
-        validPosFound = true;     
-      }
+      if (use_sparse) // Call the sparse getring method
+      {
+          rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+          if (rc) {
+              printed = "getbits - Error occurred performing getRingSparse on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+     
+          else {
+              validPosFound = true;
+          }  
 
-
+      }
+      else
+      {
+          rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+          if (rc) {
+              printed = "getbits - Error occurred performing getring on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+     
+          else {
+              validPosFound = true;
+          }     
+      }
+   
       numBits = (ringBuffer.getBitLength() - startBit < numBits) ? ringBuffer.getBitLength() - startBit : numBits;
       rc = ringBuffer.extract(buffer, startBit, numBits);
       if (rc) break;
@@ -1179,6 +1230,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   std::list<ecmdRingData>::iterator ringData;   ///< Ring data from query
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
+  ecmdDataBuffer sparse_mask;           ///< Buffer to use for sparse mask
   bool validPosFound = false;           ///< Did the looper find something ?
   bool formatflag = false;
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
@@ -1207,6 +1259,9 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   }  
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1300,6 +1355,16 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
     ringData = queryRingData.begin();
 
+    // Set our sparse_mask buffer length and values
+    if (use_sparse)
+    {
+        rc = sparse_mask.setBitLength(ringData->bitLength);
+        if (rc) break;
+        rc = sparse_mask.setBit(startBit, buffer.getBitLength());
+        if (rc) break;
+    }
+
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
@@ -1340,40 +1405,78 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
-         we don't need to do the getRing since they gave us an entire ring image */
-      if ((startBit == 0) && (buffer.getBitLength() >= ringData->bitLength)) {
-        ringBuffer.setBitLength(ringData->bitLength);
-      } else {
-        rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-        if (rc) {
-          printed = "putbits - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
+        /* If the data the user gave on the command line is as long as the ring, and starts at bit 0 and we aren't anding/oring
+           we don't need to do the getRing since they gave us an entire ring image 
+           Also want to do this if we aren't anding/oring and doing a sparse access */
+
+        if ((((startBit == 0) && (buffer.getBitLength() >= ringData->bitLength)) && (dataModifier == "insert"))
+            || ((use_sparse) && (dataModifier == "insert")))
+        {
+            ringBuffer.setBitLength(ringData->bitLength);
         }
-      }
+        // Call the sparse method if -sparse was specified and we need to and/or 
+        else if ((use_sparse) && (dataModifier != "insert"))
+        {
+            rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+            if (rc) {
+                printed = "putbits - Error occurred performing getRingSparse on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }          
+        } 
+        else 
+        {
+            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+            if (rc) {
+                printed = "putbits - Error occurred performing getring on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+        }
 
-      rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
-      if (rc) break;
+        rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
+        if (rc) break;
 
-      rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
-      if (rc) {
-	printed = "putbits - Error occurred performing putring on ";
-	printed += ecmdWriteTarget(cuTarget) + "\n";
-	ecmdOutputError( printed.c_str() );
-	coeRc = rc;
-        continue;
-      }
-      else {
-        validPosFound = true;     
-      }
+        if (use_sparse)
+        {
+            rc = putRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+            if (rc) {
+                printed = "putbits - Error occurred performing putRingSparse on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+            
+            else {
+                validPosFound = true;     
+            }
+        }
+        else
+        {
+            rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
+            if (rc) {
+                printed = "putbits - Error occurred performing putring on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+            
+            else {
+                validPosFound = true;     
+            }
 
-      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-	printed = ecmdWriteTarget(cuTarget) + "\n";
-	ecmdOutput(printed.c_str());
-      }
+        }
+
+        if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+            printed = ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutput(printed.c_str());
+        }
     } /* End cuLooper */
   } /* End posloop */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -1413,6 +1516,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
   bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;                ///< Full or sparse ring access?
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1432,6 +1536,13 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
+  }
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (use_sparse)
+  {
+      ringMode = FLAG_USE_SPARSE_RING_ACCESS;
   }
 
   /************************************************************************/
@@ -1618,9 +1729,9 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
       if (ringName.length() != 0)
-        rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode);
+        rc = getLatchHidden(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode, ringMode);
       else
-        rc = getLatch(cuTarget, NULL, latchName.c_str(), latches, latchMode);
+        rc = getLatchHidden(cuTarget, NULL, latchName.c_str(), latches, latchMode, ringMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
         printed = "putlatch - Error occurred performing getlatch on ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1685,9 +1796,9 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 
         /* We can do a full latch compare here now to make sure we don't cause matching problems */
         if (ringName.length() != 0) {
-          rc = putLatch(cuTarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
+          rc = putLatchHidden(cuTarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL, ringMode);
         } else {
-          rc = putLatch(cuTarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL);
+          rc = putLatchHidden(cuTarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL, ringMode);
         }
         if (rc) {
           printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
@@ -1702,7 +1813,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
           continue;
         }
 
-      }
+      }// end iterator 
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(cuTarget) + "\n";

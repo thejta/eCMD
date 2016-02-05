@@ -611,6 +611,56 @@ uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
 
 */
 uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
+
+/**
+ @brief Performs sparse scan of the ring from the selected chip into the data buffer.
+ A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mask DataBuffer object that holds mask value of bits to read from the ring
+ @param i_flags Default value is 0.  Will be used in the future for multicast function.
+ @see putRingSparse
+
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags = 0); 
+
+/**
+ @brief Performs sparse scan of ring from the data buffer into the selected chip in the selected ring.
+ A sparse scan uses the chip's scom interface to only write the bits in the ring that are set in the mask value.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to write to
+ @param i_data DataBuffer object that holds data to write into ring
+ @param i_mask DataBuffer object that holds mask value of bits to write to the ring
+ @param i_flags Default value is 0.  Will be used in the future for multicast function.
+ @see getRingSparse
+
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags = 0); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -680,7 +730,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @param i_bitLength Bit Length to scan for
  @param o_data DataBuffer object that holds data read from ring
  @see putRingWithModifier
-
+s
  NOTE : This is a debug interface and should not be used in normal situations<br>
  NOTE : This function does not handle processor cores/chipUnits for you, the i_address will be taken and used with no modifications
           so you are responsible for specifying the correct core/chipUnit address<br>
@@ -1057,6 +1107,95 @@ uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ec
 uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue);
 
 /**
+ @brief Reads the selected spy into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_data DataBuffer object that holds data read from spy
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
+
+/**
+ @brief Reads the selected spy and returns it's assocaiated enum
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_enumValue Enum value read from the spy
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags = 0);
+
+/**
+ @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyEpCheckersName Name of spy to read from
+ @param o_inLatchData Return the data for the input to the eccGroup
+ @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
+ @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+ @retval nonzero if unsuccessful
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags = 0);
+
+/**
+ @brief Reads the selected spy and load all the spy groups into provided list
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_groups List of structures containing the group data and deadbits mask
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags = 0);
+
+/**
  @brief Writes the data buffer into the selected spy
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -1140,6 +1279,48 @@ uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdData
 */
 uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage);
 
+/**
+ @brief Writes the data buffer into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_data DataBuffer object that holds data to write into spy
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags = 0);
+
+/**
+ @brief Writes the enum into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
+ @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_enumValue String enum value to load into the spy
+ @param i_flags Default is 0, or FLAG_USE_SPARSE_SPY to avoid full ring access
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags = 0);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}
 
