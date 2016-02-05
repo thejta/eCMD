@@ -15,22 +15,24 @@ include makefile.vars
 # If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
 CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
 
+# For an extension specified, we build a complete set of rules for it
+EXT_CAPI_RULES    := $(foreach ext, ${EXT_CAPI}, ${ext}capi)
+EXT_CMD_RULES     := $(foreach ext, ${EXT_CMD}, ${ext}cmd)
+EXT_PERLAPI_RULES := $(foreach ext, ${EXT_PERLAPI}, ${ext}perlapi)
+EXT_PYAPI_RULES   := $(foreach ext, ${EXT_PYAPI}, ${ext}pyapi)
+
+# Build our targets
+EXT_CAPI_TARGETS    := $(foreach ext, ${EXT_CAPI}, ${ext}capi)
+EXT_CMD_TARGETS     := $(foreach ext, ${EXT_CMD}, ${ext}cmd)
+EXT_PERLAPI_TARGETS := $(foreach ext, ${EXT_PERLAPI}, ${ext}perlapi)
+EXT_PYAPI_TARGETS   := $(foreach ext, ${EXT_PYAPI}, ${ext}pyapi)
+
 # The cmd extension has to be built after ecmdcmd, so if it's in the extension list pull it out and add after ecmdcmd
-ifneq (,$(findstring cmd,${EXTENSIONS}))
+ifneq (,$(findstring cmdcapi,${EXT_CAPI_TARGETS}))
   CMD_EXT_BUILD := cmdcapi
 endif
 # Pull cmd then use the list to build ext targets
-EXT_TARGETS := $(subst cmd,,${EXTENSIONS})
-
-# All of our extensions build with the same rules, create the list here
-EXT_CAPI_RULES    := $(foreach ext, ${EXTENSIONS}, ${ext}capi)
-EXT_CMD_RULES     := $(foreach ext, ${EXTENSIONS}, ${ext}cmd)
-EXT_PERLAPI_RULES := $(foreach ext, ${EXTENSIONS}, ${ext}perlapi)
-EXT_PYAPI_RULES   := $(foreach ext, ${EXTENSIONS}, ${ext}pyapi)
-EXT_CAPI_TARGETS    := $(foreach ext, ${EXT_TARGETS}, ${ext}capi)
-EXT_CMD_TARGETS     := $(foreach ext, ${EXT_TARGETS}, ${ext}cmd)
-EXT_PERLAPI_TARGETS := $(foreach ext, ${EXT_TARGETS}, ${ext}perlapi)
-EXT_PYAPI_TARGETS   := $(foreach ext, ${EXT_TARGETS}, ${ext}pyapi)
+EXT_CAPI_TARGETS := $(subst cmdcapi,,${EXT_CAPI_TARGETS})
 
 # These variables can be controlled from the distro or makefile.config to determine if python/perl should be built
 # The default here is yes
@@ -83,17 +85,17 @@ ecmdcmd: ecmdcapi ${EXT_CAPI_TARGETS} ${EXT_CMD_TARGETS}
 	@${MAKE} -C ecmd-core/cmd ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
-ecmdperlapi: ecmdcmd ${EXT_PERLAPI_RULES}
+ecmdperlapi: ecmdcmd ${EXT_PERLAPI_TARGETS}
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
 	@${MAKE} -C ecmd-core/perlapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
-ecmdpyapi: ecmdcmd ${EXT_PYAPI_RULES}
+ecmdpyapi: ecmdcmd ${EXT_PYAPI_TARGETS}
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
 	@${MAKE} -C ecmd-core/pyapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
-ecmdpy3api: ecmdcmd ${EXT_PYAPI_RULES}
+ecmdpy3api: ecmdcmd ${EXT_PYAPI_TARGETS}
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
 	@${MAKE} -C ecmd-core/py3api ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "

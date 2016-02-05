@@ -4,7 +4,6 @@
 # Define base info and include any global variables
 # *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/cmd/
-include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -19,9 +18,9 @@ INT_INCLUDES  := ${INT_INCLUDES} ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecm
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
 ### Variables used for the build
-CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I../capi -I${ECMD_CORE}/cmd/ -I${ECMD_CORE}/dll -I${SRCPATH}
+CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/cmd/ -I${EXT_${EXTENSION_NAME}_PATH}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
 INCLUDES := ${INCLUDES} ${CAPI_INCLUDES}
-VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:../../template/capi:../capi:${SRCPATH}
+VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${ECMD_CORE}/cmd:${EXT_${EXTENSION_NAME}_PATH}/capi:${SRCPATH}
 
 # *****************************************************************************
 # Define our output files

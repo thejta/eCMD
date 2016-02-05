@@ -1,9 +1,11 @@
 # Makefile for the ecmd Extensions
 
-EXTENSION_NAME   := cip
+# *****************************************************************************
+# Include any global variables
+# *****************************************************************************
+include ../../../../makefile.vars
 
-# Base info
-SUBDIR     := ext/${EXTENSION_NAME}/pyapi/
+EXTENSION_NAME   := cip
 
 # This is Additional extension for the client api
 SOURCE       :=
@@ -12,5 +14,5 @@ SOURCE       :=
 INCLUDES     :=
 
 # Include the common extension makefile to do all the work
-include ../../template/pyapi/makefile.pyapi
+include ${EXT_TEMPLATE_PATH}/pyapi/makefile.pyapi
 

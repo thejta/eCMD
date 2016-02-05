@@ -4,7 +4,6 @@
 # Define base info and include any global variables
 # *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/capi/
-include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -31,7 +30,7 @@ CAPI_INCLUDES := ${CAPI_INCLUDES} ${GENERATED_INCLUDES}
 ### Variables used for the build
 CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I${SRCPATH}
 INCLUDES := ${INCLUDES} ${CAPI_INCLUDES}
-VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:../../template/capi:${SRCPATH}
+VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${EXT_TEMPLATE_PATH}/capi:${SRCPATH}
 
 # *****************************************************************************
 # Define our output files

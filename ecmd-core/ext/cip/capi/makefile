@@ -1,5 +1,10 @@
 # Makefile for the ecmd Extensions
 
+# *****************************************************************************
+# Include any global variables
+# *****************************************************************************
+include ../../../../makefile.vars
+
 EXTENSION_NAME := cip
 
 # Additional Source files for the Client API
@@ -12,5 +17,5 @@ SLIB_SOURCE  :=
 INCLUDES     :=
 
 # Include the common extension makefile to do all the work
-include ../../template/capi/makefile.capi
+include ${EXT_TEMPLATE_PATH}/capi/makefile.capi
 

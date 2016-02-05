@@ -4,7 +4,6 @@
 # Define base info and include any global variables
 # *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/perlapi/
-include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -22,7 +21,7 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
 
 endif
 
-VPATH := ${VPATH}:${SRCPATH}:${OBJPATH}:../../template/perlapi
+VPATH := ${VPATH}:${SRCPATH}:${OBJPATH}:${EXT_TEMPLATE_PATH}/perlapi
 
 # *****************************************************************************
 # The Main Targets

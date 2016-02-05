@@ -1,5 +1,10 @@
 # Makefile for the ecmd Extensions
 
+# *****************************************************************************
+# Include any global variables
+# *****************************************************************************
+include ../../../../makefile.vars
+
 EXTENSION_NAME   := cip
 
 # This is Additional extension for the client api
@@ -9,5 +14,5 @@ SOURCE       :=
 INCLUDES     :=
 
 # Include the common extension makefile to do all the work
-include ../../template/perlapi/makefile.perlapi
+include ${EXT_TEMPLATE_PATH}/perlapi/makefile.perlapi
 

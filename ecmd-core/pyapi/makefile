@@ -31,25 +31,25 @@ CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${ECMD_CORE}/cmd -I
 VPATH  := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:${OBJPATH}
 
 ### Add all of the extension information onto our variables
-INCLUDES  := ${INCLUDES} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.H ${ext}ClientPyapi.H)
-SOURCE    := ${SOURCE} $(foreach ext, ${EXTENSIONS}, ${ext}ClientCapi.C ${ext}ClientPyapi.C)
+INCLUDES  := ${INCLUDES} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.H ${ext}ClientPyapi.H)
+SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.C ${ext}ClientPyapi.C)
 # Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
 SOURCE    := $(subst fapi2ClientCapi.C,,${SOURCE})
 SOURCE    := $(subst fapiClientCapi.C,,${SOURCE})
-CFLAGS    := ${CFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXTENSIONS},-I../ext/${ext}/capi -I../ext/${ext}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-VPATH     := ${VPATH}$(foreach ext, ${EXTENSIONS},:../ext/${ext}/capi:../ext/${ext}/pyapi)
+CFLAGS    := ${CFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/pyapi)
 
 ### Setup all of the additional objects to link
 LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
 # remove fapi here and add initFapiExtention only
-ifeq (fapi2,$(filter ${EXTENSIONS},fapi2))
+ifeq (fapi2,$(filter ${EXT_PYAPI},fapi2))
   LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapi2ClientCapiInit.o
 endif
-ifeq (fapi,$(filter ${EXTENSIONS},fapi))
+ifeq (fapi,$(filter ${EXT_PYAPI},fapi))
   LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapiClientCapiInit.o
 endif
-LINK_EXTENSIONS := $(subst fapi2,,${EXTENSIONS})
+LINK_EXTENSIONS := $(subst fapi2,,${EXT_PYAPI})
 LINK_EXTENSIONS := $(subst fapi,,${LINK_EXTENSIONS})
 LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OUTLIB}/${ext}ClientCapi.a)
 

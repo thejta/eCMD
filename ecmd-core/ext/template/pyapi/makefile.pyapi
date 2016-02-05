@@ -4,7 +4,6 @@
 # Define base info and include any global variables
 # *****************************************************************************
 SUBDIR     := ext/${EXTENSION_NAME}/pyapi/
-include ../../../../makefile.vars
 
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
@@ -15,7 +14,7 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
   TEMPLATE_SOURCE := ${EXTENSION_NAME}ClientPyapi.C
 endif
 
-VPATH := ${VPATH}:${OBJPATH}:../../template/pyapi
+VPATH := ${VPATH}:${OBJPATH}:${EXT_TEMPLATE_PATH}/pyapi
 
 # *****************************************************************************
 # The Main Targets

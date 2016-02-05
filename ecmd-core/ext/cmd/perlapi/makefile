@@ -1,11 +1,11 @@
 # Makefile for the ecmd Extensions
-# Written by Chris Engel
 
-
-
+# *****************************************************************************
+# Include any global variables
+# *****************************************************************************
+include ../../../../makefile.vars
 
 EXTENSION_NAME   := cmd
-
 
 # This is Additional extension for the client api
 SOURCE       :=
@@ -13,7 +13,6 @@ SOURCE       :=
 # These are additional includes for the client api
 INCLUDES     :=
 
-
 # Include the common extension makefile to do all the work
-include ../../template/perlapi/makefile.perlapi
+include ${EXT_TEMPLATE_PATH}/perlapi/makefile.perlapi
 

@@ -31,14 +31,14 @@ objclean:
 
 define run-all
 	${VERBOSE}${MAKE} dir ${MAKEFLAGS} --no-print-directory
-	${VERBOSE}echo ""
-	${VERBOSE}echo "==== Generating Source ===="
+	@echo ""
+	@echo "==== Generating Source ===="
 	${VERBOSE}${MAKE} generate ${MAKEFLAGS} --no-print-directory
-	${VERBOSE}echo ""
-	${VERBOSE}echo "==== Building Source ===="
+	@echo ""
+	@echo "==== Building Source ===="
 	${VERBOSE}${MAKE} build ${MAKEFLAGS} --no-print-directory
-	${VERBOSE}echo ""
-	${VERBOSE}echo "==== Testing Build ===="
+	@echo ""
+	@echo "==== Testing Build ===="
 	${VERBOSE}${MAKE} test ${MAKEFLAGS} --no-print-directory
 endef
 
