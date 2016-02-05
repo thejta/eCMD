@@ -105,22 +105,22 @@ ecmdpy3api: ecmdcmd ${EXT_PYAPI_TARGETS}
 ########################
 ${EXT_CAPI_RULES}: ecmdcapi
 	@echo "$(subst capi,,$@) Extension C API ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/ext/$(subst capi,,$@)/capi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${EXT_$(subst capi,,$@)_PATH}/capi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ${EXT_CMD_RULES}: ecmdcapi
 	@echo "$(subst cmd,,$@) Extension cmdline ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/ext/$(subst cmd,,$@)/cmd ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${EXT_$(subst cmd,,$@)_PATH}/cmd ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ${EXT_PERLAPI_RULES}:
 	@echo "$(subst perlapi,,$@) Extension Perl API ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/ext/$(subst perlapi,,$@)/perlapi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${EXT_$(subst perlapi,,$@)_PATH}/perlapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ${EXT_PYAPI_RULES}:
 	@echo "$(subst pyapi,,$@) Extension Python API ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/ext/$(subst pyapi,,$@)/pyapi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${EXT_$(subst pyapi,,$@)_PATH}/pyapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ########################
