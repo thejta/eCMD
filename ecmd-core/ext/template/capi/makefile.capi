@@ -24,7 +24,8 @@ ifeq ($(strip ${DISABLE_AUTOGEN}),)
 endif
 
 ### Concat variables together for the build
-CAPI_SOURCE   := ${CAPI_SOURCE} ${TEMPLATE_SOURCE} ${GENERATED_SOURCE}
+# Can't use TEMPLATE_SOURCE, don't want to include *DllCapi.C
+CAPI_SOURCE   := ${CAPI_SOURCE} ${GENERATED_SOURCE} ${EXTENSION_NAME}ClientCapi.C
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${GENERATED_INCLUDES}
 
 ### Variables used for the build

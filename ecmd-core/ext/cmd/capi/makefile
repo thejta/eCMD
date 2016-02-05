@@ -14,12 +14,14 @@ SOURCE       :=
 # These are additional includes for the client api
 INCLUDES     :=
 
-VPATH        := ${VPATH}:${OBJPATH}
+VPATH        := ${VPATH}:${OBJPATH}$(foreach ext,${EXT_CMD},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/cmd)
+# The foreach creates spaces in the entries, take them out
+VPATH        := $(subst ${space},,${VPATH})
 
 # These are includes not to be exported
-INT_INCLUDES     := ${INT_INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
+INT_INCLUDES := ${INT_INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
-CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/cmd
+CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/cmd)
 
 #######################
 # Extension Objects   #

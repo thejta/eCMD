@@ -18,4 +18,3 @@ INCLUDES     :=
 
 # Include the common extension makefile to do all the work
 include ${EXT_TEMPLATE_PATH}/capi/makefile.capi
-

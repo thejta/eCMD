@@ -23,7 +23,7 @@ if (sys.argv[1] == "cmd"):
   # with no cmd component
   extcmdlist = list()
   for ext in extlist:
-    if (os.path.exists(os.environ["ECMD_ROOT"] + "/ecmd-core/ext/" + ext + "/cmd/snippet")):
+    if (os.path.exists(os.environ["EXT_" + ext + "_PATH"] + "/cmd/snippet")):
       extcmdlist.append(ext)
 
   # Open our file and start writing
@@ -56,7 +56,7 @@ if (sys.argv[1] == "cmd"):
   # Now go through and suck in all the extension init code snippets
   # Once read in, place it in the new output file
   for ext in extcmdlist:
-    snippetfile = open(os.environ["ECMD_ROOT"] + "/ecmd-core/ext/" + ext + "/cmd/snippet/callInterpreter.C", 'r')
+    snippetfile = open(os.environ["EXT_" + ext + "_PATH"] + "/cmd/snippet/callInterpreter.C", 'r')
     for line in snippetfile.readlines():
       extfile.write(line)
     extfile.write("\n")
@@ -130,7 +130,7 @@ if (sys.argv[1] == "pyapi"):
   
   # Now auto generate the rest based on the list
   for ext in extlist:
-    snippetfile = open(os.environ["ECMD_ROOT"] + "/ecmd-core/ext/" + ext + "/pyapi/snippet/extInsert.i", 'r')
+    snippetfile = open(os.environ["EXT_" + ext + "_PATH"] + "/pyapi/snippet/extInsert.i", 'r')
     for line in snippetfile.readlines():
       extfile.write(line)
     snippetfile.close()	
@@ -170,7 +170,7 @@ if (sys.argv[1] == "perlapi"):
   
   # Now auto generate the rest based on the list
   for ext in extlist:
-    snippetfile = open(os.environ["ECMD_ROOT"] + "/ecmd-core/ext/" + ext + "/perlapi/snippet/extInsert.i", 'r')
+    snippetfile = open(os.environ["EXT_" + ext + "_PATH"] + "/perlapi/snippet/extInsert.i", 'r')
     for line in snippetfile.readlines():
       extfile.write(line)
     snippetfile.close()	

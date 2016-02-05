@@ -52,6 +52,7 @@ endif
 LINK_EXTENSIONS := $(subst fapi2,,${EXT_PYAPI})
 LINK_EXTENSIONS := $(subst fapi,,${LINK_EXTENSIONS})
 LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OUTLIB}/${ext}ClientCapi.a)
+EXTLIBS  := ${EXTLIBS} ${foreach ext,${LINK_EXTENSIONS},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Set our defaults for these values, but they can be overriden by the py3api makefile
 PYTHON_NAME ?= python2
@@ -91,7 +92,7 @@ pyapi_install:
 	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 	cp ${ECMD_ROOT}${SUBDIR}init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
-test: ${SO_TARGET}
+test:
     # Only do the build test if enabled
     ifeq (${TEST_BUILD},yes)
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
@@ -126,7 +127,7 @@ ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OUTPY}/${SO_TARGET} ${LDLIBS}
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OUTPY}/${SO_TARGET} ${LDLIBS} ${EXTLIBS}
 
 # *****************************************************************************
 # Autogenerate some of the extension swig
