@@ -88,9 +88,9 @@ pyapi_install:
 	@echo " "
 
 	@echo "Installing eCMD Python API ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}.."
-	cp ${OBJPATH}${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
-	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
-	cp ${ECMD_ROOT}${SUBDIR}init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${OUTPY}/${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${OUTPY}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
+	cp ${ECMD_CORE}/pyapi/init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
 test:
     # Only do the build test if enabled

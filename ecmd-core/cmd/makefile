@@ -96,8 +96,8 @@ test:
   # Do nothing
 
 install:
-	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
-	cp ${OBJPATH}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OUTBIN}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 
 # *****************************************************************************
 # Object Build Targets

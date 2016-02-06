@@ -88,8 +88,8 @@ build: ${SO_TARGET}
 
 install:
 	@echo "Installing eCMD PerlApi to ${INSTALL_PATH}/${TARGET_ARCH}/perl ..."
-	cp ${OBJPATH}${PM_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
-	cp ${OBJPATH}${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
+	cp ${OUTPERL}/${PM_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
+	cp ${OUTPERL}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 
 test: ${SO_TARGET}
     # Only do the build test if enabled

@@ -8,8 +8,8 @@ include ../../makefile.vars
 
 ### Includes
 CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H 
-CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H 
-CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdDefines.H  prdfCompressBuffer.H ecmdTraceDefines.H
+CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H 
+CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdDefines.H prdfCompressBuffer.H ecmdTraceDefines.H
 INT_INCLUDES  := ecmdDllCapi.H
 
 ### Source
@@ -73,12 +73,12 @@ test:
 install:
 	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${OBJPATH}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
 	chmod 644 ${INSTALL_PATH}/capi/*
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
-	cp ${OBJPATH}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
 
 # *****************************************************************************

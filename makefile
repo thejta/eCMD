@@ -150,8 +150,8 @@ install_setup:
 
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
-	@cp -R `find bin/*` ${INSTALL_PATH}/bin/.
-	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/bin/ ]; then find ext/${ext}/bin -type f -exec cp {} ${INSTALL_PATH}/bin/. \; ; fi;)
+	@cp -R `find ${ECMD_CORE}/bin/*` ${INSTALL_PATH}/bin/.
+#	@$(foreach ext, ${EXT_CMD}, $(shell /bin/cp ${EXT_${ext}_PATH}/bin/* ${INSTALL_PATH}/bin/))
 	@echo " "
 
 	@echo "Creating ${TARGET_ARCH}/bin dir ..."
@@ -167,19 +167,14 @@ install_setup:
 	@echo " "
 
 	@echo "Setting up ecmdaliases files ..."
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
-	@cp -R `find cmd/help/*` ${INSTALL_PATH}/help/.
+	@cp -R `find ${ECMD_CORE}/cmd/help/*` ${INSTALL_PATH}/help/.
 	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/cmd/help ]; then find ext/${ext}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
-        # Do the IP istep help files
-        # Eclipz
-	@cp systems/ip/eclipz/help/istep_ipeclipz.htxt ${INSTALL_PATH}/help/.
-        # Apollo
-	@cp systems/ip/apollo/help/istep_ipapollo.htxt ${INSTALL_PATH}/help/.
 
 	@echo " "
 
