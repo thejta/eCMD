@@ -92,14 +92,11 @@ install:
 	cp ${OUTPERL}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 
 test: ${SO_TARGET}
-    # Only do the build test if enabled
-    ifeq (${TEST_BUILD},yes)
         ifeq (${TARGET_OS},aix)
 	@slibclean
         endif
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
 	ECMD_DLL_FILE=${OUTLIB}/stub.dll PERL5LIB=${OUTPERL} LD_LIBRARY_PATH=${OUTLIB}:${OUTPERL} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
-    endif
 
 # *****************************************************************************
 # Object Build Targets

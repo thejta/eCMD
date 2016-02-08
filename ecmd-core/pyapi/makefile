@@ -93,11 +93,8 @@ pyapi_install:
 	cp ${ECMD_CORE}/pyapi/init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/.
 
 test:
-    # Only do the build test if enabled
-    ifeq (${TEST_BUILD},yes)
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
 	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY} LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} ../pyapi/testBuild.py
-    endif
 
 # *****************************************************************************
 # Object Build Targets

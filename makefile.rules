@@ -29,6 +29,18 @@ objclean:
 	@echo "==== Removing Dirs ===="
 	rm -rf ${OBJPATH}
 
+# Only do the build test if enabled
+ifeq (${TEST_BUILD},yes)
+  define run-all-test
+	@echo ""
+	@echo "==== Testing Build ===="
+	${VERBOSE}${MAKE} test ${MAKEFLAGS} --no-print-directory
+  endef
+else
+  define run-all-test
+  endef
+endif
+
 define run-all
 	${VERBOSE}${MAKE} dir ${MAKEFLAGS} --no-print-directory
 	@echo ""
@@ -37,10 +49,9 @@ define run-all
 	@echo ""
 	@echo "==== Building Source ===="
 	${VERBOSE}${MAKE} build ${MAKEFLAGS} --no-print-directory
-	@echo ""
-	@echo "==== Testing Build ===="
-	${VERBOSE}${MAKE} test ${MAKEFLAGS} --no-print-directory
+	${run-all-test}
 endef
+
 
 # Allows you to print any variable by doing this:
 # make print-BUILD_TARGETS
