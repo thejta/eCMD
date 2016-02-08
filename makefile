@@ -10,10 +10,14 @@ include makefile.vars
 # Some basic setup before we start trying to build stuff
 # *****************************************************************************
 
-# Yes, this looks horrible but it sets up everything properly
-# so that the next sed in the install_setup rule produces the right output
-# If an install is being done to a CTE path, replace it with $CTEPATH so it'll work everywhere
-CTE_INSTALL_PATH := $(shell echo ${INSTALL_PATH} | sed "s@/.*cte/@\"\\\\$$\"CTEPATH/@")
+# Install
+# There are two ways to specify the install path.  Both are givin
+# INSTALL_PATH is the resolved path to where the files should be installed - i.e. /usr/local/ecmd
+# INSTALL_PATH_REF is directly the value you give on the cmdline 
+# INSTALL_PATH=\$\$\\CTEPATH make install
+
+INSTALL_PATH_REF := ${INSTALL_PATH}
+INSTALL_PATH := $(shell echo ${INSTALL_PATH})
 
 # For an extension specified, we build a complete set of rules for it
 EXT_CAPI_RULES    := $(foreach ext, ${EXT_CAPI}, ${ext}capi)
@@ -77,27 +81,27 @@ test: ${BUILD_TARGETS}
 # The core eCMD pieces
 ecmdcapi:
 	@echo "eCMD Core Client C-API ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/capi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/capi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ecmdcmd: ecmdcapi ${EXT_CAPI_TARGETS} ${EXT_CMD_TARGETS}
 	@echo "eCMD Core Command line Client ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/cmd ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/cmd ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ecmdperlapi: ecmdcmd ${EXT_PERLAPI_TARGETS}
 	@echo "eCMD Perl Module ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/perlapi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/perlapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ecmdpyapi: ecmdcmd ${EXT_PYAPI_TARGETS}
 	@echo "eCMD Python Module ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/pyapi ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/pyapi ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ecmdpy3api: ecmdcmd ${EXT_PYAPI_TARGETS}
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/py3api ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/py3api ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ########################
@@ -136,7 +140,7 @@ ecmdutils:
 ########################
 dllstub:
 	@echo "eCMD DLL Stub ${TARGET_ARCH} ..."
-	@${MAKE} -C dllStub ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_ROOT}/dllStub ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 # Runs the install routines for all targets
@@ -150,8 +154,6 @@ install_setup:
 
 	@echo "Creating bin dir ..."
 	@mkdir -p ${INSTALL_PATH}/bin
-	@cp -R `find ${ECMD_CORE}/bin/*` ${INSTALL_PATH}/bin/.
-#	@$(foreach ext, ${EXT_CMD}, $(shell /bin/cp ${EXT_${ext}_PATH}/bin/* ${INSTALL_PATH}/bin/))
 	@echo " "
 
 	@echo "Creating ${TARGET_ARCH}/bin dir ..."
@@ -166,15 +168,20 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/perl
 	@echo " "
 
+	@echo "Copying cmdline wrappers to bin"
+	@cp -R `find ${ECMD_CORE}/bin/*` ${INSTALL_PATH}/bin/.
+	@$(foreach ext, ${EXT_CMD}, echo "  copying ${ext}"; cp -an `find ${EXT_${ext}_PATH}/bin/*` ${INSTALL_PATH}/bin/.;) 
+	@echo " "
+
 	@echo "Setting up ecmdaliases files ..."
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
-	@sed "s@\$$PWD@${CTE_INSTALL_PATH}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@sed "s@\$$PWD@${INSTALL_PATH_REF}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	@sed "s@\$$PWD@${INSTALL_PATH_REF}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
 	@echo "Creating help dir ..."
 	@mkdir -p ${INSTALL_PATH}/help
 	@cp -R `find ${ECMD_CORE}/cmd/help/*` ${INSTALL_PATH}/help/.
-	@$(foreach ext, ${EXTENSIONS}, if [ -d ext/${ext}/cmd/help ]; then find ext/${ext}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
+	@$(foreach ext, ${EXTENSIONS}, if [ -d ${EXT_${ext}_PATH}/cmd/help ]; then find ${EXT_${ext}_PATH}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
 
 	@echo " "
 
@@ -188,15 +195,13 @@ endif
 install_finish: install_setup ${BUILD_TARGETS}
 
 # Build the utils and install them
-ifneq ($(findstring utils,$(shell /bin/ls -d *)),)
 	@echo "Building utils ..."
-	@cd utils && ${MAKE} ${MAKEFLAGS}
+	@$(foreach util, ${ECMD_REPOS_UTILS}, ${MAKE} -C ${util}/utils/ ${MAKEFLAGS};)
 	@echo " "
 
 	@echo "Installing utils ..."
-	@cd utils && ${MAKE} ${MAKECMDGOALS} ${MAKEFLAGS}
+	@$(foreach util, ${ECMD_REPOS_UTILS}, ${MAKE} -C ${util}/utils/ ${MAKECMDGOALS} ${MAKEFLAGS};)
 	@echo " "
-endif
 
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
