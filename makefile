@@ -6,6 +6,11 @@
 SUBDIR     := " "
 include makefile.vars
 
+ifndef ECMD_ROOT
+$(error makefile.vars not found.  Please run mkscripts/buildconfig.py)
+endif
+
+
 # *****************************************************************************
 # Some basic setup before we start trying to build stuff
 # *****************************************************************************

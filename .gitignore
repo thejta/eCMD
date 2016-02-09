@@ -2,3 +2,4 @@
 obj_*
 src_*
 out_*
+makefile.vars
