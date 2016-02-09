@@ -54,16 +54,8 @@ VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_
 
 ### Setup all of the additional objects to link
 LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-# remove fapi here and add initFapiExtention only
-ifeq (fapi2,$(filter ${EXT_PYAPI},fapi2))
-  LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapi2ClientCapiInit.o
-endif
-ifeq (fapi,$(filter ${EXT_PYAPI},fapi))
-  LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapiClientCapiInit.o
-endif
-LINK_EXTENSIONS := $(subst fapi2,,${EXT_PYAPI})
-LINK_EXTENSIONS := $(subst fapi,,${LINK_EXTENSIONS})
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OUTLIB}/${ext}ClientCapi.a)
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_PERLAPI}, ${OUTLIB}/${ext}ClientCapi.a)
+EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_PERLAPI},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # The reference to libecmd.so has to go at the end of the link in Ubuntu
 # Make it it's own variable instead of a SLDFLAGS
@@ -91,7 +83,7 @@ install:
 	cp ${OUTPERL}/${PM_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 	cp ${OUTPERL}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 
-test: ${SO_TARGET}
+test:
         ifeq (${TARGET_OS},aix)
 	@slibclean
         endif
@@ -130,7 +122,7 @@ ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE}
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OUTPERL}/${SO_TARGET} ${LDLIBS}
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OUTPERL}/${SO_TARGET} ${LDLIBS} ${EXTLIBS}
 
 # *****************************************************************************
 # Autogenerate the Perl Wrapper

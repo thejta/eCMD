@@ -42,17 +42,8 @@ VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_
 
 ### Setup all of the additional objects to link
 LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-# remove fapi here and add initFapiExtention only
-ifeq (fapi2,$(filter ${EXT_PYAPI},fapi2))
-  LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapi2ClientCapiInit.o
-endif
-ifeq (fapi,$(filter ${EXT_PYAPI},fapi))
-  LINK_OBJS  := ${LINK_OBJS} ${OBJPATH}/fapiClientCapiInit.o
-endif
-LINK_EXTENSIONS := $(subst fapi2,,${EXT_PYAPI})
-LINK_EXTENSIONS := $(subst fapi,,${LINK_EXTENSIONS})
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${LINK_EXTENSIONS}, ${OUTLIB}/${ext}ClientCapi.a)
-EXTLIBS  := ${EXTLIBS} ${foreach ext,${LINK_EXTENSIONS},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_PYAPI}, ${OUTLIB}/${ext}ClientCapi.a)
+EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_PYAPI},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Set our defaults for these values, but they can be overriden by the py3api makefile
 PYTHON_NAME ?= python2

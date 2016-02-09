@@ -11,11 +11,11 @@ INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdRet
 INT_INCLUDES := ecmdInterpreter.H ecmdExtInterpreter.H ecmdCommandUtils.H
 
 ### Source
-SOURCE       := ecmdInterpreter.C ecmdCommandUtils.C 
-SOURCE       := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C 
-SOURCE       := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
-SOURCE       := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
-SOURCE       := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
+SOURCE := ecmdInterpreter.C ecmdCommandUtils.C 
+SOURCE := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C 
+SOURCE := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
+SOURCE := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
+SOURCE := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
 
 # This is broke out so it doesn't get included in the archive
 MAIN_SOURCE  := ecmdMain.C
@@ -31,15 +31,16 @@ SOURCE   := ${GENERATED_SOURCE} ${SOURCE}
 INCLUDES := ${INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
 ### Setup our link objs
-LINK_OBJS  := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-LINK_OBJS  := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}ClientCapi.a ${OUTLIB}/${ext}CmdInterpreter.a)
+LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a  ${OUTLIB}/${ext}ClientCapi.a)
+EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_CMD},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Setup our CFLAGS and VPATH
-VPATH        := ${VPATH}$(foreach ext, ${EXT_CMD},:${EXT_${ext}_PATH}/cmd/:${EXT_${ext}_PATH}/capi/)
-VPATH        := ${VPATH}:${OBJPATH}:${SRCPATH}:${ECMD_CORE}/capi
+VPATH  := ${VPATH}$(foreach ext, ${EXT_CMD},:${EXT_${ext}_PATH}/cmd/:${EXT_${ext}_PATH}/capi/)
+VPATH  := ${VPATH}:${OBJPATH}:${SRCPATH}:${ECMD_CORE}/capi
 
-CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
-CFLAGS       := ${CFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
+CFLAGS := ${CFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 
 # *****************************************************************************
 # Define our output files
@@ -126,7 +127,7 @@ $(SOURCE_OBJS) $(MAIN_SOURCE_OBJS) $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INC
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${MAIN_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS} ${EXTLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 	@echo Linking $@
