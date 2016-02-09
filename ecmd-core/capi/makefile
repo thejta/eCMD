@@ -103,7 +103,6 @@ ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
 
-
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************

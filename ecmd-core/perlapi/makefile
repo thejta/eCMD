@@ -84,7 +84,7 @@ install:
 	cp ${OUTPERL}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 
 test:
-        ifeq (${TARGET_OS},aix)
+        ifeq (${TARGET_BARCH},aix)
 	@slibclean
         endif
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"

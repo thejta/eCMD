@@ -52,7 +52,7 @@ AR_TARGET  := ecmdClientCmd.a
 # *****************************************************************************
 # The x86 Linux Setup stuff
 # *****************************************************************************
-ifeq (${TARGET_OS},x86)
+ifeq (${TARGET_BARCH},x86)
   ifeq (${TARGET_ARCH},x86)
     LDLIBS    := ${LDLIBS} -ldl -L${OUTLIB} -lecmd
   else
@@ -63,14 +63,14 @@ endif
 # *****************************************************************************
 # The ppc Linux Setup stuff
 # *****************************************************************************
-ifeq (${TARGET_OS},ppc)
+ifeq (${TARGET_BARCH},ppc)
   LDLIBS    := ${LDLIBS} -ldl -L${OUTLIB} -lecmd
 endif
 
 # *****************************************************************************
 # The Aix Setup stuff
 # *****************************************************************************
-ifeq (${TARGET_OS},aix)
+ifeq (${TARGET_BARCH},aix)
   ifeq (${TARGET_ARCH},aix)
     LDLIBS    := -brtl -w -L${OUTLIB} -lecmd
   else
