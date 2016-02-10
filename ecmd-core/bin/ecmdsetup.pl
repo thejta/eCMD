@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# File ecmd_setup.pl created by Jason Albert,6A5244 at 13:50:19 on Fri May 13 2005. 
+# File ecmdsetup.pl created by Jason Albert,6A5244 at 13:50:19 on Fri May 13 2005. 
 
 # Why wouldn't you use strict???
 use strict;
@@ -53,46 +53,28 @@ $installPath =~ s/\/$//;
 use ecmdsetup;
 my $ecmd = new ecmdsetup();
 
-# Create the other setup objects based upon what is available
-my ($cro, $scand, $gip, $mbo, $lht);
-# Cronus
-my $croUse = 0;
-if (-e "crosetup.pm") {
-  $croUse = 1;
-  require crosetup;
-  $cro = new crosetup();
-}
+# Any installed plugins are located a dir below where this script resides
+# use lib that path so we can load those modules
+# The load all those instances into a plugin hash that is used thru out
+# This allows the code to be adaptable to any number of plugins
+use lib "$pwd/plugins";
 
-# Scand
-my $scandUse = 0;
-if (-e "scandsetup.pm") {
-  $scandUse = 1;
-  require scandsetup;
-  $scand = new scandsetup();
-}
+my %plugins;
+my $pluginKey;
 
-# GFW I/P
-my $gipUse = 0;
-if (-e "gipsetup.pm") {
-  $gipUse = 1;
-  require gipsetup;
-  $gip = new gipsetup();
-}
+# Get a list of all plugins installed
+my @tempArr = split(/\s+/, `ls $pwd/plugins`);
 
-# Mambo
-my $mboUse = 0;
-if (-e "mbosetup.pm") {
-  $mboUse = 1;
-  require mbosetup;
-  $mbo = new mbosetup();
-}
-
-# Linux Host Tool
-my $lhtUse = 0;
-if (-e "lhtsetup.pm") {
-  $lhtUse = 1;
-  require lhtsetup;
-  $lht = new lhtsetup();
+# Loop over that list and load everything in
+for (my $x=0; $x <= $#tempArr; $x++) {
+  # Create the key into the hash and the name of the module to load
+  $pluginKey = $tempArr[$x];
+  my $pluginSetup = $tempArr[$x];
+  $pluginKey =~ s/setup.pm//g;
+  $pluginSetup =~ s/.pm//g;
+  # Load the module and create the object
+  eval "require $pluginSetup";
+  $plugins{$pluginKey} = new $pluginSetup();
 }
 
 ##########################################################################
@@ -104,7 +86,7 @@ my $release;
 my $prevRelease;
 my $plugin;
 my $product;
-my $bits = 32;
+my $bits = 64;
 my $arch;
 my $temp;
 my $shortcut = 0;
@@ -138,27 +120,11 @@ sub main {
   #
   if ("@ARGV" =~ /-h/) {
     help();
-    if ($croUse) { $cro->help(); }
+    foreach $pluginKey ( keys %plugins ) {
+      $pluginKey->help();
+    }
     return 1;
   }
-
-  ##########################################################################
-  # If the user isn't setup for CTE, let's do it for them.
-  #
-  #if ($ENV{"CTEPATH"} eq "") {
-  #  @tempArr = split(/\//,$pwd);
-  #  # Blow off the first 4 entries that are ecmd dirs
-  #  pop(@tempArr); # bin
-  #  pop(@tempArr); # release
-  #  pop(@tempArr); # ecmd
-  #  pop(@tempArr); # tools
-  #  $" = "/"; # Make it so the array below seperates on / instead of space
-  #  $ENV{"CTEPATH"} = "@tempArr";
-  #  $" = " "; # Reset
-  #  #Finally, mark it modified
-  #  $modified{"CTEPATH"} = 1;
-  #  printf("echo CTEPATH unset! Setting to %s;\n",$ENV{"CTEPATH"});
-  #}
 
   ##########################################################################
   # Figure out if the user is on a local copy of CTE
@@ -222,12 +188,14 @@ sub main {
   } else {
     $plugin = shift(@ARGV);
   }
-  if ($plugin eq "cro" && $croUse) {
-  } elsif ($plugin eq "gip" && $gipUse) {
-  } elsif ($plugin eq "scand" && $scandUse) {
-  } elsif ($plugin eq "mbo" && $mboUse) {
-  } elsif ($plugin eq "lht" && $lhtUse) {
-  } else {
+  # See if the plugin passed in matches any of the ones we have modules for
+  my $pluginFound = 0;
+  foreach $pluginKey ( keys %plugins ) {
+    if ($pluginKey eq $plugin) {
+      $pluginFound = 1;
+    }
+  }
+  if ($pluginFound == 0) {
     ecmd_print("The eCMD plugin '$plugin' you specified is not known!", 1);
     return 1;
   }
@@ -340,32 +308,8 @@ sub main {
 
   # Only do this if the plugin has changed from last time
   if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
-    if ($croUse) {
-      $rc =$cro->cleanup(\%modified);
-      if ($rc) {
-        return $rc;
-      }
-    }                 
-    if ($scandUse) {
-      $rc = $scand->cleanup(\%modified, $release);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($gipUse) {
-      $rc = $gip->cleanup(\%modified);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($mboUse) {
-      $rc = $mbo->cleanup(\%modified, $localInstall, $installPath);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($lhtUse) {
-      $rc = $lht->cleanup(\%modified, $localInstall, $installPath);
+    foreach $pluginKey ( keys %plugins ) {
+      $rc = $plugins{$pluginKey}->cleanup(\%modified);
       if ($rc) {
         return $rc;
       }
@@ -403,34 +347,20 @@ sub main {
   # Call setup on plugin specified
   #
   if (!$cleanup) {
-    if ($plugin eq "cro" && $croUse) {
-      $rc = $cro->setup(\%modified, $localInstall, $arch, $product, "ecmd", @ARGV);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($plugin eq "scand" && $scandUse) {
-      $rc = $scand->setup(\%modified, $localInstall, $product, $callingPwd, @ARGV);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($plugin eq "gip" && $gipUse) {
-      $rc = $gip->setup(\%modified, $localInstall, $product, @ARGV);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($plugin eq "mbo" && $mboUse) {
-      $rc = $mbo->setup(\%modified, $localInstall, $product, $installPath, @ARGV);
-      if ($rc) {
-        return $rc;
-      }
-    }
-    if ($plugin eq "lht" && $lhtUse) {
-      $rc = $lht->setup(\%modified, $localInstall, $product, $installPath, $arch, @ARGV);
-      if ($rc) {
-        return $rc;
+    foreach $pluginKey ( keys %plugins ) {
+      if ($plugin eq $pluginKey) { # Only call setup on our selected plugin
+        $rc = $plugins{$pluginKey}->setup(\%modified,
+                                          { ARGV => "@ARGV",
+                                            localInstall => $localInstall,
+                                            arch => $arch,
+                                            product => $product,
+                                            ecmd => "ecmd",
+                                            callingPwd => $callingPwd,
+                                            installPath => $installPath,
+                                          });
+        if ($rc) {
+          return $rc;
+        }
       }
     }
   }
@@ -504,9 +434,9 @@ sub main {
 sub help {
   ecmd_print("ecmdsetup <release> <plugin> <product> [32|64] [copylocal] [cleanup] <plugin options>");
   ecmd_print("<release> - Any eCMD Version currently supported in CVS (ex rel, ver5, ver4-3)");
-  ecmd_print("<plugin> - cro|scand|gip|mbo|lht");
-  ecmd_print("<product> - eclipz, etc..");
-  ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 32.");
+  ecmd_print("<plugin> - varies based upon your ecmd install");
+  ecmd_print("<product> - varies based upon plugin");
+  ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 64.");
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
   ecmd_print("[quiet] - Disables status output");
