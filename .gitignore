@@ -3,3 +3,7 @@ obj_*
 src_*
 out_*
 makefile.vars
+
+# We want to ignore any sub ecmd-* dirs, except the included ecmd-core
+ecmd-*
+!ecmd-core
