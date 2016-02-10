@@ -45,7 +45,9 @@ for repo in ECMD_REPOS.split(" "):
         buildvars[repo + "_PLUGINS"] = testpath
 
     for plugin in glob.glob(os.path.join(testpath, "*")):
-        ECMD_PLUGINS += os.path.basename(plugin) + " "
+        baseplugin = os.path.basename(plugin)
+        ECMD_PLUGINS += baseplugin + " "
+        buildvars["PLUGIN_" + baseplugin + "_PATH"] = os.path.join(testpath, baseplugin)
 
 buildvars["ECMD_PLUGINS"] = ECMD_PLUGINS[:-1] # Pull off trailing space
 

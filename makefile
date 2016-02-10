@@ -187,14 +187,12 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/help
 	@cp -R `find ${ECMD_CORE}/cmd/help/*` ${INSTALL_PATH}/help/.
 	@$(foreach ext, ${EXTENSIONS}, if [ -d ${EXT_${ext}_PATH}/cmd/help ]; then find ${EXT_${ext}_PATH}/cmd/help -type f -exec cp {} ${INSTALL_PATH}/help/. \; ; fi;)
-
 	@echo " "
 
-ifneq ($(findstring plugins,$(shell /bin/ls -d *)),)
 	@echo "Copying over setup perl modules ..."
-	@find plugins/ -type f -name "*setup.pm" -exec cp {} ${INSTALL_PATH}/bin/. \;
+	@mkdir -p ${INSTALL_PATH}/bin/plugins
+	@$(foreach plugin, ${ECMD_PLUGINS}, cp ${PLUGIN_${plugin}_PATH}/*setup.pm ${INSTALL_PATH}/bin/plugins/.;)
 	@echo " "
-endif
 
 # Do final cleanup things such as fixing permissions
 install_finish: install_setup ${BUILD_TARGETS}
