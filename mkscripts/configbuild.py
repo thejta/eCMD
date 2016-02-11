@@ -143,6 +143,17 @@ if "INSTALL_PATH" not in os.environ:
     INSTALL_PATH = os.path.join(ECMD_ROOT, "install")
     buildvars["INSTALL_PATH"] = INSTALL_PATH
 
+# If DOXYGEN_PATH wasn't given, use INSTALL_PATH
+if "DOXYGEN_PATH" not in os.environ:
+    DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
+    buildvars["DOXYGEN_PATH"] = DOXYGEN_PATH
+    DOXYGEN_CAPI_PATH = os.path.join(DOXYGEN_PATH, "Capi")
+    buildvars["DOXYGEN_CAPI_PATH"] = DOXYGEN_CAPI_PATH
+    DOXYGEN_PERLAPI_PATH = os.path.join(DOXYGEN_PATH, "Perlapi")
+    buildvars["DOXYGEN_PERLAPI_PATH"] = DOXYGEN_PERLAPI_PATH
+    DOXYGEN_PYAPI_PATH = os.path.join(DOXYGEN_PATH, "Pythonapi")
+    buildvars["DOXYGEN_PYAPI_PATH"] = DOXYGEN_PYAPI_PATH
+
 # Setup the output path info for the created binaries and libraries
 OUTPATH = os.path.join(ECMD_ROOT, "out_" + TARGET_ARCH)
 buildvars["OUTPATH"] = OUTPATH

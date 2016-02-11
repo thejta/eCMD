@@ -63,6 +63,15 @@ install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension includes to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
 
+doxygen-capi:
+	@cp ${CAPI_INCLUDES} ${DOXYGEN_CAPI_PATH}/.
+
+doxygen-perlapi:
+  # Do nothing
+
+doxygen-pyapi:
+	@cp ${EXTENSION_NAME}Structs.H ${DOXYGEN_PYAPI_PATH}/.
+
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************

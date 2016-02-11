@@ -41,6 +41,11 @@ test:
 install:
   # Do nothing
 
+doxygen-perlapi: ${EXTENSION_NAME}ClientPerlapiFunc.H
+        # grep out PerlapiFunc.H to eliminate doxygen error that happens from having mismatched file names in comments
+	@cat ${EXTENSION_NAME}ClientPerlapi.H ${SRCPATH}/${EXTENSION_NAME}ClientPerlapiFunc.H | grep -v ${EXTENSION_NAME}ClientPerlapiFunc.H > ${DOXYGEN_PERLAPI_PATH}/${EXTENSION_NAME}ClientPerlapi.H
+
+
 # *****************************************************************************
 # Autogenerate the Client side of the Dll
 # *****************************************************************************

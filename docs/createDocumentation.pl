@@ -80,8 +80,6 @@ $rc = system("cp $repoBase/docs/examples/ecmdclient.C $outputDirectory/Capi/exam
 if ($rc) { return $rc; }
 $rc = system("cp $repoBase/docs/examples/makefile $outputDirectory/Capi/examples/.");
 if ($rc) { return $rc; }
-$rc = system("cp $repoBase/capi/capi.dox $outputDirectory/Capi/examples/.");
-if ($rc) { return $rc; }
 
 
 # Now copy over all of the extension file headers that are available

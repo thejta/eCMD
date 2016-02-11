@@ -80,6 +80,14 @@ install:
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
+doxygen-capi:
+	@cp ${CAPI_INCLUDES} ${DOXYGEN_CAPI_PATH}/.
+
+doxygen-perlapi:
+	@cp ${CAPI_INCLUDES} ${DOXYGEN_PERLAPI_PATH}/.
+
+doxygen-pyapi:
+	@cp ${CAPI_INCLUDES} ${DOXYGEN_PYAPI_PATH}/.
 
 # *****************************************************************************
 # Object Build Targets

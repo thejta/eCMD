@@ -100,6 +100,15 @@ install:
 	cp ${OUTBIN}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 
+doxygen-capi:
+  # Do nothing
+
+doxygen-perlapi:
+  # Do nothing
+
+doxygen-pyapi:
+  # Do nothing
+
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************

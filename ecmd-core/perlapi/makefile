@@ -90,6 +90,11 @@ test:
 	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
 	ECMD_DLL_FILE=${OUTLIB}/stub.dll PERL5LIB=${OUTPERL} LD_LIBRARY_PATH=${OUTLIB}:${OUTPERL} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
 
+doxygen-perlapi: ecmdClientPerlapiFunc.H
+	@cp ecmdBit64.H ecmdPerlApiTypes.H ${DOXYGEN_PERLAPI_PATH}/.
+        # grep out PerlapiFunc.H to eliminate doxygen error that happens from having mismatched file names in comments
+	@cat ecmdClientPerlapi.H ${SRCPATH}/ecmdClientPerlapiFunc.H | grep -v ecmdClientPerlapiFunc.H > ${DOXYGEN_PERLAPI_PATH}/ecmdClientPerlapi.H
+
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************

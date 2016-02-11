@@ -51,6 +51,14 @@ install:
 	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
 
+doxygen-capi:
+  # Do nothing
+
+doxygen-perlapi:
+  # Do nothing
+
+doxygen-pyapi:
+  # Do nothing
 
 # *****************************************************************************
 # Object Build Targets

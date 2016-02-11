@@ -34,6 +34,11 @@ test:
 install:
   # Do nothing
 
+doxygen-pyapi:
+        # grep out *Capi.H to eliminate doxygen error that happens from having mismatched file names in comments
+	@cat ${EXT_${EXTENSION_NAME}_PATH}/capi/${EXTENSION_NAME}ClientCapi.H ${EXTENSION_NAME}ClientPyapi.H | grep -v ${EXTENSION_NAME}ClientCapi.H > ${DOXYGEN_PYAPI_PATH}/${EXTENSION_NAME}ClientPyapi.H
+
+
 # *****************************************************************************
 # Template source files
 # *****************************************************************************
