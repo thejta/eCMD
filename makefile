@@ -83,7 +83,7 @@ build: ${BUILD_TARGETS}
 
 test: ${BUILD_TARGETS}
 
-doxygen:
+doxygen: dir
 	@mkdir -p ${DOXYGEN_CAPI_PATH}
 	${VERBOSE}${MAKE} doxygen-capi ${MAKEFLAGS} --no-print-directory
 	@mkdir -p ${DOXYGEN_PERLAPI_PATH}
