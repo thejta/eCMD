@@ -1,6 +1,5 @@
 # Base info and default build rules
 PYTHON_NAME := python3
-SUBDIR     := py3api/
 include ../../makefile.vars
 
 # Setup the python3 include path
@@ -30,6 +29,3 @@ SWIGFLAGS := -py3 -I../py3api/distro/${DISTRO} -DECMD_PY3API ${SWIGFLAGS}
 
 # Include the python 2 makefile
 include ../pyapi/makefile
-
-# Reset the subdir after including the python 2 makefile
-SUBDIR := py3api/

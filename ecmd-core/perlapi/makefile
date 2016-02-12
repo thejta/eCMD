@@ -3,7 +3,6 @@
 # *****************************************************************************
 # Define base info and include any global variables
 # *****************************************************************************
-SUBDIR     := perlapi/
 include ../../makefile.vars
 
 ### Includes

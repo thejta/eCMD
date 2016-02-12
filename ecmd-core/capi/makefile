@@ -3,7 +3,6 @@
 # *****************************************************************************
 # Define base info and include any global variables
 # *****************************************************************************
-SUBDIR     := capi/
 include ../../makefile.vars
 
 ### Includes

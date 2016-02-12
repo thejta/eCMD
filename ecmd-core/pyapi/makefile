@@ -3,7 +3,6 @@
 # *****************************************************************************
 # Define base info and include any global variables
 # *****************************************************************************
-SUBDIR     := pyapi/
 include ../../makefile.vars
 
 ### Includes

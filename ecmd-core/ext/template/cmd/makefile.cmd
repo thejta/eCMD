@@ -3,8 +3,6 @@
 # *****************************************************************************
 # Define base info and include any global variables
 # *****************************************************************************
-SUBDIR     := ext/${EXTENSION_NAME}/cmd/
-
 EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 

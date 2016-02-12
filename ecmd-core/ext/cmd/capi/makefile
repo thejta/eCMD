@@ -5,7 +5,6 @@ EXTENSION_NAME   := cmd
 # *****************************************************************************
 # Define base info and include any global variables
 # *****************************************************************************
-SUBDIR     := ext/${EXTENSION_NAME}/capi/
 include ../../../../makefile.vars
 
 # This is Additional extension for the client api
