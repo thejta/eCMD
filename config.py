@@ -17,7 +17,7 @@ buildvars = dict()
 # ECMD_ROOT is the top level directory of the ecmd source repo
 # ECMD_ROOT is used to derive a number of variable throughout this script
 # ECMD_ROOT is one up from the directory where this script lives
-ECMD_ROOT,trash = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+ECMD_ROOT = os.path.dirname(os.path.realpath(__file__))
 buildvars["ECMD_ROOT"] = ECMD_ROOT
 
 # The main ecmd repo contains the ecmd-core subdir
