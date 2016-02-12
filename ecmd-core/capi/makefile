@@ -1,9 +1,9 @@
 # Makefile for the ecmd capi
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../../makefile.vars
+include ../../makefile.base
 
 ### Includes
 CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H 

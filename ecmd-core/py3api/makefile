@@ -1,6 +1,10 @@
 # Base info and default build rules
 PYTHON_NAME := python3
-include ../../makefile.vars
+
+# *****************************************************************************
+# Include the common base makefile
+# *****************************************************************************
+include ../../makefile.base
 
 # Setup the python3 include path
 # In the distro or makefile.config the user can specify this as PY3INC

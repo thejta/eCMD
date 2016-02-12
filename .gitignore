@@ -2,8 +2,8 @@
 obj_*
 src_*
 out_*
-makefile.vars
 makefile.config
+makefile.override
 
 # We want to ignore any sub ecmd-* dirs, except the included ecmd-core
 ecmd-*

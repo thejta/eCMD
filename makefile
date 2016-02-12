@@ -1,15 +1,9 @@
 # The main makefile for all rules
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-SUBDIR     := " "
-include makefile.vars
-
-ifndef ECMD_ROOT
-$(error makefile.vars not found.  Please run mkscripts/buildconfig.py)
-endif
-
+include makefile.base
 
 # *****************************************************************************
 # Some basic setup before we start trying to build stuff
@@ -229,7 +223,7 @@ install_setup:
 
 	@echo "Copying over setup perl modules ..."
 	@mkdir -p ${INSTALL_PATH}/bin/plugins
-	@$(foreach plugin, ${ECMD_PLUGINS}, cp ${PLUGIN_${plugin}_PATH}/*setup.pm ${INSTALL_PATH}/bin/plugins/.;)
+	@$(foreach plugin, ${ECMD_REPOS_PLUGINS}, cp ${PLUGIN_${plugin}_PATH}/*setup.pm ${INSTALL_PATH}/bin/plugins/.;)
 	@echo " "
 
 # Do final cleanup things such as fixing permissions

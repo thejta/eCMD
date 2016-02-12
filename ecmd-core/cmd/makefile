@@ -1,9 +1,9 @@
 # Makefile for the ecmd cmdline
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../../makefile.vars
+include ../../makefile.base
 
 ### Includes
 INCLUDES     := ecmdClientCapi.H  ecmdDataBuffer.H  ecmdDataBufferBase.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H

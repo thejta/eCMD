@@ -3,9 +3,9 @@
 EXTENSION_NAME   := cmd
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../../../../makefile.vars
+include ../../../../makefile.base
 
 # This is Additional extension for the client api
 SOURCE       := 

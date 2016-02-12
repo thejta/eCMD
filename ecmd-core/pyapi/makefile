@@ -1,9 +1,9 @@
 # Makefile for the ecmd Python Module
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../../makefile.vars
+include ../../makefile.base
 
 ### Includes
 INCLUDES := ecmdClientCapi.H ecmdClientPyapi.H ecmdDataBufferBase.H ecmdDataBuffer.H 

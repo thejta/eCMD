@@ -1,9 +1,9 @@
 # Makefile for a very simple DLL.  Can be used to test builds
 
 # *****************************************************************************
-# Define base info and include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../makefile.vars
+include ../makefile.base
 
 # *****************************************************************************
 # The Common Setup stuff

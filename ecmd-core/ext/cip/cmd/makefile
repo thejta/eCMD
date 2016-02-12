@@ -1,9 +1,9 @@
 # Makefile for the ecmd Extensions
 
 # *****************************************************************************
-# Include any global variables
+# Include the common base makefile
 # *****************************************************************************
-include ../../../../makefile.vars
+include ../../../../makefile.base
 
 EXTENSION_NAME   := cip
 
