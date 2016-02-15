@@ -9,15 +9,6 @@ include makefile.base
 # Some basic setup before we start trying to build stuff
 # *****************************************************************************
 
-# Install
-# There are two ways to specify the install path.  Both are givin
-# INSTALL_PATH is the resolved path to where the files should be installed - i.e. /usr/local/ecmd
-# INSTALL_PATH_REF is directly the value you give on the cmdline 
-# INSTALL_PATH=\$\$\\CTEPATH make install
-
-INSTALL_PATH_REF := ${INSTALL_PATH}
-INSTALL_PATH := $(shell echo ${INSTALL_PATH})
-
 # For an extension specified, we build a complete set of rules for it
 EXT_CAPI_RULES    := $(foreach ext, ${EXT_CAPI}, ${ext}capi)
 EXT_CMD_RULES     := $(foreach ext, ${EXT_CMD}, ${ext}cmd)
@@ -211,8 +202,8 @@ install_setup:
 	@echo " "
 
 	@echo "Setting up ecmdaliases files ..."
-	@sed "s@\$$PWD@${INSTALL_PATH_REF}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
-	@sed "s@\$$PWD@${INSTALL_PATH_REF}/bin@g" ${ECMD_CORE}/bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
+	@sed "s@INSTALL_BIN_PATH@${INSTALL_BIN_PATH}@g" ${ECMD_CORE}/bin/ecmdaliases.ksh > ${INSTALL_PATH}/bin/ecmdaliases.ksh
+	@sed "s@INSTALL_BIN_PATH@${INSTALL_BIN_PATH}@g" ${ECMD_CORE}/bin/ecmdaliases.csh > ${INSTALL_PATH}/bin/ecmdaliases.csh
 	@echo " "
 
 	@echo "Creating help dir ..."

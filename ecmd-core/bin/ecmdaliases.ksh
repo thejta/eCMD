@@ -16,7 +16,7 @@ alias target=_target
 function _target
 {
    export TARGET_VARIABLES="$*"
-   . $PWD/target.ksh
+   . INSTALL_BIN_PATH/target.ksh
    unset TARGET_VARIABLES
 }
 
@@ -27,5 +27,5 @@ alias ecmdsetup=_ecmdsetup
 
 function _ecmdsetup
 {
-   eval `$PWD/ecmdsetup.pl ksh $*`
+   eval `INSTALL_BIN_PATH/ecmdsetup.pl ksh $*`
 }

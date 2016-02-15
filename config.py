@@ -259,6 +259,24 @@ else:
     INSTALL_PATH = os.environ["INSTALL_PATH"]
 buildvars["INSTALL_PATH"] = INSTALL_PATH
 
+# If not given, create INSTALL_BIN_PATH off INSTALL_PATH
+# INSTALL_BIN_PATH is in ecmdaliases.ksh/ecmdaliases.csh
+# This can be different from INSTALL_PATH to enable a network install
+# You could set it a shell variable that is evaluated at runtime
+# Useful in common environments that may be shadowed around sites
+# Setting it properly is tricky in that case.
+# If you want $COMMONPATH to end up in the aliases files,
+# INSTALL_BIN_PATH needs to be \\\\$$"COMMONPATH" in makefile.config
+# That accounts for \'s and $'s that get ate by make during the install rule
+# If you want to call config.py to set the value in the env, do it like this:
+# INSTALL_BIN_PATH="\\\\\\\\\$\$\"COMMONPATH\"" ./config.py
+# That escapes all the right things so you end up with \\\\$$ in makefile.config
+if "INSTALL_BIN_PATH" not in os.environ:
+    INSTALL_BIN_PATH = os.path.join(INSTALL_PATH, "bin")
+else:
+    INSTALL_BIN_PATH = os.environ["INSTALL_BIN_PATH"]
+buildvars["INSTALL_BIN_PATH"] = INSTALL_BIN_PATH
+
 # If DOXYGEN_PATH wasn't given, use INSTALL_PATH
 if "DOXYGEN_PATH" not in os.environ:
     DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
