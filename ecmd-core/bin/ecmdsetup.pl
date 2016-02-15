@@ -15,10 +15,10 @@ my $callingPwd;
 my $pwd;
 
 BEGIN {
-  # Meghna needs me to save away the directory the script was called from, I'll do that here
-  #Commenting this since this seems to be resolving the links in the path
+  # Some plugins needs the directory the script was called from, save that here
+  #Commenting this out since this seems to be resolving the links in the path
   #chomp($callingPwd = `pwd`);
-  #This seems to keep the directory intact. Tested in ksh, Jason will test in csh
+  #This keeps the directory intact.
   chomp($callingPwd = `cd .;pwd`);
   # Now do the rest
   my @tempArr = split(/\/+/,$0);
@@ -33,11 +33,6 @@ BEGIN {
   }
   $" = " "; # Reset
   chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
-
-  # This is a slick bit of trickeration if I may say so myself.
-  # We have to change to the directory the script is in for the module requires below
-  # This will enable the modules to be found in the local directory in the @INC
-  chdir "$pwd";
 }
 
 # installpath points to root of install
@@ -46,10 +41,10 @@ $installPath =~ s/\/([^\/..]*\/?)$/\//;
 # Remove the trailing slash if there
 $installPath =~ s/\/$//;
 
-
 #########################################
 # Setup the modules to include
 # Base support, always there
+use lib "$pwd";
 use ecmdsetup;
 my $ecmd = new ecmdsetup();
 
@@ -90,19 +85,9 @@ my $bits = 64;
 my $arch;
 my $temp;
 my $shortcut = 0;
-my $localInstall = 1;  # Assume it's a local install and then disprove it by comparing ctepaths to CTEPATH
+my $singleInstall = 1;  # Assume it's a single install and then disprove it by looking at the path
 my $copyLocal = 0;  # Does the user want ECMD_EXE and ECMD_DLL_FILE copied to /tmp and run from there?
 my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they might have put out there.
-# These ctepaths are in regular expression format for the search below.
-# This allows the user to put just rchland or rchland.ibm.com, etc..
-my @ctepaths = ("/afs/rchland(|\.ibm\.com)/rel/common/cte",
-                "/afs/awd(|\.austin\.ibm\.com)/projects/cte",
-                "/afs/austin(|\.ibm\.com)/projects/cte",
-                "/afs/apd(|\.pok\.ibm\.com)/func/vlsi/cte",
-                "/afs/(bb|(vlsilab(|\.boeblingen\.ibm\.com)))/proj/cte",
-                "/afs/btv(|\.ibm\.com)/data/vlsi/cte",
-                "/afs/raleigh(|\.ibm\.com)/cadtools/cte",
-                "/afs/watson(|\.ibm\.com)/projects/vlsi/cte");
 
 #####################################################
 # Call the main function, then add the rc from that to the output
@@ -121,18 +106,20 @@ sub main {
   if ("@ARGV" =~ /-h/) {
     help();
     foreach $pluginKey ( keys %plugins ) {
-      $pluginKey->help();
+      $plugins{$pluginKey}->help();
     }
     return 1;
   }
 
   ##########################################################################
-  # Figure out if the user is on a local copy of CTE
+  # Figure out if the user is on a multi-instance install
   #
-  for (my $x = 0; $x <= $#ctepaths && $localInstall != 0; $x++) {
-    if ($ENV{"CTEPATH"} =~ m!${ctepaths[$x]}!) {
-      $localInstall = 0;
-    }
+  # $installPath will point to the root of this install
+  # In a single install this would be /<something>/ecmd
+  # In a multi install this would be /<something>/ecmd/<ver>
+  my @installPathArray = split(/\//, $installPath);
+  if ($installPathArray[$#installPathArray - 1] eq "ecmd") {
+    $singleInstall = 0;
   }
 
   ##########################################################################
@@ -169,15 +156,6 @@ sub main {
 
   if ($shortcut) {
     $release = $ENV{"ECMD_RELEASE"};
-  }
-
-  # We'll see if the release is supported based upon the existence of the bin directory
-  if ($release ne "auto" && !$localInstall) {
-    $temp = $ENV{"CTEPATH"} . "/tools/ecmd/" . $release . "/bin";
-    if (!(-d $temp)) {
-      ecmd_print("The eCMD release '$release' you specified is not known!", 1);
-      return 1;
-    }
   }
 
   ##########################################################################
@@ -285,13 +263,13 @@ sub main {
   # Cleanup any ecmd bin dirs that might be in the path
   #
   # Pull out any of the matching cases
-  # This expression matches anything after a : up to /tools/ecmd/<anything>/bin and then a : or end of line
-  if ($localInstall) {
+  if ($singleInstall) {
     $ENV{"PATH"} =~ s!$installPath/$arch/bin!:!g;
     $ENV{"PATH"} =~ s!$installPath/bin!:!g;
   } else {
-    $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/$arch/bin(:|$)!:!g;
-    $ENV{"PATH"} =~ s!([^:]*?)/tools/ecmd/([^\/]*?)/bin(:|$)!:!g;
+    # This expression matches anything after a : up to /<something>/ecmd/<ver>/bin and then a : or end of line
+    $ENV{"PATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/$arch/bin(:|$)!:!g;
+    $ENV{"PATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/bin(:|$)!:!g;
   }
   # We might have left a : on the front, remove it
   $ENV{"PATH"} =~ s/^://g;
@@ -305,7 +283,6 @@ sub main {
   ##########################################################################
   # Call cleanup on plugins
   #
-
   # Only do this if the plugin has changed from last time
   if ($ENV{"ECMD_PLUGIN"} ne $plugin || $cleanup) {
     foreach $pluginKey ( keys %plugins ) {
@@ -351,10 +328,10 @@ sub main {
       if ($plugin eq $pluginKey) { # Only call setup on our selected plugin
         $rc = $plugins{$pluginKey}->setup(\%modified,
                                           { ARGV => "@ARGV",
-                                            localInstall => $localInstall,
+                                            singleInstall => $singleInstall,
                                             arch => $arch,
                                             product => $product,
-                                            ecmd => "ecmd",
+                                            ecmdsetup => 1,
                                             callingPwd => $callingPwd,
                                             installPath => $installPath,
                                           });
@@ -365,17 +342,42 @@ sub main {
     }
   }
 
+
+  ##########################################################################
+  # Figure out the ecmd release if the user passed in auto
+  # Calling ecmdVersion will work now that everything is setup
+  #
+  if ($ENV{"ECMD_RELEASE"} eq "auto") {
+    # Use the full path to get to ecmdVersion to dynamically establish the version
+    # We have to call the full path because PATH won't always be established
+    my $command = "$installPath/$arch/bin/ecmdVersion full";
+    $ENV{"ECMD_RELEASE"} = `/bin/sh -c \"$command\"`;
+    $modified{"ECMD_RELEASE"} = 1;
+    $release = $ENV{"ECMD_RELEASE"};
+  }
+
+  # We'll see if the release is supported based upon the directory existing
+  my @releasePathArray = @installPathArray;
+  if (!$singleInstall) {
+    # Replace the release path for the script with the one passed in
+    $releasePathArray[$#releasePathArray] = $release;
+    $temp = sprintf join("/", @releasePathArray);
+    if (!(-d $temp)) {
+      ecmd_print("The eCMD release '$release' you specified is not known!", 1);
+      return 1;
+    }
+  }
+  # Setup release path for use throughout the rest of the script
+  my $releasePath = sprintf join("/", @releasePathArray);
+
+
   ##########################################################################
   # Add bin directory to path
   #
+
   if (!$cleanup) {
-    if ($localInstall) {
-      $ENV{"PATH"} = $installPath . "/bin:" . $ENV{"PATH"};
-      $ENV{"PATH"} = $installPath . "/" . $arch . "/bin:" . $ENV{"PATH"};
-    } else {
-      $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/bin:" . $ENV{"PATH"};
-      $ENV{"PATH"} = $ENV{"CTEPATH"} . "/tools/ecmd/" . $ENV{"ECMD_RELEASE"} . "/" . $arch . "/bin:" . $ENV{"PATH"};
-    }
+    $ENV{"PATH"} = $releasePath . "/bin:" . $ENV{"PATH"};
+    $ENV{"PATH"} = $releasePath . "/" . $arch . "/bin:" . $ENV{"PATH"};
     $modified{"PATH"} = 1;
   }
 
@@ -383,13 +385,13 @@ sub main {
   # Updates setup scripts if release changed
   # All we need to do is resource the setup scripts
   #
-  if (($prevRelease ne $ENV{"ECMD_RELEASE"}) && !$localInstall) {
+  if (($prevRelease ne $ENV{"ECMD_RELEASE"}) && !$singleInstall) {
     my $file;
     if ($shell eq "csh") {
-      $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.csh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+      $file = sprintf("%s/bin/ecmdaliases.csh", $releasePath);
       printf("source $file;");
     } else {
-      $file = sprintf("%s/tools/ecmd/%s/bin/ecmdaliases.ksh", "\$CTEPATH", $ENV{"ECMD_RELEASE"});
+      $file = sprintf("%s/bin/ecmdaliases.ksh", $releasePath);
       printf(". $file;");
     }
   }
