@@ -19,12 +19,8 @@ extlist.sort()
 # cmd files
 # -----------------------
 if (sys.argv[1] == "cmd"):
-  # Go thru the full extlist and create a reduced list of extensions
-  # with no cmd component
-  extcmdlist = list()
-  for ext in extlist:
-    if (os.path.exists(os.environ["EXT_" + ext + "_PATH"] + "/cmd/snippet")):
-      extcmdlist.append(ext)
+  # Pull EXT_CMD out of the environment
+  extlist = os.environ["EXT_CMD"].split(" ")
 
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtInterpreter.C", 'w')
@@ -43,7 +39,7 @@ if (sys.argv[1] == "cmd"):
   extfile.write("#include <ecmdSharedUtils.H>\n\n")
 
   # Now loop through all the extensions and write out their defines and includes
-  for ext in extcmdlist:
+  for ext in extlist:
     extfile.write("#ifdef ECMD_" + ext.upper() + "_EXTENSION_SUPPORT\n")
     extfile.write("#include <" + ext + "ClientCapi.H>\n")
     extfile.write("#include <" + ext + "Interpreter.H>\n")
@@ -55,7 +51,7 @@ if (sys.argv[1] == "cmd"):
 
   # Now go through and suck in all the extension init code snippets
   # Once read in, place it in the new output file
-  for ext in extcmdlist:
+  for ext in extlist:
     snippetfile = open(os.environ["EXT_" + ext + "_PATH"] + "/cmd/snippet/callInterpreter.C", 'r')
     for line in snippetfile.readlines():
       extfile.write(line)
@@ -75,6 +71,18 @@ if (sys.argv[1] == "doxygen"):
   # arg1 is doxygen
   # arg2 is the api
   # arg3 is where to write the file
+
+  # Pull the right EXT list out of the env based on arg2
+  extlist = list()
+  if (sys.argv[2] == "capi"):
+    extlist = os.environ["EXT_CAPI"].split(" ")
+  elif (sys.argv[2] == "perlapi"):
+    extlist = os.environ["EXT_PERLAPI"].split(" ")
+  elif (sys.argv[2] == "pyapi"):
+    extlist = os.environ["EXT_PYAPI"].split(" ")
+  else:
+    print("Unknown API \"%s\" passed in!  Exiting.." % (sys.argv[2]))
+    exit(1)
 
   # We're going to write out a header file to be used by doxygen to get the extensions
 
@@ -104,6 +112,9 @@ if (sys.argv[1] == "doxygen"):
 # -----------------------
 if (sys.argv[1] == "pyapi"):
   
+  # Pull EXT_PYAPI out of the environment
+  extlist = os.environ["EXT_PYAPI"].split(" ")
+
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtPyIncludes.i", 'w')
 
@@ -144,6 +155,9 @@ if (sys.argv[1] == "pyapi"):
 # -----------------------
 if (sys.argv[1] == "perlapi"):
   
+  # Pull EXT_PERLAPI out of the environment
+  extlist = os.environ["EXT_PERLAPI"].split(" ")
+
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtPerlIncludes.i", 'w')
 
