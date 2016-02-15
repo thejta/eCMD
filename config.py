@@ -72,7 +72,8 @@ for repo in ECMD_REPOS.split(" "):
 ECMD_REPOS_PLUGINS = ECMD_REPOS_PLUGINS[:-1] # Pull off trailing space
 buildvars["ECMD_REPOS_PLUGINS"] = ECMD_REPOS_PLUGINS
 ECMD_PLUGINS = ECMD_PLUGINS[:-1] # Pull off trailing space
-buildvars["ECMD_PLUGINS"] = ECMD_PLUGINS
+# Take our random order string and create a sorted string
+buildvars["ECMD_PLUGINS"] = ' ' . join(sorted(ECMD_PLUGINS.split(" ")))
 
 # The extensions logic is also similar to utils/plugins - but with yet another level of complication
 # The user can set EXTENSIONS before calling this script, and it's what the script will use
@@ -91,9 +92,10 @@ else:
 EXTENSIONS = EXTENSIONS.replace("template", "")
 # Now cleanup any multiple, leading or trailing spaces
 # Those throw off the make foreach looping
-re.sub("\s+", " ", EXTENSIONS)
+re.sub("\s+", " ", EXTENSIONS) # Multiple spaces into 1
 EXTENSIONS = EXTENSIONS.strip() # Remove leading/trailing whitespace
-buildvars["EXTENSIONS"] = EXTENSIONS
+# Take our random order string and create a sorted string
+buildvars["EXTENSIONS"] = ' ' . join(sorted(EXTENSIONS.split(" ")))
 
 # We now have our EXTENSIONS to use
 # However, every extension doesn't support every build type
