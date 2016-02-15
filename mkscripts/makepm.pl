@@ -1,17 +1,4 @@
-#!/bin/sh 
-#! -*- perl -*-
-
-eval '
-if [ "X$ECMDPERLBIN" = "X" ] ; then
- if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
- export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
- export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
- export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPERLLIB;
-fi
-exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
-'
-if 0;
-
+#!/usr/bin/perl
 # File makepm.pl created by Chris Engel
 
 use strict;
