@@ -223,7 +223,7 @@ install_setup:
 
 	@echo "Copying over setup perl modules ..."
 	@mkdir -p ${INSTALL_PATH}/bin/plugins
-	@$(foreach plugin, ${ECMD_REPOS_PLUGINS}, cp ${PLUGIN_${plugin}_PATH}/*setup.pm ${INSTALL_PATH}/bin/plugins/.;)
+	@$(foreach plugin, ${ECMD_PLUGINS}, cp ${PLUGIN_${plugin}_PATH}/*setup.pm ${INSTALL_PATH}/bin/plugins/.;)
 	@echo " "
 
 # Do final cleanup things such as fixing permissions
