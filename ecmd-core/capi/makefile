@@ -35,7 +35,9 @@ SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, ${SEDC_INCLUDES})
 VPATH := ${VPATH}:${OBJPATH}
 
 # Compile libecmd optimized
-SLIB_CFLAGS   := ${CFLAGS} ${OPT_LEVEL}
+# Set optimaztion level to 3 if not set in the included makefiles
+OPT_LEVEL   ?= -O3
+SLIB_CFLAGS := ${CFLAGS} ${OPT_LEVEL}
 
 # Direct where to get zlib from
 ifeq (${TARGET_ARCH},aix)

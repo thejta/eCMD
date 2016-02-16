@@ -39,7 +39,7 @@ MAKEBASE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 -include ${MAKEBASE_PATH}/makefile.config
 
 # If ECMD_ROOT isn't defined, makefile.config must not have been found
-# Lets help the person out and tell them how to get the file
+# Lets help the person out and tell them how to create the file
 ifndef ECMD_ROOT
 $(error makefile.config not found!  Please run config.py in ${MAKEBASE_PATH})
 endif
@@ -47,14 +47,13 @@ endif
 # *****************************************************************************
 # Some concluding base makefile info
 # *****************************************************************************
-# If not set in the included makefiles, set optimization level 3 for libecmd.so
-OPT_LEVEL ?= -O3
-
-# If not disabled in the included makefiles, enable build tests
-TEST_BUILD ?= yes
 
 # Include the makefile for this build type
 include ${ECMD_ROOT}/mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
+
+# If not disabled in the distro makefile, enable build tests
+# Disabling this is usually done when cross compiling
+TEST_BUILD ?= yes
 
 # Optionally include the makefile.override, this will override anything above
 -include ${ECMD_ROOT}/makefile.override
