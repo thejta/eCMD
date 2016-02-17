@@ -15,11 +15,6 @@ ifeq ($(strip $(ECMD_RELEASE)),)
  endif
 endif
 
-# Ok, now set our eCMD Path, if not set already
-ifeq ($(strip $(ECMD_PATH)),)
-  ECMD_PATH   := ${CTEPATH}/tools/ecmd/${ECMD_RELEASE}/
-endif
-
 # Link the client
 ecmd_databuff_compare_testcase: ecmd_databuff_compare_testcase.o
 	g++ -g -L${ECMD_PATH}/lib/ -ldl -lecmd_x86 ecmd_databuff_compare_testcase.o ${ECMD_PATH}/capi/ecmdClientCapi_x86.a -o ecmd_databuff_compare_testcase
