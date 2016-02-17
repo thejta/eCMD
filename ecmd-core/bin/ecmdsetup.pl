@@ -294,12 +294,6 @@ sub main {
   }
 
   ##########################################################################
-  # Set ECMD_HOME based upon the installPath figured out above
-  #
-  $ENV{"ECMD_HOME"} = $installPath;
-  $modified{"ECMD_HOME"} = 1;
-
-  ##########################################################################
   # Flag the ECMD_* variables as modified if appropriate
   #
   if (!$shortcut) {
@@ -317,7 +311,7 @@ sub main {
     $modified{"ECMD_PLUGIN"} = -1;
     $modified{"ECMD_PRODUCT"} = -1;
     $modified{"ECMD_ARCH"} = -1;
-    $modified{"ECMD_HOME"} = -1;
+    $modified{"ECMD_PATH"} = -1;
   }
 
   ##########################################################################
@@ -370,11 +364,15 @@ sub main {
   # Setup release path for use throughout the rest of the script
   my $releasePath = sprintf join("/", @releasePathArray);
 
+  ##########################################################################
+  # Set ECMD_PATH based upon the releasePath figured out above
+  #
+  $ENV{"ECMD_PATH"} = $releasePath;
+  $modified{"ECMD_PATH"} = 1;
 
   ##########################################################################
   # Add bin directory to path
   #
-
   if (!$cleanup) {
     $ENV{"PATH"} = $releasePath . "/bin:" . $ENV{"PATH"};
     $ENV{"PATH"} = $releasePath . "/" . $arch . "/bin:" . $ENV{"PATH"};
