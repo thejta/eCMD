@@ -207,7 +207,6 @@ else:
     # If there wasn't one found in the repos, see if the top level has one
     if (DISTRO_MAKEFILE == ""):
         mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
-        print(mkfile)
         if (os.path.exists(mkfile)):
             DISTRO_MAKEFILE = mkfile
         else:
