@@ -120,7 +120,6 @@ if (sys.argv[1] == "pyapi"):
 
   extfile.write("/*********** Start Files to swigify ***********/\n")
   extfile.write("// The extensions\n")
-  extfile.write("%include \"ecmdPluginExtensionSupport.H\"\n")
   
   # Now auto generate the rest based on the list
   for ext in extlist:
@@ -137,7 +136,6 @@ if (sys.argv[1] == "pyapi"):
   extfile.write("/*********** Start Insert Code ***********/\n")
   extfile.write("// Insert C code into the file swig generates\n")
   extfile.write("%{\n")
-  extfile.write("#include \"ecmdPluginExtensionSupport.H\"\n")
   
   # Now auto generate the rest based on the list
   for ext in extlist:
@@ -163,7 +161,6 @@ if (sys.argv[1] == "perlapi"):
 
   extfile.write("/*********** Start Files to swigify ***********/\n")
   extfile.write("// The extensions\n")
-  extfile.write("%include \"ecmdPluginExtensionSupport.H\"\n")
   
   # Now auto generate the rest based on the list
   for ext in extlist:
@@ -180,7 +177,6 @@ if (sys.argv[1] == "perlapi"):
   extfile.write("/*********** Start Insert Code ***********/\n")
   extfile.write("// Insert C code into the file swig generates\n")
   extfile.write("%{\n")
-  extfile.write("#include \"ecmdPluginExtensionSupport.H\"\n")
   
   # Now auto generate the rest based on the list
   for ext in extlist:

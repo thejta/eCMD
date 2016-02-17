@@ -7,14 +7,9 @@
 /**
  * @file ecmdDefines.H
  * @brief Provides a common place for all compiletime defines
- * NOTE : None of these defines are enabled in the CTE common environment, they are only intended to be
- *   used in a closed environment ZSE,FSP, etc
+ * NOTE : None of these defines are enabled by default
+ * They are only intended to be used in embeded, etc.. environments to reduce size
 */
-
-
-/* Include this file to determine which extensions are defined */
-/* This WILL NOT be done in the common code */
-//#include <ecmdPluginExtensionSupport.H>
 
 
 /*************************************************************************/
