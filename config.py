@@ -352,4 +352,11 @@ config.write("\n")
 for var in sorted(buildvars):
     config.write("export %s\n" % var)
 
+config.write("\n")
+
+# Write our optional extension makefile.config includes
+# This allows you to add values to variables defined above
+for ext in sorted(EXTENSIONS.split(" ")):
+    config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config"))
+
 config.close()
