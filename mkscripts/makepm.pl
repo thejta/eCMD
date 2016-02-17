@@ -62,7 +62,7 @@ if ($ARGV[1] =~ /ClientPerlapiFunc.H/ || $genAll) {
     }
 
     # This relies upon using the ending extern C } to close the namespace
-    if ($fileLine =~ "extern \"C\" {") {
+    if ($fileLine =~ "extern \"C\" \{") {
       $tempstr = sprintf("namespace %sPERLAPI {\n", uc($ARGV[0]));
       print OUT $tempstr;
       next;
