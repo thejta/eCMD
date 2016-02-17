@@ -95,7 +95,7 @@ else:
 EXTENSIONS = EXTENSIONS.replace("template", "")
 # Now cleanup any multiple, leading or trailing spaces
 # Those throw off the make foreach looping
-re.sub("\s+", " ", EXTENSIONS) # Multiple spaces into 1
+EXTENSIONS = re.sub("\s+", " ", EXTENSIONS) # Multiple spaces into 1
 EXTENSIONS = EXTENSIONS.strip() # Remove leading/trailing whitespace
 # Take our random order string and create a sorted string
 buildvars["EXTENSIONS"] = ' ' . join(sorted(EXTENSIONS.split(" ")))
@@ -357,6 +357,6 @@ config.write("\n")
 # Write our optional extension makefile.config includes
 # This allows you to add values to variables defined above
 for ext in sorted(EXTENSIONS.split(" ")):
-    config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config"))
+    config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config")) 
 
 config.close()
