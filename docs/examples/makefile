@@ -16,11 +16,6 @@ ifeq ($(strip $(ECMD_RELEASE)),)
  endif
 endif
 
-# Ok, now set our eCMD Path, if not set already
-ifeq ($(strip $(ECMD_PATH)),)
-  ECMD_PATH   := ${CTEPATH}/tools/ecmd/${ECMD_RELEASE}/
-endif
-
 # Check the ECMD_ARCH env var to see if we should build 32 or 64 bit
 ifeq ($(strip $(ECMD_ARCH)),)
   ifeq ($(strip $(OS)),AIX)
