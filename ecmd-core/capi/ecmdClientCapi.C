@@ -395,7 +395,7 @@ uint32_t ecmdSetup(const char* i_args) {
   char command[200];
   std::string retstr;
 
-  sprintf(command, "%s/tools/ecmd/%s/bin/ecmdsetup.pl ksh %s", getenv("CTEPATH"), getenv("ECMD_RELEASE"), i_args);
+  sprintf(command, "%s/bin/ecmdsetup.pl ksh %s", getenv("ECMD_PATH"), i_args);
 
   bool finished = false;
   for (int trial = 1; trial <= 10; ++trial)
