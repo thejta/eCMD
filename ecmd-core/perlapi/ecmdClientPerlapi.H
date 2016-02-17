@@ -154,27 +154,13 @@ Check ecmdExtPerlapi.H to see the supported extensions and how to use them
 
  <hr>
  @section perlv Perl Version
- eCMD Scripts need Perl version 5.8.1 which is installed as part of the CTE package on all supported sites.  All scripts using the perl module should start with the following: 
+ eCMD All scripts using the perl module should start with the below.  The perl version of ECMDPERLBIN needs to match the perl version used to build the perl module.
 
  <pre>
  #!/bin/ksh 
  #! -*- perl -*-
 
  eval '
- if [ "X$ECMDPERLBIN" = "X" ] ; then
-  if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi
-  echo $ECMD_ARCH | grep -q 64;
-  if [ $? -eq 0 ]; then  
-   export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
-   export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-   export CTEPERLLIB=$CTEPERLPATH/lib64/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/$ECMD_ARCH/perl/:$CTEPERLLIB;
-  else
-   export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-   export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-   export CTEPERLLIB=$CTEPERLPATH/lib/5.8.1:$CTEPATH/tools/ecmd/$ECMD_RELEASE/$ECMD_ARCH/perl:$CTEPERLLIB;
-  fi 
- fi
-
  exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
  '
  if 0;

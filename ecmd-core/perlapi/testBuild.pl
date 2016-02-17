@@ -2,30 +2,6 @@
 #! -*- perl -*-
 
 eval '
-if [ "X$ECMDPERLBIN" = "X" ]; then
- if [ "X$CTEPATH" = "X" ]; then echo "CTEPATH env var is not set."; exit 1; fi     
-     echo $ECMD_ARCH | grep -q 64;
-     if [ $? -eq 0 ]; then
-     export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin64/perl;
-     export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib64/5.8.1:$OUTPERL;
-     if [[ `uname` = "Linux" ]]; then
-       export LD_LIBRARY_PATH="$OUTLIB";
-     else
-       export LIBPATH="$OUTLIB";
-     fi
-   else
-     export ECMDPERLBIN=$CTEPATH/tools/perl/5.8.1/bin/perl;
-     export CTEPERLPATH=$CTEPATH/tools/perl/5.8.1;
-     export CTEPERLLIB=$CTEPERLLIB:$CTEPERLPATH/lib/5.8.1:$OUTPERL;
-     if [[ `uname` = "Linux" ]]; then
-       export LD_LIBRARY_PATH="$OUTLIB";
-     else
-       export LIBPATH="$OUTLIB";
-     fi
-   fi
-fi
-
 exec $ECMDPERLBIN -x -S $0 ${1+"$@"}
 '
 if 0;
