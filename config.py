@@ -5,8 +5,9 @@
 # Those variables are then written out to a makefile.config
 # makefile.config is included by makefile.base
 
-# Python imports
+# Python module imports
 import os
+import sys
 import glob
 import platform
 import textwrap
@@ -184,6 +185,39 @@ buildvars["DISTRO"] = DISTRO
 # Now that we have the distro and arch, look for the disto makefile
 # A number of standard distro configs are included
 # Those can be overriden in the included repos
+# If more than 1 override file is found in the included repos, throw an error
+# The user can set DISTRO_MAKEFILE and then we don't do this logic at all
+DISTRO_MAKEFILE = ""
+if "DISTRO_MAKEFILE" in os.environ:
+    DISTRO_MAKEFILE = os.environ["DISTRO_MAKEFILE"]
+else:
+    # This loop includes ecmd-core, which should never have mkconfigs
+    for repo in ECMD_REPOS.split(" "):
+        mkfile = os.path.join(ECMD_ROOT, repo, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        if os.path.exists(mkfile):
+            if (DISTRO_MAKEFILE != ""):
+                print("ERROR: conflicting distro makefiles found!")
+                print("ERROR: %s" % DISTRO_MAKE)
+                print("ERROR: %S" % mkfile)
+                print("Please set DISTRO_MAKEFILE to your choice and re-run this command")
+                sys.exit(1)
+            else:
+                DISTRO_MAKEFILE = mkfile
+    
+    # If there wasn't one found in the repos, see if the top level has one
+    if (DISTRO_MAKEFILE == ""):
+        mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        print(mkfile)
+        if (os.path.exists(mkfile)):
+            DISTRO_MAKEFILE = mkfile
+        else:
+            print("ERROR: No distro makefile found for your configuration!")
+            print("ERROR: DISTRO=%s, HOST_ARCH=%s, TARGET_ARCH=%s" % (DISTRO, HOST_ARCH, TARGET_ARCH))
+            print("ERROR: Please consider creating a makefile for your build type")
+            print("ERROR: Or set DISTRO_MAKEFILE to your makefile and re-run this command")
+            sys.exit(1)
+    
+buildvars["DISTRO_MAKEFILE"] = DISTRO_MAKEFILE
 
 ######## Default things we need setup for every compile ########
 # CC = the compiler

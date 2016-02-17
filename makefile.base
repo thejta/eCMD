@@ -49,7 +49,7 @@ endif
 # *****************************************************************************
 
 # Include the makefile for this build type
-include ${ECMD_ROOT}/mkconfigs/${DISTRO}/make-${HOST_ARCH}-${TARGET_ARCH}
+include ${DISTRO_MAKEFILE}
 
 # If not disabled in the distro makefile, enable build tests
 # Disabling this is usually done when cross compiling
