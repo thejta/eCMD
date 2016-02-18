@@ -332,6 +332,30 @@ buildvars["DOXYGEN_CAPI_PATH"] = DOXYGEN_CAPI_PATH
 buildvars["DOXYGEN_PERLAPI_PATH"] = DOXYGEN_PERLAPI_PATH
 buildvars["DOXYGEN_PYAPI_PATH"] = DOXYGEN_PYAPI_PATH
 
+# Pull the version out of ecmdStructs.H if not given
+DOXYGEN_ECMD_VERSION = ""
+if "DOXYGEN_ECMD_VERSION" not in os.environ:
+    verfile = open(os.path.join(ECMD_CORE, "capi", "ecmdStructs.H"), "r")
+    for line in verfile:
+        linesplit = line.split()
+        if ((len(linesplit) > 1) and (linesplit[1] == "ECMD_CAPI_VERSION")):
+            DOXYGEN_ECMD_VERSION = line.split()[2] # "M.m"
+            DOXYGEN_ECMD_VERSION = DOXYGEN_ECMD_VERSION[1:] # M.m"
+            DOXYGEN_ECMD_VERSION = DOXYGEN_ECMD_VERSION[0:-1] # M.m
+            break
+    verfile.close()
+else:
+    DOXYGEN_ECMD_VERSION = os.environ["DOXYGEN_ECMD_VERSION"]
+buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
+
+# Define where to get the doxygen executable from
+DOXYGENBIN = ""
+if "DOXYGENBIN" not in os.environ:
+    DOXYGENBIN = "/usr/bin/doxygen"
+else:
+    DOXYGENBIN = os.environ["DOXYGENBIN"]
+buildvars["DOXYGENBIN"] = DOXYGENBIN
+
 ##################
 # Write out all our variables to makefile.config
 
