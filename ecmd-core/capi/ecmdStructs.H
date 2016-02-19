@@ -2141,8 +2141,8 @@ struct ecmdDTSData{
 #define MEMPROC_CACHE_INHIBIT  0x00000001
 
 /**
- Defines for spy functions
+ Defines for spy/latch functions
 */
-#define FLAG_USE_SPARSE_SPY   0x00000002
+#define FLAG_USE_SPARSE_RING_ACCESS   0x00000002
 
 #endif
