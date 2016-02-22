@@ -260,7 +260,7 @@ if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
     DEFINES += " -DLINUX"
     GPATH += " " + OBJPATH
     CFLAGS += " -Wall"
-    if (TARGET_ARCH.find("64")):
+    if (TARGET_ARCH.find("64") != -1):
         CFLAGS += " -m64 -fPIC"
         LDFLAGS += " -m64 -fPIC"
         SLDFLAGS += " -shared -m64 -fPIC"
