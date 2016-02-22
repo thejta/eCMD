@@ -152,7 +152,15 @@ buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 # Now let's setup up all the info about our build environment
 
 # Grab the HOST_ARCH
-HOST_ARCH = platform.machine()
+HOST_ARCH = ""
+if (platform.system() == "AIX"):
+    atuple = platform.architecture()
+    if (atuple[0] == "32bit"):
+        HOST_ARCH="aix"
+    else:
+        HOST_ARCH="aix64"
+else:
+    HOST_ARCH = platform.machine()
 buildvars["HOST_ARCH"] = HOST_ARCH
 
 # Set the host base arch.  Just happens to be the first 3 characters
@@ -171,15 +179,18 @@ buildvars["TARGET_BARCH"] = TARGET_BARCH
 
 # Determine the distro
 DISTRO = ""
-dtuple = platform.linux_distribution()
-if ("Red Hat Enterprise" in dtuple[0]):
-    DISTRO = "el" + dtuple[1][0]
-elif (dtuple[0] == "Ubuntu"):
-    DISTRO = "ub" + dtuple[1]
-elif (dtuple[0] == "Fedora"):
-    DISTRO = "fc" + dtuple[1]
-elif (dtuple[0] == "debian"):
-    DISTRO = "deb" + dtuple[1][0]
+if (platform.system() == "Linux"):
+    dtuple = platform.linux_distribution()
+    if ("Red Hat Enterprise" in dtuple[0]):
+        DISTRO = "el" + dtuple[1][0]
+    elif (dtuple[0] == "Ubuntu"):
+        DISTRO = "ub" + dtuple[1]
+    elif (dtuple[0] == "Fedora"):
+        DISTRO = "fc" + dtuple[1]
+    elif (dtuple[0] == "debian"):
+        DISTRO = "deb" + dtuple[1][0]
+else:
+    DISTRO="aix"
 buildvars["DISTRO"] = DISTRO
 
 # Now that we have the distro and arch, look for the disto makefile
