@@ -1,0 +1,33 @@
+Overview
+========
+eCMD is the hardware access API layer for IBM Systems.
+
+The core of eCMD is a C programing API.  Built on top of that are a 
+*nix cmdline, python module and perl module
+
+--------   ---------   ------
+|python|   |cmdline|   |perl|
+--------   ---------   ------
+   \           |          /
+    \          |         /
+     \         |        /
+     ---------------------
+     | C Programming API |
+     ---------------------
+               |
+               |
+        ---------------
+        | eCMD Plugin |
+        ---------------
+
+Building
+========
+To build eCMD:
+~/ecmd$ ./config.py 
+Writing /home/user/ecmd/makefile.config
+
+~/ecmd$ make
+
+License
+=======
+See LICENSE
