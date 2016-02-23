@@ -2,7 +2,7 @@
 Syntax: cipinstruct [Chip[.ChipUnit]] start|sreset|stop|step [<steps>] [all] [-v]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Start/Stop/Step Processor instruction execution.  Processors are
                         looped upon to perform action they are not performed to all 

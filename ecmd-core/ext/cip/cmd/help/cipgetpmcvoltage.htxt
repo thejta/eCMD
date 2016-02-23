@@ -2,7 +2,7 @@
 Syntax: cipgetpmcvoltage <Chip> <Type> <Mode> [<Type> <Mode>] [-o<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Gets Processor Voltage Settings
 

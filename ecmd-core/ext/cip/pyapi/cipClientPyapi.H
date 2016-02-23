@@ -7,11 +7,11 @@
 
 /**
  * @file cipClientPyapi.H
- * @brief Cronus & IP eCMD Pyapi Extension
+ * @brief Converged IP Systems eCMD Pyapi Extension
 
  * Extension Owner : Matt Light
 
- @section cip CIP (Cronus/IP) Extension
+ @section cip CIP (Converged IP Systems) Extension
  This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
 
  Include files :

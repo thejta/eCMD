@@ -2,7 +2,7 @@
 Syntax: cipputvr <VrNum> <Data> [-i<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Write the specified data to a Processor VR 
                         (VMX Register)

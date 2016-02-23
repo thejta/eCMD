@@ -2,7 +2,7 @@
 Syntax: putmemproc <MemAddress> <Data> <Tag> <EccError>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Set the contents of mainstore using the processor
                         You can also set the tag and do an ecc error injec

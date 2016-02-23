@@ -2,7 +2,7 @@
 Syntax: ciprwreadtlb <Chip[.ChipUnit]> <StartLine> <Count>
         [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Displays TLB lines of data.
 

@@ -4,7 +4,7 @@ Syntax: ciprwreadmem <Chip[.ChipUnit]> <MemAddress> <NumBytes> <MemType> [-o<for
         ciprwreadmem <Chip[.ChipUnit]> <MemAddress> <MemType> [-exp -f[d|b]<filename>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Use RISCWatch to display the contents of mainstore.
 

@@ -2,7 +2,7 @@
 Syntax: cipgetmemproc <MemAddress> <NumBytes>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Display the contents of mainstore using the processor
                         In addition, the tag and ecc information is also displayed

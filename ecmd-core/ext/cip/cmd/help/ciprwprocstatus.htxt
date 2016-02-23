@@ -2,7 +2,7 @@
 Syntax: ciprwprocstatus <Chip[.ChipUnit]>
         [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Displays status of the processor via RISCWatch
 

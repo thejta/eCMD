@@ -2,7 +2,7 @@
 Syntax: cipporeputscom <Chip[.ChipUnit]> <ScanCommAddr> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
         [-append | -replace | -noop...] [-scaninit | -scominit] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
-        ECMD:            CIP (Cronus/IP) Extension
+        ECMD:            CIP (Converged IP) Extension
 
         Function:       Write the specified data to the specified chip using scancom.
 

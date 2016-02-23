@@ -1,7 +1,7 @@
 
 Syntax: cipporeloadimage <Chip>  <addr[-a#] [-k#] [-n#] [-s#] [-p#] 
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Load PORE image into mainstore at specified address
 

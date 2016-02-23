@@ -4,7 +4,7 @@ Syntax: cipgetmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
         cipgetmempba <MemAddress>  [-exp -f[d|b]<filename>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Display the contents of mainstore using the processor
 

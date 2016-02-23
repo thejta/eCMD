@@ -2,7 +2,7 @@
 Syntax: ciprwreadcache <Chip[.ChipUnit]> <StartLine> <Count> <CacheType>
         [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Displays full cache line of cache data.
 

@@ -1,6 +1,6 @@
 Syntax: cipputmemprocvar <AddressType> <Address> [bytes] <data> [-partitionId <partitionId>]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Write System Mainstore through the processor chip 
                         using an effective address.

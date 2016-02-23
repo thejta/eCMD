@@ -1,7 +1,7 @@
 
 Syntax: cipporequeryimage <Chip>  [-a#] [-k#] [-n#] [-s#] [-p#] 
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Query PORE image information 
 

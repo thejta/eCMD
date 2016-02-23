@@ -7,7 +7,7 @@
 
 /**
  * @file cipStructs.H
- * @brief Cronus & IP eCMD Extension Structures
+ * @brief Converged IP System Extension Structures
 
  * Extension Owner : Matt Light
 */

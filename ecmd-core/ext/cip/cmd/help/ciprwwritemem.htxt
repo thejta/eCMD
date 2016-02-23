@@ -4,7 +4,7 @@ Syntax: ciprwwritemem <Chip[.ChipUnit]> <MemAddress> <Data> <MemType> [-i<format
         ciprwwritemem <Chip[.ChipUnit]> <AddressOffset> <MemType> -fd<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Use RISCWatch to modify the contents of mainstore.
 

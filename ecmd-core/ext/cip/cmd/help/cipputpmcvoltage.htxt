@@ -3,7 +3,7 @@ Syntax: cipputpmcvoltage <Chip> <Type> <Mode> <Value> [<Type> <Mode> <Value>]
         [-step <size>] [-i<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Sets Processor Voltage Settings
 

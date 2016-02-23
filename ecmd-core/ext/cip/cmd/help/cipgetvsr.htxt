@@ -2,7 +2,7 @@
 Syntax: cipgetvsr <VsrStartNum> [<numEntries>] [-o<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Gets Processor VSR (VSX Register).
 

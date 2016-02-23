@@ -5,7 +5,7 @@ Syntax: cipputmempba <MemAddress> <Data> [-i<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
         [-mode <PbaMode>]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Write the specified data to mainstore using the Processor 
 

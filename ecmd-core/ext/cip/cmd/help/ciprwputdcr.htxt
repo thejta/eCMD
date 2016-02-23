@@ -2,7 +2,7 @@
 Syntax: ciprwputdcr [Chip[.ChipUnit]] <DcrNum> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Write the specified data to a Processor DCR
 

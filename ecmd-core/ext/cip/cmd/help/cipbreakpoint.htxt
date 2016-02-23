@@ -2,7 +2,7 @@
 Syntax: cipbreakpoint set|clear <Type> <Address>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#] [-t#]
 
-        ECMD:           CIP (Cronus/IP) Extension
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Set|Clear a processor hardware breakpoint using a real address
 

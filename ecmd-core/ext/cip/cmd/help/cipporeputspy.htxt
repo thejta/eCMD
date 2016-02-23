@@ -2,7 +2,7 @@
 Syntax: cipporeputspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data>  [-b<modifier>]
         [-append | -replace | -noop...] [-scaninit | -scominit] [-coe]
                               
-        ECMD:           Core Common Function
+        ECMD:           CIP (Converged IP) Extension
 
         Function:       Write data to a spy.  Works with idial, edial and alias spy's.
 
