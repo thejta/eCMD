@@ -23,7 +23,7 @@ GENERATED_SWIG_INPUT := ecmdExtPyIncludes.i ecmdExtPyInserts.i
 SWIG_INPUT := ecmdClientPyapi.i ecmdCommon.i ecmdExtPyIncludes.i ecmdExtPyInserts.i
 
 # Setup all the options to pass into swig
-SWIGFLAGS := ${SWIGFLAGS} -c++ -python -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH} -I../pyapi -I../pyapi/distro/${DISTRO} -DECMD_PYAPI
+SWIGFLAGS := ${SWIGFLAGS} -c++ -python -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH} -I../pyapi -I../pyapi/distro -DECMD_PYAPI
 
 #### Setup our CFLAGS and VPATH
 CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${ECMD_CORE}/cmd -I${SRCPATH}
