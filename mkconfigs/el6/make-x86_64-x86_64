@@ -1,5 +1,5 @@
 ##
-# All compiler options
+# Any compiler customization
 ##
 ifeq ($(strip $(shell if [[ -d /opt/rh/devtoolset-2 ]]; then echo found; fi)),found)
   CC   := /opt/rh/devtoolset-2/root/usr/bin/g++
@@ -21,14 +21,12 @@ endif
 SWIG := /usr/local/swig/bin/swig
 
 ##
-# All perl build options
+# Any perl customization
 ##
 PERLINC := -I/usr/lib64/perl5/CORE
-ECMDPERLBIN := /usr/bin/perl
-export ECMDPERLBIN
 
 ##
-# All python build options
+# Any python customization
 ##
 PYINC := -I/usr/include/python2.6
 CREATE_PY3API := no

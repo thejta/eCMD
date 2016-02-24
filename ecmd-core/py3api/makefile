@@ -1,5 +1,4 @@
 # Base info and default build rules
-PYTHON_NAME := python3
 
 # *****************************************************************************
 # Include the common base makefile
@@ -19,11 +18,11 @@ SWIG_SOURCE := ecmdClientPy3apiSwig.C
 # Set the VPATH to pickup all the python 2 files
 VPATH := ../pyapi:${VPATH}
 
+# Override what will be the python2 default
+PYTHON_NAME := python3
+
 # Set testBuild.py to use python3
-# Allow the user a way to set the python3 binary path
-ifneq ($(strip ${ECMDPYTHON3BIN}),)
-  ECMDPYTHONBIN := ${ECMDPYTHON3BIN}
-endif
+ECMDPYTHONBIN := ${ECMDPYTHON3BIN}
 
 # Set the CFLAGS to pickup out of the pyapi directory
 CFLAGS := -I../pyapi ${CFLAGS}

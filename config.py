@@ -240,6 +240,48 @@ buildvars["DISTRO_MAKEFILE"] = DISTRO_MAKEFILE
 # AR = the archive creator
 # DEFINES = -D defines to pass thru
 
+# Assign default values, unless the user set them before calling the script
+# The distro makefiles also have the ability to override
+CC = ""
+CC_R = ""
+LD = ""
+LD_R = ""
+AR = ""
+# Compiler
+if "CC" in os.environ:
+    CC = os.environ["CC"]
+else:
+    CC = "/usr/bin/g++"
+buildvars["CC"] = CC
+
+# Compiler Reentrant
+if "CC_R" in os.environ:
+    CC_R = os.environ["CC_R"]
+else:
+    CC_R = "/usr/bin/g++"
+buildvars["CC_R"] = CC_R
+
+# Linker
+if "LD" in os.environ:
+    LD = os.environ["LD"]
+else:
+    LD = "/usr/bin/g++"
+buildvars["LD"] = LD
+
+# Linker Reentrant
+if "LD_R" in os.environ:
+    LD_R = os.environ["LD_R"]
+else:
+    LD_R = "/usr/bin/g++"
+buildvars["LD_R"] = LD_R
+
+# Archive
+if "AR" in os.environ:
+    AR = os.environ["AR"]
+else:
+    AR = "/usr/bin/ar"
+buildvars["AR"] = AR
+
 # All objects from the build go to a common dir at the top level
 # OBJPATH includes TARGET_ARCH to allow for side by side builds
 # This does come with the stipulation that all source must have unique names
@@ -300,6 +342,42 @@ buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
 buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
+
+# Use the default path for a swig install
+# The user can override before calling this script or in the distro makefile
+SWIG = ""
+if "SWIG" in os.environ:
+    SWIG = os.environ["SWIG"]
+else:
+    SWIG = "/usr/bin/swig"
+buildvars["SWIG"] = SWIG
+
+# Use the default path for a perl install
+# The user can override before calling this script or in the distro makefile
+ECMDPERLBIN = ""
+if "ECMDPERLBIN" in os.environ:
+    ECMDPERLBIN = os.environ["ECMDPERLBIN"]
+else:
+    ECMDPERLBIN = "/usr/bin/perl"
+buildvars["ECMDPERLBIN"] = ECMDPERLBIN
+
+# Use the default path for a python install
+# The user can override before calling this script or in the distro makefile
+ECMDPYTHONBIN = ""
+if "ECMDPYTHONBIN" in os.environ:
+    ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
+else:
+    ECMDPYTHONBIN = "/usr/bin/python"
+buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
+
+# Use the default path for a python3 install
+# The user can override before calling this script or in the distro makefile
+ECMDPYTHON3BIN = ""
+if "ECMDPYTHON3BIN" in os.environ:
+    ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
+else:
+    ECMDPYTHON3BIN = "/usr/bin/python3"
+buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
 
 ##################
 # Setup info around an install

@@ -1,27 +1,20 @@
 ##
-# All compiler options
+# Any compiler customization
 ##
-CC   := /usr/bin/g++
-CC_R := ${CC}
-LD   := ${CC}
-LD_R := ${CC_R}
-AR   := /usr/bin/ar
 
 ##
-# The location of SWIG and any swig options
+# Any swig customization
 ##
 SWIG := /usr/local/swig/bin/swig
 
 ##
-# All perl build options
+# Any perl customization
 ##
 PERLINC := -I/usr/lib64/perl5/CORE
 PERLCFLAGS := -mcmodel=medium
-ECMDPERLBIN := /usr/bin/perl
-export ECMDPERLBIN
 
 ##
-# All python build options
+# Any python customization
 ##
 PYINC := -I/usr/include/python2.6
 PYCFLAGS := -mcmodel=medium

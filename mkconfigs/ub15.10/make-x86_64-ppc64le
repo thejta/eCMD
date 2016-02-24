@@ -1,5 +1,5 @@
 ##
-# All compiler options
+# Any compiler customization
 ##
 CC   := /usr/bin/powerpc64le-linux-gnu-g++-4.9
 CC_R := ${CC}
@@ -11,23 +11,19 @@ LDFLAGS  := ${LDFLAGS} -L /usr/local/ppc64le/lib/powerpc64le-linux-gnu -lz
 SLDFLAGS := ${SLDFLAGS} -L /usr/local/ppc64le/lib/powerpc64le-linux-gnu
 
 ##
-# The location of SWIG and any swig options
+# Any swig customization
 ##
-SWIG := /usr/bin/swig
 
 ##
-# All perl build options
+# Any perl customization
 ##
 PERLINC := -I/usr/lib/x86_64-linux-gnu/perl/5.20.2/CORE
-ECMDPERLBIN := /usr/bin/perl
-export ECMDPERLBIN
 
 ##
-# All python build options
+# Any python customization
 ##
 PYINC    := -I/usr/include/python2.7
 PY3INC   := -I/usr/include/python3.4
-ECMDPYTHON3BIN := /usr/bin/python3
 
 # Can't test the build on a cross compile
 TEST_BUILD := no

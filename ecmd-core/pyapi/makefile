@@ -46,7 +46,6 @@ EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_PYAPI},$(shell if [ -e ${OUTLIB}/lib
 
 # Set our defaults for these values, but they can be overriden by the py3api makefile
 PYTHON_NAME ?= python2
-ECMDPYTHONBIN ?= /usr/bin/python
 VERINSTALL ?= pyapi_install
 
 # The reference to libecmd.so has to go at the end of the link in Ubuntu
