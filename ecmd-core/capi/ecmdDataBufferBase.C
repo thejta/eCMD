@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
-#ifdef AIX
+#if defined (AIX) && defined (_LP64)
   #include "/usr/include/zlib.h"
 #else
   #include <zlib.h>
