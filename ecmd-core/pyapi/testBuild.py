@@ -73,7 +73,7 @@ print("\n\n")
 testNum = 0
 
 testNum+=1; print("dll %02d) Load the plugin" % testNum)
-rc = ecmd.ecmdLoadDll(os.environ['ECMD_DLL_FILE'], "ver13,ver14")
+rc = ecmd.ecmdLoadDll(os.environ['ECMD_DLL_FILE'], "ver13,ver14,ver15")
 if (rc):
     print("ERROR: problem on dll load")
 
