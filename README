@@ -36,6 +36,14 @@ To build eCMD:
 Writing /home/user/ecmd/makefile.config
 ~/ecmd$ make
 
+Install
+=======
+~/ecmd$ make install
+
+Documentation
+=============
+~/ecmd$ make doxygen
+
 License
 =======
 See LICENSE
