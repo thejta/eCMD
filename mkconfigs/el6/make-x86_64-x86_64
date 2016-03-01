@@ -1,24 +1,13 @@
 ##
 # Any compiler customization
 ##
-ifeq ($(strip $(shell if [[ -d /opt/rh/devtoolset-2 ]]; then echo found; fi)),found)
-  CC   := /opt/rh/devtoolset-2/root/usr/bin/g++
-else
-  CC   := /usr/bin/g++
-endif
-CC_R := ${CC}
-LD   := ${CC}
-LD_R := ${CC_R}
-ifeq ($(strip $(shell if [[ -d /opt/rh/devtoolset-2 ]]; then echo found; fi)),found)
-  AR   := /opt/rh/devtoolset-2/root/usr/bin/ar
-else
-  AR   := /usr/bin/ar
-endif
 
 ##
 # The location of SWIG and any swig options
 ##
-SWIG := /usr/local/swig/bin/swig
+ifeq (${SWIG},/usr/bin/swig)
+$(error The swig that ships with el7 is down level.  Please install swig 2.0.11 or later.)
+endif
 
 ##
 # Any perl customization
