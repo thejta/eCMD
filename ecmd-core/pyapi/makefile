@@ -117,7 +117,7 @@ ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} $^ -o ${OUTPY}/${SO_TARGET} ${LDLIBS} ${EXTLIBS}
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PYSLDFLAGS} ${EXTLIBS} $^ -o ${OUTPY}/${SO_TARGET} ${LDLIBS}
 
 # *****************************************************************************
 # Autogenerate some of the extension swig
