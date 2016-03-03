@@ -36,7 +36,8 @@ MAKEBASE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Optionally include makefile.config, so we don't get a make error if not there
 # But if it isn't there, then we'll trigger the error below
--include ${MAKEBASE_PATH}/makefile.config
+MAKEFILE_CONFIG_NAME ?= makefile.config
+-include ${MAKEBASE_PATH}/${MAKEFILE_CONFIG_NAME}
 
 # If ECMD_ROOT isn't defined, makefile.config must not have been found
 # Lets help the person out and tell them how to create the file
