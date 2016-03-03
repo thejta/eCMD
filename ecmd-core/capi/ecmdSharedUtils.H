@@ -209,6 +209,17 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
 /**
  @brief Returns a formatted string containing the data in the given ecmdChipTarget
  @return String with formatted target data
+ @param i_target ecmdChipTarget containing data to format into string
+ @param i_displayMode Mode to format data
+
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit/core, thread
+ TARGET STATES : Must be Initialized
+ */
+std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_PLUGIN_MODE);
+
+/**
+ @brief Returns a formatted string containing the data in the given ecmdChipTarget
+ @return String with formatted target data
  @param i_target const ecmdChipTarget containing data to format into string
  @param i_displayMode Mode to format data
 
