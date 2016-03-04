@@ -75,7 +75,8 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
   bool verbose    = false;      ///< Display iar after each step
   ecmdDataBuffer  iarData;      ///< Data read from IAR
   int  steps = 1;               ///< Number of steps to run
-  ecmdChipData chipData;        ///< So we can determine the processor
+  ecmdChipData chipData;        ///< So we can determine if it's P6 or not
+  bool p6Mode = false;          ///< To save us on string compares below
   ecmdLoopMode_t loopMode;      ///< The mode in which we will loop over threads
 
   /************************************************************************/
@@ -175,12 +176,12 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
   } else {
 
-    // Get the chip data for the special code below
+    // Get the chip data for the special P6 code below
     // We need to do 1 loop so we can get a valid target for the ecmdGetChipData call
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState = ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+    target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
     rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
     if (rc) return rc;
@@ -191,7 +192,11 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       break; // Only one time through
     }
 
-    thread = 0xFFFFFFFF; // This is a signal to the plugin to ignore the thread
+    if (chipData.chipType == "p6") {
+      p6Mode = true;
+    } else {
+      thread = 0xFFFFFFFF; // This is a signal to the plugin to ignore the thread
+    }
 
     /* Loop through the steps so we step all procs in somewhat sync */
     for (int step = 0; step < steps; step++) {
@@ -200,7 +205,10 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
       target.chipType = ECMD_CHIPT_PROCESSOR;
       target.chipTypeState = ECMD_TARGET_FIELD_VALID;
       target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-      if (validChipFound == true) {
+      if (p6Mode == true) {
+        target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+        target.threadState = ECMD_TARGET_FIELD_UNUSED;
+      } else if (validChipFound == true) {
         target.chipType = validTarget.chipType;
         target.chipUnitType = validTarget.chipUnitType;
         target.chipUnitTypeState = validTarget.chipUnitTypeState;
@@ -236,10 +244,11 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
         threadFound = false;
         firstThreadLoop = true;
-        /* Added hack for occ chipunit for p8 - MKL 04/10/2012 */
-        /* On some chips, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
+        /* On P7, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
         /* This code will accomplish that by looping over cores in order above, but threads in reverse below */
-        if (target.chipUnitType == "occ") {
+        /* And, of course, we don't loop over threads in P6, so this stays the same - JTA 01/17/09 */
+        /* Added hack for occ chipunit for p8 - MKL 04/10/2012 */
+        if (p6Mode || (target.chipUnitType == "occ")) {
           subTarget = target;
           loopMode = ECMD_DYNAMIC_LOOP;
         } else {
@@ -403,7 +412,7 @@ uint32_t cipBreakpointUser(int argc, char* argv[]){
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_FIELD_WILDCARD;
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
   
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
@@ -504,7 +513,7 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
 
   /* Walk through the arguments and create our list of vrs */
@@ -654,7 +663,7 @@ uint32_t cipPutVrUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
   entry = atoi(argv[0]);
 
@@ -1453,7 +1462,7 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  target.coreState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
 
   std::string  processingUnitName;
 
@@ -1637,7 +1646,7 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
   subTarget = target;
 
@@ -1782,7 +1791,7 @@ uint32_t cipPutVsrUser(int argc, char * argv[]) {
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = target.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
   entry = atoi(argv[0]);
 
