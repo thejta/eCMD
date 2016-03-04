@@ -44,7 +44,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "15.0"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "14.2"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -281,6 +281,38 @@ typedef enum {
   ECMD_DLL_ENV_HW,              ///< Hardware Environment
   ECMD_DLL_ENV_SIM              ///< Simulation Environment
 } ecmdDllEnv_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return what product the dll supports
+*/
+typedef enum {
+  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
+  ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
+  ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
+  ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
+  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
+  ECMD_DLL_PRODUCT_P8S1,        ///< P8/S1 Project
+  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
+  ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
+  ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
+  ECMD_DLL_PRODUCT_P9,          ///< P9 Project
+} ecmdDllProduct_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
+*/
+typedef enum {
+  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
+  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
+  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
+  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
+  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
+  ECMD_DLL_SCAND,               ///< Running against the ScanD plugin
+  ECMD_DLL_BML,                 ///< Running against the BML plugin
+  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
+  ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
+  ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
+} ecmdDllType_t;
 
 /**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
@@ -633,13 +665,13 @@ struct addrHashEntry {
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 struct ecmdDllInfo {
-  std::string   dllType;        ///< Dll instance type running
-  std::string   dllProduct;     ///< Dll product supported
-  std::string   dllProductType; ///< Dll product type currently configured
-  ecmdDllEnv_t  dllEnv;         ///< Dll environment (Simulation vs Hardware)
-  std::string   dllBuildDate;   ///< Date the Dll was built
-  std::string   dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
-  std::string   dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
+  ecmdDllType_t         dllType;        ///< Dll instance type running
+  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllProductType; ///< Dll product type currently configured
+  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
+  std::string           dllBuildDate;   ///< Date the Dll was built
+  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
 };
 
 /**
@@ -679,16 +711,129 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
-  uint8_t     chipUnitNum;      ///< number of the chip unit to access
+  // In the perl module, the union construct isn't supported
+  // We need to define these variables without the union so that the perl module interface is generated correctly
+  // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
+  // This also now pulled from doxygen because it can't represent unions properly
+  // Union also not supported by python module - JTA 7/29/14
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
+  union {
+#endif
+    /**
+     @brief which core on the chip to access.  <b>NOTE</b>: union'd with chipUnitNum.  Details below.
+
+     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.core = 0;
+     target.chipUnitNum = 1;
+     printf("target.core = %d\n", target.core);
+     target.core = 2;
+     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
+
+     <b>Program Output</b>
+     target.core = 1
+     target.chipUnitNum = 2
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
+     */
+    uint8_t     core;
+
+    /**
+     @brief which chip unit on a chip to access. <b>NOTE</b>: union'd with core.  Details below.
+
+     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.core = 0;
+     target.chipUnitNum = 1;
+     printf("target.core = %d\n", target.core);
+     target.core = 2;
+     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
+
+     <b>Program Output</b>
+     target.core = 1
+     target.chipUnitNum = 2
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
+
+     @see chipUnitType
+     */
+    uint8_t     chipUnitNum;
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
+  };
+#endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
-  uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
+  uint32_t    unitId;       ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state
   ecmdChipTargetState_t slotState;            ///< slot field state
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-  ecmdChipTargetState_t chipUnitNumState;     ///< chipUnitNum field state
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
+  union {
+#endif
+    /**
+     @brief core field state.  <b>NOTE</b>: union'd with chipUnitNumState.  Details below.
+
+     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
+     printf("target.coreState = %s\n", target.coreState);
+     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
+
+     <b>Program Output</b>
+     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
+     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
+     */
+    ecmdChipTargetState_t coreState;
+
+    /**
+     @brief chipUnitNum field state.  <b>NOTE</b>: union'd with coreState.  Details below.
+
+     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
+     and vice versa.  Example:
+
+     <pre>
+     <b>Code Snippet</b>
+     target.coreState = ECMD_TARGET_FIELD_VALID;
+     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
+     printf("target.coreState = %s\n", target.coreState);
+     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
+     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
+
+     <b>Program Output</b>
+     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
+     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
+     </pre>
+
+     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
+     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
+
+     @see chipUnitTypeState
+     */
+    ecmdChipTargetState_t chipUnitNumState;
+#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
+  };
+#endif
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
 };
@@ -700,7 +845,7 @@ cage(0),
 node(0),
 slot(0),
 pos(0),
-chipUnitNum(0),
+core(0),
 thread(0),
 unitId(0),
 cageState(ECMD_TARGET_UNKNOWN_STATE),

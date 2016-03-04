@@ -704,10 +704,51 @@ uint32_t ecmdDisplayDllInfo() {
     return rc;
   }
   ecmdOutput("================================================\n");
-  printed = "Dll Type         : " + info.dllType + "\n";
+  printed = "Dll Type         : ";
+  if (info.dllType == ECMD_DLL_STUB)
+    printed += "Stub\n";
+  else if (info.dllType == ECMD_DLL_STUB)
+    printed += "Stub\n";
+  else if (info.dllType == ECMD_DLL_CRONUS)
+    printed += "Cronus\n";
+  else if (info.dllType == ECMD_DLL_IPSERIES)
+    printed += "IP-Series\n";
+  else if (info.dllType == ECMD_DLL_ZSERIES)
+    printed += "Z-Series\n";
+  else if (info.dllType == ECMD_DLL_SCAND)
+    printed += "ScanD\n";
+  else if (info.dllType == ECMD_DLL_BML)
+    printed += "BML\n";
+  else if (info.dllType == ECMD_DLL_MAMBO)
+    printed += "MAMBO\n";
+  else if (info.dllType == ECMD_DLL_RISCWATCH)
+    printed += "RiscWatch\n";
+  else if (info.dllType == ECMD_DLL_LINUXHOSTTOOL)
+    printed += "Linux Host Tool\n";
+  else 
+    printed += "Unknown\n";
   ecmdOutput(printed.c_str());
 
-  printed = "Dll Product      : " + info.dllProduct + "\n";
+  printed = "Dll Product      : ";
+  if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ) {
+    printed += "Eclipz\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_APOLLO) {
+    printed += "Apollo\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHON) {
+    printed += "Gryphon\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P8S1) {
+    printed += "P8/S1\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHONP) {
+    printed += "Artemis (zGr+)\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_STRADALE) {
+    printed += "Stradale\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_OPENPOWER) {
+    printed += "OpenPower\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P9) {
+    printed += "P9\n";
+  } else {
+    printed += "Unknown\n";
+  }
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product Type : ";
@@ -2122,15 +2163,34 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += "\n";
       printed += frontFPPTxt;
       printed += "\t \t value : ecmdDllType_t         dllType = ";
-      printed += dummy->dllType;
-      printed += "\n";
+
+      if (dummy->dllType == ECMD_DLL_STUB)
+        printed += "Stub\n";
+      else if (dummy->dllType == ECMD_DLL_CRONUS)
+        printed += "Cronus\n";
+      else if (dummy->dllType == ECMD_DLL_IPSERIES)
+        printed += "IP-Series\n";
+      else if (dummy->dllType == ECMD_DLL_ZSERIES)
+        printed += "Z-Series\n";
+      else if (dummy->dllType == ECMD_DLL_SCAND)
+        printed += "ScanD\n";
+      else if (dummy->dllType == ECMD_DLL_LINUXHOSTTOOL)
+        printed += "Linux Host Tool\n";
+      else 
+        printed += "Unknown\n";
+
       debugFunctionOuput(printed.c_str());
+
 
       printed = frontFPPTxt;
       printed += "\t \t value : ecmdDllProduct_t      dllProduct = ";
-      printed += dummy->dllProduct;
-      printed += "\n";
+
+      if (dummy->dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
+        printed += "Eclipz\n";
+      else
+        printed += "Unknown\n";
       debugFunctionOuput(printed.c_str());
+
 
       printed = frontFPPTxt;
       printed += "\t \t value : ecmdDllEnv_t          dllEnv = ";
