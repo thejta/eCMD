@@ -283,6 +283,38 @@ typedef enum {
 } ecmdDllEnv_t;
 
 /**
+ @brief This is used by ecmdQueryDllInfo to return what product the dll supports
+*/
+typedef enum {
+  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
+  ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
+  ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
+  ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
+  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
+  ECMD_DLL_PRODUCT_P8S1,        ///< P8/S1 Project
+  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
+  ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
+  ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
+  ECMD_DLL_PRODUCT_P9,          ///< P9 Project
+} ecmdDllProduct_t;
+
+/**
+ @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
+*/
+typedef enum {
+  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
+  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
+  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
+  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
+  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
+  ECMD_DLL_SCAND,               ///< Running against the ScanD plugin
+  ECMD_DLL_BML,                 ///< Running against the BML plugin
+  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
+  ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
+  ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
+} ecmdDllType_t;
+
+/**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */
 typedef enum {
@@ -633,13 +665,13 @@ struct addrHashEntry {
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 struct ecmdDllInfo {
-  std::string   dllType;        ///< Dll instance type running
-  std::string   dllProduct;     ///< Dll product supported
-  std::string   dllProductType; ///< Dll product type currently configured
-  ecmdDllEnv_t  dllEnv;         ///< Dll environment (Simulation vs Hardware)
-  std::string   dllBuildDate;   ///< Date the Dll was built
-  std::string   dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
-  std::string   dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
+  ecmdDllType_t         dllType;        ///< Dll instance type running
+  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllProductType; ///< Dll product type currently configured
+  ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
+  std::string           dllBuildDate;   ///< Date the Dll was built
+  std::string           dllCapiVersion; ///< should be set to ECMD_CAPI_VERSION
+  std::string           dllBuildInfo;   ///< Any additional info the Dll/Plugin would like to pass
 };
 
 /**
