@@ -113,7 +113,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (l_sparse)
   {
-      spy_flags |= FLAG_USE_SPARSE_RING_ACCESS;
+      spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
     
   
@@ -646,7 +646,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (l_sparse)
   {
-      spy_flags |= FLAG_USE_SPARSE_RING_ACCESS;
+      spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
 
   /************************************************************************/

@@ -560,7 +560,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (use_sparse)
   {
-      ringMode = FLAG_USE_SPARSE_RING_ACCESS;
+      ringMode |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
 
   
@@ -1558,7 +1558,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (use_sparse)
   {
-      ringMode = FLAG_USE_SPARSE_RING_ACCESS;
+      ringMode |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
 
   /************************************************************************/

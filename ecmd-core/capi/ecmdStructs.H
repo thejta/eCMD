@@ -2301,9 +2301,18 @@ struct ecmdDTSData{
 */
 #define MEMPROC_CACHE_INHIBIT  0x00000001
 
+
 /**
- Defines for spy/latch functions
+ Defines for ring/spy/latch functions 
 */
-#define FLAG_USE_SPARSE_RING_ACCESS   0x00000002
+#define ECMD_RING_MODE_HEADER_CHECK            0x00000000
+#define ECMD_RING_MODE_MULTICAST               0x80000000
+#define ECMD_RING_MODE_SET_PULSE_NO_OPCG_COND  0x40000000
+#define ECMD_RING_MODE_NO_HEADER_CHECK         0x20000000
+#define ECMD_RING_MODE_SET_PULSE_NSL           0x10000000
+#define ECMD_RING_MODE_SET_PULSE_SL            0x08000000
+#define ECMD_RING_MODE_SET_PULSE_ALL           0x04000000
+#define ECMD_RING_MODE_SPARSE_ACCESS           0x02000000
+#define ECMD_RING_MODE_MULTICAST_MASK          0x000000FF
 
 #endif

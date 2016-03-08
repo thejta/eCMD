@@ -629,6 +629,50 @@ uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
 uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
 
 /**
+ @brief Scans the ring from the selected chip into the data buffer
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see putRingHidden
+
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode = 0); 
+
+/**
+ @brief Scans ring from the data buffer into the selected chip in the selected ring
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to write to
+ @param i_data DataBuffer object that holds data to write into ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see getRingHidden
+
+
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode = 0); 
+
+/**
  @brief Performs sparse scan of the ring from the selected chip into the data buffer.
  A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
  @retval ECMD_INVALID_RING if ringname is not valid for target
@@ -642,7 +686,7 @@ uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @param i_mask DataBuffer object that holds mask value of bits to read from the ring
- @param i_flags Default value is 0.  Will be used in the future for multicast function.
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
  @see putRingSparse
 
 
@@ -650,7 +694,7 @@ uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
  TARGET STATES : Unused<br>
 
 */
-uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags = 0); 
+uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_mode = 0); 
 
 /**
  @brief Performs sparse scan of ring from the data buffer into the selected chip in the selected ring.
@@ -668,7 +712,7 @@ uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @param i_mask DataBuffer object that holds mask value of bits to write to the ring
- @param i_flags Default value is 0.  Will be used in the future for multicast function.
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
  @see getRingSparse
 
 
@@ -676,7 +720,7 @@ uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  TARGET STATES : Unused<br>
 
 */
-uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags = 0); 
+uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_mode = 0); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -741,7 +785,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @param o_data list of Entries containing all latches found matching i_latchName
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
  @param i_mode LatchName search mode (full or partial names)
- @param i_ring_mode Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
@@ -765,7 +809,7 @@ uint32_t getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const
  @param i_data DataBuffer object that holds data to write into latch
  @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
  @param i_mode LatchName search mode
- @param i_ring_mode Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
  @param i_startBit Startbit in latchname to insert data
  @param i_numBits Number of bits to insert from startbit
  @param o_matches Number of latchs found that matched your name and data was inserted
@@ -1256,7 +1300,7 @@ uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, cons
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_data DataBuffer object that holds data read from spy
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
@@ -1279,7 +1323,7 @@ uint32_t getSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_enumValue Enum value read from the spy
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
@@ -1301,7 +1345,7 @@ uint32_t getSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std
  @param o_inLatchData Return the data for the input to the eccGroup
  @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
  @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
  @retval nonzero if unsuccessful
 
  NOTE : This function is ring cache enabled<br>
@@ -1323,7 +1367,7 @@ uint32_t getSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpC
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to read from
  @param o_groups List of structures containing the group data and deadbits mask
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
@@ -1429,7 +1473,7 @@ uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, cons
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to write to
  @param i_data DataBuffer object that holds data to write into spy
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
@@ -1450,7 +1494,7 @@ uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_spyName Name of spy to write to
  @param i_enumValue String enum value to load into the spy
- @param i_flags Default is 0, or FLAG_USE_SPARSE_RING_ACCESS to avoid full ring access
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
  TARGET DEPTH  : pos, core/chipUnit<br>
