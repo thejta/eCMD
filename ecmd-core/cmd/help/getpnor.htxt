@@ -1,11 +1,12 @@
 
 Syntax: getpnor --list  
-        getpnor --name HBB -o 0 -fb datafile.bin
-        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#]
+        getpnor -fb datafile.bin
+          [-quiet] [-k#] [-n#] [-offset <value>] [-name <partition name>] [-offset <value>]
 
         ECMD:           Core Common Function
 
-        Function:       Get the specified image from the PNOR
+        Function:       Get the partition image from the PNOR.
+                        Get a list of the partition entries from the PNOR.
 
         Parameters:
         --------------------------------------------------------------------------------
@@ -15,7 +16,7 @@ Syntax: getpnor --list
 
         --offset        Offset of partition entry in bytes from beginning
 
-        --block-size    Specifies size in bytes of block size to use
+        --block-size    Specifies size in bytes of block size to use, defaults to 4096
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system
@@ -29,5 +30,5 @@ Syntax: getpnor --list
 
         Examples:       > getpnor --list
                         > getpnor --list -n0
+                        > getpnor --list -n0 --name HBB
                         > getpnor --name HBB -fb /tmp/data.bin
-                        > getpnor -fb /tmp/data/bin
