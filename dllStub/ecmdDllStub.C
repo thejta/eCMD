@@ -76,6 +76,16 @@ uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ec
     return ECMD_SUCCESS; 
 } 
 
+uint32_t dllGetRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+{ 
+    return ECMD_SUCCESS; 
+} 
+
+uint32_t dllPutRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+{ 
+    return ECMD_SUCCESS; 
+} 
+
 uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
 
   return ECMD_SUCCESS;
