@@ -2315,4 +2315,96 @@ struct ecmdDTSData{
 #define ECMD_RING_MODE_SPARSE_ACCESS           0x02000000
 #define ECMD_RING_MODE_MULTICAST_MASK          0x000000FF
 
+/**
+ @brief Used for the ecmdGetPnor and ecmdPutPnor function
+*/
+struct ecmdPnorListEntryData {
+#ifndef DOCUMENTATION
+    // Constructor
+    ecmdPnorListEntryData();
+
+    // Destructor
+    ~ecmdPnorListEntryData();
+#endif
+
+    // Members
+    std::string     entryName;      ///< (Detail: Low) The entry name
+    uint32_t        entryBase;      ///< (Detail: Low) The entry base
+    uint32_t        entrySize;      ///< (Detail: Low) The entry size
+    uint32_t        entryPid;       ///< (Detail: Low) The entry PID
+    uint32_t        entryId;        ///< (Detail: Low) The entry ID
+    uint32_t        entryType;      ///< (Detail: Low) The entry type
+    uint32_t        entryFlags;     ///< (Detail: Low) The entry flags
+    uint32_t        entryActual;    ///< (Detail: Low) The entry actual 
+    uint32_t        entryChecksum;  ///< (Detail: Low) The entry checksum
+};
+
+#ifndef DOCUMENTATION
+//ecmdPnorListEntryData Constructor
+inline ecmdPnorListEntryData::ecmdPnorListEntryData():
+entryName(""),
+entryBase(0x0),
+entrySize(0x0),
+entryPid(0x0),
+entryId(0x0),
+entryType(0x0),
+entryFlags(0x0),
+entryActual(0x0),
+entryChecksum(0x0)
+{
+}
+
+// ecmdPnorListEntryData destructor
+inline ecmdPnorListEntryData::~ecmdPnorListEntryData() { }
+#endif
+
+struct ecmdPnorListData {
+#ifndef DOCUMENTATION
+    // Constructor
+    ecmdPnorListData();
+
+    // Destructor
+    ~ecmdPnorListData();
+#endif
+
+    // Members
+    uint32_t          hdrMagic;           ///< (Detail: Low) Magic value
+    uint32_t          hdrVersion;         ///< (Detail: Low) Version value
+    uint32_t          hdrSize;            ///< (Detail: Low) Size of the structure
+    uint32_t          hdrEntrySize;       ///< (Detail: Low) Entry size
+    uint32_t          hdrEntryCount;      ///< (Detail: Low) Number of Entries
+    uint32_t          hdrBlockSize;       ///< (Detail: Low) Block size
+    uint32_t          hdrBlockCount;      ///< (Detail: Low) Block count
+    uint32_t          hdrChecksum;        ///< (Detail: Low) Checksum of image
+    std::list<ecmdPnorListEntryData>    hdrEntries; ///< (Detail: Low) List of entry data
+};
+
+#ifndef DOCUMENTATION
+// ecmdPnorListData Constructor
+inline ecmdPnorListData::ecmdPnorListData():
+hdrMagic(0x0),
+hdrVersion(0x0),
+hdrSize(0x0),
+hdrEntrySize(0x0),
+hdrEntryCount(0x0),
+hdrBlockSize(0x0),
+hdrBlockCount(0x0),
+hdrChecksum(0x0)
+{
+}
+
+// ecmdPnorListData Destructor
+inline ecmdPnorListData::~ecmdPnorListData() 
+{
+    if ( hdrEntries.size() != 0 )
+    {
+        std::list<ecmdPnorListEntryData>::iterator myIt;
+        for( myIt = hdrEntries.begin(); myIt != hdrEntries.end(); myIt++ )
+        {
+            myIt = hdrEntries.erase(myIt);
+        }
+    }
+}
+#endif
+
 #endif
