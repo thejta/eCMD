@@ -1,0 +1,29 @@
+
+Syntax: putpnor -fb<filename> --name HBB <--force> <--protected>
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write the specified image to the PNOR
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        --name          Name of the partition to use
+
+        --offset        Offset of partition entry in bytes from beginning
+
+        --block-size    Specifies size in bytes of block size to use
+
+        --force         Override command safeguards
+
+        --protected     Do not ignore protected partition entries
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > putpnor -fb /tmp/data.bin -n0
+                        > putpnor -fb /tmp/data.bin -n0 --name HBB

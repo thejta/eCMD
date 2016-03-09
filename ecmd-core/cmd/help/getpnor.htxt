@@ -1,0 +1,33 @@
+
+Syntax: getpnor --list  
+        getpnor --name HBB -o 0 -fb datafile.bin
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#]
+
+        ECMD:           Core Common Function
+
+        Function:       Get the specified image from the PNOR
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        --list          List the partition table
+
+        --name          Name of the partition to use
+
+        --offset        Offset of partition entry in bytes from beginning
+
+        --block-size    Specifies size in bytes of block size to use
+
+        -fb <filename>  Specify full path and filename to binary file to write data from
+                        system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+                        Incase multiple node positions are specified the target string will 
+                        be postfixed. E.g. filename "datafile" becomes "datafile.k0n0"
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > getpnor --list
+                        > getpnor --list -n0
+                        > getpnor --name HBB -fb /tmp/data.bin
+                        > getpnor -fb /tmp/data/bin
