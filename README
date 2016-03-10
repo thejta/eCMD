@@ -9,26 +9,6 @@ cmdline, python module and perl module.
 
 An eCMD Plugin is an implementation of the API
 
---------   ---------   ------  ↑
-|python|   |cmdline|   |perl|  |
---------   ---------   ------  |
-    \          |         /     eCMD
-     \         |        /      Code
-     ---------------------     Base
-     | C Programming API |     |
-     ---------------------     |
-               |               ↓
----------------|---------------
-               |
-        ---------------
-        | eCMD Plugin |
-        ---------------
-               |
-               |
-         ------------
-         | Hardware |
-         ------------
-
 Building
 ========
 To build eCMD:
