@@ -1,6 +1,6 @@
 
-Syntax: getpnor --list  
-        getpnor -fb datafile.bin
+Syntax: getpnor -list  
+        getpnor -fb datafile.bin -name <partition name>
           [-quiet] [-k#] [-n#] [-offset <value>] [-name <partition name>] [-offset <value>]
 
         ECMD:           Core Common Function
@@ -10,13 +10,13 @@ Syntax: getpnor --list
 
         Parameters:
         --------------------------------------------------------------------------------
-        --list          List the partition table
+        -list           List the partition table
 
-        --name          Name of the partition to use
+        -name           Name of the partition to use
 
-        --offset        Offset of partition entry in bytes from beginning
+        -offset         Offset of partition entry in bytes from beginning
 
-        --block-size    Specifies size in bytes of block size to use, defaults to 4096
+        -block-size     Specifies size in bytes of block size to use, defaults to 4096
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system
@@ -28,7 +28,7 @@ Syntax: getpnor --list
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > getpnor --list
-                        > getpnor --list -n0
-                        > getpnor --list -n0 --name HBB
-                        > getpnor --name HBB -fb /tmp/data.bin
+        Examples:       > getpnor -list
+                        > getpnor -list -n0
+                        > getpnor -list -n0 -name HBB
+                        > getpnor -name HBB -fb /tmp/data.bin

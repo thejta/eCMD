@@ -2318,6 +2318,23 @@ struct ecmdDTSData{
 /**
  @brief Used for the ecmdGetPnor and ecmdPutPnor function
 */
+
+typedef enum {
+    ECMD_PNOR_TYPE_DATA      = 1,
+    ECMD_PNOR_TYPE_LOGICAL   = 2,
+    ECMD_PNOR_TYPE_PARTITION = 3
+} ecmd_pnor_types;
+
+typedef enum {
+    ECMD_PNOR_FLAGS_U_BOOT_ENV = 0x0002,
+    ECMD_PNOR_FLAGS_PROTECTED  = 0x0001
+} ecmd_pnor_flags;
+
+typedef enum {
+    ECMD_PNOR_MODE_DEFAULT,
+    ECMD_PNOR_MODE_ERASE
+} ecmd_pnor_modes;
+
 struct ecmdPnorListEntryData {
 #ifndef DOCUMENTATION
     // Constructor
