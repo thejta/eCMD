@@ -1,3 +1,5 @@
+eCMD stack diagram
+==================
 --------   ---------   ------  ↑
 |python|   |cmdline|   |perl|  |
 --------   ---------   ------  |
@@ -17,3 +19,15 @@
          ------------
          | Hardware |
          ------------
+
+API documentation
+=================
+All three programming interfaces (C/perl/python) have their API's documented 
+in doxygen markup.  All input/output paramaters for each function should
+have a definition.
+
+The documentation can be created by running "make doxygen" in the root dir.
+
+The output path is determined by the variable DOXYGEN_PATH.
+
+Once generated, it is then viewable thru a web browser.
