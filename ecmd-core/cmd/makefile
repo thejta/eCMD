@@ -15,6 +15,7 @@ SOURCE := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C
 SOURCE := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
 SOURCE := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
 SOURCE := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
+SOURCE := ${SOURCE} ecmdPnorUser.C
 
 # This is broke out so it doesn't get included in the archive
 MAIN_SOURCE  := ecmdMain.C

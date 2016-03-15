@@ -289,8 +289,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getsensor")) {
           rc = ecmdGetSensorUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
+#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
+        } else if (!strcmp(argv[0], "getpnor")) {
+          rc = ecmdGetPnorUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_PNOR_FUNCTIONS
         } 
-          else {
+        else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;
         }
@@ -437,6 +441,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "powermode")) {
           rc = ecmdPowerModeUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_POWER_FUNCTIONS
+#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
+        } else if (!strcmp(argv[0], "putpnor")) {
+          rc = ecmdPutPnorUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_PNOR_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

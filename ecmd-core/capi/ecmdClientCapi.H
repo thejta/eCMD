@@ -4833,6 +4833,45 @@ uint32_t putSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, con
 //@}
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
+#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
+/**
+ @brief Get pnor information from the dll
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_partitionName Name of the partition to read out
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param i_blockSize The block size to use when reading the pnor image
+ @param o_data A ecmdDataBuffer that is populated with the image that was requested to be read
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdGetPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, ecmdDataBuffer & o_data );
+
+/**
+ @brief Get pnor partition list from the dll
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_partitionName Name of the partition to pull information about
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param o_outData A ecmdPnorListData structure that contains the information about the pnor 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdGetPnorList( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, ecmdPnorListData & o_outData );
+
+/**
+ @brief Put pnor information to the dll
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_partitionName Name of the partition to read out
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param i_blockSize The block size to use when reading the pnor image
+ @param i_data A ecmdDataBuffer that contains the image that will be written to the pnor image specified by other parameter data
+ @param i_flags A ECMD_PNOR_MODE* defines.  Default value ECMD_PNOR_MODE_DEFAULT to write the data in i_data.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+*/
+uint32_t ecmdPutPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, ecmdDataBuffer & i_data, uint32_t i_flags );
+
+#endif // ECMD_REMOVE_PNOR_FUNCTIONS
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

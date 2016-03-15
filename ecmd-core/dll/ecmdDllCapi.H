@@ -644,6 +644,14 @@ void dllSetCurrentCmdline(int argc, char* argv[]);
 uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail); 
 
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
+#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
+uint32_t dllGetPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_bufferSize, ecmdDataBuffer & o_data ); 
+
+uint32_t dllGetPnorList( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, ecmdPnorListData & o_outData ); 
+
+uint32_t dllPutPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_bufferSize, ecmdDataBuffer & i_data ); 
+
+#endif // ECMD_REMOVE_PNOR_FUNCTIONS
 } //extern C
 
 #endif

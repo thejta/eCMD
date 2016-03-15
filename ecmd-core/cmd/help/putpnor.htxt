@@ -1,0 +1,36 @@
+
+Syntax: putpnor -fb <filename> -name <partition name>
+        putpnor -name <partition name> -erase [-value <byte value>]
+          [-quiet] [-exist] [-k#] [-n#] [-offset <value>] [-force]
+          [-block-size <value>]
+ 
+
+        ECMD:           Core Common Function
+
+        Function:       Write the specified image to the PNOR partition
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        -name           Name of the partition to use
+
+        -offset         Offset of partition table in bytes from beginning, defaults to 0
+
+        -block-size     Specifies size in bytes of block size to use, defaults to 4096
+
+        -force          Override command safeguards
+
+        -erase          Writes the value specified in -value to the entire partition specified
+                        by -name
+
+        -value          The value to use in the case of -erase being specified, defaults to 0x0
+
+        -fb <filename>  Specify full path and filename to binary file to load to system
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > putpnor -fb /tmp/data.bin -n0
+                        > putpnor -fb /tmp/data.bin -n0 -name HBB
+                        > putpnor -name HBB -erase -value 0xFB
