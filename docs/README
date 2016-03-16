@@ -1,11 +1,17 @@
 eCMD stack diagram
 ==================
---------   ---------   ------  ↑
-|python|   |cmdline|   |perl|  |
+      -----------------
+      | user programs |
+      -----------------
+          /    |    \
+---------/-----|-----\---------
+        /      |      \        ↑
 --------   ---------   ------  |
-    \          |         /     eCMD
-     \         |        /      Code
-     ---------------------     Base
+|python|   |cmdline|   |perl|  |
+--------   ---------   ------  eCMD
+    \          |         /     Code
+     \         |        /      Base
+     ---------------------     |
      | C Programming API |     |
      ---------------------     |
                |               ↓
@@ -31,3 +37,12 @@ The documentation can be created by running "make doxygen" in the root dir.
 The output path is determined by the variable DOXYGEN_PATH.
 
 Once generated, it is then viewable thru a web browser.
+
+cmdline documentation
+=====================
+The cmdline is documented through each commands individual help text file.
+
+Each command will have a listing of the required and optional arguments.
+
+These files can be found in ecmd-core/cmd/help and each extensions cmd/help
+directory
