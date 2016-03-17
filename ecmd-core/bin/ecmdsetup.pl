@@ -81,7 +81,7 @@ my $release;
 my $prevRelease;
 my $plugin;
 my $product;
-my $bits = 64;
+my $bits = 32;
 my $arch;
 my $temp;
 my $shortcut = 0;
@@ -436,7 +436,7 @@ sub help {
   ecmd_print("<release> - Any eCMD Version currently supported in CVS (ex rel, ver5, ver4-3)");
   ecmd_print("<plugin> - varies based upon your ecmd install");
   ecmd_print("<product> - varies based upon plugin");
-  ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 64.");
+  ecmd_print("[32|64] - Use the 32 or 64-bit versions of eCMD and plugins.  Defaults to 32.");
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
   ecmd_print("[quiet] - Disables status output");
