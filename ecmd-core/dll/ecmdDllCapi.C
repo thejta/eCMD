@@ -2543,6 +2543,207 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
+uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
+{
+    uint32_t rc = 0;
+    ecmdLatchBufferEntry curEntry;
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
+    std::string curLatch = "";                            ///< current unique latchname
+    std::string printed;
+    uint32_t bustype = 0;
+    
+    /* Let's find out if we are JTAG of FSI here */
+    rc = dllGetScandefOrder(i_target, bustype);
+    if (rc) {
+        printed = "Problems retrieving chip information on target\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfo", printed.c_str() );
+        return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllQueryLatchInfo", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+        return ECMD_DLL_INVALID;
+    }
+    
+    if ((i_ringName == NULL) && (i_latchName == NULL)) {
+        rc = ECMD_INVALID_ARGS;
+        printed = "Input parameters Ringname and Latchname both cannot be null.\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfo", printed.c_str() );
+        return rc;
+    }
+    if ((i_ringName != NULL) && (i_latchName == NULL)) {
+        rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+        if (rc) return rc;
+    } else {
+        if( i_mode == ECMD_LATCHMODE_FULL) {
+            rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+            if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+                return rc;
+            }
+        }
+        if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+            std::string errorParse;
+            if (rc)
+                {
+                    errorParse = dllGetErrorMsg(rc, false, true, true);
+                    errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+                    
+                }
+            
+            rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+            if (rc) return rc;
+            
+            if (errorParse.length() > 0) {
+                
+                dllOutputWarning(errorParse.c_str());
+            }           
+        }
+    }
+
+    /* Single exit point */
+    while (1) {
+
+        uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+        uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+        uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+        uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+        uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+        uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+        std::string latchname = "";
+        
+        for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+            
+            if (curLatch != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) {
+                //Assumption- should all be under one ring
+                if ( curLatchInfo == curEntry.entry.begin()) {
+                    rc = dllQueryRing(i_target, o_ringData, curLatchInfo->ringName.c_str(), i_detail);
+                    if (rc) {
+                        dllRegisterErrorMsg(rc, "dllQueryLatch", "Problems querying ring from chip\n");
+                        return rc;
+                    }
+                    if (!o_ringData.empty()) {
+                        if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
+                            o_queryData.clockDomain = o_ringData.begin()->clockDomain;
+                            o_queryData.clockState = o_ringData.begin()->clockState;
+                        }
+                        o_queryData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
+                        o_queryData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
+                        o_queryData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
+                    }
+                }
+                
+                curLatch = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
+            }
+            
+            /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+            if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+                /* I have some good data here */
+                if (latchname != "") {
+                    
+                    o_queryData.latchStartBit = (int)dataStartBit;
+                    o_queryData.latchEndBit = (int)dataEndBit;
+                    o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+                }
+            
+                /* If this is a fresh one we need to reset everything */
+                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBitsToFetch = ECMD_UNSET;
+                    curBufferBit = 0;
+                    latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    o_queryData.latchName = latchname;
+                    o_queryData.ringName = curLatchInfo->ringName;
+                    o_queryData.fsiRingOffset = curLatchInfo->fsiRingOffset;
+                    o_queryData.jtagRingOffset = curLatchInfo->jtagRingOffset;
+                } else {
+                    /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBufferBit = 0;
+                    /* Decrement the bits to fetch by the hole in the latch */
+                    curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                }
+            }
+        
+            /* Do we want anything in here */
+            /* Check if the bits are ordered from:to (0:10) or just (1) */
+            if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+                /* Check if the bits are ordered to:from (10:0) */
+                ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+                
+                bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+                
+                /* Setup the actual data bits displayed */
+                if (dataStartBit == ECMD_UNSET) {
+                    dataStartBit = curLatchBit;
+                    dataEndBit = dataStartBit - 1;
+                }
+                dataEndBit += bitsToFetch;
+            
+                /* ********* */
+                /* FSI Order */
+                /* ********* */
+                
+                if (bustype == ECMD_CHIPFLAG_FSI) {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                    } else {
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                        if (curLatchInfo->fsiRingOffset < o_queryData.fsiRingOffset) 
+                        {
+                            o_queryData.isInverted = true;
+                        }
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                    /* ********* */
+                    /*JTAG Order */
+                    /* ********* */
+                } else {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                    } else {
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                       if (curLatchInfo->jtagRingOffset < o_queryData.jtagRingOffset) 
+                       {
+                           o_queryData.isInverted = true;
+                       }
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                }
+            
+                curBitsToFetch -= bitsToFetch;
+            } else {
+                /* Nothing was there that we needed, let's try the next entry */
+                curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;             
+            }
+        
+        } /* end latchinfo for loop */
+        
+        /* We have good data here, let's push it */
+        if (latchname != "") {
+            
+            /* Display this if we aren't expecting or the expect failed */
+            o_queryData.latchStartBit = (int)dataStartBit;
+            o_queryData.latchEndBit = (int)dataEndBit;
+            o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+        }
+    
+        break;
+    } /* end while (exit point) */
+   
+  
+    return rc;
+}
+
 /* getRingDump in ecmdDllCapi.C didn't get done in time for eCMD 11.0, so pulling the interface - JTA 07/26/09 */
 #if 0
 uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches) {
