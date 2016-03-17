@@ -1978,7 +1978,6 @@ struct ecmdLatchQueryData {
   uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
   uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
   uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isInverted;            ///< (Detail: Low)  Are the latch bit postions inverted from the RingOffset start positions? (FSI chips use fsiRingOffset, JTAG chips use jtagRingOffset)
   bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
   std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
   std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
@@ -1996,7 +1995,6 @@ jtagEndRingOffset(0),
 latchStartBit(0),
 latchEndBit(0),
 bitLength(0),
-isInverted(false),
 isChipUnitRelated(false),
 clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {

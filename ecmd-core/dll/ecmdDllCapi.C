@@ -2698,10 +2698,6 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                         /* Extract if bits are ordered to:from (10:0) or just (1) */
                     } else {
                         curLatchBit = curLatchInfo->latchStartBit + 1;
-                        if (curLatchInfo->fsiRingOffset < o_queryData.fsiStartRingOffset) 
-                        {
-                            o_queryData.isInverted = true;
-                        }
                     }
                     curBufferBit += bitsToFetch;
                     
@@ -2715,10 +2711,6 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                     } else {
                         /* Extract if bits are ordered to:from (10:0) or just (1) */
                         curLatchBit = curLatchInfo->latchStartBit + 1;
-                       if (curLatchInfo->jtagRingOffset < o_queryData.jtagStartRingOffset) 
-                       {
-                           o_queryData.isInverted = true;
-                       }
                     }
                     curBufferBit += bitsToFetch;
                     
