@@ -83,14 +83,24 @@ uint32_t ecmdGetPnorUser(int argc, char * argv[]) {
         return ECMD_INVALID_ARGS;
     } 
 
-    char *partitionName = ecmdParseOptionWithArgs(&argc, &argv, "-name"); 
+    char *partName = ecmdParseOptionWithArgs(&argc, &argv, "-name"); 
 
-    if ( (!l_listPnor) && (filename == NULL || partitionName == NULL) )
+    if ( (!l_listPnor) && (filename == NULL || partName == NULL) )
     {
         oss << "getpnor usage incorrect, -fb and -name are required when not using -list" << std::endl;
         oss << "Use 'getpnor -h' for usage" << std::endl;
         ecmdOutputError(oss.str().c_str());
         return ECMD_INVALID_ARGS;
+    }
+
+    std::string partitionName;
+    if ( partName == NULL )
+    {
+        partitionName = std::string();
+    }
+    else
+    {
+        partitionName = partName;
     }
 
     char *charOffset = ecmdParseOptionWithArgs(&argc, &argv, "-offset");
@@ -193,8 +203,8 @@ uint32_t ecmdGetPnorUser(int argc, char * argv[]) {
             if ( rc ) break;
 
             std::ostringstream ossPnor;
-            ossPnor << "=========================" << "[ PARTITION TABLE 0x";
-            ossPnor << std::hex << offset << " ]" << "=========================";
+            ossPnor << "==========================" << "[ PARTITION TABLE 0x";
+            ossPnor << std::hex << offset << " ]" << "==========================";
             ossPnor << std::endl;
             ossPnor << "vers:" << std::setfill('0') << std::setw(4) << std::dec << myPnorData.hdrVersion;
             ossPnor << " size:" << std::setfill('0') << std::setw(4) << std::dec << myPnorData.hdrSize;
@@ -203,32 +213,32 @@ uint32_t ecmdGetPnorUser(int argc, char * argv[]) {
             ossPnor << " * entsz:" << std::setfill('0') << std::setw(6) << std::hex << myPnorData.hdrEntrySize;
             ossPnor << " ent(s):" << std::setfill('0') << std::setw(6) << std::hex << myPnorData.hdrEntryCount;
             ossPnor << std::endl;
-            ossPnor << "-------------------------------------------------------------------------" << std::endl;
+            ossPnor << "---------------------------------------------------------------------------" << std::endl;
             
             std::list<ecmdPnorListEntryData>::iterator myIt;
             for ( myIt = (myPnorData.hdrEntries).begin(); myIt != (myPnorData.hdrEntries).end(); myIt++ )
             {
-                if ( partitionName != NULL && strcmp((myIt)->entryName.c_str(), partitionName) != 0 )
+                if ( partitionName.size() != 0 && ((myIt)->entryName != partitionName) )
                 {
                     continue;
                 }
                 uint32_t baseAddr = myPnorData.hdrBlockSize * (myIt)->entryBase;
                 uint32_t sizeAddr = myPnorData.hdrBlockSize * (myIt)->entrySize;
-                ossPnor << std::setw(3) << std::dec << (myIt)->entryId;
+                ossPnor << std::setfill(' ') << std::setw(3) << std::dec << (myIt)->entryId;
                 ossPnor << " [" << std::setfill('0') << std::setw(8) << std::hex << baseAddr;
                 ossPnor << "-" << std::setfill('0') << std::setw(8) << std::hex << baseAddr+sizeAddr-1;
                 ossPnor << "] [" << std::setfill(' ') << std::setw(8) << std::hex << sizeAddr;
                 ossPnor << ":" << std::setfill(' ') << std::setw(8) << std::hex << (myIt)->entryActual;
                 ossPnor << "] [";
-                if ( (myIt)->entryType & ECMD_PNOR_TYPE_LOGICAL )
+                if ( (myIt)->entryType == ECMD_PNOR_TYPE_LOGICAL )
                 {
                     ossPnor << "l";
                 }
-                else if ( (myIt)->entryType & ECMD_PNOR_TYPE_DATA )
+                else if ( (myIt)->entryType == ECMD_PNOR_TYPE_DATA )
                 {
                     ossPnor << "d";
                 }
-                else if ( (myIt)->entryType & ECMD_PNOR_TYPE_PARTITION )
+                else if ( (myIt)->entryType == ECMD_PNOR_TYPE_PARTITION )
                 {
                     ossPnor << "p";
                 }
