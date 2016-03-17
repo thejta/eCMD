@@ -1947,6 +1947,64 @@ inline ecmdLatchEntry::~ecmdLatchEntry() { }
 #endif
 
 /**
+ @brief Used by ecmdQueryLatchInfo function to return data
+*/
+struct ecmdLatchQueryData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdLatchQueryData();
+
+  // Destructor
+  ~ecmdLatchQueryData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef ECMD_STRIP_DEBUG
+  void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
+  std::string      latchName;             ///< (Detail: Low)  Latch name of entry
+  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
+  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
+  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
+  uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
+  uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
+  uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
+  bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t clockState;            ///< (Detail: High) Required clock state to access this latch
+};
+
+#ifndef DOCUMENTATION
+// ecmdLatchQueryData Constructor
+inline ecmdLatchQueryData::ecmdLatchQueryData():
+fsiStartRingOffset(0),
+jtagStartRingOffset(0),
+fsiEndRingOffset(0),
+jtagEndRingOffset(0),
+latchStartBit(0),
+latchEndBit(0),
+bitLength(0),
+isChipUnitRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdLatchQueryData Destructor
+inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
+#endif
+
+/**
  @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
 */
 struct ecmdProcRegisterInfo {
