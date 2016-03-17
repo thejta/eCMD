@@ -1971,8 +1971,10 @@ struct ecmdLatchQueryData {
   // Members
   std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
   std::string      latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t         fsiRingOffset;         ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t         jtagRingOffset;        ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
+  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
+  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
   uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
   uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
   uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
@@ -1987,8 +1989,10 @@ struct ecmdLatchQueryData {
 #ifndef DOCUMENTATION
 // ecmdLatchQueryData Constructor
 inline ecmdLatchQueryData::ecmdLatchQueryData():
-fsiRingOffset(0),
-jtagRingOffset(0),
+fsiStartRingOffset(0),
+jtagStartRingOffset(0),
+fsiEndRingOffset(0),
+jtagEndRingOffset(0),
 latchStartBit(0),
 latchEndBit(0),
 bitLength(0),

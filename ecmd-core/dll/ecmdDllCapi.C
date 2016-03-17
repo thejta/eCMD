@@ -2611,6 +2611,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
         uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
         uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
         std::string latchname = "";
+        uint32_t fsi_end = 0;
+        uint32_t jtag_end = 0;
         
         for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
             
@@ -2645,6 +2647,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                     o_queryData.latchStartBit = (int)dataStartBit;
                     o_queryData.latchEndBit = (int)dataEndBit;
                     o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+                    o_queryData.fsiEndRingOffset = fsi_end;
+                    o_queryData.jtagEndRingOffset = jtag_end;  
                 }
             
                 /* If this is a fresh one we need to reset everything */
@@ -2656,8 +2660,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                     curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
                     o_queryData.latchName = latchname;
                     o_queryData.ringName = curLatchInfo->ringName;
-                    o_queryData.fsiRingOffset = curLatchInfo->fsiRingOffset;
-                    o_queryData.jtagRingOffset = curLatchInfo->jtagRingOffset;
+                    o_queryData.fsiStartRingOffset = curLatchInfo->fsiRingOffset;
+                    o_queryData.jtagStartRingOffset = curLatchInfo->jtagRingOffset;
                 } else {
                     /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
                     dataStartBit = dataEndBit = ECMD_UNSET;
@@ -2694,7 +2698,7 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                         /* Extract if bits are ordered to:from (10:0) or just (1) */
                     } else {
                         curLatchBit = curLatchInfo->latchStartBit + 1;
-                        if (curLatchInfo->fsiRingOffset < o_queryData.fsiRingOffset) 
+                        if (curLatchInfo->fsiRingOffset < o_queryData.fsiStartRingOffset) 
                         {
                             o_queryData.isInverted = true;
                         }
@@ -2711,7 +2715,7 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                     } else {
                         /* Extract if bits are ordered to:from (10:0) or just (1) */
                         curLatchBit = curLatchInfo->latchStartBit + 1;
-                       if (curLatchInfo->jtagRingOffset < o_queryData.jtagRingOffset) 
+                       if (curLatchInfo->jtagRingOffset < o_queryData.jtagStartRingOffset) 
                        {
                            o_queryData.isInverted = true;
                        }
@@ -2720,6 +2724,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
                     
                 }
             
+                fsi_end = curLatchInfo->fsiRingOffset;
+                jtag_end = curLatchInfo->jtagRingOffset;
                 curBitsToFetch -= bitsToFetch;
             } else {
                 /* Nothing was there that we needed, let's try the next entry */
@@ -2735,6 +2741,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
             o_queryData.latchStartBit = (int)dataStartBit;
             o_queryData.latchEndBit = (int)dataEndBit;
             o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+            o_queryData.fsiEndRingOffset = fsi_end;
+            o_queryData.jtagEndRingOffset = jtag_end;               
         }
     
         break;
