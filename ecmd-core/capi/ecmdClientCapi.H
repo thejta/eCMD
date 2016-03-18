@@ -135,7 +135,7 @@ void ecmdLoadDllRecovery(std::string i_commandLine, uint32_t & io_rc);
 
  The other values of i_mode (ECMD_CONFIG_LOOP and ECMD_EXIST_LOOP) are the exact same as calling ecmdConfigLooperInit or ecmdExistLooperInit directly.
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must Be Initialized<br>
  */
 uint32_t ecmdLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
@@ -148,7 +148,7 @@ uint32_t ecmdLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, 
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdConfigLooperNext
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must Be Initialized<br>
  */
 uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state);
@@ -161,7 +161,7 @@ uint32_t ecmdConfigLooperInit (ecmdChipTarget & io_target, ecmdLoopType_t i_loop
  @retval ECMD_SUCCESS if initialization succeeded, error code if otherwise
  @see ecmdExistLooperNext
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must Be Initialized<br>
  */
 uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ecmdLooperData& io_state);
@@ -179,7 +179,7 @@ uint32_t ecmdExistLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_loopty
  The other values of i_mode (ECMD_CONFIG_LOOP and ECMD_EXIST_LOOP) are the exact same as calling ecmdConfigLooperNext or ecmdExistLooperNext directly.
 
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)<br>
  */
 uint32_t ecmdLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state, ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
@@ -191,7 +191,7 @@ uint32_t ecmdLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state, e
  @retval 1 if io_target is valid, 0 if it is not
  @see ecmdConfigLooperInit
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized (from ecmdConfigLooperInit)<br>
  */
 uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_state);
@@ -203,7 +203,7 @@ uint32_t ecmdConfigLooperNext (ecmdChipTarget & io_target, ecmdLooperData& io_st
  @retval 1 if io_target is valid, 0 if it is not
  @see ecmdExistLooperInit
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized (from ecmdExistLooperInit)<br>
  */
 uint32_t ecmdExistLooperNext(ecmdChipTarget & io_target, ecmdLooperData& io_state);
@@ -282,7 +282,7 @@ bool ecmdQueryVersionGreater(const char* version);
    cage = 'wildcard', node = 'wildcard', pos = 'ignore', chipType = 'unused', core = 'unused', thread = 'unused'<br>
  NOTE : This function does not affect ring caching<br>
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
    
@@ -318,7 +318,7 @@ uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, 
    will be set to ECMD_TARGET_THREAD_ALIVE.<br>
  NOTE : This function does not affect ring caching<br>
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
@@ -339,7 +339,7 @@ uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_q
    will be set to ECMD_TARGET_THREAD_ALIVE.<br>
  NOTE : This function does not affect ring caching<br>
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
@@ -519,7 +519,7 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
 
  NOTE : This function calls ecmdQueryConfig and searchs for the specified target<br>
  NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread dependent  on what should be queried<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread dependent  on what should be queried<br>
  TARGET STATES : Must be Initialized. Note: Query depth ends on the first state not set to ECMD_TARGET_FIELD_VALID <br>
  *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
  * then the function checks whether the specified node is configured independent on the other state settings.
@@ -535,7 +535,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_quer
 
  NOTE : This function calls ecmdQueryExist and searchs for the specified target<br>
  NOTE : The target State fields must be filled in as either VALID or UNUSED<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread dependent  on what should be queried<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread dependent  on what should be queried<br>
  TARGET STATES : Must be Initialized. Note: Check depth ends on the first state not set to ECMD_TARGET_FIELD_VALID <br>
  *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
  * then the function checks whether the specified node exists independent on the other state settings.
@@ -600,7 +600,7 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
  @see putRing
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -622,7 +622,7 @@ uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
  @see getRing
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -646,7 +646,7 @@ uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuf
  @param i_mode LatchName search mode (full or partial names)
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
@@ -672,7 +672,7 @@ uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @param o_matches Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode);
@@ -699,7 +699,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
 
  NOTE : This is a debug interface and should not be used in normal situations<br>
  NOTE : This function does not handle processor cores/chipUnits for you, the i_address will be taken and used with no modifications
-          so you are responsible for specifying the correct core/chipUnit address<br>
+          so you are responsible for specifying the correct chipUnit address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
  TARGET DEPTH  : pos<br>
@@ -724,7 +724,7 @@ uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
 
  NOTE : This is a debug interface and should not be used in normal situations<br>
  NOTE : This function does not handle processor cores/chipUnits for you, the i_address will be taken and used with no modifications
-          so you are responsible for specifying the correct core/chipUnit address<br>
+          so you are responsible for specifying the correct chipUnit address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
  TARGET DEPTH  : pos<br>
@@ -755,8 +755,8 @@ uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  @param o_data DataBuffer object that holds data read from address
  @see putScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data);
@@ -775,8 +775,8 @@ uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -797,8 +797,8 @@ uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
  @see getScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -822,8 +822,8 @@ uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDat
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -957,7 +957,7 @@ uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecid
  @param o_data DataBuffer object that holds data read from spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -979,7 +979,7 @@ uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffe
  @param o_enumValue Enum value read from the spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1001,7 +1001,7 @@ uint32_t getSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::stri
  @retval nonzero if unsuccessful
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1021,7 +1021,7 @@ uint32_t getSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpChecker
  @param o_groups List of structures containing the group data and deadbits mask
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1043,7 +1043,7 @@ uint32_t getSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::li
  @param o_data DataBuffer object that holds data read from spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1066,7 +1066,7 @@ uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ec
  @param o_enumValue Enum value read from the spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1087,7 +1087,7 @@ uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, cons
  @param i_data DataBuffer object that holds data to write into spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1107,7 +1107,7 @@ uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffe
  @param i_enumValue String enum value to load into the spy
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1129,7 +1129,7 @@ uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std
  @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1150,7 +1150,7 @@ uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdData
  @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1246,7 +1246,7 @@ bool ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
  NOTE : If i_width = 0, use the default array width.<br> 
  NOTE : If width < default array width, then truncate data to width.<br>
  NOTE : If width > default arrady width, then zeroes will be added at the end of the data.<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1279,7 +1279,7 @@ uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1302,7 +1302,7 @@ uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, s
  @param i_address Array Address to write to - length of DataBuffer should be set to length of valid address data
  @see getArray
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1329,7 +1329,7 @@ uint32_t putArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1351,7 +1351,7 @@ uint32_t putArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, s
  @param i_clockDomain Clock domain to query - as defined in scandef - use "ALL" to check all domains
  @param o_clockState State of clocks for that domain
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -1375,7 +1375,7 @@ uint32_t ecmdQueryClockState(ecmdChipTarget & i_target, const char * i_clockDoma
           If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
             documented in the eCMD system spec for your particular product.
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -1397,7 +1397,7 @@ uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool
  * NOTE : If i_target refers to a particular chip object the i_clockDomain has to be "ALL" or a clock domain as defined in the scandef
           If i_target refers to a Cage/node then i_clockDomain has to be "ALL" or one of the predefined convenience clock domains as
             documented in the eCMD system spec for your particular product.<br>
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -1416,7 +1416,7 @@ uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool 
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed,ecmdClockFreqMode_t & o_freqMode, uint32_t & o_freqmin, uint32_t & o_freqmax);
@@ -1435,7 +1435,7 @@ uint32_t ecmdGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, e
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : cage, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode,  ecmdClockRange_t i_range,ecmdClockFreqMode_t i_freqMode = ECMD_CLOCK_SINGLE_FREQ_MODE,uint32_t i_freqMinMhz = 0,uint32_t i_freqMaxMhz = 0);
@@ -1450,7 +1450,7 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  @retval ECMD_SUCCESS if successful
  @retval nonzero if unsuccessful
 
- TARGET DEPTH  : cage, core/chipUnit<br>
+ TARGET DEPTH  : cage, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
 uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
@@ -1568,7 +1568,7 @@ uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name
  @param i_sprName Name of spr to read from
  @param o_data DataBuffer object that holds data read from spr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1597,7 +1597,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1619,7 +1619,7 @@ uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  @param i_sprName Name of spr to write to
  @param i_data DataBuffer object that holds data to write into spr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1642,7 +1642,7 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1661,7 +1661,7 @@ uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  @param i_gprNum Number of gpr to read from
  @param o_data DataBuffer object that holds data read from gpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1684,7 +1684,7 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1706,7 +1706,7 @@ uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_gprNum Number of gpr to write to
  @param i_data DataBuffer object that holds data to write into gpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1730,7 +1730,7 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1749,7 +1749,7 @@ uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_fprNum Number of fpr to read from
  @param o_data DataBuffer object that holds data read from fpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1772,7 +1772,7 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1793,7 +1793,7 @@ uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_fprNum Number of fpr to write to
  @param i_data DataBuffer object that holds data to write into fpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1816,7 +1816,7 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1836,7 +1836,7 @@ uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_slbNum Number of fpr to read from
  @param o_data DataBuffer object that holds data read from fpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1859,7 +1859,7 @@ uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1880,7 +1880,7 @@ uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  @param i_slbNum Number of fpr to write to
  @param i_data DataBuffer object that holds data to write into fpr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1903,7 +1903,7 @@ uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1965,7 +1965,7 @@ uint32_t mpiplForceWinkle(const ecmdChipTarget & i_target);
  @retval ECMD_INVALID_ARRAY Invalid trace array name specified
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -1985,7 +1985,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -2179,7 +2179,7 @@ uint32_t ecmdQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, 
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
@@ -2513,7 +2513,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
  This is if a state change  (clock state / chip state) is forced directly via scom/ring accesses.
  @param i_target Target which needs to be updated. 
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -2573,7 +2573,7 @@ uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_add
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 
@@ -2588,7 +2588,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData);
@@ -2613,7 +2613,7 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
@@ -2627,7 +2627,7 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread (depending on i_name)<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData i_configData);
@@ -2641,12 +2641,12 @@ uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  @retval nonzero on failure
 
  NOTE - lowest state that is valid is level that is deconfigured.<br>
-   ex - if coreState/chipUnitState is VALID the core/chipUnit selected is deconfigured<br>
+   ex - if coreState/chipUnitState is VALID the chipUnit selected is deconfigured<br>
    ex - if coreState/chipUnitState is UNUSED and posState is VALID then the pos is deconfigured<br>
 
   This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores/chipUnits<br>
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -2660,12 +2660,12 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
  @retval nonzero on failure
 
  NOTE - lowest state that is valid is level that is configured.<br>
-   ex - if coreState/chipUnitState is VALID the core/chipUnit selected is configured<br>
+   ex - if coreState/chipUnitState is VALID the chipUnit selected is configured<br>
    ex - if coreState/chipUnitState is UNUSED and posState is VALID then the pos is configured<br>
 
   This interface allows you to configure all levels cages, nodes, slots, pos's, cores/chipUnits<br>
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -2679,7 +2679,7 @@ uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
  *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching Unit ID
  *  @post HOM Unit Ids in ecmdChipTarget struct are set and valid
 
- TARGET DEPTH  : cage, node, slot, pos, core/chipUnit, thread<br>
+ TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread<br>
  TARGET STATES : Must be Initialized<br>
 
  */
@@ -4202,8 +4202,8 @@ uint32_t simunsticktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ec
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_hierarchy Return the model hierarchy for this target
 
-NOTE - To retrieve the hierarchy of a processor core/chipUnit the core/chipUnit field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
- TARGET DEPTH : pos, core/chipUnit<br>
+NOTE - To retrieve the hierarchy of a processor chipUnit the chipUnit field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
+ TARGET DEPTH : pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
@@ -4219,8 +4219,8 @@ uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
  @param o_fullFacName i_facName after the system level facility has been created by simDispatcher
  @param i_hierarchyOnly Instead of creating the system level facility, just return the hierarchy
 
-NOTE - To retrieve the hierarchy of a processor core/chipUnit the core/chipUnit field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
- TARGET DEPTH : pos, core/chipUnit<br>
+NOTE - To retrieve the hierarchy of a processor chipUnit the chipUnit field must be set and the state set to ECMD_TARGET_FIELD_VALID<br>
+ TARGET DEPTH : pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 
 */
