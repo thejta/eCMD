@@ -599,8 +599,8 @@ uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
  
  @see cipPorePutScomUnderMask
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 
@@ -623,8 +623,8 @@ uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataB
  @param i_type Specify type of SCOM write to perform mode - See the CIP_PORE_xxx defines
  @see cipPorePutScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other core/chipUnit addresses cause a failure<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -646,7 +646,7 @@ uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, 
  @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -667,7 +667,7 @@ uint32_t cipPorePutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDa
  @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -691,7 +691,7 @@ uint32_t cipPorePutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, co
  @param i_data DataBuffer object that holds data to write into spr
  @param i_type Specify type of write to perform mode - See the CIP_PORE_xxx defines
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -715,7 +715,7 @@ uint32_t cipPorePutSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdD
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -758,7 +758,7 @@ uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint64_t & i_baseAddress, c
  @param i_section Specify section of Pore image to fill with return instructions - See the CIP_PORE_xxx defines
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
@@ -781,7 +781,7 @@ uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
  @param i_mode i-cache = 0, d-cache = 1
  @retval ECMD_SUCCESS if successful
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipRWReadCache(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWCacheRec> & o_records, uint32_t i_mode);
@@ -811,7 +811,7 @@ uint32_t cipRWReadTLB(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t 
  @param o_data DataBuffer object that holds data read from memory
  @param i_mode i-mem = 0, d-mem = 1, HW procedure=2 (default)
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipRWReadMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 2);
@@ -827,7 +827,7 @@ uint32_t cipRWReadMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_
  @param i_data DataBuffer object that holds data to write to memory
  @param i_mode i-mem = 0, d-mem = 1, HW procedure=2 (default)
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 2);
@@ -845,7 +845,7 @@ uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i
  @param i_dcrNum Number of dcr to read from
  @param o_data DataBuffer object that holds data read from dcr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -868,7 +868,7 @@ uint32_t cipRWGetDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuff
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -890,7 +890,7 @@ uint32_t cipRWGetDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntr
  @param i_dcrNum Number of dcr to write to
  @param i_data DataBuffer object that holds data to write into dcr
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -914,7 +914,7 @@ uint32_t cipRWPutDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuff
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -932,7 +932,7 @@ uint32_t cipRWPutDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntr
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : core/chipUnit<br>
+ TARGET DEPTH  : chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
