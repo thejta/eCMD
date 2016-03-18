@@ -2201,7 +2201,7 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Writes System Mainstore through the processor chip using PBA
@@ -2223,7 +2223,7 @@ uint32_t getMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
+uint32_t putMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
 
 /**
  @brief Query the memory information of the Host processor
@@ -2518,6 +2518,19 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
 
 */
 uint32_t syncPluginState(ecmdChipTarget & i_target);
+
+/**
+ @brief Will get the processing unit name from the DLL
+ @param i_target ecmdChipTarget containing data to format into string
+ @param o_processingUnitName Return processing unit name.
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Must be Initialized<br>
+
+*/
+uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName);
 
 #ifndef ECMD_REMOVE_INIT_FUNCTIONS
 /**

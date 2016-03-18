@@ -154,7 +154,7 @@ uint32_t ecmdParseChipField(std::string i_chipField, std::string &o_chipType, st
  @brief returns the ecmd prompt.. which consists of  the currend working directory  this is used for the ecmd shell
  @retval prompt sting
 */
-std::string  getEcmdPrompt();
+std::string getEcmdPrompt();
 
 
 /**
@@ -167,14 +167,6 @@ void setupEcmds();
  @brief returns the ecmd prompt.. which consists of  the currend working directory  this is used for the ecmd shell
  @retval prompt sting
 */
-std::string  getBestEcmd(std::string i_ecmd);
+std::string getBestEcmd(std::string i_ecmd);
 
-/**
- @brief Will get the processing unit name from the DLL
- @param i_target ecmdChipTarget containing data to format into string
- @param o_processingUnitName Return processing unit name.
- @retval ECMD_SUCCESS on success
- @retval non-zero on failure
-*/
-uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName);
 #endif /* ecmdCommandUtils_h */
