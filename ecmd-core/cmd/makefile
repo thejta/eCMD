@@ -48,6 +48,7 @@ CFLAGS := ${CFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_$
 TARGET     := ecmd
 VER_TARGET := ecmdVersion
 AR_TARGET  := ecmdClientCmd.a
+HELP_TARGET := ecmd.htxt
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -91,7 +92,7 @@ all:
 
 generate: ${GENERATED_SOURCE}
 
-build: ${TARGET} ${VER_TARGET} ${AR_TARGET}
+build: ${TARGET} ${VER_TARGET} ${AR_TARGET} ${HELP_TARGET}
 
 test:
   # Do nothing
@@ -99,6 +100,7 @@ test:
 install:
 	cp ${OUTBIN}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OUTBIN}/${HELP_TARGET} ${INSTALL_PATH}/help/
 
 doxygen-capi:
   # Do nothing
@@ -145,6 +147,10 @@ ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ${AR_TARGET}: ${SOURCE_OBJS}
 	@echo Creating $@
 	${VERBOSE}${AR} r ${OUTLIB}/${AR_TARGET} $^
+
+${HELP_TARGET}:
+	@echo Creating $@
+	${VERBOSE}./createEcmdHelp.pl ${OUTBIN}/${HELP_TARGET}
 
 # *****************************************************************************
 # Autogenerate some of the extension source
