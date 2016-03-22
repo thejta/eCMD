@@ -12,6 +12,49 @@ import glob
 import platform
 import textwrap
 import re
+import argparse
+
+parser = argparse.ArgumentParser(description="This script creates all the variables necessary to buid eCMD", add_help = False)
+# Group for required args so the help displays properly
+reqgroup = parser.add_argument_group('Required Arguments')
+# Group for the optional args so the help displays properly
+optgroup = parser.add_argument_group('Optional Arguments')
+
+# --help
+optgroup.add_argument("-h", "--help", help="Show this message and exit", action="help")
+
+# --install-path
+optgroup.add_argument("--install-path", help="Path to install to")
+
+# --host
+optgroup.add_argument("--host", help="The host architecture")
+
+# --target
+optgroup.add_argument("--target", help="The target architecture")
+
+# --swig
+optgroup.add_argument("--swig", help="The swig executable to use")
+
+# --perl
+optgroup.add_argument("--perl", help="The perl executable to use")
+
+# --python
+optgroup.add_argument("--python", help="The python executable to use")
+
+# --python3
+optgroup.add_argument("--python3", help="The python3 executable to use")
+
+# --doxygen
+optgroup.add_argument("--doxygen", help="The doxygen executable to use")
+
+# --output-root
+optgroup.add_argument("--output-root", help="The location to place build output")
+
+# --extensions
+optgroup.add_argument("--extensions", help="Filter down the list of extensions to build")
+
+# Parse the cmdline for the args we just added
+args = parser.parse_args()
 
 # Store any variables we wish to write to the makefiles here
 buildvars = dict()
@@ -19,16 +62,20 @@ buildvars = dict()
 # First, determine our ECMD_ROOT variable
 # ECMD_ROOT is the top level directory of the ecmd source repo
 # ECMD_ROOT is used to derive a number of variable throughout this script
-# ECMD_ROOT is one up from the directory where this script lives
 ECMD_ROOT = os.path.dirname(os.path.realpath(__file__))
 buildvars["ECMD_ROOT"] = ECMD_ROOT
 
 # If the OUTPUT_ROOT was passed in, use that for base directory for generated
 # files. Otherwise use ECMD_ROOT
-if "OUTPUT_ROOT" in os.environ:
-    OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
+if (args.output_root != None):
+    OUTPUT_ROOT = args.output_root
 else:
-    OUTPUT_ROOT = ECMD_ROOT
+    if "OUTPUT_ROOT" in os.environ:
+        OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
+    else:
+        OUTPUT_ROOT = ECMD_ROOT
 buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
 
 # The main ecmd repo contains the ecmd-core subdir
@@ -89,15 +136,20 @@ buildvars["ECMD_PLUGINS"] = ' ' . join(sorted(ECMD_PLUGINS.split(" ")))
 # The extensions logic is also similar to utils/plugins - but with yet another level of complication
 # The user can set EXTENSIONS before calling this script, and it's what the script will use
 # If the user doesn't set it, loop through all the repos and look for what extenions exist
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 EXTENSIONS = ""
-if "EXTENSIONS" in os.environ:
-    EXTENSIONS = os.environ["EXTENSIONS"]
+if (args.extensions != None):
+    EXTENSIONS = args.extensions
 else:
-    # Not given, so dynamically create the list based on what's in the ECMD_REPOS
-    for repo in ECMD_REPOS.split(" "):
-        for ext in glob.glob(os.path.join(ECMD_ROOT, repo, "ext/*")):
-            EXTENSIONS += os.path.basename(ext) + " "
-    EXTENSIONS = EXTENSIONS[:-1] # Pull off trailing space
+    if "EXTENSIONS" in os.environ:
+        EXTENSIONS = os.environ["EXTENSIONS"]
+    else:
+        # Not given, so dynamically create the list based on what's in the ECMD_REPOS
+        for repo in ECMD_REPOS.split(" "):
+            for ext in glob.glob(os.path.join(ECMD_ROOT, repo, "ext/*")):
+                EXTENSIONS += os.path.basename(ext) + " "
+        EXTENSIONS = EXTENSIONS[:-1] # Pull off trailing space
 
 # Remove "template" from the extensions list
 EXTENSIONS = EXTENSIONS.replace("template", "")
@@ -106,6 +158,7 @@ EXTENSIONS = EXTENSIONS.replace("template", "")
 EXTENSIONS = re.sub("\s+", " ", EXTENSIONS) # Multiple spaces into 1
 EXTENSIONS = EXTENSIONS.strip() # Remove leading/trailing whitespace
 # Take our random order string and create a sorted string
+print(EXTENSIONS)
 buildvars["EXTENSIONS"] = ' ' . join(sorted(EXTENSIONS.split(" ")))
 
 # We now have our EXTENSIONS to use
@@ -160,25 +213,35 @@ buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 # Now let's setup up all the info about our build environment
 
 # Grab the HOST_ARCH
+# See if the user specified it via the script cmdline
+# If not, set the default
 HOST_ARCH = ""
-if (platform.system() == "AIX"):
-    atuple = platform.architecture()
-    if (atuple[0] == "32bit"):
-        HOST_ARCH="aix"
-    else:
-        HOST_ARCH="aix64"
+if (args.host != None):
+    HOST_ARCH = args.host
 else:
-    HOST_ARCH = platform.machine()
+    if (platform.system() == "AIX"):
+        atuple = platform.architecture()
+        if (atuple[0] == "32bit"):
+            HOST_ARCH="aix"
+        else:
+            HOST_ARCH="aix64"
+    else:
+        HOST_ARCH = platform.machine()
 buildvars["HOST_ARCH"] = HOST_ARCH
 
 # Set the host base arch.  Just happens to be the first 3 characters
 buildvars["HOST_BARCH"] = HOST_ARCH[0:3]
 
 # If the TARGET_ARCH was passed in, use that.  Otherwise, HOST_ARCH
-if "TARGET_ARCH" in os.environ:
-    TARGET_ARCH = os.environ["TARGET_ARCH"]
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
+if (args.target != None):
+    TARGET_ARCH = args.target
 else:
-    TARGET_ARCH = HOST_ARCH
+    if "TARGET_ARCH" in os.environ:
+        TARGET_ARCH = os.environ["TARGET_ARCH"]
+    else:
+        TARGET_ARCH = HOST_ARCH
 buildvars["TARGET_ARCH"] = TARGET_ARCH
 
 # Set the target base arch.  Just happens to be the first 3 characters
@@ -352,49 +415,74 @@ buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 
 # Use the default path for a swig install
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 # The user can override before calling this script or in the distro makefile
 SWIG = ""
-if "SWIG" in os.environ:
-    SWIG = os.environ["SWIG"]
+if (args.swig != None):
+    SWIG = args.swig
 else:
-    SWIG = "/usr/bin/swig"
+    if "SWIG" in os.environ:
+        SWIG = os.environ["SWIG"]
+    else:
+        SWIG = "/usr/bin/swig"
 buildvars["SWIG"] = SWIG
 
 # Use the default path for a perl install
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 # The user can override before calling this script or in the distro makefile
 ECMDPERLBIN = ""
-if "ECMDPERLBIN" in os.environ:
-    ECMDPERLBIN = os.environ["ECMDPERLBIN"]
+if (args.perl != None):
+    ECMDPERLBIN = args.perl
 else:
-    ECMDPERLBIN = "/usr/bin/perl"
+    if "ECMDPERLBIN" in os.environ:
+        ECMDPERLBIN = os.environ["ECMDPERLBIN"]
+    else:
+        ECMDPERLBIN = "/usr/bin/perl"
 buildvars["ECMDPERLBIN"] = ECMDPERLBIN
 
 # Use the default path for a python install
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 # The user can override before calling this script or in the distro makefile
 ECMDPYTHONBIN = ""
-if "ECMDPYTHONBIN" in os.environ:
-    ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
+if (args.python != None):
+    ECMDPYTHONBIN = args.python
 else:
-    ECMDPYTHONBIN = "/usr/bin/python"
+    if "ECMDPYTHONBIN" in os.environ:
+        ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
+    else:
+        ECMDPYTHONBIN = "/usr/bin/python"
 buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
 
 # Use the default path for a python3 install
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 # The user can override before calling this script or in the distro makefile
 ECMDPYTHON3BIN = ""
-if "ECMDPYTHON3BIN" in os.environ:
-    ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
+if (args.python3 != None):
+    ECMDPYTHON3BIN = args.python3
 else:
-    ECMDPYTHON3BIN = "/usr/bin/python3"
+    if "ECMDPYTHON3BIN" in os.environ:
+        ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
+    else:
+        ECMDPYTHON3BIN = "/usr/bin/python3"
 buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
 
 ##################
 # Setup info around an install
 
-# If INSTALL_PATH wasn't given, install into our local dir
-if "INSTALL_PATH" not in os.environ:
-    INSTALL_PATH = os.path.join(ECMD_ROOT, "install")
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
+if (args.install_path != None):
+    INSTALL_PATH = args.install_path
 else:
-    INSTALL_PATH = os.environ["INSTALL_PATH"]
+    # If INSTALL_PATH wasn't given, install into our local dir
+    if "INSTALL_PATH" not in os.environ:
+        INSTALL_PATH = os.path.join(ECMD_ROOT, "install")
+    else:
+        INSTALL_PATH = os.environ["INSTALL_PATH"]
 buildvars["INSTALL_PATH"] = INSTALL_PATH
 
 # If not given, create INSTALL_BIN_PATH off INSTALL_PATH
@@ -446,11 +534,16 @@ else:
 buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
 
 # Define where to get the doxygen executable from
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
 DOXYGENBIN = ""
-if "DOXYGENBIN" not in os.environ:
-    DOXYGENBIN = "/usr/bin/doxygen"
+if (args.doxygen != None):
+    DOXYGENBIN = args.doxygen
 else:
-    DOXYGENBIN = os.environ["DOXYGENBIN"]
+    if "DOXYGENBIN" not in os.environ:
+        DOXYGENBIN = "/usr/bin/doxygen"
+    else:
+        DOXYGENBIN = os.environ["DOXYGENBIN"]
 buildvars["DOXYGENBIN"] = DOXYGENBIN
 
 ##################
