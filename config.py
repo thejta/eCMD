@@ -158,7 +158,6 @@ EXTENSIONS = EXTENSIONS.replace("template", "")
 EXTENSIONS = re.sub("\s+", " ", EXTENSIONS) # Multiple spaces into 1
 EXTENSIONS = EXTENSIONS.strip() # Remove leading/trailing whitespace
 # Take our random order string and create a sorted string
-print(EXTENSIONS)
 buildvars["EXTENSIONS"] = ' ' . join(sorted(EXTENSIONS.split(" ")))
 
 # We now have our EXTENSIONS to use
