@@ -578,11 +578,9 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 
 /** @name Scan Functions 
- @ifnot zseries
- @n Some functions of this section work with different scanmodes. 
- @n Using the ecmdSetConfiguration() API allows to change the scanmode different to the default scanmode.
- *  Please see documentation at ecmdSetConfiguration() for supported scanmodes. 
- @endif 
+ * Some functions of this section work with different scanmodes. 
+ * Using the ecmdSetConfiguration() API allows to change the scanmode different to the default scanmode.
+ * Please see documentation at ecmdSetConfiguration() for supported scanmodes. 
 */
 //@{
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -681,11 +679,6 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
  @brief Scans the specified number of bits from the selected chip and ring address into the data buffer.
- @if zseries
- @n Using this function allows on zseries to scan the data with setpulse. If the file
- @n " /console/data/ecmd_setpulse_ON " exists
- @n the data is fetched using setpulse otherwise a normal fetch is performed. 
- @endif 
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_SUCCESS if successful
@@ -2608,13 +2601,8 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
 
 /**
  @brief Set the value of a supported Configuration Setting like for example scanmode
-  @param i_target Struct that specifies the target to operate on (see target depth and states below)
-  @param i_name Name of setting as defined by eCMD Api
- @if zseries 
- <a HREF="https://mcweb.boeblingen.de.ibm.com/ecmd/zapis/configuration/configurationFunctions.html">         z-series definitions of i_Name</a>
- @else 
- @n Please see platform documentation for a list of supported strings
- @endif 
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_name Name of setting as defined by eCMD Api - please see plugin documentation for list of supported strings
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_name Name of setting as defined by eCMD Api
  @param i_validInput Indicator if i_valueAlpha, i_valueNumeric (or both) are valid.
