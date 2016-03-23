@@ -4899,6 +4899,19 @@ uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_qu
 //@}
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
+/**
+ @brief Make a query of the targeted Service Processor or Service Element
+ @param i_target SP to query
+ @param i_commandStr query type to make, LIST command will return supported queries
+ @param o_result query result
+
+ TARGET DEPTH : node<br>
+ TARGET STATES : Unused
+
+*/
+
+uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

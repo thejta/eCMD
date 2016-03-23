@@ -74,6 +74,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
                             - Display addrs for the specified scomgroup
                             - Use version to specify a specific version of the groupscomdef/hash
 
+                        sp command
+                            - Query the service proccessor with the specified command
+
         Addendum Options
 
                         -a#  [optional] Operate on all levels of targeting with same value.
