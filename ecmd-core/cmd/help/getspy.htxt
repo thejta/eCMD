@@ -1,5 +1,5 @@
 
-Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-sparse] [-exp <value>] [-o<format>] [-i<format>]
+Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-sparse] [-mcast<value>] [-exp <value>] [-o<format>] [-i<format>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
@@ -25,6 +25,9 @@ Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-sparse] [-exp <
 
         -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
                         Only valid on clock-off spy accesses
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte of address to use.
         
         -exp [optional] Provides an expected value as the last argument. Returns error
                         only if miscompare.

@@ -109,6 +109,14 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     detail = ECMD_QUERY_DETAIL_HIGH;
   }
 
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      spy_flags = (uint32_t)strtol(mcast, NULL, 16);
+      spy_flags |= ECMD_RING_MODE_MULTICAST;
+  }
+
   //Check for sparse flag
   bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (l_sparse)
@@ -573,6 +581,12 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }
         ecmdOutput("============================================================\n");
       }
+      
+      // We only want to go through the cu looper one time in multicast mode
+      if (spy_flags & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
+      }
     } /* End cuLooper */
 
     // as of STGC00401862  we are disabling caching for spy accesses
@@ -640,6 +654,14 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
+  }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      spy_flags = (uint32_t)strtol(mcast, NULL, 16);
+      spy_flags |= ECMD_RING_MODE_MULTICAST;
   }
 
   //Check for sparse flag
@@ -865,6 +887,12 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
+      }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (spy_flags & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
       }
     } /* End cuLooper */
 
