@@ -556,13 +556,20 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     inputformat = formatPtr;
   }
 
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
+
   //Check for sparse flag
   bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (use_sparse)
   {
       ringMode |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
-
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -880,6 +887,13 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	ecmdOutputError("getlatch - Unable to find a latch with the given startbit\n");
 	return ECMD_INVALID_LATCHNAME;
       }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
+      }
+
     } /* End cuLooper */
   } /* End PosLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -920,6 +934,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   bool outputformatflag = false;
   bool inputformatflag = false; 
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;               ///< Ring mode flags
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -952,6 +967,14 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
   //Check for sparse flag
   bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1118,7 +1141,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       if (use_sparse) // Call the sparse getring method
       {
-          rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+          rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, ringMode);
           if (rc) {
               printed = "getbits - Error occurred performing getRingSparse on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1134,7 +1157,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       }
       else
       {
-          rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+          rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
           if (rc) {
               printed = "getbits - Error occurred performing getring on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1167,7 +1190,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
 	}
 	if (rc) {
-	  ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
+	  ecmdOutputError("getbits - Problems occurred parsing expected data, must be an invalid format\n");
 	  return rc;
 	}
 
@@ -1219,6 +1242,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         } 
 
       } /* End !expectFlag */
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
+      }
     } /* End cuLooper */
   } /* End posLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -1250,6 +1278,8 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   bool validPosFound = false;           ///< Did the looper find something ?
   bool formatflag = false;
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;               ///< Ring mode flags
+
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1278,6 +1308,14 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
   //Check for sparse flag
   bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1433,7 +1471,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         // Call the sparse method if -sparse was specified and we need to and/or 
         else if ((use_sparse) && (dataModifier != "insert"))
         {
-            rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+            rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, ringMode);
             if (rc) {
                 printed = "putbits - Error occurred performing getRingSparse on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1444,7 +1482,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         } 
         else 
         {
-            rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+            rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
             if (rc) {
                 printed = "putbits - Error occurred performing getring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1459,7 +1497,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 
         if (use_sparse)
         {
-            rc = putRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask);
+            rc = putRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, ringMode);
             if (rc) {
                 printed = "putbits - Error occurred performing putRingSparse on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1474,7 +1512,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         }
         else
         {
-            rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
+            rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
             if (rc) {
                 printed = "putbits - Error occurred performing putring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1492,6 +1530,12 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
             printed = ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutput(printed.c_str());
+        }
+
+        // We only want to go through the cu looper one time in multicast mode
+        if (ringMode & ECMD_RING_MODE_MULTICAST)
+        {
+            break;  
         }
     } /* End cuLooper */
   } /* End posloop */
@@ -1532,7 +1576,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t matchs;                      ///< Number of matchs returned from putlatch
   bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
-  uint32_t ringMode = 0;                ///< Full or sparse ring access?
+  uint32_t ringMode = 0;                ///< Full or sparse ring access?  Also used for multicast information
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1552,6 +1596,14 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
+  }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
   }
 
   //Check for sparse flag
@@ -1840,6 +1892,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         ecmdOutputError("putlatch - Unable to find a latch with the given startbit\n");
         rc = ECMD_INVALID_LATCHNAME;
         break;
+      }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
       }
     } /* End cuLooper */
 

@@ -1,6 +1,6 @@
 
 Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
-              [-exact | -partial] [-sparse] [-i<format>] [-b<modifier>]
+              [-exact | -partial] [-sparse] [-mcast<value>] [-i<format>] [-b<modifier>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -44,6 +44,9 @@ Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
         -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
 
         -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte of address to use.
 
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Run 'ecmdquery formats' to view available formats

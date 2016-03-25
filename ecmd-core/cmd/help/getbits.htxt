@@ -1,5 +1,5 @@
 
-Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-sparse] [-exp <data>] [-o<format>] [-i<format>] 
+Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-sparse] [-exp <data>] [-o<format>] [-i<format>] [-mcast<value>]
         getbits <Chip[.ChipUnit]> <RingName> -f<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -42,6 +42,9 @@ Syntax: getbits <Chip[.ChipUnit]> <RingName> <StartPos> <NumBits> [-sparse] [-ex
 
         -f<filename>[o] Specifies the filename that the ring data should be written to
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
         	
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions

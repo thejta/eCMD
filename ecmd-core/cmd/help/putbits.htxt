@@ -1,5 +1,5 @@
 
-Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>] [-sparse]
+Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>] [-sparse] [-mcast<value>]
         putbits <Chip[.ChipUnit]> <RingName>  -f<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -34,6 +34,9 @@ Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<
 
         -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
                         Only valid on clock-off spy accesses
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
 
         -f<filename>[o] Specifies the filename that the ring data should be read from
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
