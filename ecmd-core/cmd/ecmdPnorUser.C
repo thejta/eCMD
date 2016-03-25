@@ -352,13 +352,13 @@ uint32_t ecmdPutPnorUser(int argc, char * argv[]) {
         }
         else
         {
-            oss << "getpnor - Option '-offset' unable to process value " << charOffset << std::endl;
+            oss << "putpnor - Option '-offset' unable to process value " << charOffset << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }
         if ( match != 1 )
         {
-            oss << "getpnor - Option '-offset' Error occurred processing value " << charOffset << std::endl;
+            oss << "putpnor - Option '-offset' Error occurred processing value " << charOffset << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }
@@ -390,13 +390,13 @@ uint32_t ecmdPutPnorUser(int argc, char * argv[]) {
         }
         else
         {
-            oss << "getpnor - Option '-block-size' unable to process value " << charBlockSize << std::endl;
+            oss << "putpnor - Option '-block-size' unable to process value " << charBlockSize << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }
         if ( match != 1 )
         {
-            oss << "getpnor - Option '-block-size' Error occurred processing value " << charBlockSize << std::endl;
+            oss << "putpnor - Option '-block-size' Error occurred processing value " << charBlockSize << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }
@@ -427,13 +427,13 @@ uint32_t ecmdPutPnorUser(int argc, char * argv[]) {
         }
         else
         {
-            oss << "getpnor - Option '-value' unable to process value " << charEraseValue << std::endl;
+            oss << "putpnor - Option '-value' unable to process value " << charEraseValue << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }
         if ( match != 1 )
         {
-            oss << "getpnor - Option '-value' Error occurred processing value " << charEraseValue << std::endl;
+            oss << "putpnor - Option '-value' Error occurred processing value " << charEraseValue << std::endl;
             ecmdOutputError(oss.str().c_str());
             return ECMD_INVALID_ARGS;
         }

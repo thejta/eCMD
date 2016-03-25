@@ -12,7 +12,8 @@ Syntax: getpnor -list
         --------------------------------------------------------------------------------
         -list           List the partition table
 
-        -name           Name of the partition to use
+        -name           Name of the partition to use 
+                        *case sensitive
 
         -offset         Offset of partition entry in bytes from beginning
 

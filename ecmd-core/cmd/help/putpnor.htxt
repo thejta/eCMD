@@ -12,6 +12,7 @@ Syntax: putpnor -fb <filename> -name <partition name>
         Parameters:
         --------------------------------------------------------------------------------
         -name           Name of the partition to use
+                        *case sensitive
 
         -offset         Offset of partition table in bytes from beginning, defaults to 0
 
