@@ -20,6 +20,9 @@ reqgroup = parser.add_argument_group('Required Arguments')
 # Group for the optional args so the help displays properly
 optgroup = parser.add_argument_group('Optional Arguments')
 
+# These args can also be set by declaring their environment variable
+# before calling this script.
+# If you specify both, the cmdline arg wins over the env variable
 # --help
 optgroup.add_argument("-h", "--help", help="Show this message and exit", action="help")
 
