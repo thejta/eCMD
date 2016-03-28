@@ -1,0 +1,18 @@
+##
+# Any compiler customizations
+##
+
+##
+# Any swig customizations
+##
+
+##
+# Any perl customization
+##
+PERLINC := -I/usr/lib/powerpc64le-linux-gnu/perl/5.20.2/CORE
+
+##
+# Any python customization
+##
+PYINC := -I/usr/include/python2.7
+PY3INC := -I/usr/include/python3.4
