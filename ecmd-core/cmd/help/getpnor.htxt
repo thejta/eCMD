@@ -16,8 +16,10 @@ Syntax: getpnor -list
                         *case sensitive
 
         -offset         Offset of partition entry in bytes from beginning
+                        *defaults to 0
 
-        -block-size     Specifies size in bytes of block size to use, defaults to 4096
+        -block-size     Specifies size in bytes of block size to use
+                        *defaults to 4096
 
         -fb <filename>  Specify full path and filename to binary file to write data from
                         system

@@ -18,12 +18,11 @@ Syntax: putpnor -fb <filename> -name <partition name>
 
         -block-size     Specifies size in bytes of block size to use, defaults to 4096
 
-        -force          Override command safeguards
-
         -erase          Writes the value specified in -value to the entire partition specified
                         by -name
 
-        -value          The value to use in the case of -erase being specified, defaults to 0x0
+        -value          The 32 bit value to use when -erase is specified
+                        *defaults to 0x0
 
         -fb <filename>  Specify full path and filename to binary file to load to system
                         Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
@@ -32,6 +31,6 @@ Syntax: putpnor -fb <filename> -name <partition name>
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Examples:       > putpnor -fb /tmp/data.bin -n0
+        Examples:       > putpnor -fb /tmp/data.bin -name HBB
                         > putpnor -fb /tmp/data.bin -n0 -name HBB
-                        > putpnor -name HBB -erase -value 0xFB
+                        > putpnor -name HBB -erase -value 0xFBFB
