@@ -214,5 +214,8 @@ uint32_t ecmdQueryBiasStateUser(int argc, char * argv[]);
 /* ecmdAdalPsiUser.C */
 uint32_t ecmdAdalPsiUser(int argc, char * argv[]);
 
+/* ecmdPnorUser.C */
+uint32_t ecmdGetPnorUser(int argc, char * argv[]);
+uint32_t ecmdPutPnorUser(int argc, char * argv[]);
 
 #endif /* ecmdInterpreter_h */

@@ -44,7 +44,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "14.2"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "14.3"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -1947,6 +1947,64 @@ inline ecmdLatchEntry::~ecmdLatchEntry() { }
 #endif
 
 /**
+ @brief Used by ecmdQueryLatchInfo function to return data
+*/
+struct ecmdLatchQueryData {
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdLatchQueryData();
+
+  // Destructor
+  ~ecmdLatchQueryData();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void);
+#ifndef ECMD_STRIP_DEBUG
+  void printStruct(void);
+#endif
+#endif
+
+  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
+
+  // Members
+  std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
+  std::string      latchName;             ///< (Detail: Low)  Latch name of entry
+  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
+  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
+  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
+  uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
+  uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
+  uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
+  bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::string      clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t clockState;            ///< (Detail: High) Required clock state to access this latch
+};
+
+#ifndef DOCUMENTATION
+// ecmdLatchQueryData Constructor
+inline ecmdLatchQueryData::ecmdLatchQueryData():
+fsiStartRingOffset(0),
+jtagStartRingOffset(0),
+fsiEndRingOffset(0),
+jtagEndRingOffset(0),
+latchStartBit(0),
+latchEndBit(0),
+bitLength(0),
+isChipUnitRelated(false),
+clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
+{
+}
+
+// ecmdLatchQueryData Destructor
+inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
+#endif
+
+/**
  @brief Used by ecmdQueryProcRegisterInfo function to return data about a Architected register
 */
 struct ecmdProcRegisterInfo {
@@ -2300,5 +2358,129 @@ struct ecmdDTSData{
  Defines for getMemProc and putMemProc
 */
 #define MEMPROC_CACHE_INHIBIT  0x00000001
+
+
+/**
+ Defines for ring/spy/latch functions 
+*/
+#define ECMD_RING_MODE_HEADER_CHECK            0x00000000
+#define ECMD_RING_MODE_MULTICAST               0x80000000
+#define ECMD_RING_MODE_SET_PULSE_NO_OPCG_COND  0x40000000
+#define ECMD_RING_MODE_NO_HEADER_CHECK         0x20000000
+#define ECMD_RING_MODE_SET_PULSE_NSL           0x10000000
+#define ECMD_RING_MODE_SET_PULSE_SL            0x08000000
+#define ECMD_RING_MODE_SET_PULSE_ALL           0x04000000
+#define ECMD_RING_MODE_SPARSE_ACCESS           0x02000000
+#define ECMD_RING_MODE_FASTARRAY               0x01000000
+#define ECMD_RING_MODE_MULTICAST_MASK          0x000000FF
+
+/**
+ @brief Used for the ecmdGetPnor and ecmdPutPnor function
+*/
+
+typedef enum {
+    ECMD_PNOR_TYPE_DATA      = 1,
+    ECMD_PNOR_TYPE_LOGICAL   = 2,
+    ECMD_PNOR_TYPE_PARTITION = 3
+} ecmd_pnor_types;
+
+typedef enum {
+    ECMD_PNOR_FLAGS_U_BOOT_ENV = 0x0002,
+    ECMD_PNOR_FLAGS_PROTECTED  = 0x0001
+} ecmd_pnor_flags;
+
+typedef enum {
+    ECMD_PNOR_MODE_DEFAULT,
+    ECMD_PNOR_MODE_ERASE
+} ecmd_pnor_modes;
+
+struct ecmdPnorListEntryData {
+#ifndef DOCUMENTATION
+    // Constructor
+    ecmdPnorListEntryData();
+
+    // Destructor
+    ~ecmdPnorListEntryData();
+#endif
+
+    // Members
+    std::string     entryName;      ///< (Detail: Low) The entry name
+    uint32_t        entryBase;      ///< (Detail: Low) The entry base
+    uint32_t        entrySize;      ///< (Detail: Low) The entry size
+    uint32_t        entryPid;       ///< (Detail: Low) The entry PID
+    uint32_t        entryId;        ///< (Detail: Low) The entry ID
+    uint32_t        entryType;      ///< (Detail: Low) The entry type
+    uint32_t        entryFlags;     ///< (Detail: Low) The entry flags
+    uint32_t        entryActual;    ///< (Detail: Low) The entry actual 
+    uint32_t        entryChecksum;  ///< (Detail: Low) The entry checksum
+};
+
+#ifndef DOCUMENTATION
+//ecmdPnorListEntryData Constructor
+inline ecmdPnorListEntryData::ecmdPnorListEntryData():
+entryName(""),
+entryBase(0x0),
+entrySize(0x0),
+entryPid(0x0),
+entryId(0x0),
+entryType(0x0),
+entryFlags(0x0),
+entryActual(0x0),
+entryChecksum(0x0)
+{
+}
+
+// ecmdPnorListEntryData destructor
+inline ecmdPnorListEntryData::~ecmdPnorListEntryData() { }
+#endif
+
+struct ecmdPnorListData {
+#ifndef DOCUMENTATION
+    // Constructor
+    ecmdPnorListData();
+
+    // Destructor
+    ~ecmdPnorListData();
+#endif
+
+    // Members
+    uint32_t          hdrMagic;           ///< (Detail: Low) Magic value
+    uint32_t          hdrVersion;         ///< (Detail: Low) Version value
+    uint32_t          hdrSize;            ///< (Detail: Low) Size of the structure
+    uint32_t          hdrEntrySize;       ///< (Detail: Low) Entry size
+    uint32_t          hdrEntryCount;      ///< (Detail: Low) Number of Entries
+    uint32_t          hdrBlockSize;       ///< (Detail: Low) Block size
+    uint32_t          hdrBlockCount;      ///< (Detail: Low) Block count
+    uint32_t          hdrChecksum;        ///< (Detail: Low) Checksum of image
+    std::list<ecmdPnorListEntryData>    hdrEntries; ///< (Detail: Low) List of entry data
+};
+
+#ifndef DOCUMENTATION
+// ecmdPnorListData Constructor
+inline ecmdPnorListData::ecmdPnorListData():
+hdrMagic(0x0),
+hdrVersion(0x0),
+hdrSize(0x0),
+hdrEntrySize(0x0),
+hdrEntryCount(0x0),
+hdrBlockSize(0x0),
+hdrBlockCount(0x0),
+hdrChecksum(0x0)
+{
+}
+
+// ecmdPnorListData Destructor
+inline ecmdPnorListData::~ecmdPnorListData() 
+{
+    if ( hdrEntries.size() != 0 )
+    {
+        std::list<ecmdPnorListEntryData>::iterator myIt;
+        for( myIt = hdrEntries.begin(); myIt != hdrEntries.end(); myIt++ )
+        {
+            myIt = hdrEntries.erase(myIt);
+        }
+    }
+}
+#endif
 
 #endif

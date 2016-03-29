@@ -80,6 +80,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   //bool enabledCache = false;            ///< Did we enable the cache ?
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -106,6 +107,21 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   if (verbose) {
     detail = ECMD_QUERY_DETAIL_HIGH;
+  }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      spy_flags = (uint32_t)strtol(mcast, NULL, 16);
+      spy_flags |= ECMD_RING_MODE_MULTICAST;
+  }
+
+  //Check for sparse flag
+  bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (l_sparse)
+  {
+      spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
     
   
@@ -325,9 +341,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
 
       if (outputformat == "enum") {              // FW524017  HJH
-        rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue);
+        rc = getSpyEnumHidden(cuTarget, spyName.c_str(), enumValue, spy_flags);
         if ( rc == ECMD_SPY_INVALID_READ_OPER) {
-              rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
+              rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
               if (rc == 0){   // .. printout warning informing that no enum could be found 
                   
                   printed = "getspy - Info: No enum found for Spy \"";
@@ -340,7 +356,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }    
       }
       else {     // outputformat = x
-        rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
+        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
       }
 
 
@@ -355,7 +371,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         int flag = 0;
         printed = "getspy - epcheckers \"";
         while (epcheckersIter != spyData->epCheckers.end()) {
-          rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
+          rc = getSpyEpCheckersHidden(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
           if (errorMask.getNumBitsSet(0,errorMask.getBitLength())) {
             if (flag) 
               printed += ", ";
@@ -498,7 +514,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       /* Check if verbose then print details */
       if (verbose) {
         /* Get Spy Groups */
-        getSpyGroups(cuTarget, spyName.c_str(), spygroups);
+        getSpyGroupsHidden(cuTarget, spyName.c_str(), spygroups, spy_flags);
         if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) {
           coeRc = rc;
           continue;
@@ -526,7 +542,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         printed = spyName + ": =====\n";
         ecmdOutput(printed.c_str());
         while (epcheckersIter != spyData->epCheckers.end()) {
-          rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask);
+          rc = getSpyEpCheckersHidden(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
           if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) {
             coeRc = rc;
             continue;
@@ -564,6 +580,12 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           }
         }
         ecmdOutput("============================================================\n");
+      }
+      
+      // We only want to go through the cu looper one time in multicast mode
+      if (spy_flags & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
       }
     } /* End cuLooper */
 
@@ -622,6 +644,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   std::list<ecmdSpyData>::iterator spyData;     ///< Spy information returned by ecmdQuerySpy
   //bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -631,6 +654,21 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
+  }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      spy_flags = (uint32_t)strtol(mcast, NULL, 16);
+      spy_flags |= ECMD_RING_MODE_MULTICAST;
+  }
+
+  //Check for sparse flag
+  bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (l_sparse)
+  {
+      spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
 
   /************************************************************************/
@@ -786,7 +824,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 
-        rc = getSpy(cuTarget, spyName.c_str(), spyBuffer);
+        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
 
         if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData->bitLength)) {
           /* We will go on if the user was going to write the whole spy anyway */
@@ -819,7 +857,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           continue;
         }
 
-        rc = putSpy(cuTarget, spyName.c_str(), spyBuffer);
+        rc = putSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
         if (rc) {
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -830,9 +868,9 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       } else {
 
         if (inputformat == "enum") {
-          rc = putSpyEnum(cuTarget, spyName.c_str(), argv[argc-1] );
+          rc = putSpyEnumHidden(cuTarget, spyName.c_str(), argv[argc-1], spy_flags);
         } else {
-          rc = putSpy(cuTarget, spyName.c_str(), buffer);
+          rc = putSpyHidden(cuTarget, spyName.c_str(), buffer, spy_flags);
         }
 
         if (rc) {
@@ -849,6 +887,12 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(cuTarget) + "\n";
         ecmdOutput(printed.c_str());
+      }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (spy_flags & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
       }
     } /* End cuLooper */
 

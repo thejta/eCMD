@@ -243,7 +243,22 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
-  if ((numBytes == ECMD_UNSET) && (argc < 2)) {  //chip + address
+  if ((memMode == ECMD_SRAM) && (channel == 1)) {
+    // channel 1 for sram commands is access to a circular buffer and does not require an address
+    if ((numBytes == ECMD_UNSET) && (argc != 1)) {  // size
+      printLine = cmdlineName + " - Incorrect arguments specified for channel 1; only number of bytes needed.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if (argc > 1) {
+      printLine = cmdlineName + " - Too many arguments specified for channel 1.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+  } else if ((numBytes == ECMD_UNSET) && (argc < 2)) {  //address + size
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
@@ -257,25 +272,34 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     return ECMD_INVALID_ARGS;
   }
 
-  // Get the address
-  if (!ecmdIsAllHex(argv[0])) {
-    printLine = cmdlineName + " - Non-hex characters detected in address field\n";
-    ecmdOutputError(printLine.c_str());
-    return ECMD_INVALID_ARGS;
-  }
+  if ((memMode == ECMD_SRAM) && (channel == 1)) {
+    // Set a default address
+    address = 0;
+    // Get the number of bytes
+    if (numBytes == ECMD_UNSET) {
+      numBytes = (uint32_t)atoi(argv[0]);
+    }
+  } else {
+    // Get the address
+    if (!ecmdIsAllHex(argv[0])) {
+      printLine = cmdlineName + " - Non-hex characters detected in address field\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    }
 #ifdef _LP64
-  match = sscanf(argv[0], "%lx", &address);
+    match = sscanf(argv[0], "%lx", &address);
 #else
-  match = sscanf(argv[0], "%llx", &address);
+    match = sscanf(argv[0], "%llx", &address);
 #endif
-  if (match != 1) {
-    ecmdOutputError("Error occurred processing address!\n");
-    return ECMD_INVALID_ARGS;
-  }
+    if (match != 1) {
+      ecmdOutputError("Error occurred processing address!\n");
+      return ECMD_INVALID_ARGS;
+    }
 
-  // Get the number of bytes
-  if (numBytes == ECMD_UNSET) {
-    numBytes = (uint32_t)atoi(argv[1]);
+    // Get the number of bytes
+    if (numBytes == ECMD_UNSET) {
+      numBytes = (uint32_t)atoi(argv[1]);
+    }
   }
 
 
@@ -479,7 +503,39 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
-  if ( (argc < 2)&&((filename == NULL) && (dcardfilename == NULL)) ) {  //chip + address
+  if ((memMode == ECMD_SRAM) && (channel == 1)) {
+    // channel 1 for sram commands is access to a circular buffer and does not require an address
+    // dcard not supported
+    if (dcardfilename != NULL) {
+      // ERROR
+      printLine = cmdlineName + " - dcard file not supported for channel 1.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((argc >= 1) && (filename != NULL)) {
+      // Too many arguments
+      printLine = cmdlineName + " - Too many arguments specified for channel 1.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if (argc > 1) {
+      // Too many arguments
+      printLine = cmdlineName + " - Too many arguments specified for channel 1; you only need input data|file.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((argc < 1) && (filename == NULL)) {
+      // Too few arguments, need data
+      printLine = cmdlineName + " - Too few arguments specified for channel 1; you need at least input data.\n";
+      ecmdOutputError(printLine.c_str());
+      printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    }
+  } else if ( (argc < 2)&&((filename == NULL) && (dcardfilename == NULL)) ) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
@@ -518,7 +574,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
 
   // Get the address
-  if ((dcardfilename == NULL) || (dcardfilename != NULL && argv[0] != NULL)) {
+  if ((memMode == ECMD_SRAM) && (channel == 1)) {
+    address = 0;
+  } else if ((dcardfilename == NULL) || (dcardfilename != NULL && argv[0] != NULL)) {
    if (!ecmdIsAllHex(argv[0])) {
      printLine = cmdlineName + " - Non-hex characters detected in address field\n";
      ecmdOutputError(printLine.c_str());
@@ -555,16 +613,20 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      ecmdOutputError(printLine.c_str());
      return rc;
     }
-  } else  {
-   rc = ecmdReadDataFormatted(inputData, argv[1] , inputformat);
-   if (rc) {
-     printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
-     ecmdOutputError(printLine.c_str());
-     return rc;
-   }
-   memEntry.address = address;
-   memEntry.data = inputData;
-   memdata.push_back(memEntry);
+  } else {
+    uint32_t argument_index = 1;
+    if ((memMode == ECMD_SRAM) && (channel == 1)) {
+      argument_index = 0;
+    }
+    rc = ecmdReadDataFormatted(inputData, argv[argument_index] , inputformat);
+    if (rc) {
+      printLine = cmdlineName + " - Problems occurred parsing input data, must be an invalid format\n";
+      ecmdOutputError(printLine.c_str());
+      return rc;
+    }
+    memEntry.address = address;
+    memEntry.data = inputData;
+    memdata.push_back(memEntry);
   }
 
   /************************************************************************/

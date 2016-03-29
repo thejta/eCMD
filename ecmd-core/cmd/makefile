@@ -15,6 +15,7 @@ SOURCE := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C
 SOURCE := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
 SOURCE := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
 SOURCE := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
+SOURCE := ${SOURCE} ecmdPnorUser.C
 
 # This is broke out so it doesn't get included in the archive
 MAIN_SOURCE  := ecmdMain.C
@@ -47,6 +48,7 @@ CFLAGS := ${CFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_$
 TARGET     := ecmd
 VER_TARGET := ecmdVersion
 AR_TARGET  := ecmdClientCmd.a
+HELP_TARGET := ecmd.htxt
 
 # *****************************************************************************
 # The x86 Linux Setup stuff
@@ -90,7 +92,7 @@ all:
 
 generate: ${GENERATED_SOURCE}
 
-build: ${TARGET} ${VER_TARGET} ${AR_TARGET}
+build: ${TARGET} ${VER_TARGET} ${AR_TARGET} ${HELP_TARGET}
 
 test:
   # Do nothing
@@ -98,6 +100,7 @@ test:
 install:
 	cp ${OUTBIN}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OUTBIN}/${HELP_TARGET} ${INSTALL_PATH}/help/
 
 doxygen-capi:
   # Do nothing
@@ -135,7 +138,7 @@ $(SOURCE_OBJS) $(MAIN_SOURCE_OBJS) $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INC
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${MAIN_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS} ${EXTLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} ${EXTLIBS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 	@echo Linking $@
@@ -144,6 +147,10 @@ ${VER_TARGET}: ${VER_SOURCE_OBJS}
 ${AR_TARGET}: ${SOURCE_OBJS}
 	@echo Creating $@
 	${VERBOSE}${AR} r ${OUTLIB}/${AR_TARGET} $^
+
+${HELP_TARGET}:
+	@echo Creating $@
+	${VERBOSE}./createEcmdHelp.pl ${OUTBIN}/${HELP_TARGET}
 
 # *****************************************************************************
 # Autogenerate some of the extension source

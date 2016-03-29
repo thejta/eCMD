@@ -126,7 +126,7 @@ ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE}
 # *****************************************************************************
 ${SO_TARGET}: ${SOURCE_OBJS} ${SWIG_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} $^ -o ${OUTPERL}/${SO_TARGET} ${LDLIBS} ${EXTLIBS}
+	${VERBOSE}${LD_R} ${SLDFLAGS} ${PERLSLDFLAGS} ${EXTLIBS} $^ -o ${OUTPERL}/${SO_TARGET} ${LDLIBS}
 
 # *****************************************************************************
 # Autogenerate the Perl Wrapper

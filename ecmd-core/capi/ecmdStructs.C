@@ -5576,6 +5576,43 @@ void  ecmdLatchEntry::printStruct() {
 #endif  // end of ECMD_STRIP_DEBUG
 
 /*
+ * The following methods for the ecmdLatchQueryData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+
+bool ecmdLatchQueryData::isChipUnitMatch(std::string &i_chipUnitType) {
+  /* If either matches, return true */
+  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
+    return true;
+  }
+
+  return false;
+}
+
+uint32_t ecmdLatchQueryData::flatten(uint8_t *o_buf, uint32_t i_len) {
+
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchQueryData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+uint32_t ecmdLatchQueryData::flattenSize() {
+        return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+#ifndef ECMD_STRIP_DEBUG
+void  ecmdLatchQueryData::printStruct() {
+
+        printf("\n\t--- Latch Entry Structure ---\n");
+
+        // Print non-list data.
+
+}
+#endif  // end of ECMD_STRIP_DEBUG
+
+/*
  * The following methods for the ecmdProcRegisterInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */

@@ -1,5 +1,5 @@
 
-Syntax: putspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>]
+Syntax: putspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data> [-i<format>] [-b<modifier>] [-sparse] [-mcast<value>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                               
         ECMD:           Core Common Function
@@ -33,6 +33,12 @@ Syntax: putspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] <Data> [-i<format
 
         -b<mod>[opt]    Bit modifier to apply to current ring data.
                         Run 'ecmdquery formats' to view available modifiers
+
+        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
+                        Only valid on clock-off spy accesses
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte of address to use.
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions

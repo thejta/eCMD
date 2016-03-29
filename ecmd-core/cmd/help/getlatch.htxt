@@ -1,6 +1,6 @@
 
 Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact | -partial] 
-                              [-exp <value>] [-o<format>] 
+                              [-sparse] [-exp <value>] [-o<format>] [-mcast<value>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -44,6 +44,8 @@ Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
 
+        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
+
         -exp [optional] Provide an expected-value as the last argument. Returns error if
                         data miscompare, else nothing.
                         Format specified by -i<format>
@@ -55,6 +57,9 @@ Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         -i<format>[opt] Specifies the format type of expect data
                         Run 'ecmdquery formats' to view available formats
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte of address to use.
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
