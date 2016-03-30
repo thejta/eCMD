@@ -350,6 +350,13 @@ sub main {
     $release = $ENV{"ECMD_RELEASE"};
   }
 
+  ##########################################################################
+  # If release was set to rel by plugin setup, change local variable
+  #
+  if ($ENV{"ECMD_RELEASE"} eq "rel") {
+    $release = $ENV{"ECMD_RELEASE"};
+  }
+
   # We'll see if the release is supported based upon the directory existing
   my @releasePathArray = @installPathArray;
   if (!$singleInstall) {
@@ -367,7 +374,7 @@ sub main {
   ##########################################################################
   # Set ECMD_PATH based upon the releasePath figured out above
   #
-  $ENV{"ECMD_PATH"} = $releasePath;
+  $ENV{"ECMD_PATH"} = $releasePath . "/";
   $modified{"ECMD_PATH"} = 1;
 
   ##########################################################################
