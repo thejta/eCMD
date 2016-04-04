@@ -2949,9 +2949,6 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       }
       else  {
 
-	/* Transform to upper case */
-	transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
-
 	ecmdParseTokens(curLine, " \t\n", curArgs);
 	if (curArgs.size() >= 5) {
 	  curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
