@@ -3986,8 +3986,6 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
 
-  /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
   //used to set ecmdLatchBufferEntry's latchNameHashKey in * and that is only used in comparsion 
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
@@ -4265,8 +4263,6 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
   std::string l_version = "default";
-  /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
   latchHashKey32 = ecmdHashString32(latchName.c_str(), 0);
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
