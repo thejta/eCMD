@@ -17,11 +17,11 @@
  */
 //IBM_PROLOG_END_TAG
 
-#ifndef ecmdDataBufferTrace_H 
-#define ecmdDataBufferTrace_H
+#ifndef ecmdTraceDefines_H 
+#define ecmdTraceDefines_H
 
 /**
- * @file ecmdDataBufferTrace.H
+ * @file ecmdTraceDefines.H
  * @brief Provides a defined set of trace functions for ecmdDataBuffer
  *
  * This header defines the default set ecmdDataBuffer trace functions
