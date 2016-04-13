@@ -344,7 +344,7 @@ sub main {
   if ($ENV{"ECMD_RELEASE"} eq "auto") {
     # Use the full path to get to ecmdVersion to dynamically establish the version
     # We have to call the full path because PATH won't always be established
-    my $command = "$installPath/$arch/bin/ecmdVersion full";
+    my $command = "$installPath/bin/ecmdVersion_$arch full";
     $ENV{"ECMD_RELEASE"} = `/bin/sh -c \"$command\"`;
     $modified{"ECMD_RELEASE"} = 1;
     $release = $ENV{"ECMD_RELEASE"};
