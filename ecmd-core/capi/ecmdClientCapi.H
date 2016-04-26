@@ -4912,6 +4912,19 @@ uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_qu
 
 uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
 
+/**
+ @brief Make a query of the processor to determine the mode in which the core is operating.
+ @param i_target processor to query
+ @param o_coreMode core mode of the processor
+ @param o_coreChipUnit name of the chipunit by which to reference the operating core.
+
+ TARGET DEPTH : pos<br>
+ TARGET STATES : Unused
+
+*/
+
+uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std::string & o_coreChipUnit);
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

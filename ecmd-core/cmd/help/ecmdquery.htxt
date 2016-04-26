@@ -77,6 +77,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         sp command
                             - Query the service proccessor with the specified command
 
+                        mode
+                            - Query mode of the processor. Displays mode and core name.
+
         Addendum Options
 
                         -a#  [optional] Operate on all levels of targeting with same value.
