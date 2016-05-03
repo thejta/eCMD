@@ -1,0 +1,21 @@
+##
+# Any compiler customization
+##
+
+##
+# Any swig customization 
+##
+ifeq (${SWIG},/usr/bin/swig)
+$(error The swig that ships with el7 is down level.  Please install swig 2.0.11 or later.)
+endif
+
+##
+# Any perl customization
+##
+PERLINC := -I/usr/lib64/perl5/CORE
+
+##
+# Any python customization
+##
+PYINC := -I/usr/include/python2.7
+CREATE_PY3API := no
