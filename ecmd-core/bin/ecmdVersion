@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+use strict;
+
+
+if (!$ENV{"ECMD_ARCH"}) {
+  die "environment variable ECMD_ARCH is not set, run ecmdsetup";
+}
+
+my $rc = system("ecmdVersion_$ENV{ECMD_ARCH} @ARGV");
+
+exit($rc/256);  #return code from the system call above
+

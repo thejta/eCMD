@@ -100,6 +100,7 @@ test:
 install:
 	cp ${OUTBIN}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
 	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/bin/
+	cp ${OUTBIN}/${VER_TARGET} ${INSTALL_PATH}/bin/${VER_TARGET}_${TARGET_ARCH}
 	cp ${OUTBIN}/${HELP_TARGET} ${INSTALL_PATH}/help/
 
 doxygen-capi:
