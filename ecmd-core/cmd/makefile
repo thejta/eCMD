@@ -139,7 +139,7 @@ $(SOURCE_OBJS) $(MAIN_SOURCE_OBJS) $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INC
 # *****************************************************************************
 ${TARGET}: ${SOURCE_OBJS} ${MAIN_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${LDFLAGS} ${EXTLIBS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS}
+	${VERBOSE}${LD} ${LDFLAGS} $^ -o ${OUTBIN}/${TARGET} ${LDLIBS} ${EXTLIBS}
 
 ${VER_TARGET}: ${VER_SOURCE_OBJS}
 	@echo Linking $@
