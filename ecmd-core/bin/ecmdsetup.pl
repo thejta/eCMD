@@ -344,7 +344,7 @@ sub main {
   if ($ENV{"ECMD_RELEASE"} eq "auto") {
     # Use the full path to get to ecmdVersion to dynamically establish the version
     # We have to call the full path because PATH won't always be established
-    my $command = "$installPath/bin/ecmdVersion_$arch full";
+    my $command = "$installPath/$arch/bin/ecmdVersion full";
     $ENV{"ECMD_RELEASE"} = `/bin/sh -c \"$command\"`;
     $modified{"ECMD_RELEASE"} = 1;
     $release = $ENV{"ECMD_RELEASE"};
@@ -405,29 +405,15 @@ sub main {
   # Do the copy to /tmp if local was given
   #
   if ($copyLocal) {
-    my $command;
-    my @tempArr;
-    if ($cleanup) {
-      ecmd_print("Removing directory /tmp/\$ECMD_TARGET/");
-      $command = "rm -r /tmp/" . $ENV{"ECMD_TARGET"};
-      system("$command");
-    } else {
-      ecmd_print("Copying ECMD_EXE and ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
-      $command = "/tmp/" . $ENV{"ECMD_TARGET"};
-      if (!(-d $command)) { #if the directory isn't there, create it
-        $command = "mkdir " . $command;
-        system("$command");
+    foreach $pluginKey ( keys %plugins ) {
+      if ($plugin eq $pluginKey) { # Only call setup on our selected plugin
+        $rc = $plugins{$pluginKey}->copyLocal(\%modified,
+                                          { cleanup => $cleanup,
+                                          });
+        if ($rc) {
+          return $rc;
+        }
       }
-      @tempArr = split(/\//,$ENV{"ECMD_EXE"});
-      $command = "cp " . $ENV{"ECMD_EXE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-      system("$command");
-      $ENV{"ECMD_EXE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-      $modified{"ECMD_EXE"} = 1;
-      @tempArr = split(/\//,$ENV{"ECMD_DLL_FILE"});
-      $command = "cp " . $ENV{"ECMD_DLL_FILE"} . " /tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-      system("$command");
-      $ENV{"ECMD_DLL_FILE"} = "/tmp/" . $ENV{"ECMD_TARGET"} . "/" . $tempArr[$#tempArr];
-      $modified{"ECMD_DLL_FILE"} = 1;
     }
   }
 
