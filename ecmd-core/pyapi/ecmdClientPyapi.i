@@ -17,20 +17,6 @@
 // These are used to map C types that swig doesn't understand to types swig does understand
 /*********** End Applies ***********/
 
-/********** Start swig directives ***********/
-// This is required to build using swig > 3.0.2 because of this change:
-//----
-//2014-10-28: vadz
-//            [Python] Patch #201 The generated .py file no longer uses *args for all Python parameters.
-//            Instead, the parameters are named using the C++ parameter names.
-//
-//            "compactdefaultargs" feature can be enabled to restore the old behaviour.
-//----
-// Without this feature enabled, required enums are generated in the .py after
-// they are required by function definitions, causing the module to not load.
-%feature("compactdefaultargs");
-/********** End swig directives ***********/
-
 /*********** Start Insert Code ***********/
 // Insert C code into the file swig generates
 %{
@@ -85,14 +71,14 @@
 
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
-%include "ecmdClientCapi.H"
-%include "ecmdClientPyapi.H"
-%include "ecmdDataBufferBase.H"
-%include "ecmdDataBuffer.H"
 %include "ecmdStructs.H"
 %include "ecmdUtils.H"
 %include "ecmdSharedUtils.H"
 %include "ecmdReturnCodes.H"
+%include "ecmdDataBufferBase.H"
+%include "ecmdDataBuffer.H"
+%include "ecmdClientCapi.H"
+%include "ecmdClientPyapi.H"
 
 %include "ecmdExtPyIncludes.i"
 /*********** End Files to swigify ***********/
