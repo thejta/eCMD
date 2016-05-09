@@ -2,7 +2,7 @@
 /*********** End Templates ***********/
 
 /*********** Start Files to swigify ***********/
+%include "cipStructs.H"
 %include "cipClientCapi.H"
 %include "cipClientPyapi.H"
-%include "cipStructs.H"
 /*********** End Files to swigify ***********/
