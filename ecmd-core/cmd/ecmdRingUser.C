@@ -518,8 +518,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
+  ecmdLatchQueryDataHidden queryLatchData;      ///< Latch data 
   std::string printed;
   std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
@@ -682,12 +681,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
     /* Now we need to find out if this is a chipUnit latch or not */
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
     else 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
   
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "getlatch - Error occurred performing querylatch on ";
+      printed = "getlatch - Error occurred performing queryLatchInfoHidden on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
@@ -702,24 +701,16 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    
-    if (queryLatchData.size() < 1) {
-      ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
-      return ECMD_DLL_INVALID;
-    }  
-
-    // Query good, assign over
-    latchData = queryLatchData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (latchData->isChipUnitRelated) {
+    if (queryLatchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (!latchData->isChipUnitMatch(chipUnitType)) {
+      if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "getlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += latchData->relatedChipUnit + "\"\n";
+        printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -735,7 +726,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !latchData->isChipUnitRelated
+    } else { // !queryLatchData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -749,13 +740,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((queryLatchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
-      if (ringName.length() != 0)
-        rc = getLatchHidden(cuTarget, ringName.c_str(), latchName.c_str(), latchEntry, latchMode, ringMode);
-      else
-        rc = getLatchHidden(cuTarget, NULL, latchName.c_str(), latchEntry, latchMode, ringMode);
+      rc = getLatchOpt(cuTarget, queryLatchData.scandefLatchInfo, latchEntry, ringMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
 	printed = "getlatch - Error occurred performing getlatch on ";
 	printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1557,26 +1545,26 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdLooperData looperData;            ///< Store internal Looper data
-  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
-  std::string format = "x";             ///< Output format
-  std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
-  ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
-  bool validPosFound = false;           ///< Did the looper find anything ?
-  bool validLatchFound = false;         ///< Did we find a valid latch
+  ecmdLooperData looperData;                ///< Store internal Looper data
+  ecmdLooperData cuLooper;                  ///< Store internal Looper data for the chipUnit loop
+  std::string format = "x";                 ///< Output format
+  std::string dataModifier = "insert";      ///< Default data Modifier (And/Or/insert)
+  ecmdChipTarget target;                    ///< Current target being operated on
+  ecmdChipTarget cuTarget;                  ///< Current target being operated on for the chipUnit
+  ecmdLatchQueryDataHidden queryLatchData;  ///< Latch data 
+  bool validPosFound = false;               ///< Did the looper find anything ?
+  bool validLatchFound = false;             ///< Did we find a valid latch
   std::string printed;
-  std::list<ecmdLatchEntry> latches;     ///< latches retrieved from getLatch
+  std::list<ecmdLatchEntry> latches;        ///< latches retrieved from getLatch
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latches
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
-  ecmdDataBuffer buffer;                ///< Buffer to store data from user
-  ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
-  uint32_t matchs;                      ///< Number of matchs returned from putlatch
-  bool enabledCache = false;            ///< Did we enable the cache ?
-  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
-  uint32_t ringMode = 0;                ///< Full or sparse ring access?  Also used for multicast information
+  ecmdDataBuffer buffer;                    ///< Buffer to store data from user
+  ecmdDataBuffer buffer_copy;               ///< Copy of buffer for manipulation
+  uint32_t matchs;                          ///< Number of matchs returned from putlatch
+  bool enabledCache = false;                ///< Did we enable the cache ?
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;                    ///< Full or sparse ring access?  Also used for multicast information
+  ecmdDataBuffer sparse_buffer;             ///< Data buffer used when not doing the read first
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1721,16 +1709,16 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "putlatch - Error occurred performing querylatch on ";
+      printed = "putlatch - Error occurred performing queryLatchInfoHidden on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
       if (latchMode == ECMD_LATCHMODE_FULL)
-        ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
+        ecmdOutputError("putlatch - Try using '-partial' to enable pattern matching on the latch name\n");
       coeRc = rc;
       continue;
     } else if (rc) {
@@ -1740,31 +1728,24 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    if (queryLatchData.size() < 1) {
-      ecmdOutputError("putlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
-      return ECMD_DLL_INVALID;
-    }
 
     /* We have to look at the data here so that we can read in right aligned data properly - JTA 04/07/06 */
     //data is always the last arg
-    rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, ((numBits) ? (int)numBits : queryLatchData.begin()->bitLength));
+    rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, ((numBits) ? (int)numBits : queryLatchData.bitLength));
     if (rc) {
       ecmdOutputError("putlatch - Problems occurred parsing input data, must be an invalid format\n");
       break;
     }
 
-    // Query good, assign over
-    latchData = queryLatchData.begin();
-
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (latchData->isChipUnitRelated) {
+    if (queryLatchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (!latchData->isChipUnitMatch(chipUnitType)) {
+      if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += latchData->relatedChipUnit + "\"\n";
+        printed += "\" doesn't match chipUnit returned by queryLatchInfoHidden \"";
+        printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1780,7 +1761,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !latchData->isChipUnitRelated
+    } else { // !queryLatchData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -1794,94 +1775,166 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((queryLatchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      if (ringName.length() != 0)
-        rc = getLatchHidden(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode, ringMode);
+      // Need to do a getLatch first if we are ANDing/ORing or doing full ring access
+      if ((!use_sparse) || (dataModifier != "insert"))
+      {        
+          rc = getLatchOpt(cuTarget, queryLatchData.scandefLatchInfo, latches, ringMode);
+
+          if (rc == ECMD_INVALID_LATCHNAME) {
+              printed = "putlatch - Error occurred performing getlatch on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
+              coeRc = rc;
+              continue;
+          } else if (rc) {
+              printed = "putlatch - Error occurred performing getlatch on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+          else {
+              validPosFound = true;
+          }
+          
+          /* Walk through all the latches recieved */
+          for (latchit = latches.begin(); latchit != latches.end(); latchit ++ ) {
+              
+              buffer_copy = buffer;
+              
+              if (startBit == ECMD_UNSET) {
+                  curStartBit = (uint32_t)latchit->latchStartBit;
+                  curNumBits = latchit->buffer.getBitLength();
+              } else {
+                  curStartBit = startBit;
+                  curNumBits = numBits;
+              }
+              
+              /* See if there is data in here that we want */
+              if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
+                  /* Nope nothing */
+                  continue;
+              } else
+                  validLatchFound = true;
+              
+              /* Does the user want too much data? */
+              if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+                  curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+              
+              /* was the startbit before this latch ? */
+              if (curStartBit < (uint32_t) latchit->latchStartBit) {
+                  curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
+                  curStartBit = (uint32_t) latchit->latchStartBit;
+              }
+              
+              /* Let's apply our data */
+              /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+              if (curNumBits < buffer_copy.getBitLength()) {
+                  buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+              }
+              rc = (uint32_t)ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
+              if (rc) {
+                  printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              }
+              
+              /* We can do a full latch compare here now to make sure we don't cause matching problems */
+              rc = putLatchOpt(cuTarget, latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  queryLatchData.scandefLatchInfo, ringMode);
+              
+              if (rc) {
+                  printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              } else if (matchs > 1) {
+                  printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = ECMD_FAILURE;
+                  continue;
+              }
+
+              
+          }// end iterator
+
+      }
       else
-        rc = getLatchHidden(cuTarget, NULL, latchName.c_str(), latches, latchMode, ringMode);
-      if (rc == ECMD_INVALID_LATCHNAME) {
-        printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
-        coeRc = rc;
-        continue;
-      } else if (rc) {
-        printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
+      {
+          sparse_buffer.setBitLength(queryLatchData.bitLength);
+
+          /* Walk through all the latches recieved */
+          //for (latchit = queryLatchData.scandefLatchInfo.begin(); latchit != queryLatchData.scandefLatchInfo.end(); latchit ++ ) {
+              
+              buffer_copy = buffer;
+              
+              if (startBit == ECMD_UNSET) {
+                  curStartBit = (uint32_t)queryLatchData.latchStartBit;
+                  curNumBits = queryLatchData.bitLength;
+              } else {
+                  curStartBit = startBit;
+                  curNumBits = numBits;
+              }
+              
+              /* See if there is data in here that we want */
+              if ((curStartBit + curNumBits < (uint32_t) queryLatchData.latchStartBit) || (curStartBit > (uint32_t) queryLatchData.latchEndBit)) {
+                  /* Nope nothing */
+                  continue;
+              } else
+                  validLatchFound = true;
+              
+              /* Does the user want too much data? */
+              if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
+                  curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
+              
+              /* was the startbit before this latch ? */
+              if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
+                  curNumBits -= ((uint32_t) queryLatchData.latchStartBit - curStartBit);
+                  curStartBit = (uint32_t) queryLatchData.latchStartBit;
+              }
+              
+              /* Let's apply our data */
+              /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+              if (curNumBits < buffer_copy.getBitLength()) {
+                  buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+              }
+              rc = (uint32_t)ecmdApplyDataModifier(sparse_buffer, buffer_copy,(int) ((int)curStartBit - (int)queryLatchData.latchStartBit), dataModifier);
+              if (rc) {
+                  printed = "putlatch - Error occurred inserting data of " + queryLatchData.latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              }
+              
+              /* We can do a full latch compare here now to make sure we don't cause matching problems */
+              rc = putLatchOpt(cuTarget, sparse_buffer, (uint32_t)queryLatchData.latchStartBit, (uint32_t)(queryLatchData.latchEndBit - queryLatchData.latchStartBit + 1), matchs,  queryLatchData.scandefLatchInfo, ringMode);
+              
+              if (rc) {
+                  printed = "putlatch - Error occurred performing putlatch of " + queryLatchData.latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              } else if (matchs > 1) {
+                  printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = ECMD_FAILURE;
+                  continue;
+              }
+              else {
+                  validPosFound = true;
+              }
+              
+              // }// end iterator
+
+
       }
-      else {
-        validPosFound = true;
-      }
-
-      /* Walk through all the latches recieved */
-      for (latchit = latches.begin(); latchit != latches.end(); latchit ++ ) {
-
-        buffer_copy = buffer;
-
-        if (startBit == ECMD_UNSET) {
-          curStartBit = (uint32_t)latchit->latchStartBit;
-          curNumBits = latchit->buffer.getBitLength();
-        } else {
-          curStartBit = startBit;
-          curNumBits = numBits;
-        }
-
-        /* See if there is data in here that we want */
-        if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
-          /* Nope nothing */
-          continue;
-        } else
-          validLatchFound = true;
-
-        /* Does the user want too much data? */
-        if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
-          curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
-
-        /* was the startbit before this latch ? */
-        if (curStartBit < (uint32_t) latchit->latchStartBit) {
-          curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
-          curStartBit = (uint32_t) latchit->latchStartBit;
-        }
-
-        /* Let's apply our data */
-        /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
-        if (curNumBits < buffer_copy.getBitLength()) {
-          buffer_copy.shrinkBitLength(curNumBits); //lint -e732
-        }
-        rc = (uint32_t)ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
-        if (rc) {
-          printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        }
-
-        /* We can do a full latch compare here now to make sure we don't cause matching problems */
-        if (ringName.length() != 0) {
-          rc = putLatchHidden(cuTarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL, ringMode);
-        } else {
-          rc = putLatchHidden(cuTarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL, ringMode);
-        }
-        if (rc) {
-          printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        } else if (matchs > 1) {
-          printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = ECMD_FAILURE;
-          continue;
-        }
-
-      }// end iterator 
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
         printed = ecmdWriteTarget(cuTarget) + "\n";

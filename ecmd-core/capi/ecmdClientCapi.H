@@ -4925,6 +4925,148 @@ uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::s
 
 uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std::string & o_coreChipUnit);
 
+/** @name Scan Functions  */
+//@{
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+
+/**
+ @brief Reads the selected latches into the data buffer.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param o_data list of Entries containing all latches found matching i_latchName
+ @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode = 0);
+
+/**
+ @brief Writes the data buffer into the all latches matching i_latchName. Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_data DataBuffer object that holds data to write into latch
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+ @param i_startBit Startbit in latchname to insert data
+ @param i_numBits Number of bits to insert from startbit
+ @param o_matches Number of latchs found that matched your name and data was inserted
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode = 0);
+
+/**
+ @brief Reads the selected latch from the input ring image into the data buffer.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_data list of Entries containing all latches found matching i_latchName
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage);
+
+/**
+ @brief Writes the data buffer into the all latches matching i_latchName within the provided ring image.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_data DataBuffer object that holds data to write into latch
+ @param i_startBit Startbit in latchname to insert data
+ @param i_numBits Number of bits to insert from startbit
+ @param o_matches Number of latchs found that matched your name and data was inserted
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage);
+
+/**
+ @brief Creates an ecmdDataBuffer bit mask value of bits within the ring that are part of the requested latch.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_INVALID_ARGS if only one of i_startBit and i_numBits are ECMD_UNSET
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param io_mask bit mask of positions in the ring that are part of the input latch.  
+ @param i_startBit Startbit in latchname to insert data - Default is ECMD_UNSET and causes i_startBit to be ignored.
+ @param i_numBits Number of bits to insert from startbit - Default is ECMD_UNSET and causes i_numBits to be ignored.
+
+ NOTE : The io_mask ecmdDataBuffer must be set to the length of the ring the latch is part of prior to calling this function.
+ NOTE : If passing in a value for i_startBit or i_numBits, both values need to be set.  
+*/
+uint32_t createSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
+
+//@}
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
+/** @name Query Functions  */
+//@{
+/**
+ @brief Query Latch information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_queryData Return structure from query
+ @param i_ringName if != NULL used to refine query to a single ring
+ @param i_latchName if != NULL used to refine query to a single latch
+ @param i_mode LatchName search mode (full or partial names)
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+//@}
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

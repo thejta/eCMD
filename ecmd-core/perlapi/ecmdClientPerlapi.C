@@ -159,6 +159,28 @@ uint32_t ECMDPERLAPI::putLatchImage(ecmdChipTarget & i_target, const char* i_rin
     rc = ::putLatchImage(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode, i_ringImage);
   return rc;
 }
+
+uint32_t ECMDPERLAPI::getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode) {
+    uint32_t rc = ::getLatchOpt(i_target, i_scandefLatchInfo, o_data, i_ring_mode);
+    return rc;
+}
+
+uint32_t ECMDPERLAPI::putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode) {
+    uint32_t rc = ::putLatchOpt(i_target, i_data, i_startBit, i_numBits, o_matches, i_scandefLatchInfo, i_ring_mode);
+    return rc;
+}
+
+uint32_t ECMDPERLAPI::getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage) {
+    uint32_t rc = ::getLatchImageOpt(i_target, o_data, i_scandefLatchInfo, i_ringImage);
+    return rc;
+}
+
+uint32_t ECMDPERLAPI::putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage) {
+    uint32_t rc = ::putLatchImageOpt(i_target, i_data, i_startBit, i_numBits, o_matches, i_scandefLatchInfo, io_ringImage);
+    return rc;
+}
+
+
 #endif
 
 bool ECMDPERLAPI::ecmdParseOption (char ** io_argv, const char * i_option) {
