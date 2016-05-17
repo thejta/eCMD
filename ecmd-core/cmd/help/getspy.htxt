@@ -1,5 +1,6 @@
 
 Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-sparse] [-mcast<value>] [-exp <value>] [-o<format>] [-i<format>]
+                                                               [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                                                                   
         ECMD:           Core Common Function
@@ -10,45 +11,49 @@ Syntax: getspy <Chip[.ChipUnit]> <SpyName> [<Start> <Numbits>] [-sparse] [-mcast
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        SpyName         Desired spy name. (case insensitive)  
+        SpyName                 Desired spy name. (case insensitive)  
 
-        Start     [opt] Starting bit position within the spy. Specify with Numbits.
-                        Only valid with non-enumerated spy's
+        Start     [opt]         Starting bit position within the spy. Specify with Numbits.
+                                Only valid with non-enumerated spy's
 
-        Numbits   [opt] Number of bits to get. Specify along with Start.
-                        Only valid with non-enumerated spy's
+        Numbits   [opt]         Number of bits to get. Specify along with Start.
+                                Only valid with non-enumerated spy's
 
-        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
-                        Only valid on clock-off spy accesses
+        -sparse   [opt]         Uses scan via scom sparse ring access to get the bits out of the ring.
+                                Only valid on clock-off spy accesses
 
-        -mcast<value>   Creates a multicast scan address for the ring.
-                        Value can be just multicast group number, or fully encoded first byte of address to use.
+        -mcast<value>           Creates a multicast scan address for the ring.
+                                Value can be just multicast group number, or fully encoded first byte of address to use.
+
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL flag for scan conditioning.
+
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning.
         
-        -exp [optional] Provides an expected value as the last argument. Returns error
-                        only if miscompare.
-                        Format specified by -i<format>
+        -exp [optional]         Provides an expected value as the last argument. Returns error
+                                only if miscompare.
+                                Format specified by -i<format>
 
-        -o<format>[opt] Specifies the format type of the output  
-                        Default format for non-enumerated spys : 'xl'
-                        Default format for enumerated spys : 'enum'
-                        Run 'ecmdquery formats' to view available formats
+        -o<format>[opt]         Specifies the format type of the output  
+                                Default format for non-enumerated spys : 'xl'
+                                Default format for enumerated spys : 'enum'
+                                Run 'ecmdquery formats' to view available formats
 
-        -i<format>[opt] Specifies the format type of expect data 
-                        Default format for non-enumerated spys : 'xl'
-                        Default format for enumerated spys : 'enum'
-                        Run 'ecmdquery formats' to view available formats
+        -i<format>[opt]         Specifies the format type of expect data 
+                                Default format for non-enumerated spys : 'xl'
+                                Default format for enumerated spys : 'enum'
+                                Run 'ecmdquery formats' to view available formats
  
-        -v   [optional] Enable verbose printing of spy information.
-                        Displays all groups of a spy
-                        Displays all ECC Checkers 
+        -v   [optional]         Enable verbose printing of spy information.
+                                Displays all groups of a spy
+                                Displays all ECC Checkers 
         
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
 
         

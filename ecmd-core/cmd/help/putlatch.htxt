@@ -1,6 +1,6 @@
 
 Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] <Data>
-              [-exact | -partial] [-sparse] [-mcast<value>] [-i<format>] [-b<modifier>]
+              [-exact | -partial] [-sparse] [-mcast<value>] [-i<format>] [-b<modifier>] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -18,44 +18,48 @@ Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         Parmeters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        RingName        Specifies chip ring to operate on.  For a list of available
-                        rings, use the ecmdquery command.
+        RingName                Specifies chip ring to operate on.  For a list of available
+                                rings, use the ecmdquery command.
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu
+                                Ex:  ecmdquery rings memctrl
+                                     ecmdquery rings pu
 
-        LatchName       Desired latchs to put in the ring.  
+        LatchName               Desired latchs to put in the ring.  
 
-        Start     [opt] Offset at which to begin writing data.  Also specify Numbits.
+        Start     [opt]         Offset at which to begin writing data.  Also specify Numbits.
 
-        Numbits   [opt] Number of bits to insert.  If not specified, start = 0 and 
-                        numbits is calculated from the length of the Data string.  
+        Numbits   [opt]         Number of bits to insert.  If not specified, start = 0 and 
+                                numbits is calculated from the length of the Data string.  
 
-        Data            Data to be written to the register specified.  
-                        Format specified by -i<format>
+        Data                    Data to be written to the register specified.  
+                                Format specified by -i<format>
 
-        -exact    [opt] No pattern matching. Instead, search for exact latch name. (default)
+        -exact    [opt]         No pattern matching. Instead, search for exact latch name. (default)
 
-        -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
+        -partial  [opt]         Use pattern matching to find latch name, can be considerably slower.
 
-        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
+        -sparse   [opt]         Uses scan via scom sparse ring access to get the bits out of the ring.
 
-        -mcast<value>   Creates a multicast scan address for the ring.
-                        Value can be just multicast group number, or fully encoded first byte of address to use.
+        -mcast<value>           Creates a multicast scan address for the ring.
+                                Value can be just multicast group number, or fully encoded first byte of address to use.
 
-        -i<format>[opt] Specifies the format type of input data : default 'xl'
-                        Run 'ecmdquery formats' to view available formats
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL and ECMD_RING_MODE_SET_PULSE_NSL flags for scan conditioning.
 
-        -b<mod>[opt]    Bit modifier to apply to current ring data.
-                        Run 'ecmdquery formats' to view available modifiers
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning. 
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -i<format>[opt]         Specifies the format type of input data : default 'xl'
+                                Run 'ecmdquery formats' to view available formats
+
+        -b<mod>[opt]            Bit modifier to apply to current ring data.
+                                Run 'ecmdquery formats' to view available modifiers
+
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
         
         Example:        putlatch pu cp_fpu GCP.PFPU.FP_UNIT0.FPA_LATCH -ix feed

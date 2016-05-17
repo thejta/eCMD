@@ -81,6 +81,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
+  bool l_cond = false;                          ///< Use setpulse ring conditioning
+  bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
+
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -122,6 +125,27 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   if (l_sparse)
   {
       spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+  }
+
+  //Check for ring conditioning flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("getspy - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      spy_flags |= ECMD_RING_MODE_SET_PULSE_SL;
+  }
+
+  if (l_cond_all)
+  {
+      spy_flags |= ECMD_RING_MODE_SET_PULSE_ALL;
   }
     
   
@@ -645,6 +669,10 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   //bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
+  bool l_cond = false;                          ///< Use setpulse ring conditioning
+  bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
+  uint32_t l_read_spy_flags = 0;
+  uint32_t l_write_spy_flags = 0;
 
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
@@ -662,14 +690,40 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   {
       spy_flags = (uint32_t)strtol(mcast, NULL, 16);
       spy_flags |= ECMD_RING_MODE_MULTICAST;
+      l_read_spy_flags = l_write_spy_flags = spy_flags;
   }
 
   //Check for sparse flag
   bool l_sparse = ecmdParseOption(&argc, &argv, "-sparse");
   if (l_sparse)
   {
-      spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+      l_read_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+      l_write_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
   }
+
+  //Check for ring conditioning flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("putspy - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      l_read_spy_flags |= ECMD_RING_MODE_SET_PULSE_SL;
+      l_write_spy_flags |= ECMD_RING_MODE_SET_PULSE_NSL;
+  }
+
+  if (l_cond_all)
+  {
+      l_read_spy_flags |= ECMD_RING_MODE_SET_PULSE_ALL;
+      l_write_spy_flags |= ECMD_RING_MODE_SET_PULSE_ALL;
+  }
+
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -824,7 +878,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 
-        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
+        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, l_read_spy_flags);
 
         if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData->bitLength)) {
           /* We will go on if the user was going to write the whole spy anyway */
@@ -857,7 +911,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           continue;
         }
 
-        rc = putSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
+        rc = putSpyHidden(cuTarget, spyName.c_str(), spyBuffer, l_write_spy_flags);
         if (rc) {
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -868,9 +922,9 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       } else {
 
         if (inputformat == "enum") {
-          rc = putSpyEnumHidden(cuTarget, spyName.c_str(), argv[argc-1], spy_flags);
+          rc = putSpyEnumHidden(cuTarget, spyName.c_str(), argv[argc-1], l_write_spy_flags);
         } else {
-          rc = putSpyHidden(cuTarget, spyName.c_str(), buffer, spy_flags);
+          rc = putSpyHidden(cuTarget, spyName.c_str(), buffer, l_write_spy_flags);
         }
 
         if (rc) {
