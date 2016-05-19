@@ -162,12 +162,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           printed += "    ";
         }
 
+        isChipUnit = "N";
         if (scomit->isChipUnitRelated) {
-	    std::list<std::string>::iterator relatedChipUnitIter;
+            std::list<std::string>::iterator relatedChipUnitIter;
             for ( relatedChipUnitIter = scomit->relatedChipUnit.begin(); relatedChipUnitIter != scomit->relatedChipUnit.end(); relatedChipUnitIter++) 
             {
-               isChipUnit = *relatedChipUnitIter;
-	    }
+              if (isChipUnit == "N") {
+                isChipUnit = *relatedChipUnitIter;
+              } else {
+                isChipUnit += ",";
+                isChipUnit += *relatedChipUnitIter;
+              }
+            }
             // check for the chip unit to be empty, contains N (default) or relatedChipUnit size is 0
             if ( (isChipUnit == "") || (isChipUnit == "N") || (scomit->relatedChipUnit.size() == 0) ) 
             {
