@@ -2992,8 +2992,8 @@ uint32_t dllGetLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
@@ -3209,8 +3209,8 @@ uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i
 
   std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
@@ -3990,8 +3990,8 @@ uint32_t dllGetLatchImage(ecmdChipTarget & i_target, const char* i_ringName, con
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer = i_ringImage;               ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
@@ -4398,8 +4398,8 @@ uint32_t dllGetLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry
 
   std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer = i_ringImage;               ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
@@ -4772,7 +4772,7 @@ uint32_t dllCreateSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_r
     ecmdLatchBufferEntry curEntry;
     std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
     ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-    ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
+    ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
     std::string curRing;                          ///< Current ring being operated on
     uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
     std::string curLatchName;                     ///< Current latch name being operated on
@@ -5062,7 +5062,7 @@ uint32_t dllCreateSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ec
     uint32_t rc = ECMD_SUCCESS;
     std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
     ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-    ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
+    ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
     std::string curRing;                          ///< Current ring being operated on
     uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
     std::string curLatchName;                     ///< Current latch name being operated on
