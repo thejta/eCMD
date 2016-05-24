@@ -29,7 +29,7 @@ Syntax: putlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
                                 Ex:  ecmdquery rings memctrl
                                      ecmdquery rings pu
 
-        LatchName               Desired latchs to put in the ring.  
+        LatchName               Desired latch to put in the ring. (case sensitive)  
 
         Start     [opt]         Offset at which to begin writing data.  Also specify Numbits.
 
