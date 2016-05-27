@@ -2152,6 +2152,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool bsWrite = false;
   std::string bsOriginalState;
   std::string bsModifiedState;
+  std::string svsOriginalState;
+  std::string svsModifiedState;
   uint32_t configNum;
   ecmdConfigValid_t configValid;
   ecmdDataBuffer passedPattern;
@@ -2242,6 +2244,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       ecmdOutputError("checkrings - To use the -bsread/-bswrite options, SIM_BROADSIDE_MODE \"scan\" can't be on to start.\n");
       return ECMD_INVALID_ARGS;
     }
+    
+    // Check to see if SCAN_VIA_SCOM in on.  If it is, we need to turn it off for the broadside scans.
+    rc = ecmdGetConfiguration(cuTarget, "SCAN_VIA_SCOM", configValid, svsOriginalState, configNum);
+    if (rc) return rc;
+
   }
 
   /************************************************************************/
@@ -2505,6 +2512,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
              /* Set it */
              rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
              if (rc) return rc;
+
+             // Handle SCAN_VIA_SCOM so that broadside scans take effect
+             if (svsOriginalState == "on") {
+                 svsModifiedState = "off";
+                 rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
+                 if (rc) return rc;
+             }
            }
 
           // Write in my data and get it back out.
@@ -2525,6 +2539,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           if (bsWrite) {
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
             if (rc) return rc;
+            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
+            if (rc) return rc;
           }
 
           /* If the user wants to force a broadside read, handle that before doing the get below */
@@ -2537,6 +2553,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             /* Set it */
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
             if (rc) return rc;
+
+            // Handle SCAN_VIA_SCOM so that broadside scans take effect
+            if (svsOriginalState == "on") {
+                svsModifiedState = "off";
+                rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
+                if (rc) return rc;
+            }
           }
   
           if(pattern)
@@ -2561,6 +2584,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           /* If we did a broadside read, restore state */
           if (bsRead) {
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+            if (rc) return rc;
+            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
             if (rc) return rc;
           }
 
