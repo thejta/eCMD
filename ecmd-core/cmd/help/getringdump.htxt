@@ -1,5 +1,5 @@
 
-Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted]
+Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
                                          
         ECMD:           Core Common Function
@@ -13,21 +13,25 @@ Syntax: getringdump <Chip[.ChipUnit]> <RingName1> [<RingName2> ...] [-unsorted]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        RingName        Specifies one or multiple chip rings to operate on.  For a list
-                        of available rings, use the ecmdquery command.
+        RingName                Specifies one or multiple chip rings to operate on.  For a list
+                                of available rings, use the ecmdquery command.
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu
+                                Ex:  ecmdquery rings memctrl
+                                     ecmdquery rings pu
 
-	-unsorted [opt] Don't sort ring dump, display in scandef order
+	-unsorted [opt]         Don't sort ring dump, display in scandef order
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL flag for scan conditioning.
+
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning.
+ 
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
 
         Notes:          Output is binary for latches <= 8 bits in length and xl for > 8.

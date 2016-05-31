@@ -1,5 +1,6 @@
 
 Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<modifier>] [-sparse] [-mcast<value>]
+                                                               [-set_pulse_cond] [-set_pulse_cond_all]
         putbits <Chip[.ChipUnit]> <RingName>  -f<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
@@ -10,39 +11,43 @@ Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<
 
         Paramaters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        RingName        Specifies chip ring to operate on.  For a list of available
-                        rings, use the ecmdquery command.
+        RingName                Specifies chip ring to operate on.  For a list of available
+                                rings, use the ecmdquery command.
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu
+                                Ex:  ecmdquery rings memctrl
+                                ecmdquery rings pu
 
-        StartPos        Specifies starting bit position in Decimal.
+        StartPos                Specifies starting bit position in Decimal.
 
-        Data            Bits to insert into chip ring.
-                        Format specified by -i<format>
+        Data                    Bits to insert into chip ring.
+                                Format specified by -i<format>
 
-        -i<format>[opt] Specifies the format type of input data : default 'b'
-                        Run 'ecmdquery formats' to view available formats
+        -i<format>[opt]         Specifies the format type of input data : default 'b'
+                                Run 'ecmdquery formats' to view available formats
 
-        -b<mod>[opt]    Bit modifier to apply to current ring data.
-                        Run 'ecmdquery formats' to view available modifiers
+        -b<mod>[opt]            Bit modifier to apply to current ring data.
+                                Run 'ecmdquery formats' to view available modifiers
 
-        -sparse   [opt] Uses scan via scom sparse ring access to get the bits out of the ring.
-                        Only valid on clock-off spy accesses
+        -sparse   [opt]         Uses scan via scom sparse ring access to get the bits out of the ring.
+                                Only valid on clock-off spy accesses
 
-        -mcast<value>   Creates a multicast scan address for the ring.
-                        Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
+        -mcast<value>           Creates a multicast scan address for the ring.
+                                Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
 
-        -f<filename>[o] Specifies the filename that the ring data should be read from
-                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL flag for scan conditioning.
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning. 
+
+        -f<filename>[o]         Specifies the filename that the ring data should be read from
+                                Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_ASCII format
+
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        > putbits pu int 567 ABAB -ix -p0,1 -c1
