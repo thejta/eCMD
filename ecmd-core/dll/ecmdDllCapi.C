@@ -5971,6 +5971,10 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
                   } // end while loop
               }
               if (!ringFound) latchHashDetIter->ringFound = false;
+              //Seek to the ring area in the hashfile
+              //Need to set this back to the start in case it wasn't found the first time through.
+              insh.seekg ( 8 ); 
+
           }
 	}  
 	ins.close(); 
