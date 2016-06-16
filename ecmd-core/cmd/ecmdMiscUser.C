@@ -833,7 +833,9 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   std::string command;          ///< Print Buffer
   std::string standardop = "";       ///< Standard out captured by running command
   ecmdLooperData looperData;    ///< Store internal Looper data
+  bool raw = false;             ///< Only output data from command, force quiet mode
 
+  raw = ecmdParseOption(&argc, &argv, "-raw");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -844,6 +846,10 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (raw && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETMODE, 1);
+  }
 
   //Pull out the system call
   if(argc == 0) {
@@ -886,13 +892,15 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       validPosFound = true;
     }
     //Print Output
-    printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
-    ecmdOutput( printed.c_str() );
+    if (!raw) {
+     printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
+     ecmdOutput( printed.c_str() );
+    }
     
     if(standardop.length() != 0) {
      ecmdOutput( standardop.c_str() );
     }
-    else {
+    else if (!raw) {
      ecmdOutput( "No Output received from makeSPSystemCall\n");
     }
   }

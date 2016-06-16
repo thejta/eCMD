@@ -1,15 +1,18 @@
 
-Syntax: makespsystemcall "<command>"
+Syntax: makespsystemcall "<command>" [-raw]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#]
 
         ECMD:           Core Common Function
 
         Function:       Run a command on the SE/SP and print the output to stdout.
-	
+
         Parameters:
         --------------------------------------------------------------------------------
         command         Command to run on the SE/SP. Place command in ""'s to avoid it 
-			being parsed.
+                        being parsed.
+
+        -raw      [opt] Enable -quiet option and provide only output from command
+                        executed.
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
