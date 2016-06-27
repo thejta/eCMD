@@ -2740,6 +2740,9 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to store pattern
   std::string format = "xr";            ///< Default input format
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;                ///< Ring mode flags
+  bool l_cond = false;                  ///< Use setpulse ring conditioning
+  bool l_cond_all = false;              ///< Use setpulse all ring conditioning
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -2748,6 +2751,35 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
   if (formatPtr != NULL) {
     format = formatPtr;
+  }
+
+ //Check for mcast flag
+ char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+ if (mcast != NULL)
+ {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+ }
+
+  //Check for conditioning flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("putpattern - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_NSL;
+  }
+
+  if (l_cond_all)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_ALL;
   }
 
   /************************************************************************/
@@ -2861,7 +2893,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         curOffset += numBitsToInsert;
       }
 
-      rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
+      rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
       if (rc) {
         printed = "putpattern - Error occurred performing putring on ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
