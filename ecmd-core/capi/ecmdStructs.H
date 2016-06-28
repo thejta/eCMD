@@ -2388,6 +2388,7 @@ std::string ecmdGetSharedLibVersion();
 */
 #define ECMD_TRACE_ARRAY_START 0x00000001
 #define ECMD_TRACE_ARRAY_STOP  0x00000002
+#define ECMD_TRACE_IGNORE_MUX  0x00000004
 
 /**
  Defines for chipCleanup
