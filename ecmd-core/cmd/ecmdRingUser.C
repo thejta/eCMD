@@ -17,7 +17,6 @@
  */
 //IBM_PROLOG_END_TAG
 
-
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -146,6 +145,9 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   ecmdDataBuffer buffer;                ///< Buffer to extract individual latch contents
   ecmdDataBuffer buffertemp(500 /* bits */);   ///< Temp space for extracted latch data
   uint8_t oneLoop = 0;                         ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  bool l_cond = false;                          ///< Use setpulse ring conditioning
+  bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
+  uint32_t ringMode = 0;                ///< Ring mode flags to pass to getRing
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -155,6 +157,26 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
     format = formatPtr;
+  }
+
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("getringdump - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      ringMode = ECMD_RING_MODE_SET_PULSE_SL;
+  }
+
+  if (l_cond_all)
+  {
+      ringMode = ECMD_RING_MODE_SET_PULSE_ALL;
   }
 
   /************************************************************************/
@@ -285,7 +307,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-        rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
+        rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
         if (rc) {
           printed = "getringdump - Error occurred performing getring on ";
           printed += ecmdWriteTarget(cuTarget);
@@ -519,8 +541,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
+  ecmdLatchQueryDataHidden queryLatchData;      ///< Latch data 
   std::string printed;
   std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
@@ -531,6 +552,11 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
   bool validPosFound = false;                   ///< Did we find a valid chip in the looper
   bool validLatchFound = false;                 ///< Did we find a valid latch
+
+  uint32_t ringMode = 0;                        ///< Full or sparse ring access?
+
+  bool l_cond = false;                          ///< Use setpulse ring conditioning
+  bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -554,6 +580,43 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (use_sparse)
+  {
+      ringMode |= ECMD_RING_MODE_SPARSE_ACCESS;
+  }
+
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("getlatch - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_SL;
+  }
+
+  if (l_cond_all)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_ALL;
+  }
+
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -666,12 +729,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
     /* Now we need to find out if this is a chipUnit latch or not */
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
     else 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
   
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "getlatch - Error occurred performing querylatch on ";
+      printed = "getlatch - Error occurred performing queryLatchInfoHidden on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
@@ -686,24 +749,16 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    
-    if (queryLatchData.size() < 1) {
-      ecmdOutputError("getlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
-      return ECMD_DLL_INVALID;
-    }  
-
-    // Query good, assign over
-    latchData = queryLatchData.begin();
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (latchData->isChipUnitRelated) {
+    if (queryLatchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (!latchData->isChipUnitMatch(chipUnitType)) {
+      if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "getlatch - Provided chipUnit \"";
         printed += chipUnitType;
         printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += latchData->relatedChipUnit + "\"\n";
+        printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -719,7 +774,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !latchData->isChipUnitRelated
+    } else { // !queryLatchData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "getlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -733,13 +788,10 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((queryLatchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
       /* Let's go grab our data */
-      if (ringName.length() != 0)
-	rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latchEntry, latchMode);
-      else
-	rc = getLatch(cuTarget, NULL, latchName.c_str(), latchEntry, latchMode);
+      rc = getLatchOpt(cuTarget, queryLatchData.scandefLatchInfo, latchEntry, ringMode);
       if (rc == ECMD_INVALID_LATCHNAME) {
 	printed = "getlatch - Error occurred performing getlatch on ";
 	printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -871,6 +923,13 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 	ecmdOutputError("getlatch - Unable to find a latch with the given startbit\n");
 	return ECMD_INVALID_LATCHNAME;
       }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
+      }
+
     } /* End cuLooper */
   } /* End PosLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -906,11 +965,15 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
   ecmdDataBuffer ringBuffer;            ///< Buffer for entire ring
   ecmdDataBuffer buffer;                ///< Buffer for portion user requested
   ecmdDataBuffer expected;              ///< Buffer to store expected data
+  ecmdDataBuffer sparse_mask;           ///< Buffer to use for sparse mask
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool outputformatflag = false;
   bool inputformatflag = false; 
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
-
+  uint32_t ringMode = 0;                ///< Ring mode flags
+  bool l_cond = false;                  ///< Use setpulse ring conditioning
+  bool l_cond_all = false;              ///< Use setpulse all ring conditioning
+ 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -939,6 +1002,41 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   } 
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
+
+  //Check for condition flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("getbits - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_SL;
+  }
+
+  if (l_cond_all)
+  {
+      ringMode |= ECMD_RING_MODE_SET_PULSE_ALL;
+  }
+
+
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1044,6 +1142,24 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
     ringData = queryRingData.begin();
 
+    // Set our sparse_mask buffer length and values
+    if (use_sparse)
+    {
+        rc = sparse_mask.setBitLength(ringData->bitLength);
+        if (rc) break;
+
+        if (numBits == ECMD_UNSET)
+        {
+            rc = sparse_mask.setBit(startBit, (ringData->bitLength - startBit));
+            if (rc) break;
+        }
+        else 
+        {
+            rc = sparse_mask.setBit(startBit, numBits);
+            if (rc) break;
+        }
+    }
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
@@ -1084,19 +1200,38 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-      if (rc) {
-        printed = "getbits - Error occurred performing getring on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-      }
-      else {
-        validPosFound = true;     
-      }
+      if (use_sparse) // Call the sparse getring method
+      {
+          rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, ringMode);
+          if (rc) {
+              printed = "getbits - Error occurred performing getRingSparse on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+     
+          else {
+              validPosFound = true;
+          }  
 
-
+      }
+      else
+      {
+          rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+          if (rc) {
+              printed = "getbits - Error occurred performing getring on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+     
+          else {
+              validPosFound = true;
+          }     
+      }
+   
       numBits = (ringBuffer.getBitLength() - startBit < numBits) ? ringBuffer.getBitLength() - startBit : numBits;
       rc = ringBuffer.extract(buffer, startBit, numBits);
       if (rc) break;
@@ -1116,7 +1251,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
 	}
 	if (rc) {
-	  ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
+	  ecmdOutputError("getbits - Problems occurred parsing expected data, must be an invalid format\n");
 	  return rc;
 	}
 
@@ -1168,6 +1303,11 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
         } 
 
       } /* End !expectFlag */
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
+      }
     } /* End cuLooper */
   } /* End posLooper */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -1195,9 +1335,16 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
   std::list<ecmdRingData>::iterator ringData;   ///< Ring data from query
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer buffer;                ///< Buffer to store data insert data
+  ecmdDataBuffer sparse_mask;           ///< Buffer to use for sparse mask
   bool validPosFound = false;           ///< Did the looper find something ?
   bool formatflag = false;
   uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;                ///< Ring mode flags
+  bool l_cond = false;                  ///< Use setpulse ring conditioning
+  bool l_cond_all = false;              ///< Use setpulse all ring conditioning
+  uint32_t l_read_mode = 0;
+  uint32_t l_write_mode = 0;
+
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1223,6 +1370,41 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     ecmdOutputError(printed.c_str());
     return ECMD_INVALID_ARGS;
   }  
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+      l_read_mode = l_write_mode = ringMode;
+  }
+
+  //Check for conditioning flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("putbits - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      l_read_mode = ringMode | ECMD_RING_MODE_SET_PULSE_SL;
+      l_write_mode = ringMode | ECMD_RING_MODE_SET_PULSE_NSL;
+  }
+
+  if (l_cond_all)
+  {
+      l_read_mode |= ECMD_RING_MODE_SET_PULSE_ALL;
+      l_write_mode |= ECMD_RING_MODE_SET_PULSE_ALL;
+  }
   
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1316,6 +1498,16 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     }
     ringData = queryRingData.begin();
 
+    // Set our sparse_mask buffer length and values
+    if (use_sparse)
+    {
+        rc = sparse_mask.setBitLength(ringData->bitLength);
+        if (rc) break;
+        rc = sparse_mask.setBit(startBit, buffer.getBitLength());
+        if (rc) break;
+    }
+
+
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
     if (ringData->isChipUnitRelated) {
@@ -1356,40 +1548,84 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      /* If the data the user gave on the command line is as long as the ring, and starts at bit 0
-         we don't need to do the getRing since they gave us an entire ring image */
-      if ((startBit == 0) && (buffer.getBitLength() >= ringData->bitLength)) {
-        ringBuffer.setBitLength(ringData->bitLength);
-      } else {
-        rc = getRing(cuTarget, ringName.c_str(), ringBuffer);
-        if (rc) {
-          printed = "putbits - Error occurred performing getring on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
+        /* If the data the user gave on the command line is as long as the ring, and starts at bit 0 and we aren't anding/oring
+           we don't need to do the getRing since they gave us an entire ring image 
+           Also want to do this if we aren't anding/oring and doing a sparse access */
+
+        if ((((startBit == 0) && (buffer.getBitLength() >= ringData->bitLength)) && (dataModifier == "insert"))
+            || ((use_sparse) && (dataModifier == "insert")))
+        {
+            ringBuffer.setBitLength(ringData->bitLength);
         }
-      }
+        // Call the sparse method if -sparse was specified and we need to and/or 
+        else if ((use_sparse) && (dataModifier != "insert"))
+        {
+            rc = getRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, l_read_mode);
+            if (rc) {
+                printed = "putbits - Error occurred performing getRingSparse on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }          
+        } 
+        else 
+        {
+            rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_read_mode);
+            if (rc) {
+                printed = "putbits - Error occurred performing getring on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+        }
 
-      rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
-      if (rc) break;
+        rc = ecmdApplyDataModifier(ringBuffer, buffer, startBit, dataModifier);
+        if (rc) break;
 
-      rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
-      if (rc) {
-	printed = "putbits - Error occurred performing putring on ";
-	printed += ecmdWriteTarget(cuTarget) + "\n";
-	ecmdOutputError( printed.c_str() );
-	coeRc = rc;
-        continue;
-      }
-      else {
-        validPosFound = true;     
-      }
+        if (use_sparse)
+        {
+            rc = putRingSparse(cuTarget, ringName.c_str(), ringBuffer, sparse_mask, l_write_mode);
+            if (rc) {
+                printed = "putbits - Error occurred performing putRingSparse on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+            
+            else {
+                validPosFound = true;     
+            }
+        }
+        else
+        {
+            rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+            if (rc) {
+                printed = "putbits - Error occurred performing putring on ";
+                printed += ecmdWriteTarget(cuTarget) + "\n";
+                ecmdOutputError( printed.c_str() );
+                coeRc = rc;
+                continue;
+            }
+            
+            else {
+                validPosFound = true;     
+            }
 
-      if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
-	printed = ecmdWriteTarget(cuTarget) + "\n";
-	ecmdOutput(printed.c_str());
-      }
+        }
+
+        if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+            printed = ecmdWriteTarget(cuTarget) + "\n";
+            ecmdOutput(printed.c_str());
+        }
+
+        // We only want to go through the cu looper one time in multicast mode
+        if (ringMode & ECMD_RING_MODE_MULTICAST)
+        {
+            break;  
+        }
     } /* End cuLooper */
   } /* End posloop */
   // coeRc will be the return code from in the loop, coe mode or not.
@@ -1410,25 +1646,30 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
 uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
-  ecmdLooperData looperData;            ///< Store internal Looper data
-  ecmdLooperData cuLooper;              ///< Store internal Looper data for the chipUnit loop
-  std::string format = "x";             ///< Output format
-  std::string dataModifier = "insert";  ///< Default data Modifier (And/Or/insert)
-  ecmdChipTarget target;                ///< Current target being operated on
-  ecmdChipTarget cuTarget;              ///< Current target being operated on for the chipUnit
-  std::list<ecmdLatchData> queryLatchData;      ///< Latch data 
-  std::list<ecmdLatchData>::iterator latchData; ///< Latch data from the query
-  bool validPosFound = false;           ///< Did the looper find anything ?
-  bool validLatchFound = false;         ///< Did we find a valid latch
+  ecmdLooperData looperData;                ///< Store internal Looper data
+  ecmdLooperData cuLooper;                  ///< Store internal Looper data for the chipUnit loop
+  std::string format = "x";                 ///< Output format
+  std::string dataModifier = "insert";      ///< Default data Modifier (And/Or/insert)
+  ecmdChipTarget target;                    ///< Current target being operated on
+  ecmdChipTarget cuTarget;                  ///< Current target being operated on for the chipUnit
+  ecmdLatchQueryDataHidden queryLatchData;  ///< Latch data 
+  bool validPosFound = false;               ///< Did the looper find anything ?
+  bool validLatchFound = false;             ///< Did we find a valid latch
   std::string printed;
-  std::list<ecmdLatchEntry> latches;     ///< latches retrieved from getLatch
+  std::list<ecmdLatchEntry> latches;        ///< latches retrieved from getLatch
   std::list<ecmdLatchEntry>::iterator latchit;  ///< Iterator over the latches
   ecmdLatchMode_t latchMode = ECMD_LATCHMODE_FULL;   ///< Default to full match on latch name
-  ecmdDataBuffer buffer;                ///< Buffer to store data from user
-  ecmdDataBuffer buffer_copy;           ///< Copy of buffer for manipulation
-  uint32_t matchs;                      ///< Number of matchs returned from putlatch
-  bool enabledCache = false;            ///< Did we enable the cache ?
-  uint8_t oneLoop = 0;                  ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  ecmdDataBuffer buffer;                    ///< Buffer to store data from user
+  ecmdDataBuffer buffer_copy;               ///< Copy of buffer for manipulation
+  uint32_t matchs;                          ///< Number of matchs returned from putlatch
+  bool enabledCache = false;                ///< Did we enable the cache ?
+  uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
+  uint32_t ringMode = 0;                    ///< Full or sparse ring access?  Also used for multicast information
+  ecmdDataBuffer sparse_buffer;             ///< Data buffer used when not doing the read first
+  bool l_cond = false;                      ///< Use setpulse ring conditioning
+  bool l_cond_all = false;                  ///< Use setpulse all ring conditioning
+  uint32_t l_read_mode = 0;
+  uint32_t l_write_mode = 0;
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -1448,6 +1689,46 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-b");
   if (formatPtr != NULL) {
     dataModifier = formatPtr;
+  }
+
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+      l_read_mode = l_write_mode = ringMode;
+  }
+
+  //Check for sparse flag
+  bool use_sparse = ecmdParseOption(&argc, &argv, "-sparse");
+  if (use_sparse)
+  {
+      l_read_mode |= ECMD_RING_MODE_SPARSE_ACCESS;
+      l_write_mode |= ECMD_RING_MODE_SPARSE_ACCESS;
+  }
+
+  //Check for conditioning flags
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("putlatch - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      l_read_mode |= ECMD_RING_MODE_SET_PULSE_SL;
+      l_write_mode |= ECMD_RING_MODE_SET_PULSE_NSL;
+  }
+
+  if (l_cond_all)
+  {
+      l_read_mode |= ECMD_RING_MODE_SET_PULSE_ALL;
+      l_write_mode |= ECMD_RING_MODE_SET_PULSE_ALL;
   }
 
   /************************************************************************/
@@ -1558,16 +1839,16 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
-      rc = ecmdQueryLatch(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "putlatch - Error occurred performing querylatch on ";
+      printed = "putlatch - Error occurred performing queryLatchInfoHidden on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
       if (latchMode == ECMD_LATCHMODE_FULL)
-        ecmdOutputError("getlatch - Try using '-partial' to enable pattern matching on the latch name\n");
+        ecmdOutputError("putlatch - Try using '-partial' to enable pattern matching on the latch name\n");
       coeRc = rc;
       continue;
     } else if (rc) {
@@ -1577,31 +1858,24 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       coeRc = rc;
       continue;
     }
-    if (queryLatchData.size() < 1) {
-      ecmdOutputError("putlatch - Too much/little latch information returned from the dll, unable to determine if it is a chipUnit latch\n");
-      return ECMD_DLL_INVALID;
-    }
 
     /* We have to look at the data here so that we can read in right aligned data properly - JTA 04/07/06 */
     //data is always the last arg
-    rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, ((numBits) ? (int)numBits : queryLatchData.begin()->bitLength));
+    rc = ecmdReadDataFormatted(buffer, argv[argc-1], format, ((numBits) ? (int)numBits : queryLatchData.bitLength));
     if (rc) {
       ecmdOutputError("putlatch - Problems occurred parsing input data, must be an invalid format\n");
       break;
     }
 
-    // Query good, assign over
-    latchData = queryLatchData.begin();
-
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
-    if (latchData->isChipUnitRelated) {
+    if (queryLatchData.isChipUnitRelated) {
       /* Error check the chipUnit returned */
-      if (!latchData->isChipUnitMatch(chipUnitType)) {
+      if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryLatch \"";
-        printed += latchData->relatedChipUnit + "\"\n";
+        printed += "\" doesn't match chipUnit returned by queryLatchInfoHidden \"";
+        printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
         break;
@@ -1617,7 +1891,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       /* Init the chipUnit loop */
       rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
       if (rc) break;
-    } else { // !latchData->isChipUnitRelated
+    } else { // !queryLatchData.isChipUnitRelated
       if (chipUnitType != "") {
         printed = "putlatch - A chipUnit \"";
         printed += chipUnitType;
@@ -1631,92 +1905,164 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     /* If this isn't a chipUnit latch we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((latchData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((queryLatchData.isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-      if (ringName.length() != 0)
-        rc = getLatch(cuTarget, ringName.c_str(), latchName.c_str(), latches, latchMode);
+      // Need to do a getLatch first if we are ANDing/ORing or doing full ring access
+      if ((!use_sparse) || (dataModifier != "insert"))
+      {        
+          rc = getLatchOpt(cuTarget, queryLatchData.scandefLatchInfo, latches, l_read_mode);
+
+          if (rc == ECMD_INVALID_LATCHNAME) {
+              printed = "putlatch - Error occurred performing getlatch on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
+              coeRc = rc;
+              continue;
+          } else if (rc) {
+              printed = "putlatch - Error occurred performing getlatch on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+          else {
+              validPosFound = true;
+          }
+          
+          /* Walk through all the latches recieved */
+          for (latchit = latches.begin(); latchit != latches.end(); latchit ++ ) {
+              
+              buffer_copy = buffer;
+              
+              if (startBit == ECMD_UNSET) {
+                  curStartBit = (uint32_t)latchit->latchStartBit;
+                  curNumBits = latchit->buffer.getBitLength();
+              } else {
+                  curStartBit = startBit;
+                  curNumBits = numBits;
+              }
+              
+              /* See if there is data in here that we want */
+              if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
+                  /* Nope nothing */
+                  continue;
+              } else
+                  validLatchFound = true;
+              
+              /* Does the user want too much data? */
+              if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+                  curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+              
+              /* was the startbit before this latch ? */
+              if (curStartBit < (uint32_t) latchit->latchStartBit) {
+                  curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
+                  curStartBit = (uint32_t) latchit->latchStartBit;
+              }
+              
+              /* Let's apply our data */
+              /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+              if (curNumBits < buffer_copy.getBitLength()) {
+                  buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+              }
+              rc = (uint32_t)ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
+              if (rc) {
+                  printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              }
+              
+              /* We can do a full latch compare here now to make sure we don't cause matching problems */
+              rc = putLatchOpt(cuTarget, latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  queryLatchData.scandefLatchInfo, l_write_mode);
+              
+              if (rc) {
+                  printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              } else if (matchs > 1) {
+                  printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = ECMD_FAILURE;
+                  continue;
+              }
+
+              
+          }// end iterator
+
+      }
       else
-        rc = getLatch(cuTarget, NULL, latchName.c_str(), latches, latchMode);
-      if (rc == ECMD_INVALID_LATCHNAME) {
-        printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
-        coeRc = rc;
-        continue;
-      } else if (rc) {
-        printed = "putlatch - Error occurred performing getlatch on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
-        ecmdOutputError( printed.c_str() );
-        coeRc = rc;
-        continue;
-      }
-      else {
-        validPosFound = true;
-      }
+      {
+          sparse_buffer.setBitLength(queryLatchData.bitLength);
 
-      /* Walk through all the latches recieved */
-      for (latchit = latches.begin(); latchit != latches.end(); latchit ++ ) {
+          /* Walk through all the latches recieved */
+          //for (latchit = queryLatchData.scandefLatchInfo.begin(); latchit != queryLatchData.scandefLatchInfo.end(); latchit ++ ) {
+              
+              buffer_copy = buffer;
+              
+              if (startBit == ECMD_UNSET) {
+                  curStartBit = (uint32_t)queryLatchData.latchStartBit;
+                  curNumBits = queryLatchData.bitLength;
+              } else {
+                  curStartBit = startBit;
+                  curNumBits = numBits;
+              }
+              
+              /* See if there is data in here that we want */
+              if ((curStartBit + curNumBits < (uint32_t) queryLatchData.latchStartBit) || (curStartBit > (uint32_t) queryLatchData.latchEndBit)) {
+                  /* Nope nothing */
+                  continue;
+              } else
+                  validLatchFound = true;
+              
+              /* Does the user want too much data? */
+              if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
+                  curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
+              
+              /* was the startbit before this latch ? */
+              if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
+                  curNumBits -= ((uint32_t) queryLatchData.latchStartBit - curStartBit);
+                  curStartBit = (uint32_t) queryLatchData.latchStartBit;
+              }
+              
+              /* Let's apply our data */
+              /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+              if (curNumBits < buffer_copy.getBitLength()) {
+                  buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+              }
+              rc = (uint32_t)ecmdApplyDataModifier(sparse_buffer, buffer_copy,(int) ((int)curStartBit - (int)queryLatchData.latchStartBit), dataModifier);
+              if (rc) {
+                  printed = "putlatch - Error occurred inserting data of " + queryLatchData.latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              }
+              
+              /* We can do a full latch compare here now to make sure we don't cause matching problems */
+              rc = putLatchOpt(cuTarget, sparse_buffer, (uint32_t)queryLatchData.latchStartBit, (uint32_t)(queryLatchData.latchEndBit - queryLatchData.latchStartBit + 1), matchs,  queryLatchData.scandefLatchInfo, l_write_mode);
+              
+              if (rc) {
+                  printed = "putlatch - Error occurred performing putlatch of " + queryLatchData.latchName + " on ";
+                  printed += ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = rc;
+                  continue;
+              } else if (matchs > 1) {
+                  printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
+                  ecmdOutputError( printed.c_str() );
+                  coeRc = ECMD_FAILURE;
+                  continue;
+              }
+              else {
+                  validPosFound = true;
+              }
+              
+              // }// end iterator
 
-        buffer_copy = buffer;
-
-        if (startBit == ECMD_UNSET) {
-          curStartBit = (uint32_t)latchit->latchStartBit;
-          curNumBits = latchit->buffer.getBitLength();
-        } else {
-          curStartBit = startBit;
-          curNumBits = numBits;
-        }
-
-        /* See if there is data in here that we want */
-        if ((curStartBit + curNumBits < (uint32_t) latchit->latchStartBit) || (curStartBit > (uint32_t) latchit->latchEndBit)) {
-          /* Nope nothing */
-          continue;
-        } else
-          validLatchFound = true;
-
-        /* Does the user want too much data? */
-        if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
-          curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
-
-        /* was the startbit before this latch ? */
-        if (curStartBit < (uint32_t) latchit->latchStartBit) {
-          curNumBits -= ((uint32_t) latchit->latchStartBit - curStartBit);
-          curStartBit = (uint32_t) latchit->latchStartBit;
-        }
-
-        /* Let's apply our data */
-        /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
-        if (curNumBits < buffer_copy.getBitLength()) {
-          buffer_copy.shrinkBitLength(curNumBits); //lint -e732
-        }
-        rc = (uint32_t)ecmdApplyDataModifier(latchit->buffer, buffer_copy,(int) ((int)curStartBit - (int)latchit->latchStartBit), dataModifier);
-        if (rc) {
-          printed = "putlatch - Error occurred inserting data of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        }
-
-        /* We can do a full latch compare here now to make sure we don't cause matching problems */
-        if (ringName.length() != 0) {
-          rc = putLatch(cuTarget, ringName.c_str(), latchit->latchName.c_str(), latchit->buffer,(uint32_t) (latchit->latchStartBit), (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs, ECMD_LATCHMODE_FULL);
-        } else {
-          rc = putLatch(cuTarget, NULL, latchit->latchName.c_str(), latchit->buffer, (uint32_t)latchit->latchStartBit, (uint32_t)(latchit->latchEndBit - latchit->latchStartBit + 1), matchs,  ECMD_LATCHMODE_FULL);
-        }
-        if (rc) {
-          printed = "putlatch - Error occurred performing putlatch of " + latchit->latchName + " on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = rc;
-          continue;
-        } else if (matchs > 1) {
-          printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
-          ecmdOutputError( printed.c_str() );
-          coeRc = ECMD_FAILURE;
-          continue;
-        }
 
       }
 
@@ -1729,6 +2075,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
         ecmdOutputError("putlatch - Unable to find a latch with the given startbit\n");
         rc = ECMD_INVALID_LATCHNAME;
         break;
+      }
+
+      // We only want to go through the cu looper one time in multicast mode
+      if (ringMode & ECMD_RING_MODE_MULTICAST)
+      {
+          break;  
       }
     } /* End cuLooper */
 
@@ -1800,11 +2152,17 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool bsWrite = false;
   std::string bsOriginalState;
   std::string bsModifiedState;
+  std::string svsOriginalState;
+  std::string svsModifiedState;
   uint32_t configNum;
   ecmdConfigValid_t configValid;
   ecmdDataBuffer passedPattern;
   char* patternptr = NULL; 
   std::string inputformat = "x";
+  uint32_t l_read_mode = 0;
+  uint32_t l_write_mode = 0;
+  bool l_cond = false;
+  bool l_cond_all = false;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -1820,6 +2178,27 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   pattern0 = ecmdParseOption(&argc, &argv, "-pattern0");
 
   pattern1 = ecmdParseOption(&argc, &argv, "-pattern1");
+
+  l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
+
+  l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  if ((l_cond) && (l_cond_all))
+  {
+      ecmdOutputError("checkrings - Cannot specify both -set_pulse_cond and -set_pulse_cond_all at the same time. \n");
+      return ECMD_INVALID_ARGS;
+  }
+
+  if (l_cond)
+  {
+      l_read_mode = ECMD_RING_MODE_SET_PULSE_SL;
+      l_write_mode = ECMD_RING_MODE_SET_PULSE_NSL;
+  }
+
+  if (l_cond_all)
+  {
+      l_read_mode = l_write_mode = ECMD_RING_MODE_SET_PULSE_ALL;
+  }
 
 
   if ((patternptr = ecmdParseOptionWithArgs(&argc, &argv, "-pattern")) != NULL) 
@@ -1865,6 +2244,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       ecmdOutputError("checkrings - To use the -bsread/-bswrite options, SIM_BROADSIDE_MODE \"scan\" can't be on to start.\n");
       return ECMD_INVALID_ARGS;
     }
+    
+    // Check to see if SCAN_VIA_SCOM in on.  If it is, we need to turn it off for the broadside scans.
+    rc = ecmdGetConfiguration(cuTarget, "SCAN_VIA_SCOM", configValid, svsOriginalState, configNum);
+    if (rc) return rc;
+
   }
 
   /************************************************************************/
@@ -2025,7 +2409,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Saving the ring state before performing pattern testing.\n";
           ecmdOutput(printed.c_str());   
-          rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer);
+          rc = getRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2128,10 +2512,17 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
              /* Set it */
              rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
              if (rc) return rc;
+
+             // Handle SCAN_VIA_SCOM so that broadside scans take effect
+             if (svsOriginalState == "on") {
+                 svsModifiedState = "off";
+                 rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
+                 if (rc) return rc;
+             }
            }
 
           // Write in my data and get it back out.
-          rc = putRing(cuTarget, ringName.c_str(), ringBuffer);
+          rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2148,6 +2539,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           if (bsWrite) {
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
             if (rc) return rc;
+            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
+            if (rc) return rc;
           }
 
           /* If the user wants to force a broadside read, handle that before doing the get below */
@@ -2160,6 +2553,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             /* Set it */
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
             if (rc) return rc;
+
+            // Handle SCAN_VIA_SCOM so that broadside scans take effect
+            if (svsOriginalState == "on") {
+                svsModifiedState = "off";
+                rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
+                if (rc) return rc;
+            }
           }
   
           if(pattern)
@@ -2171,7 +2571,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
           }
           ecmdOutput(printed.c_str());
-          rc = getRing(cuTarget, ringName.c_str(), readRingBuffer);
+          rc = getRingHidden(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2184,6 +2584,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           /* If we did a broadside read, restore state */
           if (bsRead) {
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+            if (rc) return rc;
+            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
             if (rc) return rc;
           }
 
@@ -2243,7 +2645,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Restoring the ring state.\n\n";
           ecmdOutput( printed.c_str() );
-          rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer);
+          rc = putRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2779,9 +3181,6 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
 	continue;
       }
       else  {
-
-	/* Transform to upper case */
-	transform(curLine.begin(), curLine.end(), curLine.begin(), (int(*)(int)) toupper);
 
 	ecmdParseTokens(curLine, " \t\n", curArgs);
 	if (curArgs.size() >= 5) {

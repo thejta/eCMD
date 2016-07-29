@@ -141,6 +141,7 @@
 #define ECMD_WILDCARD_CHAR_NOT_SUPPORTED        (ECMD_ERR_ECMD | 0x10CD) ///< Wildcard 'x' was used with a command that doesn't support it
 #define ECMD_WILDCARD_MISUSE                    (ECMD_ERR_ECMD | 0x10CF) ///< Wildcard 'x' was used incorrectly - i.e. as a chipunit 
 #define ECMD_UNABLE_TO_OPEN_SPYDEF              (ECMD_ERR_ECMD | 0x10D1) ///< eCMD was unable to open the spydef
+#define ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED     (ECMD_ERR_ECMD | 0x10D3) ///< This chip does not support sparse scans via scom interface
 
 
 

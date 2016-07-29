@@ -1,3 +1,4 @@
+
 %module ecmd
 
 // python helper to load _ecmd.so correctly for fapi
@@ -30,6 +31,7 @@
 #include "ecmdSharedUtils.H"
 // Header file needed to compile with newer gcc
 #include <stddef.h>
+
 %}
 %include "ecmdExtPyInserts.i"
 /*********** End Insert Code ***********/
@@ -69,14 +71,14 @@
 
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
-%include "ecmdClientCapi.H"
-%include "ecmdClientPyapi.H"
-%include "ecmdDataBufferBase.H"
-%include "ecmdDataBuffer.H"
 %include "ecmdStructs.H"
 %include "ecmdUtils.H"
 %include "ecmdSharedUtils.H"
 %include "ecmdReturnCodes.H"
+%include "ecmdDataBufferBase.H"
+%include "ecmdDataBuffer.H"
+%include "ecmdClientCapi.H"
+%include "ecmdClientPyapi.H"
 
 %include "ecmdExtPyIncludes.i"
 /*********** End Files to swigify ***********/

@@ -1,6 +1,6 @@
 
 Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswrite]
-                                                  [-flush0] [-flush1] [-pattern0] [-pattern1]
+                                                  [-flush0] [-flush1] [-pattern0] [-pattern1] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -10,39 +10,43 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswri
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        RingSelect      Specifies chip ring to operate on.  Use "all" for all rings.
-                        For a list of available rings, use the query command.
+        RingSelect              Specifies chip ring to operate on.  Use "all" for all rings.
+                                For a list of available rings, use the query command.
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu                     
+                                Ex:  ecmdquery rings memctrl
+                                     ecmdquery rings pu                     
 	
-        -v        [opt] Display detailed ring failure data
+        -v        [opt]         Display detailed ring failure data
         
-        -nosr     [opt] Do not perform the save/restore of the ring
+        -nosr     [opt]         Do not perform the save/restore of the ring
 
-	-bsread   [opt] Do a broadside read of the ring when testing patterns. sim only.
+	-bsread   [opt]         Do a broadside read of the ring when testing patterns. sim only.
 
-	-bswrite  [opt] Do a broadside write of the ring when testing patterns. sim only.
+	-bswrite  [opt]         Do a broadside write of the ring when testing patterns. sim only.
 
-                  NOTE: If none of the below options are specified, all 4 are on by default
+                  NOTE:         If none of the below options are specified, all 4 are on by default
 	
-        -flush0   [opt] Perform a test with all 0's
+        -flush0   [opt]         Perform a test with all 0's
 
-        -flush1   [opt] Perform a test with all 1's
+        -flush1   [opt]         Perform a test with all 1's
 
-        -pattern0 [opt] Perform a test with a 0's heavy pattern of 1001010
+        -pattern0 [opt]         Perform a test with a 0's heavy pattern of 1001010
 
-        -pattern1 [opt] Perform a test with a 1's heavy pattern of 0110101
+        -pattern1 [opt]         Perform a test with a 1's heavy pattern of 0110101
 
         -pattern  <32-bit hex value> Perform a test with specified pattern
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL and ECMD_RING_MODE_SET_PULSE_NSL flags for scan conditioning.
+
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning.
+ 
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        checkrings pu all -p0,1 -c0

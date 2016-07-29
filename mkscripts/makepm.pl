@@ -7,7 +7,7 @@ my $curdir = ".";
 
 
 #functions to ignore in parsing <ext>ClientPerlapi.H because they are hand generated in ecmdClientPerlApi.C
-my @ignores = qw( initDll cleanup InitExtension ecmdCommandArgs simFusionRand getLatch putLatch);
+my @ignores = qw( initDll cleanup InitExtension ecmdCommandArgs simFusionRand getLatch putLatch getLatchHidden putLatchHidden getLatchImage putLatchImage);
 my $ignore_re = join '|', @ignores;
 
 my $genAll = 0;
@@ -62,7 +62,7 @@ if ($ARGV[1] =~ /ClientPerlapiFunc.H/ || $genAll) {
     }
 
     # This relies upon using the ending extern C } to close the namespace
-    if ($fileLine =~ "extern \"C\" \{") {
+    if ($fileLine =~ "extern \"C\" \\\{") {
       $tempstr = sprintf("namespace %sPERLAPI {\n", uc($ARGV[0]));
       print OUT $tempstr;
       next;

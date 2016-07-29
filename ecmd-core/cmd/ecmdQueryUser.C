@@ -162,12 +162,18 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
           printed += "    ";
         }
 
+        isChipUnit = "N";
         if (scomit->isChipUnitRelated) {
-	    std::list<std::string>::iterator relatedChipUnitIter;
+            std::list<std::string>::iterator relatedChipUnitIter;
             for ( relatedChipUnitIter = scomit->relatedChipUnit.begin(); relatedChipUnitIter != scomit->relatedChipUnit.end(); relatedChipUnitIter++) 
             {
-               isChipUnit = *relatedChipUnitIter;
-	    }
+              if (isChipUnit == "N") {
+                isChipUnit = *relatedChipUnitIter;
+              } else {
+                isChipUnit += ",";
+                isChipUnit += *relatedChipUnitIter;
+              }
+            }
             // check for the chip unit to be empty, contains N (default) or relatedChipUnit size is 0
             if ( (isChipUnit == "") || (isChipUnit == "N") || (scomit->relatedChipUnit.size() == 0) ) 
             {
@@ -1958,6 +1964,107 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
+    /* ---------- */
+    /* sp         */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"sp")) {
+    /* query the service processor */
+    if (argc < 2) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for sp; you need at least query sp <COMMAND>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    std::string command;
+    for(int i=1; i<argc; i++) {
+      command += argv[i];
+      if ((i+1) < argc) {
+        command += " ";
+      }
+    }
+
+    //Setup the target that will be used to query the service processor
+    ecmdChipTarget target;
+    target.cageState = target.nodeState = ECMD_TARGET_FIELD_WILDCARD;
+    target.slotState = target.chipTypeState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData)) {
+
+      std::string output;
+      rc = ecmdQuerySP(target, command, output);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing ecmdQuerySP on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      } else {
+        validPosFound = true;     
+      }
+
+      output += "\n";
+      ecmdOutput(output.c_str());
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+    /* ---------- */
+    /* mode       */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"mode")) {
+    /* query the processor */
+
+    //Setup the target that will be used to query the service processor
+    ecmdChipTarget target;
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = 
+    target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData)) {
+
+      std::string coreMode;
+      std::string coreChipUnit;
+      rc = ecmdQueryMode(target, coreMode, coreChipUnit);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing ecmdQueryMode on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      } else {
+        validPosFound = true;     
+      }
+
+      std::string output = "core mode = ";
+      output += coreMode;
+      output += " coreChipUnit = ";
+      output += coreChipUnit;
+      output += "\n";
+      ecmdOutput(output.c_str());
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
   } else {
     /* Invalid Query Mode */
     ecmdOutputError("ecmdquery - Invalid Query Mode.\n");

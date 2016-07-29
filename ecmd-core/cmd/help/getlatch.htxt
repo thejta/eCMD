@@ -1,6 +1,6 @@
 
 Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] [-exact | -partial] 
-                              [-exp <value>] [-o<format>] 
+                              [-sparse] [-exp <value>] [-o<format>] [-mcast<value>] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -21,43 +21,52 @@ Sytnax: getlatch <Chip[.ChipUnit]> [<RingName>] <LatchName> [<Start> <Numbits>] 
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
         
-        RingName  [opt] Specifies chip ring to operate on.  For a list of available
-                        rings, use the ecmdquery command.
-                        NOTE : If not specified all rings in scandef are searched
+        RingName  [opt]         Specifies chip ring to operate on.  For a list of available
+                                rings, use the ecmdquery command.
+                                NOTE : If not specified all rings in scandef are searched
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu
+                                Ex:  ecmdquery rings memctrl
+                                     ecmdquery rings pu
 
-        LatchName       Desired latch to find in the ring. (case insensitive)
+        LatchName               Desired latch to find in the ring. (case sensitive)
 
-        Start     [opt] Starting bit position within the latch. Specify with Numbits. 
-        Numbits   [opt] Number of bits to get. Specify along with Start. If out of range,
-                        and -exact not selected, prints a warning message instead of the
-                        data. If -exact is selected, immediately returns an error.
+        Start     [opt]         Starting bit position within the latch. Specify with Numbits. 
+        Numbits   [opt]         Number of bits to get. Specify along with Start. If out of range,
+                                and -exact not selected, prints a warning message instead of the
+                                data. If -exact is selected, immediately returns an error.
 
-        -exact    [opt] No pattern matching. Instead, search for exact latch name. (default)
+        -exact    [opt]         No pattern matching. Instead, search for exact latch name. (default)
 
-        -partial  [opt] Use pattern matching to find latch name, can be considerably slower.
+        -partial  [opt]         Use pattern matching to find latch name, can be considerably slower.
 
-        -exp [optional] Provide an expected-value as the last argument. Returns error if
-                        data miscompare, else nothing.
-                        Format specified by -i<format>
+        -sparse   [opt]         Uses scan via scom sparse ring access to get the bits out of the ring.
 
-        -o<format>[opt] Specifies the format type of both the output and 
-                        the expect-value
-                        Defaults to 'b' for < 8 bits and 'xl' for >= 8 bits.
-                        Run 'ecmdquery formats' to view available formats
+        -exp [optional]         Provide an expected-value as the last argument. Returns error if
+                                data miscompare, else nothing.
+                                Format specified by -i<format>
 
-        -i<format>[opt] Specifies the format type of expect data
-                        Run 'ecmdquery formats' to view available formats
+        -o<format>[opt]         Specifies the format type of both the output and 
+                                the expect-value
+                                Defaults to 'b' for < 8 bits and 'xl' for >= 8 bits.
+                                Run 'ecmdquery formats' to view available formats
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -i<format>[opt]         Specifies the format type of expect data
+                                Run 'ecmdquery formats' to view available formats
+
+        -mcast<value>           Creates a multicast scan address for the ring.
+                                Value can be just multicast group number, or fully encoded first byte of address to use.
+
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL flag for scan conditioning.
+
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning. 
+
+                                Run 'ecmdquery options' for a list of the global command line
+                                options and their definitions
         --------------------------------------------------------------------------------
 
         Examples:       getlatch pu cp_abist LATCH0

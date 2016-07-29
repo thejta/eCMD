@@ -7,13 +7,13 @@ include ../../makefile.base
 
 ### Includes
 CAPI_INCLUDES := ecmdClientCapi.H  ecmdDataBufferBase.H ecmdDataBuffer.H ecmdReturnCodes.H 
-CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H 
+CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdStructs.H ecmdUtils.H ecmdSharedUtils.H ecmdChipTargetCompare.H
 CAPI_INCLUDES := ${CAPI_INCLUDES} ecmdDefines.H prdfCompressBuffer.H ecmdTraceDefines.H
 INT_INCLUDES  := ecmdDllCapi.H
 
 ### Source
 CAPI_SOURCE := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
-SLIB_SOURCE := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C
+SLIB_SOURCE := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C ecmdChipTargetCompare.C
 
 ### Generated source by makedll.pl
 GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H

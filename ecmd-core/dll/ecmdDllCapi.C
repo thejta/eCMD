@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <netinet/in.h> /* for htonl */
+#include <pthread.h>
 
 #include <ecmdDllCapi.H>
 #include <ecmdStructs.H>
@@ -143,6 +144,7 @@ struct ecmdErrorMsg {
 };
 
 std::list<ecmdErrorMsg> ecmdErrorMsgList;
+pthread_mutex_t ecmdErrorMsgListMutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * @brief Used for storing error messages internally to dll
@@ -153,6 +155,7 @@ struct ecmdErrorTarget {
 };
 
 std::list<ecmdErrorTarget> ecmdErrorTargetList;
+pthread_mutex_t ecmdErrorTargetListMutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct ecmdUserInfo {
   std::string cage;
@@ -886,6 +889,7 @@ std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i
   bool first = true;
   size_t headerLength;
 
+  pthread_mutex_lock(&ecmdErrorMsgListMutex);
   for (cur = ecmdErrorMsgList.begin(); cur != ecmdErrorMsgList.end(); cur++) {
     if ((cur->returnCode == i_returnCode) || ((i_returnCode == ECMD_GET_ALL_REMAINING_ERRORS) && (!cur->accessed))) {
       if (first && i_messageBorder) {
@@ -897,6 +901,7 @@ std::string dllGetErrorMsg(uint32_t i_returnCode, bool i_parseReturnCode, bool i
       cur->accessed = true;
     }
   }
+  pthread_mutex_unlock(&ecmdErrorMsgListMutex);
   if (!first) {
     /* We must have found something */
     if (i_parseReturnCode) {
@@ -936,13 +941,17 @@ uint32_t dllRegisterErrorMsg(uint32_t i_returnCode, const char* i_whom, const ch
   curError.message = i_message;
   curError.accessed = false;
 
+  pthread_mutex_lock(&ecmdErrorMsgListMutex);
   ecmdErrorMsgList.push_back(curError);
+  pthread_mutex_unlock(&ecmdErrorMsgListMutex);
 
   return rc;
 }
 
 uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode) {
   uint32_t rc = ECMD_SUCCESS;
+
+  pthread_mutex_lock(&ecmdErrorMsgListMutex);
   std::list<ecmdErrorMsg>::iterator errorIter = ecmdErrorMsgList.begin();
   std::list<ecmdErrorMsg>::iterator deleteIter;
 
@@ -956,6 +965,7 @@ uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode) {
       errorIter++;
     }
   }
+  pthread_mutex_unlock(&ecmdErrorMsgListMutex);
 
   return rc;
 }
@@ -963,6 +973,8 @@ uint32_t dllFlushRegisteredErrorMsgs(uint32_t i_returnCode) {
 
 uint32_t dllFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_searchString) {
   uint32_t rc = ECMD_SUCCESS;
+
+  pthread_mutex_lock(&ecmdErrorMsgListMutex);
   std::list<ecmdErrorMsg>::iterator errorIter = ecmdErrorMsgList.begin();
   std::list<ecmdErrorMsg>::iterator deleteIter;
 
@@ -976,6 +988,7 @@ uint32_t dllFlushRegisteredErrorMsgsString(uint32_t i_returnCode, std::string i_
       errorIter++;
     }
   }
+  pthread_mutex_unlock(&ecmdErrorMsgListMutex);
 
   return rc;
 }
@@ -984,12 +997,14 @@ uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdErrorTarget>::iterator cur;
 
+  pthread_mutex_lock(&ecmdErrorTargetListMutex);
   for (cur = ecmdErrorTargetList.begin(); cur != ecmdErrorTargetList.end(); cur++) {
     if (cur->returnCode == i_returnCode) {
       /* The error code matches, push it onto the list */
       o_errorTargets.push_back(cur->target);
     }
   }
+  pthread_mutex_unlock(&ecmdErrorTargetListMutex);
 
   // Now delete any error messages we retrieved, if the user asked us to
   if (i_deleteTarget) {
@@ -1010,13 +1025,17 @@ uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & o_errorT
   curError.returnCode = i_returnCode;
   curError.target = o_errorTarget;
 
+  pthread_mutex_lock(&ecmdErrorTargetListMutex);
   ecmdErrorTargetList.push_back(curError);
+  pthread_mutex_unlock(&ecmdErrorTargetListMutex);
 
   return rc;
 }
 
 uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
   uint32_t rc = ECMD_SUCCESS;
+
+  pthread_mutex_lock(&ecmdErrorTargetListMutex);
   std::list<ecmdErrorTarget>::iterator errorIter = ecmdErrorTargetList.begin();
   std::list<ecmdErrorTarget>::iterator deleteIter;
 
@@ -1030,6 +1049,7 @@ uint32_t dllFlushRegisteredErrorTargets(uint32_t i_returnCode) {
       errorIter++;
     }
   }
+  pthread_mutex_unlock(&ecmdErrorTargetListMutex);
 
   return rc;
 }
@@ -2543,6 +2563,412 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
+uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
+{
+    uint32_t rc = 0;
+    ecmdLatchBufferEntry curEntry;
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
+    std::string curLatch = "";                            ///< current unique latchname
+    std::string printed;
+    uint32_t bustype = 0;
+    
+    /* Let's find out if we are JTAG of FSI here */
+    rc = dllGetScandefOrder(i_target, bustype);
+    if (rc) {
+        printed = "Problems retrieving chip information on target\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfo", printed.c_str() );
+        return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllQueryLatchInfo", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+        return ECMD_DLL_INVALID;
+    }
+    
+    if ((i_ringName == NULL) && (i_latchName == NULL)) {
+        rc = ECMD_INVALID_ARGS;
+        printed = "Input parameters Ringname and Latchname both cannot be null.\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfo", printed.c_str() );
+        return rc;
+    }
+    if ((i_ringName != NULL) && (i_latchName == NULL)) {
+        rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+        if (rc) return rc;
+    } else {
+        if( i_mode == ECMD_LATCHMODE_FULL) {
+            rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+            if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+                return rc;
+            }
+        }
+        if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+            std::string errorParse;
+            if (rc)
+                {
+                    errorParse = dllGetErrorMsg(rc, false, true, true);
+                    errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+                    
+                }
+            
+            rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+            if (rc) return rc;
+            
+            if (errorParse.length() > 0) {
+                
+                dllOutputWarning(errorParse.c_str());
+            }           
+        }
+    }
+
+    /* Single exit point */
+    while (1) {
+
+        uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+        uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+        uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+        uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+        uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+        uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+        std::string latchname = "";
+        uint32_t fsi_end = 0;
+        uint32_t jtag_end = 0;
+        
+        for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+            
+            if (curLatch != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) {
+                //Assumption- should all be under one ring
+                if ( curLatchInfo == curEntry.entry.begin()) {
+                    rc = dllQueryRing(i_target, o_ringData, curLatchInfo->ringName.c_str(), i_detail);
+                    if (rc) {
+                        dllRegisterErrorMsg(rc, "dllQueryLatch", "Problems querying ring from chip\n");
+                        return rc;
+                    }
+                    if (!o_ringData.empty()) {
+                        if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
+                            o_queryData.clockDomain = o_ringData.begin()->clockDomain;
+                            o_queryData.clockState = o_ringData.begin()->clockState;
+                        }
+                        o_queryData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
+                        o_queryData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
+                        o_queryData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
+                    }
+                }
+                
+                curLatch = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
+            }
+            
+            /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+            if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+                /* I have some good data here */
+                if (latchname != "") {
+                    
+                    o_queryData.latchStartBit = (int)dataStartBit;
+                    o_queryData.latchEndBit = (int)dataEndBit;
+                    o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+                    o_queryData.fsiEndRingOffset = fsi_end;
+                    o_queryData.jtagEndRingOffset = jtag_end;  
+                }
+            
+                /* If this is a fresh one we need to reset everything */
+                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBitsToFetch = ECMD_UNSET;
+                    curBufferBit = 0;
+                    latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    o_queryData.latchName = latchname;
+                    o_queryData.ringName = curLatchInfo->ringName;
+                    o_queryData.fsiStartRingOffset = curLatchInfo->fsiRingOffset;
+                    o_queryData.jtagStartRingOffset = curLatchInfo->jtagRingOffset;
+                } else {
+                    /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBufferBit = 0;
+                    /* Decrement the bits to fetch by the hole in the latch */
+                    curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                }
+            }
+        
+            /* Do we want anything in here */
+            /* Check if the bits are ordered from:to (0:10) or just (1) */
+            if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+                /* Check if the bits are ordered to:from (10:0) */
+                ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+                
+                bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+                
+                /* Setup the actual data bits displayed */
+                if (dataStartBit == ECMD_UNSET) {
+                    dataStartBit = curLatchBit;
+                    dataEndBit = dataStartBit - 1;
+                }
+                dataEndBit += bitsToFetch;
+            
+                /* ********* */
+                /* FSI Order */
+                /* ********* */
+                
+                if (bustype == ECMD_CHIPFLAG_FSI) {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                    } else {
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                    /* ********* */
+                    /*JTAG Order */
+                    /* ********* */
+                } else {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                    } else {
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                }
+            
+                fsi_end = curLatchInfo->fsiRingOffset;
+                jtag_end = curLatchInfo->jtagRingOffset;
+                curBitsToFetch -= bitsToFetch;
+            } else {
+                /* Nothing was there that we needed, let's try the next entry */
+                curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;             
+            }
+        
+        } /* end latchinfo for loop */
+        
+        /* We have good data here, let's push it */
+        if (latchname != "") {
+            
+            /* Display this if we aren't expecting or the expect failed */
+            o_queryData.latchStartBit = (int)dataStartBit;
+            o_queryData.latchEndBit = (int)dataEndBit;
+            o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+            o_queryData.fsiEndRingOffset = fsi_end;
+            o_queryData.jtagEndRingOffset = jtag_end;               
+        }
+    
+        break;
+    } /* end while (exit point) */
+   
+  
+    return rc;
+}
+
+uint32_t dllQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
+{
+    uint32_t rc = 0;
+    ecmdLatchBufferEntry curEntry;
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;   ///< Iterator for walking through latches
+    std::list< ecmdLatchEntry > latchInfo;                ///< Latch info from scandef to return 
+    std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
+    std::string curLatch = "";                            ///< current unique latchname
+    std::string printed;
+    uint32_t bustype = 0;
+    
+    /* Let's find out if we are JTAG of FSI here */
+    rc = dllGetScandefOrder(i_target, bustype);
+    if (rc) {
+        printed = "Problems retrieving chip information on target\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", printed.c_str() );
+        return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllQueryLatchInfoHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+        return ECMD_DLL_INVALID;
+    }
+    
+    if ((i_ringName == NULL) && (i_latchName == NULL)) {
+        rc = ECMD_INVALID_ARGS;
+        printed = "Input parameters Ringname and Latchname both cannot be null.\n";
+        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", printed.c_str() );
+        return rc;
+    }
+    if ((i_ringName != NULL) && (i_latchName == NULL)) {
+        rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+        if (rc) return rc;
+    } else {
+        if( i_mode == ECMD_LATCHMODE_FULL) {
+            rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+            if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+                return rc;
+            }
+        }
+        if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+            std::string errorParse;
+            if (rc)
+                {
+                    errorParse = dllGetErrorMsg(rc, false, true, true);
+                    errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+                    
+                }
+            
+            rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+            if (rc) return rc;
+            
+            if (errorParse.length() > 0) {
+                
+                dllOutputWarning(errorParse.c_str());
+            }           
+        }
+    }
+
+    // Return the latch entry from the scandef 
+    o_queryData.scandefLatchInfo = curEntry.entry;
+
+    /* Single exit point */
+    while (1) {
+
+        uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+        uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+        uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+        uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+        uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+        uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+        std::string latchname = "";
+        uint32_t fsi_end = 0;
+        uint32_t jtag_end = 0;
+        
+        for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+            
+            if (curLatch != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) {
+                //Assumption- should all be under one ring
+                if ( curLatchInfo == curEntry.entry.begin()) {
+                    rc = dllQueryRing(i_target, o_ringData, curLatchInfo->ringName.c_str(), i_detail);
+                    if (rc) {
+                        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", "Problems querying ring from chip\n");
+                        return rc;
+                    }
+                    if (!o_ringData.empty()) {
+                        if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
+                            o_queryData.clockDomain = o_ringData.begin()->clockDomain;
+                            o_queryData.clockState = o_ringData.begin()->clockState;
+                        }
+                        o_queryData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
+                        o_queryData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
+                        o_queryData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
+                    }
+                }
+                
+                curLatch = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
+            }
+            
+            /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+            if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+                /* I have some good data here */
+                if (latchname != "") {
+                    
+                    o_queryData.latchStartBit = (int)dataStartBit;
+                    o_queryData.latchEndBit = (int)dataEndBit;
+                    o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+                    o_queryData.fsiEndRingOffset = fsi_end;
+                    o_queryData.jtagEndRingOffset = jtag_end;  
+                }
+            
+                /* If this is a fresh one we need to reset everything */
+                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBitsToFetch = ECMD_UNSET;
+                    curBufferBit = 0;
+                    latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    o_queryData.latchName = latchname;
+                    o_queryData.ringName = curLatchInfo->ringName;
+                    o_queryData.fsiStartRingOffset = curLatchInfo->fsiRingOffset;
+                    o_queryData.jtagStartRingOffset = curLatchInfo->jtagRingOffset;
+                } else {
+                    /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                    dataStartBit = dataEndBit = ECMD_UNSET;
+                    curBufferBit = 0;
+                    /* Decrement the bits to fetch by the hole in the latch */
+                    curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                }
+            }
+        
+            /* Do we want anything in here */
+            /* Check if the bits are ordered from:to (0:10) or just (1) */
+            if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+                /* Check if the bits are ordered to:from (10:0) */
+                ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+                
+                bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+                
+                /* Setup the actual data bits displayed */
+                if (dataStartBit == ECMD_UNSET) {
+                    dataStartBit = curLatchBit;
+                    dataEndBit = dataStartBit - 1;
+                }
+                dataEndBit += bitsToFetch;
+            
+                /* ********* */
+                /* FSI Order */
+                /* ********* */
+                
+                if (bustype == ECMD_CHIPFLAG_FSI) {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                    } else {
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                    /* ********* */
+                    /*JTAG Order */
+                    /* ********* */
+                } else {
+                    /* Extract bits if ordered from:to (0:10) */
+                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                        curLatchBit = curLatchInfo->latchEndBit + 1;
+                    } else {
+                        /* Extract if bits are ordered to:from (10:0) or just (1) */
+                        curLatchBit = curLatchInfo->latchStartBit + 1;
+                    }
+                    curBufferBit += bitsToFetch;
+                    
+                }
+            
+                fsi_end = curLatchInfo->fsiRingOffset;
+                jtag_end = curLatchInfo->jtagRingOffset;
+                curBitsToFetch -= bitsToFetch;
+            } else {
+                /* Nothing was there that we needed, let's try the next entry */
+                curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;             
+            }
+        
+        } /* end latchinfo for loop */
+        
+        /* We have good data here, let's push it */
+        if (latchname != "") {
+            
+            /* Display this if we aren't expecting or the expect failed */
+            o_queryData.latchStartBit = (int)dataStartBit;
+            o_queryData.latchEndBit = (int)dataEndBit;
+            o_queryData.bitLength = dataEndBit - dataStartBit + 1;
+            o_queryData.fsiEndRingOffset = fsi_end;
+            o_queryData.jtagEndRingOffset = jtag_end;               
+        }
+    
+        break;
+    } /* end while (exit point) */
+   
+  
+    return rc;
+}
+
 /* getRingDump in ecmdDllCapi.C didn't get done in time for eCMD 11.0, so pulling the interface - JTA 07/26/09 */
 #if 0
 uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::list<ecmdLatchEntry> & o_latches) {
@@ -2553,13 +2979,21 @@ uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::
 #endif
 
 uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
+    return dllGetLatchHidden(i_target, i_ringName, i_latchName, o_data, i_mode, 0);
+}
+
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode) {
+    return dllPutLatchHidden(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matches, i_mode, 0);    
+}
+
+uint32_t dllGetLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
   std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
-  ecmdDataBuffer buffer(500 /* bits */);        ///< Space for extracted latch data
-  ecmdDataBuffer buffertemp(500 /* bits */);    ///< Temp space for extracted latch data
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   ecmdLatchEntry curData;                       ///< Data to load into return list
   std::string curRing;                          ///< Current ring being operated on
@@ -2580,12 +3014,12 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
     printed = "Problems retrieving chip information on target\n";
-    dllRegisterErrorMsg(rc, "dllGetLatch", printed.c_str() );
+    dllRegisterErrorMsg(rc, "dllGetLatchHidden", printed.c_str() );
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
   if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatchHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
   
@@ -2618,12 +3052,37 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
       /* Let's grab the ring for this latch entry */
       if (curRing != curLatchInfo->ringName) {
-        rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer);
-        if (rc) {
-          dllRegisterErrorMsg(rc, "dllGetLatch", "Problems reading ring from chip\n");
-          return rc;
-        }
-        curRing = curLatchInfo->ringName;
+          if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+          {
+              ecmdDataBuffer l_mask;
+              std::list<ecmdRingData> l_ring_info;
+              rc = dllQueryRing(i_target, l_ring_info, curLatchInfo->ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+              if (!l_ring_info.empty())
+              {
+                  l_mask.setBitLength(l_ring_info.begin()->bitLength);
+              }
+              rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, ECMD_UNSET, ECMD_UNSET);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems creating sparse mask from latch\n");
+                  return rc;
+              }
+              
+              rc = dllGetRingSparse(i_target, curLatchInfo->ringName.c_str(), ringBuffer, l_mask, i_ring_mode);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems reading ring from chip (sparse)\n");
+                  return rc;
+              }
+
+          }
+          else
+          {
+              rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems reading ring from chip\n");
+                  return rc;
+              }
+          }
+          curRing = curLatchInfo->ringName;
       }
       /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
       if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
@@ -2634,6 +3093,7 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
           curData.latchStartBit = (int)dataStartBit;
           curData.latchEndBit = (int)dataEndBit;
           rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+          curData.length = curData.buffer.getBitLength();
           curData.rc = ECMD_SUCCESS;
           o_data.push_back(curData);
 
@@ -2648,6 +3108,9 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
           curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
           curData.latchName = latchname;
           curData.ringName = curLatchInfo->ringName;
+          curData.latchType = curLatchInfo->latchType;
+          curData.fsiRingOffset = curLatchInfo->fsiRingOffset;
+          curData.jtagRingOffset = curLatchInfo->jtagRingOffset;
         } else {
           /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
           dataStartBit = dataEndBit = ECMD_UNSET;
@@ -2725,6 +3188,7 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
       curData.latchStartBit = (int)dataStartBit;
       curData.latchEndBit = (int)dataEndBit;
       rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+      curData.length = curData.buffer.getBitLength();
       curData.rc = ECMD_SUCCESS;
       o_data.push_back(curData);
 
@@ -2740,7 +3204,213 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   return rc;
 }
 
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode) {
+uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode) {
+  uint32_t rc = 0;
+
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
+  bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
+  ecmdLatchEntry curData;                       ///< Data to load into return list
+  std::string curRing;                          ///< Current ring being operated on
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
+    enabledCache = true;
+    dllEnableRingCache(cacheTarget);
+  }
+
+  o_data.clear();       // Flush out current list
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    printed = "Problems retrieving chip information on target\n";
+    dllRegisterErrorMsg(rc, "dllGetLatchOpt", printed.c_str() );
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatchOpt", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+  
+
+  /* Single exit point */
+  while (1) {
+
+    uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+    uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+    uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+    uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+    uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+    uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+    std::string latchname = "";
+    curRing = "";
+
+    for (curLatchInfo = i_scandefLatchInfo.begin(); (curLatchInfo != i_scandefLatchInfo.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+          if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+          {
+              ecmdDataBuffer l_mask;
+              std::list<ecmdRingData> l_ring_info;
+              rc = dllQueryRing(i_target, l_ring_info, curLatchInfo->ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+              if (!l_ring_info.empty())
+              {
+                  l_mask.setBitLength(l_ring_info.begin()->bitLength);
+              }
+              rc = dllCreateSparseMaskFromLatchOpt(i_target, i_scandefLatchInfo, l_mask, ECMD_UNSET, ECMD_UNSET);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchOpt", "Problems creating sparse mask from latch\n");
+                  return rc;
+              }
+              
+              rc = dllGetRingSparse(i_target, curLatchInfo->ringName.c_str(), ringBuffer, l_mask, i_ring_mode);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchOpt", "Problems reading ring from chip (sparse)\n");
+                  return rc;
+              }
+
+          }
+          else
+          {
+              rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+              if (rc) {
+                  dllRegisterErrorMsg(rc, "dllGetLatchOpt", "Problems reading ring from chip\n");
+                  return rc;
+              }
+          }
+          curRing = curLatchInfo->ringName;
+      }
+      /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+      if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+          ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+        /* I have some good data here */
+        if (latchname != "") {
+
+          curData.latchStartBit = (int)dataStartBit;
+          curData.latchEndBit = (int)dataEndBit;
+          rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+          curData.length = curData.buffer.getBitLength();
+          curData.rc = ECMD_SUCCESS;
+          o_data.push_back(curData);
+
+        }
+
+        /* If this is a fresh one we need to reset everything */
+        if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBitsToFetch = ECMD_UNSET;
+          curBufferBit = 0;
+          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+          curData.latchName = latchname;
+          curData.ringName = curLatchInfo->ringName;
+          curData.latchType = curLatchInfo->latchType;
+          curData.fsiRingOffset = curLatchInfo->fsiRingOffset;
+          curData.jtagRingOffset = curLatchInfo->jtagRingOffset;
+        } else {
+          /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBufferBit = 0;
+          /* Decrement the bits to fetch by the hole in the latch */
+          curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        }
+      }
+
+      /* Do we want anything in here */
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+
+        bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+
+        /* Setup the actual data bits displayed */
+        if (dataStartBit == ECMD_UNSET) {
+          dataStartBit = curLatchBit;
+          dataEndBit = dataStartBit - 1;
+        }
+        dataEndBit += bitsToFetch;
+
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
+
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+          } else {
+            if (bitsToFetch > 1) buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+	  /* ********* */
+	  /*JTAG Order */
+	  /* ********* */
+        } else {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch); if (rc) return rc;
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+          } else {
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+        }
+
+        curBitsToFetch -= bitsToFetch;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+      }
+
+    } /* end latchinfo for loop */
+
+    /* We have good data here, let's push it */
+    if (latchname != "") {
+
+      /* Display this if we aren't expecting or the expect failed */
+      curData.latchStartBit = (int)dataStartBit;
+      curData.latchEndBit = (int)dataEndBit;
+      rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+      curData.length = curData.buffer.getBitLength();
+      curData.rc = ECMD_SUCCESS;
+      o_data.push_back(curData);
+
+    }
+
+    break;
+  } /* end while (exit point) */
+
+  if (enabledCache) {
+    rc = dllDisableRingCache(cacheTarget);
+  }
+
+  return rc;
+}
+
+uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
 
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
@@ -2753,6 +3423,8 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
   std::string printed;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
+  ecmdDataBuffer l_mask;                ///< Sparse ring access bit mask
+  std::list<ecmdRingData> l_ring_info;
 
   o_matches = 0;
 
@@ -2767,23 +3439,23 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is greater then numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is less then numBits requested to write\n");
     return rc;
   }
 
   /* Let's find out if we are JTAG of FSI here */
   rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
-    dllRegisterErrorMsg(rc, "dllPutLatch", "Problems retrieving chip information on target\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems retrieving chip information on target\n");
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
   if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatchHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
 
@@ -2805,7 +3477,6 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     if (rc) return rc;
 
     if (errorParse.length() > 0) {
-
        dllOutputWarning(errorParse.c_str());
     }
   }
@@ -2823,18 +3494,52 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
 
       /* Let's grab the ring for this latch entry */
       if (curRing != curLatchInfo->ringName) {
-        if (curRing.length() > 0) {
-          rc = dllPutRing(i_target, curRing.c_str(), ringBuffer);
-          if (rc) {
-            dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
-            break;
-          }
-        }
 
-        rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer);
-        if (rc) {
-          dllRegisterErrorMsg(rc, "dllPutLatch", "Problems reading ring from chip\n");
-          break;
+        // This is a sparse ring access
+        if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+        {
+            rc = dllQueryRing(i_target, l_ring_info, curLatchInfo->ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+            if (!l_ring_info.empty())
+            {
+                l_mask.setBitLength(l_ring_info.begin()->bitLength);
+            }
+
+            if (curRing.length() > 0) {
+                rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, i_startBit, i_numBits);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems creating sparse mask from latch\n");
+                    break;
+                }
+                              
+
+                rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                    break;
+                }
+            }
+            // Don't need to do a getRing first when doing a sparse ring.  Just set the size of our ringBuffer
+            std::list<ecmdRingData> l_ring_info;
+            rc = dllQueryRing(i_target, l_ring_info, i_ringName, ECMD_QUERY_DETAIL_LOW);
+            if (!l_ring_info.empty())
+            {
+                ringBuffer.setBitLength(l_ring_info.begin()->bitLength);
+            }
+        }
+        else
+        {
+            if (curRing.length() > 0) {
+                rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                    break;
+                }
+            }
+            rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems reading ring from chip\n");
+                break;
+            }
         }
         curRing = curLatchInfo->ringName;
       }
@@ -2968,11 +3673,30 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
     }
 
     if (curRing.length() > 0) {
-      rc = dllPutRing(i_target, curRing.c_str(), ringBuffer);
-      if (rc) {
-        dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
-        break;
-      }
+        if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+        {
+            // FIXME set bit length for mask???
+            rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, i_startBit, i_numBits);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems creating sparse mask from latch\n");
+                break;
+            }
+
+            rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                break;
+            }
+
+        }
+        else
+        {
+            rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                break;
+            }
+        }
     }
 
   } while(0);
@@ -2983,6 +3707,1637 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   }
 
   return rc;
+}
+
+uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode) {
+
+  uint32_t rc = 0;
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;
+  ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
+  ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
+  ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
+  std::string curRing;                  ///< Current ring being operated on
+  std::string curLatchName;             ///< Current latch name being operated on
+  uint32_t bustype;                     ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+  bool enabledCache = false;            ///< This is turned on if we enabled the cache, so we can disable on exit
+  ecmdDataBuffer l_mask;                ///< Sparse ring access bit mask
+  std::list<ecmdRingData> l_ring_info;
+
+  o_matches = 0;
+
+  ecmdChipTarget cacheTarget;
+  cacheTarget = i_target;
+  ecmdSetTargetDepth(cacheTarget, ECMD_DEPTH_CHIP);
+  if (!dllIsRingCacheEnabled(cacheTarget)) {
+    enabledCache = true;
+    dllEnableRingCache(cacheTarget);
+  }
+
+  /* Do we have the right amount of data ? */
+  if (i_data.getBitLength() > i_numBits) {
+    rc = ECMD_DATA_OVERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is greater then numBits requested to write\n");
+    return rc;
+  } else if (i_data.getBitLength() < i_numBits) {
+    rc = ECMD_DATA_UNDERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is less then numBits requested to write\n");
+    return rc;
+  }
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems retrieving chip information on target\n");
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatchOpt", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+
+
+  /* single exit point */
+  do {
+    uint32_t bitsToInsert = i_numBits;
+    uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
+    uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
+    uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+    uint32_t curStart = 0;
+    uint32_t curEnd = 0;
+
+    for (curLatchInfo = i_scandefLatchInfo.begin(); curLatchInfo != i_scandefLatchInfo.end(); curLatchInfo++) {
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+
+        // This is a sparse ring access
+        if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+        {
+
+            // Don't need to do a getRing first when doing a sparse ring.  Just set the size of our ringBuffer and mask
+            rc = dllQueryRing(i_target, l_ring_info, curLatchInfo->ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+            if (!l_ring_info.empty())
+            {
+                ringBuffer.setBitLength(l_ring_info.begin()->bitLength);
+                l_mask.setBitLength(l_ring_info.begin()->bitLength);
+            }
+
+            if (curRing.length() > 0) {
+                 rc = dllCreateSparseMaskFromLatchOpt(i_target, i_scandefLatchInfo, l_mask, i_startBit, i_numBits);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllGetLatchOpt", "Problems creating sparse mask from latch\n");
+                    break;
+                }
+                              
+                rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
+                    break;
+                }
+            }
+
+
+        }
+        else
+        {
+            if (curRing.length() > 0) {
+                rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+                if (rc) {
+                    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
+                    break;
+                }
+            }
+            rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems reading ring from chip\n");
+                break;
+            }
+        }
+        curRing = curLatchInfo->ringName;
+      }
+
+      if ((curLatchBit == ECMD_UNSET) ||(curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+        /* Make a copy of insert data so we don't lose it */
+        bufferCopy = i_data;
+        bitsToInsert = i_numBits;
+        curBitsToInsert = bitsToInsert;
+        curStart = i_startBit;
+        curEnd = i_startBit + bitsToInsert - 1;
+
+        /* We found something, bump the matches */
+        o_matches++;
+      }
+
+      bool doWrite = false;
+      /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+      if ((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStart <= curLatchInfo->latchEndBit) && (curEnd >= curLatchInfo->latchStartBit)) {
+        if(curStart < curLatchInfo->latchStartBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchStartBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchStartBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        } else {
+          // JTAG -- not sure if this is correct for more than one bit
+          //      -- this is a modified version of the FSI high:low order code
+          //      -- with latchEndBit and latchStartbit swapped when appropriate
+          //      -- mklight 03/13/2009
+          // figure out where we should start
+          int32_t tempStartBitToInsert = curLatchInfo->latchEndBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchStartBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        }
+        curLatchBit = curLatchInfo->latchEndBit + 1;
+        doWrite = true;
+      }
+
+      /* Check if the bits are ordered to:from (10:0) */
+      if ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStart <= curLatchInfo->latchStartBit) && (curEnd >= curLatchInfo->latchEndBit)) {
+        if(curStart < curLatchInfo->latchEndBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchEndBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          // figure out where we should start
+         int32_t tempStartBitToInsert = curLatchInfo->latchStartBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchEndBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        } else {
+          if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchEndBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        }
+        curLatchBit = curLatchInfo->latchStartBit + 1;
+        doWrite = true;
+      }
+
+      if (doWrite == true)
+      {
+        rc = bufferCopy.extract(buffertemp, 0, bitsToInsert); if (rc) return rc;
+        //printf("curLatchBit = %d, startbit = %d, endbit = %d, length = %d, curStartBitToInsert = %d, bits = %d\n", curLatchBit, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, curLatchInfo->length, curStartBitToInsert,  bitsToInsert);
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          /* if bits are ordered to:from (10:0) or just (1) */
+          if (curLatchInfo->latchEndBit < curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->fsiRingOffset + curStartBitToInsert);
+          rc = ringBuffer.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+        /* ********** */
+        /* JTAG Order */
+        /* ********** */
+        else {
+          /* if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert);
+          rc = ringBuffer.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+
+        /* Get rid of the data we just inserted, to line up the next piece */
+        bufferCopy.shiftLeft(bitsToInsert);
+
+        curBitsToInsert -= bitsToInsert;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+      }
+    }
+
+    if (curRing.length() > 0) {
+        if (i_ring_mode & ECMD_RING_MODE_SPARSE_ACCESS)
+        {
+            // FIXME set bit length for mask???
+            rc = dllCreateSparseMaskFromLatchOpt(i_target, i_scandefLatchInfo, l_mask, i_startBit, i_numBits);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems creating sparse mask from latch\n");
+                break;
+            }
+
+            rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
+                break;
+            }
+
+        }
+        else
+        {
+            rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+            if (rc) {
+                dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
+                break;
+            }
+        }
+    }
+
+  } while(0);
+
+  if (enabledCache) {
+    /* Write all the data to the chip */
+    rc = dllDisableRingCache(cacheTarget);
+  }
+
+  return rc;
+}
+
+uint32_t dllGetLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, ecmdDataBuffer & i_ringImage)
+{
+  uint32_t rc = 0;
+
+  ecmdLatchBufferEntry curEntry;
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  ecmdDataBuffer ringBuffer = i_ringImage;               ///< Buffer to store entire ring
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
+  ecmdLatchEntry curData;                       ///< Data to load into return list
+  std::string curRing;                          ///< Current ring being operated on
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+
+  o_data.clear();       // Flush out current list
+
+  std::list<ecmdRingData> l_ring_info;
+  rc = dllQueryRing(i_target, l_ring_info, i_ringName, ECMD_QUERY_DETAIL_LOW);
+  if (!l_ring_info.empty())
+  {
+      if (i_ringImage.getBitLength() != l_ring_info.begin()->bitLength)
+      {
+          rc = ECMD_DBUF_MISMATCH;
+          dllRegisterErrorMsg(rc, "dllPutLatchImage", "Ring image data buffer isn't the size of the ring being operated on.\n");
+          return rc;
+      }
+  }
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    printed = "Problems retrieving chip information on target\n";
+    dllRegisterErrorMsg(rc, "dllGetLatchImage", printed.c_str() );
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatchImage", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+  
+  if( i_mode == ECMD_LATCHMODE_FULL) {
+    rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+    if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc ==
+															  ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+      return rc;
+    }
+  }
+  if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+    rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+    if (rc) return rc;
+  }
+
+  /* Single exit point */
+  while (1) {
+
+    uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+    uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+    uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+    uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+    uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+    uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+    std::string latchname = "";
+    curRing = "";
+
+    for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        curRing = curLatchInfo->ringName;
+      }
+      /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+      if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+          ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+        /* I have some good data here */
+        if (latchname != "") {
+
+          curData.latchStartBit = (int)dataStartBit;
+          curData.latchEndBit = (int)dataEndBit;
+          rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+          curData.length = curData.buffer.getBitLength();
+          curData.rc = ECMD_SUCCESS;
+          o_data.push_back(curData);
+
+        }
+
+        /* If this is a fresh one we need to reset everything */
+        if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBitsToFetch = ECMD_UNSET;
+          curBufferBit = 0;
+          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+          curData.latchName = latchname;
+          curData.ringName = curLatchInfo->ringName;
+          curData.latchType = curLatchInfo->latchType;
+          curData.fsiRingOffset = curLatchInfo->fsiRingOffset;
+          curData.jtagRingOffset = curLatchInfo->jtagRingOffset;
+        } else {
+          /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBufferBit = 0;
+          /* Decrement the bits to fetch by the hole in the latch */
+          curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        }
+      }
+
+      /* Do we want anything in here */
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+
+        bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+
+        /* Setup the actual data bits displayed */
+        if (dataStartBit == ECMD_UNSET) {
+          dataStartBit = curLatchBit;
+          dataEndBit = dataStartBit - 1;
+        }
+        dataEndBit += bitsToFetch;
+
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
+
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+          } else {
+            if (bitsToFetch > 1) buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+	  /* ********* */
+	  /*JTAG Order */
+	  /* ********* */
+        } else {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch); if (rc) return rc;
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+          } else {
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+        }
+
+        curBitsToFetch -= bitsToFetch;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+      }
+
+    } /* end latchinfo for loop */
+
+    /* We have good data here, let's push it */
+    if (latchname != "") {
+
+      /* Display this if we aren't expecting or the expect failed */
+      curData.latchStartBit = (int)dataStartBit;
+      curData.latchEndBit = (int)dataEndBit;
+      rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+      curData.length = curData.buffer.getBitLength();
+      curData.rc = ECMD_SUCCESS;
+      o_data.push_back(curData);
+
+    }
+
+    break;
+  } /* end while (exit point) */
+
+  return rc;
+}
+
+uint32_t dllPutLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage)
+{
+  uint32_t rc = 0;
+  ecmdLatchBufferEntry curEntry;
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;
+  ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
+  ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
+  std::string curRing;                  ///< Current ring being operated on
+  std::string curLatchName;             ///< Current latch name being operated on
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+
+  o_matches = 0;
+
+  /* Do we have the right amount of data ? */
+  if (i_data.getBitLength() > i_numBits) {
+    rc = ECMD_DATA_OVERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is greater then numBits requested to write\n");
+    return rc;
+  } else if (i_data.getBitLength() < i_numBits) {
+    rc = ECMD_DATA_UNDERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is less then numBits requested to write\n");
+    return rc;
+  }
+
+  std::list<ecmdRingData> l_ring_info;
+  rc = dllQueryRing(i_target, l_ring_info, i_ringName, ECMD_QUERY_DETAIL_LOW);
+  if (!l_ring_info.empty())
+  {
+      if (io_ringImage.getBitLength() != l_ring_info.begin()->bitLength)
+      {
+          rc = ECMD_DBUF_MISMATCH;
+          dllRegisterErrorMsg(rc, "dllPutLatchImage", "Ring image data buffer isn't the size of the ring being operated on.\n");
+          return rc;
+      }
+  }
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Problems retrieving chip information on target\n");
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatchImage", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+
+  if( i_mode == ECMD_LATCHMODE_FULL) {
+    rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+    if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+      return rc;
+    }
+  }
+  if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+    std::string errorParse;
+    if (rc)
+    {
+      errorParse = dllGetErrorMsg(rc, false, true, true);
+      errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+
+    }
+    rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+    if (rc) return rc;
+
+    if (errorParse.length() > 0) {
+
+       dllOutputWarning(errorParse.c_str());
+    }
+  }
+
+  /* single exit point */
+  do {
+    uint32_t bitsToInsert = i_numBits;
+    uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
+    uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
+    uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+    uint32_t curStart = 0;
+    uint32_t curEnd = 0;
+
+    for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        curRing = curLatchInfo->ringName;
+      }
+
+      if ((curLatchBit == ECMD_UNSET) ||(curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+        /* Make a copy of insert data so we don't lose it */
+        bufferCopy = i_data;
+        bitsToInsert = i_numBits;
+        curBitsToInsert = bitsToInsert;
+        curStart = i_startBit;
+        curEnd = i_startBit + bitsToInsert - 1;
+
+        /* We found something, bump the matches */
+        o_matches++;
+      }
+
+      bool doWrite = false;
+      /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+      if ((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStart <= curLatchInfo->latchEndBit) && (curEnd >= curLatchInfo->latchStartBit)) {
+        if(curStart < curLatchInfo->latchStartBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchStartBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchStartBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        } else {
+          // JTAG -- not sure if this is correct for more than one bit
+          //      -- this is a modified version of the FSI high:low order code
+          //      -- with latchEndBit and latchStartbit swapped when appropriate
+          //      -- mklight 03/13/2009
+          // figure out where we should start
+          int32_t tempStartBitToInsert = curLatchInfo->latchEndBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchStartBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        }
+        curLatchBit = curLatchInfo->latchEndBit + 1;
+        doWrite = true;
+      }
+
+      /* Check if the bits are ordered to:from (10:0) */
+      if ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStart <= curLatchInfo->latchStartBit) && (curEnd >= curLatchInfo->latchEndBit)) {
+        if(curStart < curLatchInfo->latchEndBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchEndBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          // figure out where we should start
+         int32_t tempStartBitToInsert = curLatchInfo->latchStartBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchEndBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        } else {
+          if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchEndBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        }
+        curLatchBit = curLatchInfo->latchStartBit + 1;
+        doWrite = true;
+      }
+
+      if (doWrite == true)
+      {
+        rc = bufferCopy.extract(buffertemp, 0, bitsToInsert); if (rc) return rc;
+        //printf("curLatchBit = %d, startbit = %d, endbit = %d, length = %d, curStartBitToInsert = %d, bits = %d\n", curLatchBit, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, curLatchInfo->length, curStartBitToInsert,  bitsToInsert);
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          /* if bits are ordered to:from (10:0) or just (1) */
+          if (curLatchInfo->latchEndBit < curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->fsiRingOffset + curStartBitToInsert);
+          rc = io_ringImage.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+        /* ********** */
+        /* JTAG Order */
+        /* ********** */
+        else {
+          /* if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert);
+          rc = io_ringImage.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+
+        /* Get rid of the data we just inserted, to line up the next piece */
+        bufferCopy.shiftLeft(bitsToInsert);
+
+        curBitsToInsert -= bitsToInsert;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+      }
+    }
+
+  } while(0);
+
+  return rc;
+}
+
+uint32_t dllGetLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage)
+{
+  uint32_t rc = 0;
+
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  ecmdDataBuffer ringBuffer = i_ringImage;               ///< Buffer to store entire ring
+  ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+  ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
+  ecmdLatchEntry curData;                       ///< Data to load into return list
+  std::string curRing;                          ///< Current ring being operated on
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+  std::list<ecmdRingData> l_ring_info;
+
+  o_data.clear();       // Flush out current list
+
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    printed = "Problems retrieving chip information on target\n";
+    dllRegisterErrorMsg(rc, "dllGetLatchImageOpt", printed.c_str() );
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatchImageOpt", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+ 
+  /* Single exit point */
+  while (1) {
+
+    uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+    uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+    uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+    uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+    uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+    uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+    std::string latchname = "";
+    curRing = "";
+
+    for (curLatchInfo = i_scandefLatchInfo.begin(); (curLatchInfo != i_scandefLatchInfo.end()) && (curBitsToFetch > 0); curLatchInfo++) {
+
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        curRing = curLatchInfo->ringName;
+        rc = dllQueryRing(i_target, l_ring_info, curRing.c_str(), ECMD_QUERY_DETAIL_LOW);
+        if (!l_ring_info.empty())
+        {
+            if (i_ringImage.getBitLength() != l_ring_info.begin()->bitLength)
+            {
+                rc = ECMD_DBUF_MISMATCH;
+                dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Ring image data buffer isn't the size of the ring being operated on.\n");
+                return rc;
+            }
+        }
+      }
+      /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+      if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+          ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
+        /* I have some good data here */
+        if (latchname != "") {
+
+          curData.latchStartBit = (int)dataStartBit;
+          curData.latchEndBit = (int)dataEndBit;
+          rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+          curData.length = curData.buffer.getBitLength();
+          curData.rc = ECMD_SUCCESS;
+          o_data.push_back(curData);
+
+        }
+
+        /* If this is a fresh one we need to reset everything */
+        if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBitsToFetch = ECMD_UNSET;
+          curBufferBit = 0;
+          latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+          curData.latchName = latchname;
+          curData.ringName = curLatchInfo->ringName;
+          curData.latchType = curLatchInfo->latchType;
+          curData.fsiRingOffset = curLatchInfo->fsiRingOffset;
+          curData.jtagRingOffset = curLatchInfo->jtagRingOffset;
+        } else {
+          /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+          dataStartBit = dataEndBit = ECMD_UNSET;
+          curBufferBit = 0;
+          /* Decrement the bits to fetch by the hole in the latch */
+          curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+          curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        }
+      }
+
+      /* Do we want anything in here */
+      /* Check if the bits are ordered from:to (0:10) or just (1) */
+      if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+          /* Check if the bits are ordered to:from (10:0) */
+          ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
+
+        bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+
+        /* Setup the actual data bits displayed */
+        if (dataStartBit == ECMD_UNSET) {
+          dataStartBit = curLatchBit;
+          dataEndBit = dataStartBit - 1;
+        }
+        dataEndBit += bitsToFetch;
+
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
+
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+          } else {
+            if (bitsToFetch > 1) buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+	  /* ********* */
+	  /*JTAG Order */
+	  /* ********* */
+        } else {
+          rc = ringBuffer.extract(buffertemp, curLatchInfo->jtagRingOffset - bitsToFetch + 1, bitsToFetch); if (rc) return rc;
+          /* Extract bits if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            buffertemp.reverse();
+            curLatchBit = curLatchInfo->latchEndBit + 1;
+          } else {
+            /* Extract if bits are ordered to:from (10:0) or just (1) */
+            curLatchBit = curLatchInfo->latchStartBit + 1;
+          }
+          rc = buffer.insert(buffertemp, curBufferBit, bitsToFetch); if (rc) return rc;
+	  curBufferBit += bitsToFetch;
+
+        }
+
+        curBitsToFetch -= bitsToFetch;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+
+      }
+
+    } /* end latchinfo for loop */
+
+    /* We have good data here, let's push it */
+    if (latchname != "") {
+
+      /* Display this if we aren't expecting or the expect failed */
+      curData.latchStartBit = (int)dataStartBit;
+      curData.latchEndBit = (int)dataEndBit;
+      rc = buffer.extract(curData.buffer, 0, dataEndBit - dataStartBit + 1); if (rc) return rc;
+      curData.length = curData.buffer.getBitLength();
+      curData.rc = ECMD_SUCCESS;
+      o_data.push_back(curData);
+
+    }
+
+    break;
+  } /* end while (exit point) */
+
+  return rc;
+}
+
+uint32_t dllPutLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage)
+{
+  uint32_t rc = 0;
+  std::list< ecmdLatchEntry >::iterator curLatchInfo;
+  ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
+  ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
+  std::string curRing;                  ///< Current ring being operated on
+  std::string curLatchName;             ///< Current latch name being operated on
+  uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+  std::string printed;
+  std::list<ecmdRingData> l_ring_info;
+
+  o_matches = 0;
+
+  /* Do we have the right amount of data ? */
+  if (i_data.getBitLength() > i_numBits) {
+    rc = ECMD_DATA_OVERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is greater then numBits requested to write\n");
+    return rc;
+  } else if (i_data.getBitLength() < i_numBits) {
+    rc = ECMD_DATA_UNDERFLOW;
+    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is less then numBits requested to write\n");
+    return rc;
+  }
+
+
+  /* Let's find out if we are JTAG of FSI here */
+  rc = dllGetScandefOrder(i_target, bustype);
+  if (rc) {
+    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Problems retrieving chip information on target\n");
+    return rc;
+  }
+  /* Now make sure the plugin gave us some bus info */
+  if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatchImageOpt", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    return ECMD_DLL_INVALID;
+  }
+
+
+  /* single exit point */
+  do {
+    uint32_t bitsToInsert = i_numBits;
+    uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
+    uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
+    uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+    uint32_t curStart = 0;
+    uint32_t curEnd = 0;
+
+    for (curLatchInfo = i_scandefLatchInfo.begin(); curLatchInfo != i_scandefLatchInfo.end(); curLatchInfo++) {
+
+      /* Let's grab the ring for this latch entry */
+      if (curRing != curLatchInfo->ringName) {
+        curRing = curLatchInfo->ringName;
+
+        rc = dllQueryRing(i_target, l_ring_info, curRing.c_str(), ECMD_QUERY_DETAIL_LOW);
+        if (!l_ring_info.empty())
+        {
+            if (io_ringImage.getBitLength() != l_ring_info.begin()->bitLength)
+            {
+                rc = ECMD_DBUF_MISMATCH;
+                dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Ring image data buffer isn't the size of the ring being operated on.\n");
+                return rc;
+            }
+        }
+      }
+
+      if ((curLatchBit == ECMD_UNSET) ||(curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+        curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+        /* Make a copy of insert data so we don't lose it */
+        bufferCopy = i_data;
+        bitsToInsert = i_numBits;
+        curBitsToInsert = bitsToInsert;
+        curStart = i_startBit;
+        curEnd = i_startBit + bitsToInsert - 1;
+
+        /* We found something, bump the matches */
+        o_matches++;
+      }
+
+      bool doWrite = false;
+      /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+      if ((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStart <= curLatchInfo->latchEndBit) && (curEnd >= curLatchInfo->latchStartBit)) {
+        if(curStart < curLatchInfo->latchStartBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchStartBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchStartBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        } else {
+          // JTAG -- not sure if this is correct for more than one bit
+          //      -- this is a modified version of the FSI high:low order code
+          //      -- with latchEndBit and latchStartbit swapped when appropriate
+          //      -- mklight 03/13/2009
+          // figure out where we should start
+          int32_t tempStartBitToInsert = curLatchInfo->latchEndBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchStartBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        }
+        curLatchBit = curLatchInfo->latchEndBit + 1;
+        doWrite = true;
+      }
+
+      /* Check if the bits are ordered to:from (10:0) */
+      if ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStart <= curLatchInfo->latchStartBit) && (curEnd >= curLatchInfo->latchEndBit)) {
+        if(curStart < curLatchInfo->latchEndBit) { // move counter to start of latch if lower than current latch
+          curStart = curLatchInfo->latchEndBit;
+        }
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          // figure out where we should start
+         int32_t tempStartBitToInsert = curLatchInfo->latchStartBit - (curStart + curBitsToInsert - 1);
+          // if we go negative we should start at zero
+          if(tempStartBitToInsert <= 0) { // we start at start bit
+            curStartBitToInsert = 0;
+            if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+              bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchEndBit);
+            } else { // otherwise we start at the end of the latch
+              bitsToInsert = curLatchInfo->length;
+            }
+          } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+            bitsToInsert = curBitsToInsert;
+          }
+        } else {
+          if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+            curStartBitToInsert = curStart - curLatchInfo->latchEndBit;
+          } else {
+            curStartBitToInsert = 0;
+          }
+          bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+        }
+        curLatchBit = curLatchInfo->latchStartBit + 1;
+        doWrite = true;
+      }
+
+      if (doWrite == true)
+      {
+        rc = bufferCopy.extract(buffertemp, 0, bitsToInsert); if (rc) return rc;
+        //printf("curLatchBit = %d, startbit = %d, endbit = %d, length = %d, curStartBitToInsert = %d, bits = %d\n", curLatchBit, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, curLatchInfo->length, curStartBitToInsert,  bitsToInsert);
+        /* ********* */
+        /* FSI Order */
+        /* ********* */
+        if (bustype == ECMD_CHIPFLAG_FSI) {
+          /* if bits are ordered to:from (10:0) or just (1) */
+          if (curLatchInfo->latchEndBit < curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->fsiRingOffset + curStartBitToInsert);
+          rc = io_ringImage.insert(buffertemp, curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+        /* ********** */
+        /* JTAG Order */
+        /* ********** */
+        else {
+          /* if ordered from:to (0:10) */
+          if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+            /* Reverse the data to go into the scanring */
+            buffertemp.reverse();
+          }
+
+          //printf("inserting %d bits at offset %d\n", bitsToInsert, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert);
+          rc = io_ringImage.insert(buffertemp, curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+          if (rc) return rc;
+
+        }
+
+        /* Get rid of the data we just inserted, to line up the next piece */
+        bufferCopy.shiftLeft(bitsToInsert);
+
+        curBitsToInsert -= bitsToInsert;
+      } else {
+        /* Nothing was there that we needed, let's try the next entry */
+        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+      }
+    }
+
+  } while(0);
+
+  return rc;
+}
+
+uint32_t dllCreateSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & o_mask, ecmdLatchMode_t i_mode, uint32_t i_startBit, uint32_t i_numBits)
+{
+    uint32_t rc = ECMD_SUCCESS;
+    ecmdLatchBufferEntry curEntry;
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
+    ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+    std::string curRing;                          ///< Current ring being operated on
+    uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+    std::string curLatchName;                     ///< Current latch name being operated on
+    std::string printed;
+
+    // Both i_startBit and i_numBits have to be either ECMD_UNSET or not ECMD_UNSET
+    if (((i_startBit == ECMD_UNSET) && (i_numBits != ECMD_UNSET)) || ((i_startBit != ECMD_UNSET) && (i_numBits == ECMD_UNSET)))
+    {
+        printed = "Both i_startBit and i_numBits have to be either ECMD_UNSET or not ECMD_UNSET\n";
+        dllRegisterErrorMsg(ECMD_INVALID_ARGS, "dllCreateSparseMaskFromLatch", printed.c_str() );
+        return ECMD_INVALID_ARGS;
+    }
+
+    std::list<ecmdRingData> l_ring_info;
+    rc = dllQueryRing(i_target, l_ring_info, i_ringName, ECMD_QUERY_DETAIL_LOW);
+    if (!l_ring_info.empty())
+    {
+        o_mask.setBitLength(l_ring_info.begin()->bitLength);
+    }
+
+    /* Let's find out if we are JTAG of FSI here */
+    rc = dllGetScandefOrder(i_target, bustype);
+    if (rc) {
+        printed = "Problems retrieving chip information on target\n";
+        dllRegisterErrorMsg(rc, "dllCreateSparseMaskFromLatch", printed.c_str() );
+        return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllCreateSparseMaskFromLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+        return ECMD_DLL_INVALID;
+    }
+  
+    if( i_mode == ECMD_LATCHMODE_FULL) {
+        rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
+        if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc ==
+                                                                                                                              ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
+            return rc;
+        }
+    }
+    if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
+        std::string errorParse;
+        if (rc)
+        {
+            errorParse = dllGetErrorMsg(rc, false, true, true);
+            errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
+        }
+        rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
+        if (rc) return rc;
+        
+        if (errorParse.length() > 0) {            
+            dllOutputWarning(errorParse.c_str());
+        }
+    }
+
+    // We're going to use the logic copied from getLatch if these values weren't set
+    if ((i_startBit == ECMD_UNSET) && (i_numBits == ECMD_UNSET))
+    {
+        /* Single exit point */
+        while (1) {
+            
+            uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+            uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+            uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+            uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+            uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+            uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+            std::string latchname = "";
+            curRing = "";
+
+            for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++)
+            {    
+                /* Let's grab the ring for this latch entry */
+                if (curRing != curLatchInfo->ringName) {
+                    curRing = curLatchInfo->ringName;
+                }
+                /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+                if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                    ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) 
+                {                    
+                    /* If this is a fresh one we need to reset everything */
+                    if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                        dataStartBit = dataEndBit = ECMD_UNSET;
+                        curBitsToFetch = ECMD_UNSET;
+                        curBufferBit = 0;
+                        latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    } else {
+                        /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                        dataStartBit = dataEndBit = ECMD_UNSET;
+                        curBufferBit = 0;
+                        /* Decrement the bits to fetch by the hole in the latch */
+                        curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    }
+                }
+
+                /* Do we want anything in here */
+                /* Check if the bits are ordered from:to (0:10) or just (1) */
+                if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+                    /* Check if the bits are ordered to:from (10:0) */
+                    ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) 
+                {                    
+                    bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+                    
+                    /* Setup the actual data bits displayed */
+                    if (dataStartBit == ECMD_UNSET) {
+                        dataStartBit = curLatchBit;
+                        dataEndBit = dataStartBit - 1;
+                    }
+                    dataEndBit += bitsToFetch;
+
+                    /* ********* */
+                    /* FSI Order */
+                    /* ********* */
+                    
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        rc = o_mask.setBit(curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
+                        
+                        /* Extract bits if ordered from:to (0:10) */
+                        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                            curLatchBit = curLatchInfo->latchEndBit + 1;
+                            /* Extract if bits are ordered to:from (10:0) or just (1) */
+                        } else {
+                            //if (bitsToFetch > 1) buffertemp.reverse();
+                            curLatchBit = curLatchInfo->latchStartBit + 1;
+                        }
+                        curBufferBit += bitsToFetch;
+                        
+                        /* ********* */
+                        /*JTAG Order */
+                        /* ********* */
+                    } else {
+                        rc = o_mask.setBit(curLatchInfo->jtagRingOffset, bitsToFetch); if (rc) return rc;
+                        /* Extract bits if ordered from:to (0:10) */
+                        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                            curLatchBit = curLatchInfo->latchEndBit + 1;
+                        } else {
+                            /* Extract if bits are ordered to:from (10:0) or just (1) */
+                            curLatchBit = curLatchInfo->latchStartBit + 1;
+                        }
+                        curBufferBit += bitsToFetch;
+                    }                    
+                    curBitsToFetch -= bitsToFetch;
+                } else {
+                    /* Nothing was there that we needed, let's try the next entry */
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+                    
+                }
+                
+            } /* end latchinfo for loop */                                
+            break;
+        } /* end while (exit point) */
+    }
+    // Use the logic from putLatch if we had values for i_numBits and i_startBit
+    else
+    {
+        // Stuff from putLatch
+        
+        /* single exit point */
+        do {
+            uint32_t bitsToInsert = i_numBits;
+            uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
+            uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
+            uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+            uint32_t curStart = 0;
+            uint32_t curEnd = 0;
+            
+            for (curLatchInfo = curEntry.entry.begin(); curLatchInfo != curEntry.entry.end(); curLatchInfo++) {
+                
+                /* Let's grab the ring for this latch entry */
+                if (curRing != curLatchInfo->ringName) {
+                    curRing = curLatchInfo->ringName;
+                }
+                
+                if ((curLatchBit == ECMD_UNSET) ||(curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    bitsToInsert = i_numBits;
+                    curBitsToInsert = bitsToInsert;
+                    curStart = i_startBit;
+                    curEnd = i_startBit + bitsToInsert - 1;
+                }
+                
+                bool doWrite = false;
+                /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+                if ((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStart <= curLatchInfo->latchEndBit) && (curEnd >= curLatchInfo->latchStartBit)) {
+                    if(curStart < curLatchInfo->latchStartBit) { // move counter to start of latch if lower than current latch
+                        curStart = curLatchInfo->latchStartBit;
+                    }
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+                            curStartBitToInsert = curStart - curLatchInfo->latchStartBit;
+                        } else {
+                            curStartBitToInsert = 0;
+                        }
+                        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+                    } else {
+                        // JTAG -- not sure if this is correct for more than one bit
+                        //      -- this is a modified version of the FSI high:low order code
+                        //      -- with latchEndBit and latchStartbit swapped when appropriate
+                        //      -- mklight 03/13/2009
+                        // figure out where we should start
+                        int32_t tempStartBitToInsert = curLatchInfo->latchEndBit - (curStart + curBitsToInsert - 1);
+                        // if we go negative we should start at zero
+                        if(tempStartBitToInsert <= 0) { // we start at start bit
+                            curStartBitToInsert = 0;
+                            if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+                                bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchStartBit);
+                            } else { // otherwise we start at the end of the latch
+                                bitsToInsert = curLatchInfo->length;
+                            }
+                        } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+                            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+                            bitsToInsert = curBitsToInsert;
+                        }
+                    }
+                    curLatchBit = curLatchInfo->latchEndBit + 1;
+                    doWrite = true;
+                }
+                
+                /* Check if the bits are ordered to:from (10:0) */
+                if ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStart <= curLatchInfo->latchStartBit) && (curEnd >= curLatchInfo->latchEndBit)) {
+                    if(curStart < curLatchInfo->latchEndBit) { // move counter to start of latch if lower than current latch
+                        curStart = curLatchInfo->latchEndBit;
+                    }
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        // figure out where we should start
+                        int32_t tempStartBitToInsert = curLatchInfo->latchStartBit - (curStart + curBitsToInsert - 1);
+                        // if we go negative we should start at zero
+                        if(tempStartBitToInsert <= 0) { // we start at start bit
+                            curStartBitToInsert = 0;
+                            if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+                                bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchEndBit);
+                            } else { // otherwise we start at the end of the latch
+                                bitsToInsert = curLatchInfo->length;
+                            }
+                        } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+                            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+                            bitsToInsert = curBitsToInsert;
+                        }
+                    } else {
+                        if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+                            curStartBitToInsert = curStart - curLatchInfo->latchEndBit;
+                        } else {
+                            curStartBitToInsert = 0;
+                        }
+                        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+                    }
+                    curLatchBit = curLatchInfo->latchStartBit + 1;
+                    doWrite = true;
+                }
+                
+                if (doWrite == true)
+                {
+                    //printf("curLatchBit = %d, startbit = %d, endbit = %d, length = %d, curStartBitToInsert = %d, bits = %d\n", curLatchBit, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, curLatchInfo->length, curStartBitToInsert,  bitsToInsert);
+                    /* ********* */
+                    /* FSI Order */
+                    /* ********* */
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        rc = o_mask.setBit(curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+                        if (rc) return rc;                            
+                    }
+                    /* ********** */
+                    /* JTAG Order */
+                    /* ********** */
+                    else {
+                        rc = o_mask.setBit(curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+                        if (rc) return rc;                            
+                    }
+                        
+                    curBitsToInsert -= bitsToInsert;
+                } else {
+                    /* Nothing was there that we needed, let's try the next entry */
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+                }
+            }
+            
+        } while(0);
+    }
+
+    return rc;
+}
+
+uint32_t dllCreateSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit, uint32_t i_numBits)
+{
+    uint32_t rc = ECMD_SUCCESS;
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
+    ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
+    std::string curRing;                          ///< Current ring being operated on
+    uint32_t bustype;                             ///< Type of bus we are attached to JTAG vs FSI
+    std::string curLatchName;                     ///< Current latch name being operated on
+    std::string printed;
+    std::list<ecmdRingData> l_ring_info;
+
+    // Both i_startBit and i_numBits have to be either ECMD_UNSET or not ECMD_UNSET
+    if (((i_startBit == ECMD_UNSET) && (i_numBits != ECMD_UNSET)) || ((i_startBit != ECMD_UNSET) && (i_numBits == ECMD_UNSET)))
+    {
+        printed = "Both i_startBit and i_numBits have to be either ECMD_UNSET or not ECMD_UNSET\n";
+        dllRegisterErrorMsg(ECMD_INVALID_ARGS, "dllCreateSparseMaskFromLatchOpt", printed.c_str() );
+        return ECMD_INVALID_ARGS;
+    }
+
+    /* Let's find out if we are JTAG of FSI here */
+    rc = dllGetScandefOrder(i_target, bustype);
+    if (rc) {
+        printed = "Problems retrieving chip information on target\n";
+        dllRegisterErrorMsg(rc, "dllCreateSparseMaskFromLatchOpt", printed.c_str() );
+        return rc;
+    }
+    /* Now make sure the plugin gave us some bus info */
+    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
+        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllCreateSparseMaskFromLatchOpt", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+        return ECMD_DLL_INVALID;
+    }
+  
+
+    // We're going to use the logic copied from getLatch if these values weren't set
+    if ((i_startBit == ECMD_UNSET) && (i_numBits == ECMD_UNSET))
+    {
+        /* Single exit point */
+        while (1) {
+            
+            uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
+            uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
+            uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
+            uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
+            uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
+            uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
+            std::string latchname = "";
+            curRing = "";
+
+            for (curLatchInfo = i_scandefLatchInfo.begin(); (curLatchInfo != i_scandefLatchInfo.end()) && (curBitsToFetch > 0); curLatchInfo++)
+            {    
+                /* Let's grab the ring for this latch entry */
+                if (curRing != curLatchInfo->ringName) {
+                    curRing = curLatchInfo->ringName;
+                    rc = dllQueryRing(i_target, l_ring_info, curRing.c_str(), ECMD_QUERY_DETAIL_LOW);
+                    if (!l_ring_info.empty())
+                    {
+                        if (io_mask.getBitLength() != l_ring_info.begin()->bitLength)
+                        {
+                            rc = ECMD_DBUF_MISMATCH;
+                            dllRegisterErrorMsg(rc, "dllCreateSparseMaskFromLatchOpt", "Buffer for mask isn't the size of the ring being operated on.  You must set the mask to the size of the ring before calling this function.\n");
+                            return rc;  
+                        }
+                    }
+                }
+                /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
+                if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
+                    ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) 
+                {                    
+                    /* If this is a fresh one we need to reset everything */
+                    if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
+                        dataStartBit = dataEndBit = ECMD_UNSET;
+                        curBitsToFetch = ECMD_UNSET;
+                        curBufferBit = 0;
+                        latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    } else {
+                        /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
+                        dataStartBit = dataEndBit = ECMD_UNSET;
+                        curBufferBit = 0;
+                        /* Decrement the bits to fetch by the hole in the latch */
+                        curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
+                        curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    }
+                }
+
+                /* Do we want anything in here */
+                /* Check if the bits are ordered from:to (0:10) or just (1) */
+                if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
+                    /* Check if the bits are ordered to:from (10:0) */
+                    ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) 
+                {                    
+                    bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
+                    
+                    /* Setup the actual data bits displayed */
+                    if (dataStartBit == ECMD_UNSET) {
+                        dataStartBit = curLatchBit;
+                        dataEndBit = dataStartBit - 1;
+                    }
+                    dataEndBit += bitsToFetch;
+
+                    /* ********* */
+                    /* FSI Order */
+                    /* ********* */
+                    
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        rc = io_mask.setBit(curLatchInfo->fsiRingOffset, bitsToFetch); if (rc) return rc;
+                        
+                        /* Extract bits if ordered from:to (0:10) */
+                        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                            curLatchBit = curLatchInfo->latchEndBit + 1;
+                            /* Extract if bits are ordered to:from (10:0) or just (1) */
+                        } else {
+                            //if (bitsToFetch > 1) buffertemp.reverse();
+                            curLatchBit = curLatchInfo->latchStartBit + 1;
+                        }
+                        curBufferBit += bitsToFetch;
+                        
+                        /* ********* */
+                        /*JTAG Order */
+                        /* ********* */
+                    } else {
+                        rc = io_mask.setBit(curLatchInfo->jtagRingOffset, bitsToFetch); if (rc) return rc;
+                        /* Extract bits if ordered from:to (0:10) */
+                        if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
+                            curLatchBit = curLatchInfo->latchEndBit + 1;
+                        } else {
+                            /* Extract if bits are ordered to:from (10:0) or just (1) */
+                            curLatchBit = curLatchInfo->latchStartBit + 1;
+                        }
+                        curBufferBit += bitsToFetch;
+                    }                    
+                    curBitsToFetch -= bitsToFetch;
+                } else {
+                    /* Nothing was there that we needed, let's try the next entry */
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+                    
+                }
+                
+            } /* end latchinfo for loop */                                
+            break;
+        } /* end while (exit point) */
+    }
+    // Use the logic from putLatch if we had values for i_numBits and i_startBit
+    else
+    {
+        // Stuff from putLatch
+        
+        /* single exit point */
+        do {
+            uint32_t bitsToInsert = i_numBits;
+            uint32_t curLatchBit = ECMD_UNSET;          // This is the actual latch bit we are looking for next
+            uint32_t curBitsToInsert = bitsToInsert;    // This is the total number of bits left to Insert
+            uint32_t curStartBitToInsert = 0;           // This is the offset into the current entry for insertion
+            uint32_t curStart = 0;
+            uint32_t curEnd = 0;
+            
+            for (curLatchInfo = i_scandefLatchInfo.begin(); curLatchInfo != i_scandefLatchInfo.end(); curLatchInfo++) {
+                
+                /* Let's grab the ring for this latch entry */
+                if (curRing != curLatchInfo->ringName) {
+                    curRing = curLatchInfo->ringName;
+                    rc = dllQueryRing(i_target, l_ring_info, curRing.c_str(), ECMD_QUERY_DETAIL_LOW);
+                    if (!l_ring_info.empty())
+                    {
+                        if (io_mask.getBitLength() != l_ring_info.begin()->bitLength)
+                        {
+                            rc = ECMD_DBUF_MISMATCH;
+                            dllRegisterErrorMsg(rc, "dllCreateSparseMaskFromLatchOpt", "Buffer for mask isn't the size of the ring being operated on.  You must set the mask to the size of the ring before calling this function.\n");
+                            return rc;  
+                        }
+                    }
+                }
+                
+                if ((curLatchBit == ECMD_UNSET) ||(curLatchName != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
+                    curLatchName = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
+                    bitsToInsert = i_numBits;
+                    curBitsToInsert = bitsToInsert;
+                    curStart = i_startBit;
+                    curEnd = i_startBit + bitsToInsert - 1;
+                }
+                
+                bool doWrite = false;
+                /* Check if the bits are ordered from:to (0:10) or just (1) and we want to modify */
+                if ((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curStart <= curLatchInfo->latchEndBit) && (curEnd >= curLatchInfo->latchStartBit)) {
+                    if(curStart < curLatchInfo->latchStartBit) { // move counter to start of latch if lower than current latch
+                        curStart = curLatchInfo->latchStartBit;
+                    }
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+                            curStartBitToInsert = curStart - curLatchInfo->latchStartBit;
+                        } else {
+                            curStartBitToInsert = 0;
+                        }
+                        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+                    } else {
+                        // JTAG -- not sure if this is correct for more than one bit
+                        //      -- this is a modified version of the FSI high:low order code
+                        //      -- with latchEndBit and latchStartbit swapped when appropriate
+                        //      -- mklight 03/13/2009
+                        // figure out where we should start
+                        int32_t tempStartBitToInsert = curLatchInfo->latchEndBit - (curStart + curBitsToInsert - 1);
+                        // if we go negative we should start at zero
+                        if(tempStartBitToInsert <= 0) { // we start at start bit
+                            curStartBitToInsert = 0;
+                            if(curStart > curLatchInfo->latchStartBit) { // case where we start inside the latch
+                                bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchStartBit);
+                            } else { // otherwise we start at the end of the latch
+                                bitsToInsert = curLatchInfo->length;
+                            }
+                        } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+                            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+                            bitsToInsert = curBitsToInsert;
+                        }
+                    }
+                    curLatchBit = curLatchInfo->latchEndBit + 1;
+                    doWrite = true;
+                }
+                
+                /* Check if the bits are ordered to:from (10:0) */
+                if ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit) && (curStart <= curLatchInfo->latchStartBit) && (curEnd >= curLatchInfo->latchEndBit)) {
+                    if(curStart < curLatchInfo->latchEndBit) { // move counter to start of latch if lower than current latch
+                        curStart = curLatchInfo->latchEndBit;
+                    }
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        // figure out where we should start
+                        int32_t tempStartBitToInsert = curLatchInfo->latchStartBit - (curStart + curBitsToInsert - 1);
+                        // if we go negative we should start at zero
+                        if(tempStartBitToInsert <= 0) { // we start at start bit
+                            curStartBitToInsert = 0;
+                            if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+                                bitsToInsert = curLatchInfo->length - (curStart - curLatchInfo->latchEndBit);
+                            } else { // otherwise we start at the end of the latch
+                                bitsToInsert = curLatchInfo->length;
+                            }
+                        } else { // we start after start bit, end of latch will not be filled, this will be the last latch
+                            curStartBitToInsert = (uint32_t) tempStartBitToInsert;
+                            bitsToInsert = curBitsToInsert;
+                        }
+                    } else {
+                        if(curStart > curLatchInfo->latchEndBit) { // case where we start inside the latch
+                            curStartBitToInsert = curStart - curLatchInfo->latchEndBit;
+                        } else {
+                            curStartBitToInsert = 0;
+                        }
+                        bitsToInsert = ((curLatchInfo->length - curStartBitToInsert) < curBitsToInsert ? (curLatchInfo->length - curStartBitToInsert) : curBitsToInsert);
+                    }
+                    curLatchBit = curLatchInfo->latchStartBit + 1;
+                    doWrite = true;
+                }
+                
+                if (doWrite == true)
+                {
+                    //printf("curLatchBit = %d, startbit = %d, endbit = %d, length = %d, curStartBitToInsert = %d, bits = %d\n", curLatchBit, curLatchInfo->latchStartBit, curLatchInfo->latchEndBit, curLatchInfo->length, curStartBitToInsert,  bitsToInsert);
+                    /* ********* */
+                    /* FSI Order */
+                    /* ********* */
+                    if (bustype == ECMD_CHIPFLAG_FSI) {
+                        rc = io_mask.setBit(curLatchInfo->fsiRingOffset + curStartBitToInsert, bitsToInsert);
+                        if (rc) return rc;                            
+                    }
+                    /* ********** */
+                    /* JTAG Order */
+                    /* ********** */
+                    else {
+                        rc = io_mask.setBit(curLatchInfo->jtagRingOffset - curLatchInfo->length  + 1 + curStartBitToInsert, bitsToInsert);
+                        if (rc) return rc;                            
+                    }
+                        
+                    curBitsToInsert -= bitsToInsert;
+                } else {
+                    /* Nothing was there that we needed, let's try the next entry */
+                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;
+                }
+            }
+            
+        } while(0);
+    }
+
+    return rc;
 }
 
 /**
@@ -3006,8 +5361,6 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
 
-  /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
   //used to set ecmdLatchBufferEntry's latchNameHashKey in * and that is only used in comparsion 
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
@@ -3158,6 +5511,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
           if (leftParen == std::string::npos) {
             /* This latch doesn't have any parens */
             curLatch.latchStartBit = curLatch.latchEndBit = 0;
+            curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
           } else {
             temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
             curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
@@ -3165,11 +5519,13 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
             /* Is this a multibit or single bit */
             if ((colon = temp.find(':')) != std::string::npos) {
               curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+              curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
             } else if ((colon = temp.find(',')) != std::string::npos) {
               dllOutputError("readScandef - Array's not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
               curLatch.latchEndBit = curLatch.latchStartBit;
+              curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
             }
           }
           curLatch.ringName = curRing;
@@ -3282,8 +5638,6 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
   std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
   std::string l_version = "default";
-  /* Transform to upper case for case-insensitive comparisons */
-  transform(latchName.begin(), latchName.end(), latchName.begin(), (int(*)(int)) toupper);
   latchHashKey32 = ecmdHashString32(latchName.c_str(), 0);
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
@@ -3617,6 +5971,10 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
                   } // end while loop
               }
               if (!ringFound) latchHashDetIter->ringFound = false;
+              //Seek to the ring area in the hashfile
+              //Need to set this back to the start in case it wasn't found the first time through.
+              insh.seekg ( 8 ); 
+
           }
 	}  
 	ins.close(); 
@@ -3769,17 +6127,20 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
             if (leftParen == std::string::npos) {
               /* This latch doesn't have any parens */
               curLatch.latchStartBit = curLatch.latchEndBit = 0;
+              curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
             } else {
               temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
               curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
               /* Is this a multibit or single bit */
               if ((colon = temp.find(':')) != std::string::npos) {
         	curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+                curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
               } else if ((colon = temp.find(',')) != std::string::npos) {
         	dllOutputError("readScandef - Array's not currently supported with getlatch\n");
         	return ECMD_FUNCTION_NOT_SUPPORTED;
               } else {
         	curLatch.latchEndBit = curLatch.latchStartBit;
+                curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
               }
             }
             curLatch.ringName = curRing;
