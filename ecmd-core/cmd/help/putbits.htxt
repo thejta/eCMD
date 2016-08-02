@@ -39,7 +39,7 @@ Syntax: putbits <Chip[.ChipUnit]> <RingName> <StartPos> <Data> [-i<format>] [-b<
         -mcast<value>           Creates a multicast scan address for the ring.
                                 Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
 
-        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL flag for scan conditioning.
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL and ECMD_RING_MODE_SET_PULSE_NSL flags for scan conditioning.
 
         -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning. 
 

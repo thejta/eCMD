@@ -1,5 +1,5 @@
 
-Syntax: putpattern <Chip[.ChipUnit]> <RingType> <Data> [-i<format>] 
+Syntax: putpattern <Chip[.ChipUnit]> <RingType> <Data> [-i<format>] [-mcast<value>] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -8,25 +8,32 @@ Syntax: putpattern <Chip[.ChipUnit]> <RingType> <Data> [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
-        Chip            Specifies the chip to operate on.
-        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
-                        w/o  ChipUnit: pu
-                        with ChipUnit: pu.mc
+        Chip                    Specifies the chip to operate on.
+        ChipUnit [opt]          If you are using ChipUnits, you also specify your ChipUnit
+                                w/o  ChipUnit: pu
+                                with ChipUnit: pu.mc
 
-        RingName        Specifies chip ring to operate on.  For a list of available
-                        rings, use the ecmdquery command.
+        RingName                Specifies chip ring to operate on.  For a list of available
+                                rings, use the ecmdquery command.
 
-                        Ex:  ecmdquery rings memctrl
-                             ecmdquery rings pu
+                                Ex:  ecmdquery rings memctrl
+                                 ecmdquery rings pu
                         
-        Data            32bit pattern to write.  
-                        Format specified by -i<format>
+        Data                    32bit pattern to write.  
+                                Format specified by -i<format>
         
-        -i<format>[opt] Specifies the format type of input data : default 'xr'
-                        Run 'ecmdquery formats' to view available formats
+        -i<format>[opt]          Specifies the format type of input data : default 'xr'
+                                 Run 'ecmdquery formats' to view available formats
 
-                        Run 'ecmdquery options' for a list of the global command line
-                        options and their definitions
+        -mcast<value>           Creates a multicast scan address for the ring.
+                                Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
+
+        -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_NSL flag for scan conditioning.
+
+        -set_pulse_cond_all[opt]Uses the ECMD_RING_MODE_SET_PULSE_ALL flag for scan conditioning. 
+
+                                     Run 'ecmdquery options' for a list of the global command line
+                                     options and their definitions
         --------------------------------------------------------------------------------
 
         Example:        putpattern pu int FEEDBEEF -p0,1
