@@ -876,7 +876,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
     /* Actually go fetch the data */
     rc = makeSPSystemCall(target, command, standardop);
-    if (rc) {
+    if (rc && !raw) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
