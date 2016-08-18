@@ -166,6 +166,11 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     
   }
 
+  // strip chipunit from target
+  target.chipUnitType = "";
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
   if (rc) return rc;
 
@@ -679,6 +684,12 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
           }
      }
   }
+
+  // strip chipunit from target
+  target.chipUnitType = "";
+  target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+  target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
 
