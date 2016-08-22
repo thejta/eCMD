@@ -313,9 +313,9 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
              threadTarget.chipUnitType = chipUnitType;
           else {
              threadTarget.chipUnitType = threadEntryIter->first;  //@SJ-fixed with defect 649018
-             threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
           }
           threadTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+          threadTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         }
         threadTarget.threadState = ECMD_TARGET_FIELD_WILDCARD;
 
