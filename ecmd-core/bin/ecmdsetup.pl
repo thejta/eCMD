@@ -423,6 +423,14 @@ sub main {
   }
 
   ##########################################################################
+  # Add python directory to PYTHONPATH
+  #
+  if (!$cleanup) {
+    $ENV{"PYTHONPATH"} = $releasePath . "/" . $arch . "/python:" . $ENV{"PYTHONPATH"};
+    $modified{"PYTHONPATH"} = 1;
+  }
+
+  ##########################################################################
   # Updates setup scripts if release changed
   # All we need to do is resource the setup scripts
   #
