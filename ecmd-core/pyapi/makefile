@@ -80,6 +80,11 @@ pyapi_install:
 	cp ${OUTPY}/${PY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python/ecmd/${PYTHON_NAME}/__init__.py
 	cp ${OUTPY}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python/ecmd/${PYTHON_NAME}/.
 	cp ${ECMD_CORE}/pyapi/init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/python/ecmd/.
+	@echo " "
+
+	@echo "Creating ${TARGET_ARCH}/${PYTHON_NAME} dir and adding deprecation warning ..."
+	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}
+	cp ${ECMD_CORE}/pyapi/init/ecmd-deprecation-warning.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/ecmd.py
 
 test:
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
