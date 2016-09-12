@@ -166,6 +166,9 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     
   }
 
+  // use a local target to set up procInfo and use target so looper works properly
+  ecmdChipTarget l_target = target;
+
   // strip chipunit from target
   target.chipUnitType = "";
   target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
@@ -187,7 +190,8 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       sprName = argv[idx];
 
       /* First thing we need to do is find out for this particular target if the SPR is threaded */
-      rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+      rc = ecmdQueryProcRegisterInfo(l_target, sprName.c_str(), procInfo);
+
       if (rc) {
         printed = "getspr - Error occured getting spr info for ";
         printed += sprName;
@@ -226,7 +230,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     if (posEntries.size()) {
 
       /* Actually go fetch the data */
-      rc = getSprMultiple(target, posEntries);
+      rc = getSprMultiple(l_target, posEntries);
       if (rc) {
         printed = "getspr - Error occured performing getSprMultiple on ";
         printed += ecmdWriteTarget(target) + "\n";
@@ -685,6 +689,9 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
      }
   }
 
+  // use a local target to set up procInfo and use target so looper works properly
+  ecmdChipTarget l_target = target;
+
   // strip chipunit from target
   target.chipUnitType = "";
   target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
@@ -699,7 +706,8 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     entries.clear();
 
     /* First thing we need to do is find out for this particular target if the SPR is threaded */
-    rc = ecmdQueryProcRegisterInfo(target, sprName.c_str(), procInfo);
+    rc = ecmdQueryProcRegisterInfo(l_target, sprName.c_str(), procInfo);
+
     if (rc) {
       printed = function + " - Error occured getting info for ";
       printed += sprName;
@@ -724,7 +732,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     }
 
     /* Now setup our chipUnit/thread loop */
-    subTarget = target;
+    subTarget = l_target;
     if (procInfo.isChipUnitRelated) {
       if (procInfo.relatedChipUnit != "") {
         subTarget.chipUnitType = procInfo.relatedChipUnit;
