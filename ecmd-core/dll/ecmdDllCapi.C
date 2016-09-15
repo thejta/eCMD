@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <netinet/in.h> /* for htonl */
 #include <pthread.h>
+#include <map>
 
 #include <ecmdDllCapi.H>
 #include <ecmdStructs.H>
@@ -81,7 +82,7 @@ struct ecmdLatchBufferEntry {
 
 struct ecmdLatchCacheEntry {
   uint64_t scandefHashKey;
-  std::list<ecmdLatchBufferEntry> latches;
+    std::map<uint64_t, ecmdLatchBufferEntry> latches;
 
   inline int operator==(const ecmdLatchCacheEntry &rhs) const {
     return (scandefHashKey==rhs.scandefHashKey);
@@ -5359,7 +5360,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
   std::string curRing;                          ///< Current ring being read in
   uint64_t latchHashKey64;                        ///< Hash Key for i_latchName
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
-  std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
+  std::map<uint64_t, ecmdLatchBufferEntry>::iterator searchLatchIter;
 
   //used to set ecmdLatchBufferEntry's latchNameHashKey in * and that is only used in comparsion 
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
@@ -5394,27 +5395,24 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
       /* We found the proper scandef entry, now actually search for the latch we need */
       ecmdLatchBufferEntry searchLatch;
       searchLatch.latchNameHashKey = latchHashKey64;
-      std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
-
 
       bool latchFound = false;
-      latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
-      searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
-      if (searchLatchIter != latchMatchRange.second) {
+      searchLatchIter = searchCacheIter->latches.find(latchHashKey64);
+      if (searchLatchIter != searchCacheIter->latches.end()) {
         latchFound = true;
       }
 
       if (latchFound) {
         /* If the user passed NULL we have to search entire scandef */
         if (ringName == "") {
-          if (searchLatchIter->ringName.length() == 0) {
-            o_latchdata = (*searchLatchIter);
+          if (searchLatchIter->second.ringName.length() == 0) {
+            o_latchdata = (searchLatchIter->second);
             foundit = true;
             break;
           }
         } else {
-          if (searchLatchIter->ringName == ringName) {
-            o_latchdata = (*searchLatchIter);
+          if (searchLatchIter->second.ringName == ringName) {
+            o_latchdata = (searchLatchIter->second);
             foundit = true;
             break;
           }
@@ -5600,8 +5598,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
       o_latchdata.entry.sort();
 
       /* Now insert it in proper order */
-      searchLatchIter = lower_bound(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), o_latchdata);
-      searchCacheIter->latches.insert(searchLatchIter, o_latchdata);
+      searchCacheIter->latches[latchHashKey64] = o_latchdata;
 
     } /* end !foundit */
   } /* end single exit point */
@@ -5636,7 +5633,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
   std::string curLine;                          ///< Current line in the scandef
   std::vector<std::string> curArgs;             ///< for tokenizing
   std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
-  std::list<ecmdLatchBufferEntry>::iterator searchLatchIter;
+  std::map<uint64_t, ecmdLatchBufferEntry>::iterator searchLatchIter;
   std::string l_version = "default";
   latchHashKey32 = ecmdHashString32(latchName.c_str(), 0);
   latchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
@@ -5675,27 +5672,24 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
       ecmdLatchBufferEntry searchLatch;
       //lets always use the 64 bit because this will only be used for comparison
       searchLatch.latchNameHashKey = latchHashKey64;
-      std::pair<std::list<ecmdLatchBufferEntry>::iterator, std::list<ecmdLatchBufferEntry>::iterator> latchMatchRange;
-
 
       bool latchFound = false;
-      latchMatchRange = equal_range(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), searchLatch);
-      searchLatchIter = find(latchMatchRange.first, latchMatchRange.second, searchLatch);
-      if (searchLatchIter != latchMatchRange.second) {
+      searchLatchIter = searchCacheIter->latches.find(latchHashKey64);
+      if (searchLatchIter != searchCacheIter->latches.end()) {
         latchFound = true;
       }
 
       if (latchFound) {
         /* If the user passed NULL we have to search entire scandef */
         if (ringName == "") {
-          if (searchLatchIter->ringName.length() == 0) {
-            o_latchdata = (*searchLatchIter);
+          if (searchLatchIter->second.ringName.length() == 0) {
+            o_latchdata = (searchLatchIter->second);
             foundit = true;
             break;
           }
         } else {
-          if (searchLatchIter->ringName == ringName) {
-            o_latchdata = (*searchLatchIter);
+          if (searchLatchIter->second.ringName == ringName) {
+            o_latchdata = (searchLatchIter->second);
             foundit = true;
             break;
           }
@@ -6192,8 +6186,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
       o_latchdata.entry.sort();
 
       /* Now insert it in proper order */
-      searchLatchIter = lower_bound(searchCacheIter->latches.begin(), searchCacheIter->latches.end(), o_latchdata);
-      searchCacheIter->latches.insert(searchLatchIter, o_latchdata);
+      searchCacheIter->latches[latchHashKey64] = o_latchdata;
 
     } /* end !foundit */
   } /* end single exit point */
