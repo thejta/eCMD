@@ -538,6 +538,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       /* Check if verbose then print details */
       if (verbose) {
         /* Get Spy Groups */
+        bool l_has_groups = false; 
         getSpyGroupsHidden(cuTarget, spyName.c_str(), spygroups, spy_flags);
         if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) {
           coeRc = rc;
@@ -557,6 +558,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutput(printed.c_str());
           i++;
           groupiter++;
+          l_has_groups = true;
         }
         /* Ecc Checkers */
         /* Must have entries - setup variables and iterators, start looping */
@@ -589,9 +591,25 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         char tempstr[50];
         uint32_t offset = 0;
         if (!spyData->isEnumerated) { // Can't do this on enumerated spies
+          if (l_has_groups)
+          {
+              //reuse some stuff from earlier
+              i = 0;
+              groupiter = spygroups.begin();
+              sprintf(gpnum,"%3.3d",i);
+              printed = "   ===== Group " + (std::string)gpnum + " =====\n";
+              ecmdOutput(printed.c_str());
+          }
           while (latchDataIter != spyData->spyLatches.end()) {
             // Format my data
-            sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            if (l_has_groups)
+            {   
+                sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? groupiter->extractBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : groupiter->extractBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            }
+            else
+            {
+                sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            }
             printed = tempstr;
             // Now tack on the latch name
             printed += latchDataIter->latchName;
@@ -600,6 +618,21 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
             // Walk some stuff
             offset += (uint32_t)latchDataIter->length;
+            // For groups, we're returning latch data now for all groups
+            // Reset the offset when it reaches the length and move to next group buf
+            if (l_has_groups && (offset >= groupiter->extractBuffer.getBitLength()))
+            {
+                offset = 0;
+                groupiter++;
+                if (groupiter != spygroups.end())
+                {
+                    i++;
+                    sprintf(gpnum,"%3.3d",i);
+                    printed = "   ===== Group " + (std::string)gpnum + " =====\n";
+                    ecmdOutput(printed.c_str());
+                }
+
+            } 
             latchDataIter++;
           }
         }
