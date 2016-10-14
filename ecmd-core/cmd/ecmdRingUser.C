@@ -1146,17 +1146,29 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
     if (use_sparse)
     {
         rc = sparse_mask.setBitLength(ringData->bitLength);
-        if (rc) break;
+        if (rc) 
+        {
+            coeRc = rc;
+            continue;
+        }
 
         if (numBits == ECMD_UNSET)
         {
             rc = sparse_mask.setBit(startBit, (ringData->bitLength - startBit));
-            if (rc) break;
+            if (rc)
+            {
+                coeRc = rc;
+                continue;
+            }
         }
         else 
         {
             rc = sparse_mask.setBit(startBit, numBits);
-            if (rc) break;
+            if (rc)
+            {
+                coeRc = rc;
+                continue;
+            }
         }
     }
 
@@ -1502,9 +1514,17 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
     if (use_sparse)
     {
         rc = sparse_mask.setBitLength(ringData->bitLength);
-        if (rc) break;
+        if (rc) 
+        {
+            coeRc = rc;
+            continue;
+        }
         rc = sparse_mask.setBit(startBit, buffer.getBitLength());
-        if (rc) break;
+        if (rc) 
+        {
+            coeRc = rc;
+            continue;
+        }
     }
 
 
