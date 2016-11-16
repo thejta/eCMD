@@ -394,6 +394,13 @@ if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
         CFLAGS += " -m32 -fPIC"
         LDFLAGS += " -m32 -fPIC"
         SLDFLAGS += " -shared -m32 -fPIC"
+elif (TARGET_BARCH == "arm"):
+    DEFINES += " -DLINUX"
+    GPATH += " " + OBJPATH
+    CFLAGS += " -Wall"
+    CFLAGS += " -fPIC"
+    LDFLAGS += " -fPIC"
+    SLDFLAGS += " -shared -fPIC"
 else:
     DEFINES += " -DAIX"
 
