@@ -268,15 +268,13 @@ void ServerFSIInstruction::mbx_ffdc_and_reset(Handle ** handle, InstructionStatu
 uint32_t ServerFSIInstruction::scan_close(Handle * handle)
 {
     // close scan device
-    printf("system_scan_close()\n");
-    return 0;
+    return adal_scan_close((adal_t *) handle);
 }
 
 uint32_t ServerFSIInstruction::scom_close(Handle * handle)
 {
     // close scom device
-    printf("system_scom_close()\n");
-    return 0;
+    return adal_scom_close((adal_t *) handle);
 }
 
 uint32_t ServerFSIInstruction::gp_reg_close(Handle * handle)
@@ -295,95 +293,119 @@ uint32_t ServerFSIInstruction::mbx_close(Handle * handle)
 
 ssize_t ServerFSIInstruction::scan_write(Handle * i_handle, InstructionStatus & o_status)
 {
-/* 
- * handle these flags
+        ssize_t rc = 0;
+        unsigned long options = 0;
+        unsigned long status = 0;
+
         if (!(flags & INSTRUCTION_FLAG_FSI_SCANHEADERCHECK)) options |= SCANNOHEADERCHECK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANSETPULSE) options |= SCANSETPULSE;
         if (flags & INSTRUCTION_FLAG_FSI_SCANEXTRABCLOCK) options |= SCANEXTRABCLOCK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANVIAPIB) options |= SCANVIAPIB;
-*/
-        printf("ServerFSIInstruction::scan_write() address = %08X, length = %u\n", address, length);
 
-        uint32_t status = 0; // fsi status register
+        rc = adal_scan_write((adal_t *) i_handle,
+            ecmdDataBufferImplementationHelper::getDataPtr(&data),
+            address, length, options, &status);
+
         o_status.data.setBitLength(32);
-        o_status.data.insert(status, 0, 32);
+        o_status.data.setWord(0, status);
 
-        return length % 8 ? (length / 8) + 1 : length / 8;
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scan_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-/* 
- * handle these flags
+        ssize_t rc = 0;
+        unsigned long options = 0;
+        unsigned long status = 0;
+
         if (!(flags & INSTRUCTION_FLAG_FSI_SCANHEADERCHECK)) options |= SCANNOHEADERCHECK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANSETPULSE) options |= SCANSETPULSE;
         if (flags & INSTRUCTION_FLAG_FSI_SCANEXTRABCLOCK) options |= SCANEXTRABCLOCK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANVIAPIB) options |= SCANVIAPIB;
-*/
-        printf("ServerFSIInstruction::scan_read() address = %08X, length = %u\n", address, length);
 
-        uint32_t status = 0; // fsi status register
+        rc = adal_scan_read((adal_t *) i_handle,
+            ecmdDataBufferImplementationHelper::getDataPtr(&o_data),
+            address, length, options, &status);
+
         o_status.data.setBitLength(32);
-        o_status.data.insert(status, 0, 32);
+        o_status.data.setWord(0, status);
 
-        return length % 8 ? (length / 8) + 1 : length / 8;
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scom_write(Handle * i_handle, InstructionStatus & o_status, uint32_t i_index)
 {
+        ssize_t rc = 0;
+        uint64_t l_address = address;
         if (flags & INSTRUCTION_FLAG_64BIT_ADDRESS) {
-          printf("ServerFSIInstruction::scom_write() address64 = " UINT64_HEX_VARIN_FORMAT(%016) "\n", address64);
-        } else {
-          printf("ServerFSIInstruction::scom_write() address = %08X\n", address);
+          l_address = address64;
         }
+	uint64_t l_data = data.getDoubleWord(i_index);
+	unsigned long l_status = 0;
+        rc = adal_scom_write((adal_t *) i_handle, &l_data, l_address, &l_status);
 
-        uint32_t status = 0x01000000;
+        // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
-        o_status.data.insert(status, 0, 32);
+        o_status.data.setWord(0, l_status);
 
-        return length % 8 ? (length / 8) + 1 : length / 8;
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scom_write_under_mask(Handle * i_handle, InstructionStatus & o_status)
 {
+        ssize_t rc = 0;
+        uint64_t l_address = address;
         if (flags & INSTRUCTION_FLAG_64BIT_ADDRESS) {
-          printf("ServerFSIInstruction::scom_write_under_mask() address64 = " UINT64_HEX_VARIN_FORMAT(%016) "\n", address64);
-        } else {
-          printf("ServerFSIInstruction::scom_write_under_mask() address = %08X\n", address);
+          l_address = address64;
         }
+	uint64_t l_data = data.getDoubleWord(0);
+	uint64_t l_mask = mask.getDoubleWord(0);
+	unsigned long l_status = 0;
+        rc = adal_scom_write_under_mask((adal_t *) i_handle, &l_data, l_address, &l_mask, &l_status);
 
-        uint32_t status = 0x01000000;
+        // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
-        o_status.data.insert(status, 0, 32);
+        o_status.data.setWord(0, l_status);
 
-        return length % 8 ? (length / 8) + 1 : length / 8;
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scom_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status, uint32_t i_index)
 {
+        ssize_t rc = 0;
+        uint64_t l_address = address;
         if (flags & INSTRUCTION_FLAG_64BIT_ADDRESS) {
-          printf("ServerFSIInstruction::scom_read() address64 = " UINT64_HEX_VARIN_FORMAT(%016) "\n", address64);
-        } else {
-          printf("ServerFSIInstruction::scom_read() address = %08X\n", address);
+          l_address = address64;
         }
+	uint64_t l_data = 0;
+	unsigned long l_status = 0;
+        rc = adal_scom_read((adal_t *) i_handle, &l_data, l_address, &l_status);
 
-        uint32_t status = 0x01000000;
+        // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
-        o_status.data.insert(status, 0, 32);
+        o_status.data.setWord(0, l_status);
 
-        return length % 8 ? (length / 8) + 1 : length / 8;
+	o_data.setDoubleWord(i_index, l_data);
+
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scan_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::scan_get_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = 0;
+        rc = adal_scan_get_register((adal_t *) i_handle, address, &l_data);
+        o_data.setWord(0, l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scom_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::scom_get_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = 0;
+        rc = adal_scom_get_register((adal_t *) i_handle, address, &l_data);
+        o_data.setWord(0, l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
@@ -441,14 +463,18 @@ ssize_t ServerFSIInstruction::gp_reg_get(Handle * i_handle, ecmdDataBufferBase &
 
 ssize_t ServerFSIInstruction::scan_set_register(Handle * i_handle, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::scan_set_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+        rc = adal_scan_get_register((adal_t *) i_handle, address, &l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scom_set_register(Handle * i_handle, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::scom_set_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+        rc = adal_scom_get_register((adal_t *) i_handle, address, &l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, InstructionStatus & o_status)
