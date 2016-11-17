@@ -3,6 +3,8 @@
 
 #include <ServerGPIOInstruction.H>
 #include <OutputLite.H>
+#include <stdio.h>
+#include <errno.h>
 
 //FIXME remove these
 Handle * system_gpio_open(const char * device, int flags) { return NULL; }

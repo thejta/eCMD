@@ -14,6 +14,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <Instruction.H>
+#include <unistd.h>
 
 /**
  @brief I2CInstruction class

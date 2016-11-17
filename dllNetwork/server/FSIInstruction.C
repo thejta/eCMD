@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string.h>
+#include <errno.h>
 
 #ifdef OTHER_USE
 #include <OutputLite.H>

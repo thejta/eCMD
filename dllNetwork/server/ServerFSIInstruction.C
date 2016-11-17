@@ -3,6 +3,7 @@
 
 #include <ServerFSIInstruction.H>
 #include <OutputLite.H>
+#include <stdio.h>
 
 #ifndef TESTING
 #include <adal_scom.h>

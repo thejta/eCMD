@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sstream>
 #include <iomanip>
+#include <errno.h>
 
 #include <OutputLite.H>
 extern OutputLite out;
