@@ -4,6 +4,9 @@
 #include <ServerGPIOInstruction.H>
 #include <OutputLite.H>
 
+//FIXME remove these
+Handle * system_gpio_open(const char * device, int flags) { return NULL; }
+
 uint32_t ServerGPIOInstruction::gpio_open(Handle ** handle, InstructionStatus & o_status)
 {
   uint32_t rc = 0;

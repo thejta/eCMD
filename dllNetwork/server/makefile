@@ -9,8 +9,8 @@ include ../../makefile.base
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := server1p
-CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}
+CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH} -Iadals -Iadals/scom -Iadals/scan
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan
 
 # *****************************************************************************
 # Setup all the files going into the build
@@ -54,10 +54,13 @@ TGT_SOURCE += PNORInstruction.C
 TGT_SOURCE += fd_impl.C
 TGT_SOURCE += server1p.C
 
+TGT_SOURCE_C := adal_scom.c
+TGT_SOURCE_C += adal_scan.c
+
 # Combine all the includes into one variable for the build
 INCLUDES      := ${ECMD_INCLUDES} ${TGT_INCLUDES}
 
-DEFINES += -DREMOVE_SIM -DOTHER_USE -DCRONUS_SERVER_SIDE -DTESTING -D_FILE_OFFSET_BITS=64 -DCRONUS_FSP2 -DNO_GFW
+DEFINES += -DREMOVE_SIM -DOTHER_USE -DCRONUS_SERVER_SIDE -D_FILE_OFFSET_BITS=64 -DCRONUS_FSP2 -DNO_GFW
 
 LDFLAGS += -ldl -lpthread -lz
 
@@ -86,6 +89,10 @@ TGT_SOURCE_OBJS  = $(basename ${TGT_SOURCE})
 TGT_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${TGT_SOURCE_OBJS})
 TGT_SOURCE_OBJS := $(addsuffix .o, ${TGT_SOURCE_OBJS})
 
+TGT_SOURCE_C_OBJS  = $(basename ${TGT_SOURCE_C})
+TGT_SOURCE_C_OBJS := $(addprefix ${OBJPATH}, ${TGT_SOURCE_C_OBJS})
+TGT_SOURCE_C_OBJS := $(addsuffix .o, ${TGT_SOURCE_C_OBJS})
+
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
 # code has been changed.  Or, compile everything if a header
@@ -95,10 +102,14 @@ ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
+${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+
 # *****************************************************************************
 # Create the Target
 # *****************************************************************************
-${TARGET}: ${TGT_SOURCE_OBJS}
+${TARGET}: ${TGT_SOURCE_OBJS} ${TGT_SOURCE_C_OBJS}
 	@echo Linking $@
 	${VERBOSE}${LD} ${LDFLAGS} -o ${OUTLIB}/${TARGET} $^
 

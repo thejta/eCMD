@@ -4,6 +4,16 @@
 #include <ServerFSIInstruction.H>
 #include <OutputLite.H>
 
+#ifndef TESTING
+#include <adal_scom.h>
+#include <adal_scan.h>
+#endif
+
+//FIXME remove these
+adal_t * adal_mbx_open(const char * device, int flags) { return NULL; }
+adal_t * system_gp_reg_open(const char * device, int flags, int type) { return NULL; }
+#define EDAL_GP_TYPE_MBX 0
+
 uint32_t ServerFSIInstruction::scan_open(Handle ** handle, InstructionStatus & o_status) {
   uint32_t rc = 0;
 
@@ -16,14 +26,18 @@ uint32_t ServerFSIInstruction::scan_open(Handle ** handle, InstructionStatus & o
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/scan/%sE03P00", deviceString.c_str());
+    snprintf(device, 50, "/dev/scan%s", deviceString.c_str());
   } else {
-    snprintf(device, 50, "/dev/scan/%d/%d/%0*X/0", linkid, cfamid, (cmaster >> 28), ((cmaster << 8) | 3));
+    //ERROR
+    *handle = NULL;
+    snprintf(errstr, 200, "ServerFSIInstruction::scan_open INSTRUCTION_FLAG_DEVSTR must be set\n");
+    o_status.errorMessage.append(errstr);
+    return SERVER_INVALID_FSI_DEVICE;
   }
   errno = 0;
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_scan_open(%s, O_RDWR | O_SYNC)\n", device);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_scan_open(%s, O_RDWR | O_SYNC)\n", device);
     o_status.errorMessage.append(errstr);
   }
 
@@ -33,11 +47,11 @@ uint32_t ServerFSIInstruction::scan_open(Handle ** handle, InstructionStatus & o
 #endif
   *handle = (Handle *) 0x1;
 #else
-  *handle = system_scan_open(device, O_RDWR | O_SYNC);
+  *handle = (Handle *) adal_scan_open(device, O_RDWR | O_SYNC);
 #endif
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_scan_open() *handle = %p\n", *handle);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_scan_open() *handle = %p\n", *handle);
     o_status.errorMessage.append(errstr);
   }
 
@@ -62,28 +76,32 @@ uint32_t ServerFSIInstruction::scom_open(Handle** handle, InstructionStatus & o_
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/scom/%sE04P00", deviceString.c_str());
+    snprintf(device, 50, "/dev/scom%s", deviceString.c_str());
   } else {
-    snprintf(device, 50, "/dev/scom/%d/%d/%0*X/0", linkid, cfamid, (cmaster >> 28), ((cmaster << 8) | 4));
+    //ERROR
+    *handle = NULL;
+    snprintf(errstr, 200, "ServerFSIInstruction::scom_open INSTRUCTION_FLAG_DEVSTR must be set\n");
+    o_status.errorMessage.append(errstr);
+    return SERVER_INVALID_FSI_DEVICE;
   }
   errno = 0;
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_scom_open(%s, O_RDWR | O_SYNC)\n", device);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_scom_open(%s, O_RDWR | O_SYNC)\n", device);
     o_status.errorMessage.append(errstr);
   }
 
 #ifdef TESTING
 #ifndef TESTING_NO_DEBUG
-  printf("*handle = system_scom_open(%s, O_RDWR | O_SYNC);\n", device);
+  printf("*handle = adal_scom_open(%s, O_RDWR | O_SYNC);\n", device);
 #endif
   *handle = (Handle *) 0x1;
 #else
-  *handle = system_scom_open(device, O_RDWR | O_SYNC);
+  *handle = (Handle *) adal_scom_open(device, O_RDWR | O_SYNC);
 #endif
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_scom_open() *handle = %p\n", *handle);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_scom_open() *handle = %p\n", *handle);
     o_status.errorMessage.append(errstr);
   }
 
@@ -108,11 +126,11 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx/%sE10P00", deviceString.c_str());
+    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
   } else {
     //ERROR
     *handle = NULL;
-    snprintf(errstr, 200, "ServerFSIInstruction::INSTRUCTION_FLAG_DEVSTR must be set to use gp_reg_open\n");
+    snprintf(errstr, 200, "ServerFSIInstruction::gp_reg_open INSTRUCTION_FLAG_DEVSTR must be set\n");
     o_status.errorMessage.append(errstr);
     return SERVER_INVALID_FSI_DEVICE;
   }
@@ -158,32 +176,32 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx/%sE10P00", deviceString.c_str());
+    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
   } else {
     //ERROR
     *handle = NULL;
-    snprintf(errstr, 200, "ServerFSIInstruction::INSTRUCTION_FLAG_DEVSTR must be set to use mbx_open\n");
+    snprintf(errstr, 200, "ServerFSIInstruction::mbx_open INSTRUCTION_FLAG_DEVSTR must be set\n");
     o_status.errorMessage.append(errstr);
     return SERVER_INVALID_FSI_DEVICE;
   }
   errno = 0;
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_mbx_open(%s, O_RDWR | O_SYNC)\n", device);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open(%s, O_RDWR | O_SYNC)\n", device);
     o_status.errorMessage.append(errstr);
   }
 
 #ifdef TESTING
 #ifndef TESTING_NO_DEBUG
-  printf("*handle = system_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
+  printf("*handle = adal_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
 #endif
   *handle = (Handle *) 0x1;
 #else
-  *handle = system_mbx_open(device, O_RDWR | O_SYNC);
+  *handle = (Handle *) adal_mbx_open(device, O_RDWR | O_SYNC);
 #endif
 
   if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : system_mbx_open() *handle = %p\n", *handle);
+    snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open() *handle = %p\n", *handle);
     o_status.errorMessage.append(errstr);
   }
 

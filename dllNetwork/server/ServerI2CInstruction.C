@@ -4,6 +4,10 @@
 #include <ServerI2CInstruction.H>
 #include <OutputLite.H>
 
+//FIXME remove these
+Handle * system_iic_open(const char * device, int flags) { return NULL; }
+#include <fcntl.h>
+
 uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_status)
 {
     uint32_t rc = 0;
