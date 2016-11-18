@@ -265,14 +265,22 @@ void ServerFSIInstruction::mbx_ffdc_and_reset(Handle ** handle, InstructionStatu
 
 uint32_t ServerFSIInstruction::scan_close(Handle * handle)
 {
-    // close scan device
+#ifdef TESTING
+    TEST_PRINT("adal_scan_close((adal_t *) handle);\n");
+    return 0;
+#else
     return adal_scan_close((adal_t *) handle);
+#endif
 }
 
 uint32_t ServerFSIInstruction::scom_close(Handle * handle)
 {
-    // close scom device
+#ifdef TESTING
+    TEST_PRINT("adal_scom_close((adal_t *) handle);\n");
+    return 0;
+#else
     return adal_scom_close((adal_t *) handle);
+#endif
 }
 
 uint32_t ServerFSIInstruction::gp_reg_close(Handle * handle)
@@ -284,9 +292,12 @@ uint32_t ServerFSIInstruction::gp_reg_close(Handle * handle)
 
 uint32_t ServerFSIInstruction::mbx_close(Handle * handle)
 {
-    // close mbx device
-    return adal_mbx_close((adal_t *) handle);
+#ifdef TESTING
+    TEST_PRINT("adal_mbx_close((adal_t *) handle);\n");
     return 0;
+#else
+    return adal_mbx_close((adal_t *) handle);
+#endif
 }
 
 ssize_t ServerFSIInstruction::scan_write(Handle * i_handle, InstructionStatus & o_status)
@@ -300,9 +311,14 @@ ssize_t ServerFSIInstruction::scan_write(Handle * i_handle, InstructionStatus & 
         if (flags & INSTRUCTION_FLAG_FSI_SCANEXTRABCLOCK) options |= SCANEXTRABCLOCK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANVIAPIB) options |= SCANVIAPIB;
 
+#ifdef TESTING
+        TEST_PRINT("adal_scan_write((adal_t *) i_handle, ecmdDataBufferImplementationHelper::getDataPtr(&data), %08X, %u, options, &status);\n", address, length);
+        rc = length % 8 ? (length / 8) + 1 : length / 8;
+#else
         rc = adal_scan_write((adal_t *) i_handle,
             ecmdDataBufferImplementationHelper::getDataPtr(&data),
             address, length, options, &status);
+#endif
 
         o_status.data.setBitLength(32);
         o_status.data.setWord(0, status);
@@ -321,9 +337,14 @@ ssize_t ServerFSIInstruction::scan_read(Handle * i_handle, ecmdDataBufferBase & 
         if (flags & INSTRUCTION_FLAG_FSI_SCANEXTRABCLOCK) options |= SCANEXTRABCLOCK;
         if (flags & INSTRUCTION_FLAG_FSI_SCANVIAPIB) options |= SCANVIAPIB;
 
+#ifdef TESTING
+        TEST_PRINT("adal_scan_read((adal_t *) i_handle, ecmdDataBufferImplementationHelper::getDataPtr(&o_data), %08X, %u, options, &status);\n", address, length);
+        rc = length % 8 ? (length / 8) + 1 : length / 8;
+#else
         rc = adal_scan_read((adal_t *) i_handle,
             ecmdDataBufferImplementationHelper::getDataPtr(&o_data),
             address, length, options, &status);
+#endif
 
         o_status.data.setBitLength(32);
         o_status.data.setWord(0, status);
@@ -340,7 +361,12 @@ ssize_t ServerFSIInstruction::scom_write(Handle * i_handle, InstructionStatus & 
         }
 	uint64_t l_data = data.getDoubleWord(i_index);
 	unsigned long l_status = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_scom_write((adal_t *) i_handle, %016llX, %016llX, &status);\n", l_data, l_address);
+        rc = 8;
+#else
         rc = adal_scom_write((adal_t *) i_handle, &l_data, l_address, &l_status);
+#endif
 
         // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
@@ -359,7 +385,12 @@ ssize_t ServerFSIInstruction::scom_write_under_mask(Handle * i_handle, Instructi
 	uint64_t l_data = data.getDoubleWord(0);
 	uint64_t l_mask = mask.getDoubleWord(0);
 	unsigned long l_status = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_scom_write_under_mask((adal_t *) i_handle, %016llX, %016llX, %016llX, &status);\n", l_data, l_address, l_mask);
+        rc = 8;
+#else
         rc = adal_scom_write_under_mask((adal_t *) i_handle, &l_data, l_address, &l_mask, &l_status);
+#endif
 
         // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
@@ -377,7 +408,12 @@ ssize_t ServerFSIInstruction::scom_read(Handle * i_handle, ecmdDataBufferBase & 
         }
 	uint64_t l_data = 0;
 	unsigned long l_status = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_scom_read((adal_t *) i_handle, &l_data, %016llX, &status);\n", l_address);
+        rc = 8;
+#else
         rc = adal_scom_read((adal_t *) i_handle, &l_data, l_address, &l_status);
+#endif
 
         // FIXME may need to check scom status from 1007 register
         o_status.data.setBitLength(32);
@@ -392,7 +428,12 @@ ssize_t ServerFSIInstruction::scan_get_register(Handle * i_handle, ecmdDataBuffe
 {
         ssize_t rc = 0;
         unsigned long l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_scan_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
+        rc = 4;
+#else
         rc = adal_scan_get_register((adal_t *) i_handle, address, &l_data);
+#endif
         o_data.setWord(0, l_data);
         return rc;
 }
@@ -401,7 +442,12 @@ ssize_t ServerFSIInstruction::scom_get_register(Handle * i_handle, ecmdDataBuffe
 {
         ssize_t rc = 0;
         unsigned long l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_scom_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
+        rc = 4;
+#else
         rc = adal_scom_get_register((adal_t *) i_handle, address, &l_data);
+#endif
         o_data.setWord(0, l_data);
         return rc;
 }
@@ -445,7 +491,12 @@ ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDa
 
 	  if (!rc)
           {
+#ifdef TESTING
+              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, ADAL_MBX_SPAD_READ, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));\n", scratch);
+              rc = 0;
+#else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_READ, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
+#endif
           }
           return rc;
 }
@@ -454,7 +505,12 @@ ssize_t ServerFSIInstruction::mbx_get_register(Handle * i_handle, ecmdDataBuffer
 {
         ssize_t rc = 0;
         unsigned long l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_mbx_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
+        rc = 4;
+#else
         rc = adal_mbx_get_register((adal_t *) i_handle, address, &l_data);
+#endif
         o_data.setWord(0, l_data);
         return rc;
 }
@@ -469,7 +525,12 @@ ssize_t ServerFSIInstruction::scan_set_register(Handle * i_handle, InstructionSt
 {
         ssize_t rc = 0;
         unsigned long l_data = data.getWord(0);
-        rc = adal_scan_get_register((adal_t *) i_handle, address, &l_data);
+#ifdef TESTING
+        TEST_PRINT("adal_scan_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+        rc = 4;
+#else
+        rc = adal_scan_set_register((adal_t *) i_handle, address, &l_data);
+#endif
         return rc;
 }
 
@@ -477,7 +538,12 @@ ssize_t ServerFSIInstruction::scom_set_register(Handle * i_handle, InstructionSt
 {
         ssize_t rc = 0;
         unsigned long l_data = data.getWord(0);
-        rc = adal_scom_get_register((adal_t *) i_handle, address, &l_data);
+#ifdef TESTING
+        TEST_PRINT("adal_scom_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+        rc = 4;
+#else
+        rc = adal_scom_set_register((adal_t *) i_handle, address, &l_data);
+#endif
         return rc;
 }
 
@@ -520,7 +586,12 @@ ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, Instru
 
 	  if (!rc)
           {
+#ifdef TESTING
+              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, ADAL_MBX_SPAD_WRITE, %08X);\n", scratch, data.getWord(0));
+              rc = 0;
+#else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_WRITE, ecmdDataBufferImplementationHelper::getDataPtr(&data));
+#endif
           }
           return rc;
 }
@@ -529,7 +600,12 @@ ssize_t ServerFSIInstruction::mbx_set_register(Handle * i_handle, InstructionSta
 {
         ssize_t rc = 0;
         unsigned long l_data = data.getWord(0);
-        rc = adal_mbx_get_register((adal_t *) i_handle, address, &l_data);
+#ifdef TESTING
+        TEST_PRINT("adal_mbx_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+        rc = 4;
+#else
+        rc = adal_mbx_set_register((adal_t *) i_handle, address, &l_data);
+#endif
         return rc;
 }
 
