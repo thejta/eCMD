@@ -40,6 +40,7 @@
 #include <ServerGPIOInstruction.H>
 #include <ServerI2CInstruction.H>
 #include <PNORInstruction.H>
+#include <ServerSBEFIFOInstruction.H>
 
 #include <OutputLite.H>
 OutputLite out;
@@ -211,6 +212,9 @@ void processClient(int socket, enum socketState & state)
                     break;
                 case Instruction::PNOR:
                     newInstruction = new PNORInstruction();
+                    break;
+                case Instruction::SBEFIFO:
+                    newInstruction = new ServerSBEFIFOInstruction();
                     break;
                 default:
                     printf("ERROR : socket %d : Unknown instruction received %d\n", socket, instructionInfo.type);
@@ -578,6 +582,7 @@ int main (int argc, char **argv)
         global_version_map["ServerGPIOInstruction"] = ServerGPIOInstruction().getVersion();
         global_version_map["ServerI2CInstruction"] = ServerI2CInstruction().getVersion();
         global_version_map["PNORInstruction"] = PNORInstruction().getVersion();
+        global_version_map["SBEFIFOInstruction"] = ServerSBEFIFOInstruction().getVersion();
     }
 
     /* parse command line options */

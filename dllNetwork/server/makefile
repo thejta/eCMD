@@ -9,8 +9,9 @@ include ../../makefile.base
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := server1p
-CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH} -Iadals -Iadals/scom -Iadals/scan
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan
+CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
+CFLAGS       += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan:adals/sbefifo
 
 # *****************************************************************************
 # Setup all the files going into the build
@@ -36,6 +37,8 @@ TGT_INCLUDES += ecmdDataBufferBase.H
 TGT_INCLUDES += OutputLite.H
 TGT_INCLUDES += PNORInstruction.H
 TGT_INCLUDES += fd_impl.H
+TGT_INCLUDES += ServerSBEFIFOInstruction.H
+TGT_INCLUDES += SBEFIFOInstruction.H
 
 TGT_SOURCE := Instruction.C
 TGT_SOURCE += InstructionStatus.C
@@ -52,10 +55,13 @@ TGT_SOURCE += ecmdDataBufferBase.C
 TGT_SOURCE += OutputLite.C
 TGT_SOURCE += PNORInstruction.C
 TGT_SOURCE += fd_impl.C
+TGT_SOURCE += ServerSBEFIFOInstruction.C
+TGT_SOURCE += SBEFIFOInstruction.C
 TGT_SOURCE += server1p.C
 
 TGT_SOURCE_C := adal_scom.c
 TGT_SOURCE_C += adal_scan.c
+TGT_SOURCE_C += adal_sbefifo.c
 
 # Combine all the includes into one variable for the build
 INCLUDES      := ${ECMD_INCLUDES} ${TGT_INCLUDES}

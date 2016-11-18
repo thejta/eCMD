@@ -22,6 +22,11 @@
 #include <CronusRc.H>
 #include <InstructionFlag.H>
 
+#if defined(TESTING) && !defined(TESTING_NO_DEBUG)
+  #define TEST_PRINT(format, args...) printf (format , ##args)
+#else
+  #define TEST_PRINT(format, args...)
+#endif
 
 
 /**
