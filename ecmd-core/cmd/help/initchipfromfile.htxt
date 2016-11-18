@@ -1,5 +1,5 @@
 
-Syntax: initchipfromfile <ChipSelect> [-file filename] [-name idname] [-mode initmode]
+Syntax: initchipfromfile <ChipSelect> [-file filename] [-name idname] [-mode initmode] [-mcast<value>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -15,6 +15,9 @@ Syntax: initchipfromfile <ChipSelect> [-file filename] [-name idname] [-mode ini
         -name           The id inside of the file to apply
        
         -mode           The mode to run the initialization file in
+
+        -mcast<value>   Creates a multicast scan address for the ring.
+                        Value can be just multicast group number, or fully encoded first byte (hex) of address to use.
 
         NOTE:           The implementation of this interface is highly dependent upon
                         the plugin you are using.  Consult your plugin to find out 

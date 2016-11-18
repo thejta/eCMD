@@ -5088,6 +5088,28 @@ uint32_t ecmdQueryRingIgnoreMask(ecmdChipTarget & i_target, const std::string i_
 //@}
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
+/** @name Initialization Functions */
+//@{
+/**
+ @brief Run chip initializations stored in a file
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_initFile The file containing the initialization data
+ @param i_initId The id in the initialization file to use
+ @param i_mode The mode to run the initialization file in
+ @param i_ringMode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t initChipFromFileHidden(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode, uint32_t i_ringMode = 0);
+
+//@}
+#endif // ECMD_REMOVE_INIT_FUNCTIONS
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

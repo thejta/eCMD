@@ -202,6 +202,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperData;     ///< Store internal Looper data
+  uint32_t ringMode = 0;         ///< Multicast information passed along
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -209,6 +210,13 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   char* file = ecmdParseOptionWithArgs(&argc, &argv, "-file");
   char* name = ecmdParseOptionWithArgs(&argc, &argv, "-name");
   char* mode = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -234,7 +242,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    rc = initChipFromFile(target, file, name, mode);
+    rc = initChipFromFileHidden(target, file, name, mode, ringMode);
     if (rc) {
       printed = "initchipfromfile - Error occured performing initchipfromfile on ";
       printed += ecmdWriteTarget(target);
