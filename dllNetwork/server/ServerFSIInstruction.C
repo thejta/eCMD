@@ -41,9 +41,7 @@ uint32_t ServerFSIInstruction::scan_open(Handle ** handle, InstructionStatus & o
   }
 
 #ifdef TESTING
-#ifndef TESTING_NO_DEBUG
-  printf("*handle = adal_scan_open(%s, O_RDWR | O_SYNC);\n", device);
-#endif
+  TEST_PRINT("*handle = adal_scan_open(%s, O_RDWR | O_SYNC);\n", device);
   *handle = (Handle *) 0x1;
 #else
   *handle = (Handle *) adal_scan_open(device, O_RDWR | O_SYNC);
@@ -91,9 +89,7 @@ uint32_t ServerFSIInstruction::scom_open(Handle** handle, InstructionStatus & o_
   }
 
 #ifdef TESTING
-#ifndef TESTING_NO_DEBUG
-  printf("*handle = adal_scom_open(%s, O_RDWR | O_SYNC);\n", device);
-#endif
+  TEST_PRINT("*handle = adal_scom_open(%s, O_RDWR | O_SYNC);\n", device);
   *handle = (Handle *) 0x1;
 #else
   *handle = (Handle *) adal_scom_open(device, O_RDWR | O_SYNC);
@@ -141,9 +137,7 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
   }
 
 #ifdef TESTING
-#ifndef TESTING_NO_DEBUG
-  printf("*handle = system_gp_reg_open(%s, O_RDWR | O_SYNC, EDAL_GP_TYPE_MBX);\n", device);
-#endif
+  TEST_PRINT("*handle = system_gp_reg_open(%s, O_RDWR | O_SYNC, EDAL_GP_TYPE_MBX);\n", device);
   *handle = (Handle *) 0x1;
 #else
   *handle = (Handle *) system_gp_reg_open(device, O_RDWR | O_SYNC, EDAL_GP_TYPE_MBX);
@@ -191,9 +185,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   }
 
 #ifdef TESTING
-#ifndef TESTING_NO_DEBUG
-  printf("*handle = adal_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
-#endif
+  TEST_PRINT("*handle = adal_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
   *handle = (Handle *) 0x1;
 #else
   *handle = (Handle *) adal_mbx_open(device, O_RDWR | O_SYNC);
@@ -529,7 +521,7 @@ ssize_t ServerFSIInstruction::scan_set_register(Handle * i_handle, InstructionSt
         TEST_PRINT("adal_scan_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
         rc = 4;
 #else
-        rc = adal_scan_set_register((adal_t *) i_handle, address, &l_data);
+        rc = adal_scan_set_register((adal_t *) i_handle, address, l_data);
 #endif
         return rc;
 }
@@ -542,7 +534,7 @@ ssize_t ServerFSIInstruction::scom_set_register(Handle * i_handle, InstructionSt
         TEST_PRINT("adal_scom_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
         rc = 4;
 #else
-        rc = adal_scom_set_register((adal_t *) i_handle, address, &l_data);
+        rc = adal_scom_set_register((adal_t *) i_handle, address, l_data);
 #endif
         return rc;
 }
@@ -604,7 +596,7 @@ ssize_t ServerFSIInstruction::mbx_set_register(Handle * i_handle, InstructionSta
         TEST_PRINT("adal_mbx_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
         rc = 4;
 #else
-        rc = adal_mbx_set_register((adal_t *) i_handle, address, &l_data);
+        rc = adal_mbx_set_register((adal_t *) i_handle, address, l_data);
 #endif
         return rc;
 }

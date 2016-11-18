@@ -33,9 +33,7 @@ uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_
     }
 
 #ifdef TESTING
-#ifndef TESTING_NO_DEBUG
-    printf("*handle = system_iic_open(%s, O_RDWR | O_SYNC);\n", device);
-#endif
+    TEST_PRINT("*handle = system_iic_open(%s, O_RDWR | O_SYNC);\n", device);
     *handle = (Handle *) 0x1;
 #else
     *handle = system_iic_open(device, O_RDWR | O_SYNC);
