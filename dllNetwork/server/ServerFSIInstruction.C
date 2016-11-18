@@ -5,13 +5,11 @@
 #include <OutputLite.H>
 #include <stdio.h>
 
-#ifndef TESTING
 #include <adal_scom.h>
 #include <adal_scan.h>
-#endif
+#include <adal_mbx.h>
 
 //FIXME remove these
-adal_t * adal_mbx_open(const char * device, int flags) { return NULL; }
 adal_t * system_gp_reg_open(const char * device, int flags, int type) { return NULL; }
 #define EDAL_GP_TYPE_MBX 0
 
@@ -287,7 +285,7 @@ uint32_t ServerFSIInstruction::gp_reg_close(Handle * handle)
 uint32_t ServerFSIInstruction::mbx_close(Handle * handle)
 {
     // close mbx device
-    printf("system_mbx_close()\n");
+    return adal_mbx_close((adal_t *) handle);
     return 0;
 }
 
@@ -410,49 +408,55 @@ ssize_t ServerFSIInstruction::scom_get_register(Handle * i_handle, ecmdDataBuffe
 
 ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-#if 0
-          mbx_scratch_t scratch = MBX_SCRATCH_0;
+          ssize_t rc = 0;
+
+          adal_mbx_scratch_t scratch = ADAL_MBX_SCRATCH_0;
           switch (address & 0x0FFFFFFF)
           {
             case 0x2838:
-              scratch = MBX_SCRATCH_0;
+              scratch = ADAL_MBX_SCRATCH_0;
               break;
             case 0x2839:
-              scratch = MBX_SCRATCH_1;
+              scratch = ADAL_MBX_SCRATCH_1;
               break;
             case 0x283A:
-              scratch = MBX_SCRATCH_2;
+              scratch = ADAL_MBX_SCRATCH_2;
               break;
             case 0x283B:
-              scratch = MBX_SCRATCH_3;
+              scratch = ADAL_MBX_SCRATCH_3;
               break;
             case 0x283C:
-              scratch = MBX_SCRATCH_4;
+              scratch = ADAL_MBX_SCRATCH_4;
               break;
             case 0x283D:
-              scratch = MBX_SCRATCH_5;
+              scratch = ADAL_MBX_SCRATCH_5;
               break;
             case 0x283E:
-              scratch = MBX_SCRATCH_6;
+              scratch = ADAL_MBX_SCRATCH_6;
               break;
             case 0x283F:
-              scratch = MBX_SCRATCH_7;
+              scratch = ADAL_MBX_SCRATCH_7;
               break;
 
             default:
               rc = o_status.rc = SERVER_FSI_SCOM_READ_FAIL;
               break;
-
           }
-#endif
-        printf("ServerFSIInstruction::mbx_get_scratch_register() address = %08X\n", address);
-        return 0;
+
+	  if (!rc)
+          {
+              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_READ, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
+          }
+          return rc;
 }
 
 ssize_t ServerFSIInstruction::mbx_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::mbx_get_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = 0;
+        rc = adal_mbx_get_register((adal_t *) i_handle, address, &l_data);
+        o_data.setWord(0, l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::gp_reg_get(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
@@ -479,49 +483,54 @@ ssize_t ServerFSIInstruction::scom_set_register(Handle * i_handle, InstructionSt
 
 ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, InstructionStatus & o_status)
 {
-#if 0
-          mbx_scratch_t scratch = MBX_SCRATCH_0;
+          ssize_t rc = 0;
+
+          adal_mbx_scratch_t scratch = ADAL_MBX_SCRATCH_0;
           switch (address & 0x0FFFFFFF)
           {
             case 0x2838:
-              scratch = MBX_SCRATCH_0;
+              scratch = ADAL_MBX_SCRATCH_0;
               break;
             case 0x2839:
-              scratch = MBX_SCRATCH_1;
+              scratch = ADAL_MBX_SCRATCH_1;
               break;
             case 0x283A:
-              scratch = MBX_SCRATCH_2;
+              scratch = ADAL_MBX_SCRATCH_2;
               break;
             case 0x283B:
-              scratch = MBX_SCRATCH_3;
+              scratch = ADAL_MBX_SCRATCH_3;
               break;
             case 0x283C:
-              scratch = MBX_SCRATCH_4;
+              scratch = ADAL_MBX_SCRATCH_4;
               break;
             case 0x283D:
-              scratch = MBX_SCRATCH_5;
+              scratch = ADAL_MBX_SCRATCH_5;
               break;
             case 0x283E:
-              scratch = MBX_SCRATCH_6;
+              scratch = ADAL_MBX_SCRATCH_6;
               break;
             case 0x283F:
-              scratch = MBX_SCRATCH_7;
+              scratch = ADAL_MBX_SCRATCH_7;
               break;
 
             default:
               rc = o_status.rc = SERVER_FSI_SCOM_WRITE_FAIL;
               break;
-
           }
-#endif
-        printf("ServerFSIInstruction::mbx_set_scratch_register() address = %08X\n", address);
-        return 0;
+
+	  if (!rc)
+          {
+              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_WRITE, ecmdDataBufferImplementationHelper::getDataPtr(&data));
+          }
+          return rc;
 }
 
 ssize_t ServerFSIInstruction::mbx_set_register(Handle * i_handle, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::mbx_set_register() address = %08X\n", address);
-        return 4;
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+        rc = adal_mbx_get_register((adal_t *) i_handle, address, &l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::gp_reg_set(Handle * i_handle, InstructionStatus & o_status)

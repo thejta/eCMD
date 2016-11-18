@@ -10,8 +10,8 @@ include ../../makefile.base
 # *****************************************************************************
 TARGET       := server1p
 CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
-CFLAGS       += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan:adals/sbefifo
+CFLAGS       += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo -Iadals/mbx
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan:adals/sbefifo:adals/mbx
 
 # *****************************************************************************
 # Setup all the files going into the build
@@ -62,6 +62,7 @@ TGT_SOURCE += server1p.C
 TGT_SOURCE_C := adal_scom.c
 TGT_SOURCE_C += adal_scan.c
 TGT_SOURCE_C += adal_sbefifo.c
+TGT_SOURCE_C += adal_mbx.c
 
 # Combine all the includes into one variable for the build
 INCLUDES      := ${ECMD_INCLUDES} ${TGT_INCLUDES}
