@@ -519,13 +519,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 		  rc = ECMD_DATA_BOUNDS_OVERFLOW;
 		  break;
 		}
+              }
 
-		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
-	      }
-	      else
-	      {
-		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-	      }
+              rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
 	      if (rc) break;
 	    }
 	  }
@@ -1292,18 +1288,7 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
 
 
 	  if (inputformat != "enum") {
-	    if (inputformat == "d") 
-	    {
-	      //char msgbuf[100];
-	      //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", bitsToFetch);
-	      //ecmdOutput(msgbuf);
-
-	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
-	    }
-	    else
-	    {
-	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-	    }
+            rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
 	    if (rc) break;
 	  }
     

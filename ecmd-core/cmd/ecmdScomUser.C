@@ -213,18 +213,8 @@ uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   
 
   if (expectFlag) {
-    if (inputformat == "d") 
-    {
-      //char msgbuf[100];
-      //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numbits);
-      //ecmdOutput(msgbuf);
+    rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, numbits);
 
-      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat, numbits);
-    }
-    else
-    {
-      rc = ecmdReadDataFormatted(expected, expectPtr, inputformat);
-    }
     if (rc) {
       ecmdOutputError("getscom - Problems occurred parsing expected data, must be an invalid format\n");
       return rc;

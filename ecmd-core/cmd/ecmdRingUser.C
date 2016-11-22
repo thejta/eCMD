@@ -882,19 +882,9 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 	if (expectFlag) {
 
-	  /* Grab the data for the expect */
-	  if (inputformat == "d") 
-	  {
-	    //char msgbuf[100];
-	    //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", curNumBits);
-	    //ecmdOutput(msgbuf);
-	    
-	    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, curNumBits);
-	  }
-	  else
-	  {
-	    rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
-	  }
+	  /* Grab the data for the expect */ 
+          rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, curNumBits);
+
 	  if (rc) {
 	    ecmdOutputError("getlatch - Problems occurred parsing expected data, must be an invalid format\n");
 	    return rc;
@@ -1287,18 +1277,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
 
       if (expectFlag) {
 	/* Grab the data for the expect */
-	if (inputformat == "d") 
-	{
-	  //char msgbuf[100];
-	  //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", numBits);
-	  //ecmdOutput(msgbuf);
-	    
-	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, numBits);
-	}
-	else
-	{
-	  rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat);
-	}
+        rc = ecmdReadDataFormatted(expected, expectDataPtr, inputformat, numBits);
 	if (rc) {
 	  ecmdOutputError("getbits - Problems occurred parsing expected data, must be an invalid format\n");
 	  return rc;
@@ -2090,74 +2069,72 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       }
       else
       {
-          sparse_buffer.setBitLength(queryLatchData.bitLength);
+              
+          buffer_copy = buffer;
+          
+          if (startBit == ECMD_UNSET) {
+              curStartBit = (uint32_t)queryLatchData.latchStartBit;
+              curNumBits = queryLatchData.bitLength;
+          } else {
+              curStartBit = startBit;
+              curNumBits = numBits;
+          }
+              
+          /* See if there is data in here that we want */
+          if ((curStartBit + curNumBits < (uint32_t) queryLatchData.latchStartBit) || (curStartBit > (uint32_t) queryLatchData.latchEndBit)) {
+              /* Nope nothing */
+              ecmdOutputError("putlatch - Unable to find a latch with the given startbit\n");
+              coeRc = ECMD_INVALID_LATCHNAME;
+              continue;
+          } else
+              validLatchFound = true;
+            
+          /* Does the user want too much data? */
+          if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
+              curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
+          
+          /* was the startbit before this latch ? */
+          if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
+              curNumBits -= ((uint32_t) queryLatchData.latchStartBit - curStartBit);
+              curStartBit = (uint32_t) queryLatchData.latchStartBit;
+          }
 
-          /* Walk through all the latches recieved */
-          //for (latchit = queryLatchData.scandefLatchInfo.begin(); latchit != queryLatchData.scandefLatchInfo.end(); latchit ++ ) {
+          sparse_buffer.setBitLength(curNumBits);
               
-              buffer_copy = buffer;
-              
-              if (startBit == ECMD_UNSET) {
-                  curStartBit = (uint32_t)queryLatchData.latchStartBit;
-                  curNumBits = queryLatchData.bitLength;
-              } else {
-                  curStartBit = startBit;
-                  curNumBits = numBits;
-              }
-              
-              /* See if there is data in here that we want */
-              if ((curStartBit + curNumBits < (uint32_t) queryLatchData.latchStartBit) || (curStartBit > (uint32_t) queryLatchData.latchEndBit)) {
-                  /* Nope nothing */
-                  continue;
-              } else
-                  validLatchFound = true;
-              
-              /* Does the user want too much data? */
-              if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
-                  curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
-              
-              /* was the startbit before this latch ? */
-              if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
-                  curNumBits -= ((uint32_t) queryLatchData.latchStartBit - curStartBit);
-                  curStartBit = (uint32_t) queryLatchData.latchStartBit;
-              }
-              
-              /* Let's apply our data */
-              /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
-              if (curNumBits < buffer_copy.getBitLength()) {
-                  buffer_copy.shrinkBitLength(curNumBits); //lint -e732
-              }
-              rc = (uint32_t)ecmdApplyDataModifier(sparse_buffer, buffer_copy,(int) ((int)curStartBit - (int)queryLatchData.latchStartBit), dataModifier);
-              if (rc) {
-                  printed = "putlatch - Error occurred inserting data of " + queryLatchData.latchName + " on ";
-                  printed += ecmdWriteTarget(cuTarget) + "\n";
-                  ecmdOutputError( printed.c_str() );
-                  coeRc = rc;
-                  continue;
-              }
-              
-              /* We can do a full latch compare here now to make sure we don't cause matching problems */
-              rc = putLatchOpt(cuTarget, sparse_buffer, (uint32_t)queryLatchData.latchStartBit, (uint32_t)(queryLatchData.latchEndBit - queryLatchData.latchStartBit + 1), matchs,  queryLatchData.scandefLatchInfo, l_write_mode);
-              
-              if (rc) {
-                  printed = "putlatch - Error occurred performing putlatch of " + queryLatchData.latchName + " on ";
-                  printed += ecmdWriteTarget(cuTarget) + "\n";
-                  ecmdOutputError( printed.c_str() );
-                  coeRc = rc;
-                  continue;
-              } else if (matchs > 1) {
-                  printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
-                  ecmdOutputError( printed.c_str() );
-                  coeRc = ECMD_FAILURE;
-                  continue;
-              }
-              else {
-                  validPosFound = true;
-              }
-              
-              // }// end iterator
+          /* Let's apply our data */
+          /* We are going to throw away extra data that the user provided if it doesn't fit this latch */
+          if (curNumBits < buffer_copy.getBitLength()) {
+              buffer_copy.shrinkBitLength(curNumBits); //lint -e732
+          }
 
+          rc = (uint32_t)ecmdApplyDataModifier(sparse_buffer, buffer_copy, (int) 0, dataModifier);
 
+          if (rc) {
+              printed = "putlatch - Error occurred inserting data of " + queryLatchData.latchName + " on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          }
+              
+          /* We can do a full latch compare here now to make sure we don't cause matching problems */
+          rc = putLatchOpt(cuTarget, sparse_buffer, curStartBit, curNumBits, matchs,  queryLatchData.scandefLatchInfo, l_write_mode);
+              
+          if (rc) {
+              printed = "putlatch - Error occurred performing putlatch of " + queryLatchData.latchName + " on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              continue;
+          } else if (matchs > 1) {
+              printed = "putlatch - Error occurred performing putlatch, multiple matchs found on write, data corruption may have occurred on " + ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = ECMD_FAILURE;
+              continue;
+          }
+          else {
+              validPosFound = true;
+          }            
       }
 
       if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
