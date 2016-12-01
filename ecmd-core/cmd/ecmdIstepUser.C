@@ -939,6 +939,8 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_MEMCTRL_REFCLOCK;
   } else if (clocktype == "pu_coreclock") {
     clockType = ECMD_PROC_CORE_CLOCK;
+  } else if (clocktype == "pu_coredpllclock") {
+    clockType = ECMD_PROC_CORE_DPLL_CLOCK;
   } else if (clocktype == "pu_nestclock") {
     clockType = ECMD_PROC_NEST_CLOCK;
   } else if (clocktype == "memctrl_clock") {
