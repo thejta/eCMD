@@ -15,7 +15,7 @@
   *****************************************************************************/
 
 #include "adal_mbx.h"
-
+#include <sys/ioctl.h>
 #include <stdlib.h>             /* NULL, malloc, free */
 #include <unistd.h>             /* close, read, write, fsync */
 #include <string.h>             /* memset, memcpy */
@@ -87,30 +87,29 @@ int adal_mbx_ffdc_unlock(adal_t * adal, int scope)
 	return 0;
 }
 
+struct mbx_reg_data {
+       uint32_t offset;        /* What address */
+       uint32_t value;         /* value at address */
+};
 
 int adal_mbx_scratch(adal_t *adal,
 					 adal_mbx_scratch_t  scratch,
-					 adal_mbx_scratch_mode_t mode,
+					 adal_mbx_gpreg_mode_t mode,
 					 uint32_t * value) {
 	int rc = -1;
-  unsigned short reg_address;
+  unsigned long reg_address;
 
 	if( (NULL != value) ) {
-		reg_address = (unsigned short) scratch;
+		reg_address = (unsigned long)scratch;
     reg_address *=4;
     reg_address += 0x38;
 
     lseek(adal->fd, reg_address, SEEK_SET);
-		if( ADAL_MBX_SPAD_READ == mode ) {
-      /**
-		  * Poison the read value in case we fail and user does not check return
-		  * codes.
-		  */
-			*value = 0xA5A5A5A5;
-      rc = read(adal->fd, value, sizeof(uint32_t));
-		}
+		if( MBX_IOCTL_READ_REG == mode ) {
+        rc = adal_mbx_get_register(adal, reg_address, value);
+    }
     else {
-      rc  = write(adal->fd, value, sizeof(uint32_t));
+      rc = adal_mbx_set_register(adal, reg_address, *value);
     }
 
 	} else {
@@ -121,25 +120,28 @@ int adal_mbx_scratch(adal_t *adal,
 
 
 int adal_mbx_get_register(adal_t * adal, unsigned long reg,
-		       unsigned long * value)
+		       uint32_t * value)
 {
 	int rc = -1;
   unsigned long reg_address;
+	struct mbx_reg_data parms;
+	memset(&parms, 0, sizeof(parms));
 
 	if( (NULL != value) ) {
     reg_address = reg;
     reg_address &= ~0xFFFFFE00;
     reg_address *=4;
-
+	  parms.offset = reg_address;
 		/**
 		* Poison the read value in case we fail and user does not
 		* check return codes.
 		*/
 		*value = 0xA5A5A5A5;
-
-    lseek(adal->fd, reg_address, SEEK_SET);
-    rc = read(adal->fd, value, sizeof(unsigned long));
-
+		parms.value = *value;
+		rc = ioctl(adal->fd, MBX_IOCTL_READ_REG, &parms);
+		if( 0 == rc ){
+			*value = parms.value;
+    }
 	} else {
 		errno = EBADF;
 	}
@@ -147,16 +149,19 @@ int adal_mbx_get_register(adal_t * adal, unsigned long reg,
 }
 
 int adal_mbx_set_register(adal_t *adal, unsigned long reg,
-		       unsigned long value)
+		       uint32_t value)
 {
 	int rc = -1;
   unsigned long reg_address;
+	struct mbx_reg_data parms;
+	memset(&parms, 0, sizeof(parms));
 
 	reg_address = reg;
   reg_address &= ~0xFFFFFE00;
   reg_address *=4;
-  lseek(adal->fd, reg_address, SEEK_SET);
-  rc = write(adal->fd, (const void*)value, sizeof(unsigned long));
+  parms.offset = reg_address;
+  parms.value = value;
+	rc = ioctl(adal->fd, MBX_IOCTL_WRITE_REG, &parms);
 
 	return rc;
 }

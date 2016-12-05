@@ -57,8 +57,14 @@ typedef enum {
 } adal_mbx_scratch_t;
 
 typedef enum {
-   ADAL_MBX_SPAD_READ = 0,
-   ADAL_MBX_SPAD_WRITE = 1,
+   ADAL_MBX_SPAD_READ = 1,
+   ADAL_MBX_SPAD_WRITE = 2,
 } adal_mbx_scratch_mode_t;
+
+typedef enum {
+   MBX_IOCTL_READ_REG = 1,
+   MBX_IOCTL_WRITE_REG= 2,
+} adal_mbx_gpreg_mode_t;
+
 
 #endif /* __ADAL_MBX_TYPES_H__ */

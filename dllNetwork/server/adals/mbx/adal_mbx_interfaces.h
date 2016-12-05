@@ -219,7 +219,7 @@ int adal_mbx_ffdc_unlock(adal_t * adal, int scope);
  */
 int adal_mbx_scratch(adal_t * adal,
 					 adal_mbx_scratch_t  scratch,
-					 adal_mbx_scratch_mode_t mode,
+					 adal_mbx_gpreg_mode_t mode,
 					 uint32_t * value);
 
 /*!@brief
@@ -238,7 +238,7 @@ int adal_mbx_scratch(adal_t * adal,
  * @return: ENODEV The device is currently unreachable and/or unavailable.
  */
 int adal_mbx_get_register(adal_t * adal, unsigned long reg,
-		       unsigned long * value);
+		       uint32_t * value);
 
 /*!@brief
  * The adal_mbx_set_register interface is used to write the mailbox
@@ -256,7 +256,7 @@ int adal_mbx_get_register(adal_t * adal, unsigned long reg,
  * @return: ENODEV The device is currently unreachable and/or unavailable.
  */
 int adal_mbx_set_register(adal_t * adal, unsigned long reg,
-		       unsigned long value);
+		       uint32_t value);
 
 #ifdef __cplusplus
 }

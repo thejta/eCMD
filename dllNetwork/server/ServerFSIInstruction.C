@@ -10,7 +10,26 @@
 #include <adal_mbx.h>
 
 //FIXME remove these
-adal_t * system_gp_reg_open(const char * device, int flags, int type) { return NULL; }
+adal_t * system_gp_reg_open(const char * device, int flags, int type)
+{
+    return adal_mbx_open(device, flags);
+}
+int system_gp_reg_close(adal_t * adal)
+{
+    return adal_mbx_close(adal);
+}
+ssize_t system_gp_reg_get(adal_t * adal, unsigned long offset, uint32_t * data)
+{
+    ssize_t rc = adal_mbx_get_register(adal, offset, data);
+    if (rc == 4) rc = 0;
+    return rc;
+}
+ssize_t system_gp_reg_set(adal_t * adal, unsigned long offset, unsigned long data)
+{
+    ssize_t rc = adal_mbx_set_register(adal, offset, data);
+    if (rc == 4) rc = 0;
+    return rc;
+}
 #define EDAL_GP_TYPE_MBX 0
 
 uint32_t ServerFSIInstruction::scan_open(Handle ** handle, InstructionStatus & o_status) {
@@ -277,9 +296,12 @@ uint32_t ServerFSIInstruction::scom_close(Handle * handle)
 
 uint32_t ServerFSIInstruction::gp_reg_close(Handle * handle)
 {
-    // close gp_reg device
-    printf("system_gp_reg_close()\n");
+#ifdef TESTING
+    TEST_PRINT("system_gp_reg_close((adal_t *) handle);\n");
     return 0;
+#else
+    return system_gp_reg_close((adal_t *) handle);
+#endif
 }
 
 uint32_t ServerFSIInstruction::mbx_close(Handle * handle)
@@ -484,10 +506,10 @@ ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDa
 	  if (!rc)
           {
 #ifdef TESTING
-              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, ADAL_MBX_SPAD_READ, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));\n", scratch);
+              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, MBX_IOCTL_READ_REG, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));\n", scratch);
               rc = 0;
 #else
-              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_READ, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
+              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_READ_REG, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
 #endif
           }
           return rc;
@@ -496,7 +518,7 @@ ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDa
 ssize_t ServerFSIInstruction::mbx_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
         ssize_t rc = 0;
-        unsigned long l_data = 0;
+        uint32_t l_data = 0;
 #ifdef TESTING
         TEST_PRINT("adal_mbx_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
         rc = 4;
@@ -509,8 +531,15 @@ ssize_t ServerFSIInstruction::mbx_get_register(Handle * i_handle, ecmdDataBuffer
 
 ssize_t ServerFSIInstruction::gp_reg_get(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::gp_reg_get() address = %08X\n", address);
-        return 0;
+        ssize_t rc = 0;
+        uint32_t l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("system_gp_reg_get((adal_t *) i_handle, %08X, &l_data);\n", address);
+#else
+        rc = system_gp_reg_get((adal_t *) i_handle, address, &l_data);
+#endif
+        o_data.setWord(0, l_data);
+        return rc;
 }
 
 ssize_t ServerFSIInstruction::scan_set_register(Handle * i_handle, InstructionStatus & o_status)
@@ -579,10 +608,10 @@ ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, Instru
 	  if (!rc)
           {
 #ifdef TESTING
-              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, ADAL_MBX_SPAD_WRITE, %08X);\n", scratch, data.getWord(0));
+              TEST_PRINT("adal_mbx_scratch((adal_t *) i_handle, %d, MBX_IOCTL_WRITE_REG, %08X);\n", scratch, data.getWord(0));
               rc = 0;
 #else
-              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, ADAL_MBX_SPAD_WRITE, ecmdDataBufferImplementationHelper::getDataPtr(&data));
+              rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_WRITE_REG, ecmdDataBufferImplementationHelper::getDataPtr(&data));
 #endif
           }
           return rc;
@@ -603,7 +632,13 @@ ssize_t ServerFSIInstruction::mbx_set_register(Handle * i_handle, InstructionSta
 
 ssize_t ServerFSIInstruction::gp_reg_set(Handle * i_handle, InstructionStatus & o_status)
 {
-        printf("ServerFSIInstruction::gp_reg_set() address = %08X\n", address);
-        return 0;
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+#ifdef TESTING
+        TEST_PRINT("system_gp_reg_set((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+#else
+        rc = system_gp_reg_set((adal_t *) i_handle, address, l_data);
+#endif
+        return rc;
 }
 
