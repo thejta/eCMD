@@ -5110,6 +5110,27 @@ uint32_t initChipFromFileHidden(ecmdChipTarget & i_target, const char* i_initFil
 //@}
 #endif // ECMD_REMOVE_INIT_FUNCTIONS
 
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
+/** @name Query Functions  */
+//@{
+/**
+ @brief Query Ring Inversion Mask from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName used to refine query to a single ring
+ @param o_inversionMask inversion mask data for the ring if it exists
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryRingInversionMask(ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_inversionMask);
+//@}
+#endif // ECMD_REMOVE_RING_FUNCTIONS
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif
