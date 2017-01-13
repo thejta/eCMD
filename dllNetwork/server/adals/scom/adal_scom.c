@@ -26,41 +26,79 @@ static const char copyright [] __attribute__((unused)) =
 "or disclosure restricted by GSA ADP Schedule Contract\n"
 "with IBM Corp.";
 
-
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <stdio.h>
 #include "adal_scom.h"
+
+#define container_of(ptr, type, member) ({                      \
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+struct adal_scom {
+	adal_t adal;
+	int statfd;
+};
+typedef struct adal_scom adal_scom_t;
+
+#define to_scom_adal(x) container_of((x), struct adal_scom, adal)
 
 adal_t * adal_scom_open(const char * device, int flags)
 {
-	adal_t * adal = NULL;
+	long bus_num;
+	char bus_num_str[3] = { 0 };
+	char status_path[64] = { 0 };
+	char *str;
+	char *prev = NULL;
+	adal_scom_t *scom;
 
-	adal = (adal_t *)malloc(sizeof(*adal));
-	if (adal == NULL) {
+	scom = (adal_scom_t *)malloc(sizeof(*scom));
+	if (scom == NULL) {
 		return NULL;
 	}
 
-	adal->fd = open(device, flags);
-	if (adal->fd == -1) {
-		free(adal);
-		adal = NULL;
+	scom->adal.fd = open(device, flags);
+	if (scom->adal.fd == -1) {
+		free(scom);
+		scom = NULL;
 	}
 
-	return adal;
+	strncpy(status_path, "/sys/bus/fsi/drivers/scom/00:00:00:xx/status", 64);
+	str = strstr((char *) device, "scom");
+	while (str) {
+		prev = str;
+		str = strstr(str + 1, (char *)"scom");
+	}
+
+	if (prev) {
+		bus_num = strtol(prev + 4, NULL, 10);
+		snprintf(bus_num_str, 3, "%02lx", bus_num);
+
+		status_path[35] = bus_num_str[0];
+		status_path[36] = bus_num_str[1];
+	}
+
+	scom->statfd = open(status_path, O_RDONLY);
+
+	return &scom->adal;
 }
 
 
 int adal_scom_close(adal_t * adal)
 {
 	int rc = -1;
+	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (!adal)
 		return 0;
 
 	rc = close(adal->fd);
+	if (scom->statfd != -1)
+		close(scom->statfd);
 
-	free(adal);
+	free(scom);
 	adal = NULL;
 
 	return rc;
@@ -68,25 +106,39 @@ int adal_scom_close(adal_t * adal)
 }
 ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
 {
-	int rc = 0;
+	adal_scom_t *scom = to_scom_adal(adal);
+	int rc = 0, rc1 = 0;
+	char stat[9] = { 0 };
 
   lseek64(adal->fd, scom_address, SEEK_SET);
   rc = read(adal->fd, buf, SCOM_DATA_LEN);
-  *status = 0;
+
+	if (scom->statfd != -1) {
+		rc1 = read(scom->statfd, stat, 8);
+		*status = strtoul(stat, NULL, 16);
+	}
+	else
+ 		*status = 0;
 
 	return rc;
 }
 ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
-	int rc = 0;
+	adal_scom_t *scom = to_scom_adal(adal);
+	int rc = 0, rc1 = 0;
+	char stat[9] = { 0 };
 
   lseek64(adal->fd, scom_address, SEEK_SET);
   rc = write(adal->fd, buf, SCOM_DATA_LEN);
-  *status = 0;
+
+	if (scom->statfd != -1) {
+		rc1 = read(scom->statfd, stat, 8);
+		*status = strtoul(stat, NULL, 16);
+	}
+	else
+		*status = 0;
 
 	return rc;
-
-
 }
 
 
@@ -97,7 +149,9 @@ int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
 
 ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_address, void * mask, unsigned long * status)
 {
-	int rc = 0;
+	int rc = 0, rc1 = 0;
+	adal_scom_t *scom = to_scom_adal(adal);
+	char stat[9] = { 0 };
 
 	unsigned long old_data[SCOM_DATA_WORDS];
   unsigned long new_data[SCOM_DATA_WORDS];
@@ -114,6 +168,13 @@ ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_addr
 	new_data[1] =	new_data[1] | ((userbuffer[1]) & (usermask[1]));
 
   rc = adal_scom_write(adal, &new_data, scom_address, status);
+
+	if (scom->statfd != -1) {
+		rc1 = read(scom->statfd, stat, 8);
+		*status = strtoul(stat, NULL, 16);
+	}
+	else
+		*status = 0;
 
 	return rc;
 }
