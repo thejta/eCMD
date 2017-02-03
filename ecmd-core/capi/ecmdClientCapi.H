@@ -692,7 +692,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  @see putRingWithModifier
 s
  NOTE : This is a debug interface and should not be used in normal situations<br>
- NOTE : This function does not handle processor cores/chipUnits for you, the i_address will be taken and used with no modifications
+ NOTE : This function does not handle processor chipUnits for you, the i_address will be taken and used with no modifications
           so you are responsible for specifying the correct chipUnit address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
@@ -717,7 +717,7 @@ uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  @see getRingWithModifier
 
  NOTE : This is a debug interface and should not be used in normal situations<br>
- NOTE : This function does not handle processor cores/chipUnits for you, the i_address will be taken and used with no modifications
+ NOTE : This function does not handle processor chipUnits for you, the i_address will be taken and used with no modifications
           so you are responsible for specifying the correct chipUnit address<br>
  NOTE : This function will only scan for the length provided, if this length doesn't match the actual length of the ring
           corruption may occur<br>
@@ -749,7 +749,7 @@ uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  @param o_data DataBuffer object that holds data read from address
  @see putScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ NOTE : For processor chipUnits, only "chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
@@ -769,7 +769,7 @@ uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  @param i_data DataBuffer object that holds data to write into address
  @see getScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ NOTE : For processor chipUnits, only "chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
@@ -791,7 +791,7 @@ uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  @param i_mask DataBuffer of the bits to apply from i_data to the data read from the address
  @see getScom
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ NOTE : For processor chipUnits, only "chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
@@ -816,7 +816,7 @@ uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDat
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.
 
- NOTE : For processor cores/chipUnits, only "core0/chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
+ NOTE : For processor chipUnits, only "chipUnit0" addresses are supported, other chipUnit addresses cause a failure<br>
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
@@ -2643,10 +2643,10 @@ uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  @retval nonzero on failure
 
  NOTE - lowest state that is valid is level that is deconfigured.<br>
-   ex - if coreState/chipUnitState is VALID the chipUnit selected is deconfigured<br>
-   ex - if coreState/chipUnitState is UNUSED and posState is VALID then the pos is deconfigured<br>
+   ex - if chipUnitState is VALID the chipUnit selected is deconfigured<br>
+   ex - if chipUnitState is UNUSED and posState is VALID then the pos is deconfigured<br>
 
-  This interface allows you to deconfigure all levels cages, nodes, slots, pos's, cores/chipUnits<br>
+  This interface allows you to deconfigure all levels cages, nodes, slots, pos's, chipUnits<br>
 
  TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
@@ -2662,10 +2662,10 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
  @retval nonzero on failure
 
  NOTE - lowest state that is valid is level that is configured.<br>
-   ex - if coreState/chipUnitState is VALID the chipUnit selected is configured<br>
-   ex - if coreState/chipUnitState is UNUSED and posState is VALID then the pos is configured<br>
+   ex - if chipUnitState is VALID the chipUnit selected is configured<br>
+   ex - if chipUnitState is UNUSED and posState is VALID then the pos is configured<br>
 
-  This interface allows you to configure all levels cages, nodes, slots, pos's, cores/chipUnits<br>
+  This interface allows you to configure all levels cages, nodes, slots, pos's, chipUnits<br>
 
  TARGET DEPTH  : cage, node, slot, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
@@ -4495,7 +4495,7 @@ uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHi
  @see putRingHidden
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4518,7 +4518,7 @@ uint32_t getRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @see getRingHidden
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4542,7 +4542,7 @@ uint32_t putRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @see putRingSparse
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4568,7 +4568,7 @@ uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @see getRingSparse
 
 
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4593,7 +4593,7 @@ uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
@@ -4620,7 +4620,7 @@ uint32_t getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const
  @param o_matches Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t putLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
@@ -4642,7 +4642,7 @@ uint32_t putLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const
  @param i_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, ecmdDataBuffer & i_ringImage);
@@ -4669,7 +4669,7 @@ uint32_t getLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const 
  @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t putLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage);
@@ -4718,7 +4718,7 @@ uint32_t createSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_ring
  @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4741,7 +4741,7 @@ uint32_t getSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4764,7 +4764,7 @@ uint32_t getSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std
  @retval nonzero if unsuccessful
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4785,7 +4785,7 @@ uint32_t getSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpC
  @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4807,7 +4807,7 @@ uint32_t getSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, s
  @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4828,7 +4828,7 @@ uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -4956,7 +4956,7 @@ uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std:
  @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode = 0);
@@ -4981,7 +4981,7 @@ uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_sc
  @param o_matches Number of latchs found that matched your name and data was inserted
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode = 0);
@@ -5001,7 +5001,7 @@ uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_
  @param i_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage);
@@ -5026,7 +5026,7 @@ uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> &
  @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage);
@@ -5067,7 +5067,7 @@ uint32_t createSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdL
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryRingIgnoreMask(ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_ignoreMask);
@@ -5110,7 +5110,7 @@ uint32_t initChipFromFileHidden(ecmdChipTarget & i_target, const char* i_initFil
  @retval nonzero on failure
 
  NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos, core/chipUnit<br>
+ TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryRingInversionMask(ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_inversionMask);

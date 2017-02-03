@@ -86,7 +86,7 @@ uint32_t cipInitExtension();
 #ifndef CIP_REMOVE_INSTRUCTION_FUNCTIONS
 /**
  @brief Start Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information 
  @param i_thread The thread to start instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -95,9 +95,9 @@ uint32_t cipInitExtension();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
+ NOTE: i_thread is only needed for P6 and used with a chipUnit depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -116,7 +116,7 @@ uint32_t cipStartAllInstructions ();
 
 /**
  @brief Start Instructions using an S-Reset
- @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information 
  @param i_thread The thread to start instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -125,9 +125,9 @@ uint32_t cipStartAllInstructions ();
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INSTRUCTIONS_IN_INVALID_STATE Current state of instructions is invalid to perform the operation
 
- NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
+ NOTE: i_thread is only needed for P6 and used with a chipUnit depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -146,7 +146,7 @@ uint32_t cipStartAllInstructionsSreset ();
 
 /**
  @brief Stop Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information 
  @param i_thread The thread to stop instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -157,7 +157,7 @@ uint32_t cipStartAllInstructionsSreset ();
 
  NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -176,7 +176,7 @@ uint32_t cipStopAllInstructions ();
 
 /**
  @brief Step Instructions
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information
  @param i_steps Number of steps to execute
  @param i_thread The thread to step instructions on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -188,7 +188,7 @@ uint32_t cipStopAllInstructions ();
 
  NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -196,7 +196,7 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint3
 
 /**
  @brief Call Special Wakeup
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information
  @param i_enable Set and check special wakeup with True. Clear special wakeup with False
  @param i_mode Future use variable
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
@@ -205,7 +205,7 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint3
  @retval nonzero if unsuccessful
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
 
- TARGET DEPTH  : chipUnit/core<br>
+ TARGET DEPTH  : chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
@@ -214,7 +214,7 @@ uint32_t cipSpecialWakeup (ecmdChipTarget & i_target, bool i_enable, uint32_t i_
 #ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 /**
  @brief Set a hardware breakpoint in Processor using a real address
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information
  @param i_address Address to set breakpoint at
  @param i_type Type of breakpoint to set
  @param i_thread The thread to set a breakpoint on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
@@ -226,7 +226,7 @@ uint32_t cipSpecialWakeup (ecmdChipTarget & i_target, bool i_enable, uint32_t i_
 
  NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -234,7 +234,7 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
 
 /**
  @brief Clear a hardware breakpoint from Processor using a real address
- @param i_target Struct that contains chip and cage/node/slot/position/core information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit information
  @param i_address Address to clear breakpoint at
  @param i_type Type of breakpoint to set
  @param i_thread The thread to clear a breakpoint on.  0x8 = thread 0, 0x4 = thread 1, 0xC = both threads 
@@ -246,7 +246,7 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
 
  NOTE: i_thread is only needed for P6 and used with a core depth target.  All other chips use thread level looping and ignore i_thread.
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 
 */
@@ -262,11 +262,11 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information
  @param i_vrNum Number of vr to read from
  @param o_data DataBuffer object that holds data read from vr
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
@@ -280,7 +280,7 @@ uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
@@ -288,7 +288,7 @@ uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
@@ -305,11 +305,11 @@ uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disaled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information 
  @param i_vrNum Number of vr to write to
  @param i_data DataBuffer object that holds data to write into vr
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & i_data);
@@ -325,14 +325,14 @@ uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information 
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
@@ -500,11 +500,11 @@ uint32_t cipPutMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information
  @param i_vsrNum Number of vsr to read from
  @param o_data DataBuffer object that holds data read from vsr
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipGetVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer & o_data);
@@ -518,7 +518,7 @@ uint32_t cipGetVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information
  @param io_entries List of entries to fetch ecmdIndexEntry.index field must be filled in
 
  The return value of this function is set to the first non-zero return code found when
@@ -526,7 +526,7 @@ uint32_t cipGetVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
   should be considered invalid.<br>
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipGetVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
@@ -543,11 +543,11 @@ uint32_t cipGetVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disaled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information 
  @param i_vsrNum Number of vsr to write to
  @param i_data DataBuffer object that holds data to write into vsr
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipPutVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer & i_data);
@@ -563,14 +563,14 @@ uint32_t cipPutVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position/core/thread information 
+ @param i_target Struct that contains chip and cage/node/slot/position/chipUnit/thread information 
  @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
 
- TARGET DEPTH  : chipUnit/core, thread<br>
+ TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
 uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
