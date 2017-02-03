@@ -2031,7 +2031,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
        uint32_t    slot;
        std::string chipType;
        uint32_t    pos;
-       uint8_t     core;
+       std::string chipUnitType;
+       uint8_t     chipUnitNum;
        uint8_t     thread;
 
        ecmdChipTargetState_t cageState;
@@ -2039,7 +2040,8 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
        ecmdChipTargetState_t slotState;
        ecmdChipTargetState_t chipTypeState;
        ecmdChipTargetState_t posState;
-       ecmdChipTargetState_t coreState;
+       ecmdChipTargetState_t chipUnitTypeState;
+       ecmdChipTargetState_t chipUnitNumState;
        ecmdChipTargetState_t threadState;
 
        uint32_t unitId;
