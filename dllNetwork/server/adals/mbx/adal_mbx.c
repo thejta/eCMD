@@ -101,7 +101,8 @@ int adal_mbx_scratch(adal_t *adal,
 
 	if( (NULL != value) ) {
 		reg_address = (unsigned long)scratch;
-    reg_address *=4;
+    // multiply is done in function calls after
+    //reg_address *=4;
     reg_address += 0x38;
 
 		if( MBX_IOCTL_READ_REG == mode ) {
