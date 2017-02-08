@@ -12,6 +12,9 @@
 #include <string.h>
 #include <sstream>
 #include <iomanip>
+#include <errno.h>
+#include <limits.h>
+#include <iostream>
 
 #ifdef OTHER_USE
 #include <OutputLite.H>
@@ -360,6 +363,7 @@ std::ostream& operator<<(std::ostream& io_stream, const Instruction& i_instructi
 
 uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash)
 {
+    uint32_t rc = 0;
     int length = i_string.length();
     const char * data = i_string.c_str();
     int found = 0;
@@ -379,8 +383,7 @@ uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash)
         found = sscanf(data, "L%02dC%d", &fsi, &cfam);
         if (found != 2)
         {
-            //std::cout << "ERROR reading data from " << i_string << std::endl;
-            return 1;
+            rc = 1;
         }
     }
     else if (length == 13)
@@ -389,8 +392,7 @@ uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash)
         found = sscanf(data, "L%02dC%dE%02d:L%dC%d", &fsi, &cfam, &engine, &subfsi, &subcfam);
         if (found != 5)
         {
-            //std::cout << "ERROR reading data from " << i_string << std::endl;
-            return 2;
+            rc = 2;
         }
     }
     else if (length == 21)
@@ -400,24 +402,46 @@ uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash)
                        &subengine, &subsubfsi, &subsubcfam);
         if (found != 8)
         {
-            //std::cout << "ERROR reading data from " << i_string << std::endl;
-            return 3;
+            rc = 3;
         }
     }
     else
     {
-        // error
-        //std::cout << "ERROR unknown format for device " << i_string << std::endl;
-        return 4;
+        // BMC device case
+        char * endptr = NULL;
+        errno = 0;
+        fsi = strtol(data, &endptr, 10);
+        if (((errno == ERANGE) && ((fsi == LONG_MAX) || (fsi == LONG_MIN))) ||
+            ((errno != 0) && (fsi == 0)))
+        {
+            rc = 5;
+        }
+        else if (endptr == data)
+        {
+            rc = 6;
+        }
+        else if (*endptr != '\0')
+        {
+            rc = 4;
+        }
     }
-    o_hash |= ((0x07 & type)    << 0);      //0x00000007
-    o_hash |= ((0x3F & fsi)     << 3);      //0x000001F8
-    o_hash |= ((0x03 & cfam)    << 9);      //0x00000600
-    o_hash |= ((0x1F & engine)  << 11);     //0x0000F800
-    o_hash |= ((0x07 & subfsi)  << 16);     //0x00070000
-    o_hash |= ((0x03 & subcfam)     << 19); //0x00180000
-    o_hash |= ((0x1F & subengine)   << 21); //0x03E00000
-    o_hash |= ((0x07 & subsubfsi)   << 26); //0x1C000000
-    o_hash |= ((0x03 & subsubcfam)  << 29); //0x60000000
-    return 0;
+
+    if (rc)
+    {
+        // error
+        std::cout << "ERROR unknown format for device " << i_string << " rc = " << rc << std::endl;
+    }
+    else
+    {
+        o_hash |= ((0x07 & type)    << 0);      //0x00000007
+        o_hash |= ((0x3F & fsi)     << 3);      //0x000001F8
+        o_hash |= ((0x03 & cfam)    << 9);      //0x00000600
+        o_hash |= ((0x1F & engine)  << 11);     //0x0000F800
+        o_hash |= ((0x07 & subfsi)  << 16);     //0x00070000
+        o_hash |= ((0x03 & subcfam)     << 19); //0x00180000
+        o_hash |= ((0x1F & subengine)   << 21); //0x03E00000
+        o_hash |= ((0x07 & subsubfsi)   << 26); //0x1C000000
+        o_hash |= ((0x03 & subsubcfam)  << 29); //0x60000000
+    }
+    return rc;
 }
