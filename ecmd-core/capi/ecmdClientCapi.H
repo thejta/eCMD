@@ -4896,6 +4896,28 @@ uint32_t ecmdPutPnor( ecmdChipTarget & i_target, std::string i_partitionName, ui
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+/**
+ @brief Query Latch information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_queryData Return structure from query
+ @param i_ringName if != NULL used to refine query to a single ring
+ @param i_latchName if != NULL used to refine query to a single latch
+ @param i_mode LatchName search mode (full or partial names)
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 //@}
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
@@ -5038,34 +5060,8 @@ uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, ui
  NOTE : If passing in a value for i_startBit or i_numBits, both values need to be set.  
 */
 uint32_t createSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
-
 //@}
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
-/** @name Query Functions  */
-//@{
-/**
- @brief Query Latch information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return structure from query
- @param i_ringName if != NULL used to refine query to a single ring
- @param i_latchName if != NULL used to refine query to a single latch
- @param i_mode LatchName search mode (full or partial names)
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_INVALID_RING if i_ringName is not valid for target
- @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-//@}
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /** @name Query Functions  */
