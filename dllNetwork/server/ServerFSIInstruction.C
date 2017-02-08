@@ -238,12 +238,19 @@ void ServerFSIInstruction::scan_ffdc_and_reset(Handle ** handle, InstructionStat
 
 void ServerFSIInstruction::scom_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) {
 
+    uint32_t rc = 0;
     // system_scom_ffdc_extract
     //  append to o_status.errorMessage
     // system_scom_ffdc_unlock
-    // system_scom_reset
+   printf("calling adal_scom_reset()\n");
+#ifdef TESTING
+   TEST_PRINT("adal_scom_reset((adal_t *) *handle, SCOMRESETENGINE);\n");
+   rc = 0;
+#else
+   rc = adal_scom_reset((adal_t *) *handle, SCOMRESETENGINE);
+#endif
 
-    uint32_t rc = scom_close(*handle);
+    rc = scom_close(*handle);
     *handle = NULL;
     if (rc) o_status.rc = SERVER_SCOM_CLOSE_FAIL;
 }
