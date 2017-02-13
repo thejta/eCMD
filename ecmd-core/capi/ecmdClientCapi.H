@@ -2495,6 +2495,19 @@ bool ecmdQueryTraceMode(ecmdTraceType_t i_type);
 */
 uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
 
+#ifndef ECMD_REMOVE_SP_FUNCTIONS
+/**
+ @brief Make a query of the targeted Service Processor or Service Element
+ @param i_target SP to query
+ @param i_commandStr query type to make, LIST command will return supported queries
+ @param o_result query result
+
+ TARGET DEPTH : node<br>
+ TARGET STATES : Unused
+
+*/
+uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
+
 /**
  @brief Make a system call on the targetted Service Processor or Service Element
  @param i_target SP to run command on
@@ -2505,9 +2518,9 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
  TARGET STATES : Unused
 
 */
-
 uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
-
+#endif // ECMD_REMOVE_SP_FUNCTIONS
+  
 /**
  @brief Synchronizes the plugin state information with the actual HW states
  This command is intended for situations where no automatic plugin re-sync takes place.  
@@ -4920,19 +4933,6 @@ uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_qu
 uint32_t ecmdQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 //@}
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
-/**
- @brief Make a query of the targeted Service Processor or Service Element
- @param i_target SP to query
- @param i_commandStr query type to make, LIST command will return supported queries
- @param o_result query result
-
- TARGET DEPTH : node<br>
- TARGET STATES : Unused
-
-*/
-
-uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
 
 /**
  @brief Make a query of the processor to determine the mode in which the core is operating.

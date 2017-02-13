@@ -824,6 +824,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 }
 #endif // ECMD_REMOVE_FSI_FUNCTIONS
 
+#ifndef ECMD_REMOVE_SP_FUNCTIONS
 uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
@@ -915,7 +916,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif // ECMD_REMOVE_SP_FUNCTIONS
 
 uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;

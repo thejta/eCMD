@@ -333,8 +333,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /************************/
       case 'm':
 
-        if (!strcmp(argv[0], "makespsystemcall")) {
+	if (0) {
+          // Empty if to always start things in case the below gets compiled out
+#ifndef ECMD_REMOVE_SP_FUNCTIONS
+        } else if (!strcmp(argv[0], "makespsystemcall")) {
           rc = ecmdMakeSPSystemCallUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SP_FUNCTIONS
 #ifndef ECMD_REMOVE_MPIPL_FUNCTIONS
 	} else if (!strcmp(argv[0], "mpiplclearcheckstop")) {
           rc = ecmdMpiplClearCheckstopUser(argc - 1, argv + 1);
