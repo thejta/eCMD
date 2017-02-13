@@ -56,6 +56,18 @@ optgroup.add_argument("--output-root", help="The location to place build output"
 # --extensions
 optgroup.add_argument("--extensions", help="Filter down the list of extensions to build")
 
+# --no-sim
+optgroup.add_argument("--no-sim", help="Enable REMOVE_SIM in build", action='store_true')
+
+# --no-perl
+optgroup.add_argument("--no-perl", help="Disable perl module build", action='store_true')
+
+# --no-python
+optgroup.add_argument("--no-python", help="Disable python module build", action='store_true')
+
+# --no-python3
+optgroup.add_argument("--no-python3", help="Disable python3 module build", action='store_true')
+
 # Parse the cmdline for the args we just added
 args = parser.parse_args()
 
@@ -397,6 +409,10 @@ if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
 else:
     DEFINES += " -DAIX"
 
+# See if REMOVE_SIM is enabled from the cmdline
+if (args.no_sim):
+    DEFINES += " -DREMOVE_SIM"
+    
 # Export everything we defined
 buildvars["DEFINES"] = DEFINES
 buildvars["GPATH"] = GPATH
@@ -415,6 +431,16 @@ buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
 buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
+
+# Check for optional args to disable building of perl and python module
+if (args.no_perl):
+    buildvars["CREATE_PERLAPI"] = "no"
+
+if (args.no_python):
+    buildvars["CREATE_PYAPI"] = "no"
+
+if (args.no_python3):
+    buildvars["CREATE_PY3API"] = "no"
 
 # Use the default path for a swig install
 # See if the user specified it via the script cmdline
