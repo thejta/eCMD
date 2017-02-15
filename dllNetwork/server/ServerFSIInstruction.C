@@ -131,7 +131,7 @@ uint32_t ServerFSIInstruction::scom_open(Handle** handle, InstructionStatus & o_
 uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & o_status) {
   uint32_t rc = 0;
 
-  char device[50];
+  char device[100];
   char errstr[200];
 
   /* already have a handle lets reuse it */
@@ -140,7 +140,8 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    //snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
   } else {
     //ERROR
     *handle = NULL;
@@ -179,7 +180,7 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
 uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_status) {
   uint32_t rc = 0;
 
-  char device[50];
+  char device[100];
   char errstr[200];
 
   /* already have a handle lets reuse it */
@@ -188,7 +189,8 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    //snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
   } else {
     //ERROR
     *handle = NULL;
@@ -517,6 +519,7 @@ ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDa
               rc = 0;
 #else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_READ_REG, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
+              if (rc >= 0) rc = 0;
 #endif
           }
           return rc;
@@ -619,6 +622,7 @@ ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, Instru
               rc = 0;
 #else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_WRITE_REG, ecmdDataBufferImplementationHelper::getDataPtr(&data));
+              if (rc >= 0) rc = 0;
 #endif
           }
           return rc;

@@ -32,6 +32,7 @@ static const char * const copyright __attribute__ ((unused)) =
 	"or disclosure restricted by GSA ADP Schedule Contract\n"
 	"with IBM Corp.";
 
+static const uint32_t fsi_slave_mbx_offset = 0x2800;
 
 adal_t * adal_mbx_open(const char * device, int flags) {
 	adal_t * adal = NULL;
@@ -131,6 +132,7 @@ int adal_mbx_get_register(adal_t * adal, unsigned long reg,
     reg_address = reg;
     reg_address &= ~0xFFFFFE00;
     reg_address *=4;
+	reg_address += fsi_slave_mbx_offset;
 //	  parms.offset = reg_address;
 		/**
 		* Poison the read value in case we fail and user does not
@@ -162,6 +164,7 @@ int adal_mbx_set_register(adal_t *adal, unsigned long reg,
 	reg_address = reg;
   reg_address &= ~0xFFFFFE00;
   reg_address *=4;
+	reg_address += fsi_slave_mbx_offset;
   lseek(adal->fd, reg_address, SEEK_SET);
   rc = write(adal->fd, &value, sizeof(uint32_t));
 
