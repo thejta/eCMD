@@ -32,6 +32,9 @@ static const char copyright [] __attribute__((unused)) =
 #include <stdio.h>
 #include "adal_scom.h"
 
+static const char *fsiraw =
+	"/sys/bus/platform/devices/fsi-master/slave@00:00/raw";
+
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
@@ -111,6 +114,24 @@ int adal_scom_close(adal_t * adal)
 	return rc;
 
 }
+
+int adal_scom_get_chipid(uint32_t *id)
+{
+	int rc;
+	int fd = open(fsiraw, O_RDONLY);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, 0x1028, SEEK_SET);
+	rc = read(fd, id, 4);
+	if (rc >= 0)
+		rc = 0;
+	
+	close(fd);
+	return rc;
+}
+
 ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
 {
 	adal_scom_t *scom = to_scom_adal(adal);
@@ -224,8 +245,13 @@ ssize_t adal_scom_get_register(adal_t * adal, int registerNo, unsigned long * da
 /*stub out. Still need to figure out how to do this */
         if ((adal != NULL) && (registerNo == 0x100A))
         {
-            *data = 0x120D1049; // return p9n ec10 chipid
-            rc = 4;
+            uint32_t l_chipid = 0;
+            rc = adal_scom_get_chipid(&l_chipid);
+            if (rc >= 0)
+            {
+                rc = 4;
+                *data = l_chipid;
+            }
         }
 	else if (registerNo == 0x1007)
 	{
