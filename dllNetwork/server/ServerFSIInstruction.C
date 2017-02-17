@@ -131,7 +131,7 @@ uint32_t ServerFSIInstruction::scom_open(Handle** handle, InstructionStatus & o_
 uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & o_status) {
   uint32_t rc = 0;
 
-  char device[50];
+  char device[100];
   char errstr[200];
 
   /* already have a handle lets reuse it */
@@ -140,7 +140,8 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    //snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
   } else {
     //ERROR
     *handle = NULL;
@@ -179,7 +180,7 @@ uint32_t ServerFSIInstruction::gp_reg_open(Handle** handle, InstructionStatus & 
 uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_status) {
   uint32_t rc = 0;
 
-  char device[50];
+  char device[100];
   char errstr[200];
 
   /* already have a handle lets reuse it */
@@ -188,7 +189,8 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    //snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
+    snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
   } else {
     //ERROR
     *handle = NULL;
@@ -238,12 +240,19 @@ void ServerFSIInstruction::scan_ffdc_and_reset(Handle ** handle, InstructionStat
 
 void ServerFSIInstruction::scom_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) {
 
+    uint32_t rc = 0;
     // system_scom_ffdc_extract
     //  append to o_status.errorMessage
     // system_scom_ffdc_unlock
-    // system_scom_reset
+   printf("calling adal_scom_reset()\n");
+#ifdef TESTING
+   TEST_PRINT("adal_scom_reset((adal_t *) *handle, SCOMRESETENGINE);\n");
+   rc = 0;
+#else
+   rc = adal_scom_reset((adal_t *) *handle, SCOMRESETENGINE);
+#endif
 
-    uint32_t rc = scom_close(*handle);
+    rc = scom_close(*handle);
     *handle = NULL;
     if (rc) o_status.rc = SERVER_SCOM_CLOSE_FAIL;
 }
@@ -510,6 +519,7 @@ ssize_t ServerFSIInstruction::mbx_get_scratch_register(Handle * i_handle, ecmdDa
               rc = 0;
 #else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_READ_REG, ecmdDataBufferImplementationHelper::getDataPtr(&o_data));
+              if (rc >= 0) rc = 0;
 #endif
           }
           return rc;
@@ -612,6 +622,7 @@ ssize_t ServerFSIInstruction::mbx_set_scratch_register(Handle * i_handle, Instru
               rc = 0;
 #else
               rc = adal_mbx_scratch((adal_t *) i_handle, scratch, MBX_IOCTL_WRITE_REG, ecmdDataBufferImplementationHelper::getDataPtr(&data));
+              if (rc >= 0) rc = 0;
 #endif
           }
           return rc;
