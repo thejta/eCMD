@@ -149,8 +149,6 @@ adal_t * adal_scom_open(const char * device, int flags);
  */
 int adal_scom_close(adal_t * adal);
 
-int adal_scom_get_chipid(uint32_t *id);
-
 /*!
  * @brief	This interface is used to force the underlying device,
  *		associated with an adal_t, into a known state.
@@ -422,7 +420,7 @@ ssize_t adal_scom_get_arbiter(adal_t * adal, unsigned long * data);
 ssize_t adal_scom_set_arbiter(adal_t * adal, unsigned long data);
 
 ssize_t adal_scom_get_status(adal_t * adal, unsigned long * data);
-//ssize_t adal_scom_get_chipid(adal_t * adal, unsigned long * data);
+ssize_t adal_scom_get_chipid(adal_t * adal, unsigned long * data);
 
 
 /*!

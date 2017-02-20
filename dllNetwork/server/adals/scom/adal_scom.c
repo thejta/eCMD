@@ -39,12 +39,13 @@ static const char *fsiraw =
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 
+#define SCOM_STATUS_REGISTER_NO	7
 #define SCOM_DEVPATH_LENGTH	39
 #define SCOM_BUSNUM_OFFSET	35
+#define SCOM_ENGINE_OFFSET	0x1000
 
 struct adal_scom {
 	adal_t adal;
-	int statfd;
 	char devpath[SCOM_DEVPATH_LENGTH];
 };
 typedef struct adal_scom adal_scom_t;
@@ -55,7 +56,6 @@ adal_t * adal_scom_open(const char * device, int flags)
 {
 	long bus_num;
 	char bus_num_str[3] = { 0 };
-	char status_path[64] = { 0 };
 	char *str;
 	char *prev = NULL;
 	adal_scom_t *scom;
@@ -74,7 +74,7 @@ adal_t * adal_scom_open(const char * device, int flags)
 			     /* 012345678901234567890123456789012345678 */
 	strncpy(scom->devpath, "/sys/bus/fsi/drivers/scom/00:00:00:xx/",
 		SCOM_DEVPATH_LENGTH);
-	str = strstr((char *) device, "scom");
+	str = strstr((char *)device, "scom");
 	while (str) {
 		prev = str;
 		str = strstr(str + 1, "scom");
@@ -87,10 +87,6 @@ adal_t * adal_scom_open(const char * device, int flags)
 		scom->devpath[SCOM_BUSNUM_OFFSET] = bus_num_str[0];
 		scom->devpath[SCOM_BUSNUM_OFFSET + 1] = bus_num_str[1];
 	}
-
-	strncpy(status_path, scom->devpath, SCOM_DEVPATH_LENGTH);
-	strncpy(&status_path[SCOM_DEVPATH_LENGTH - 1], "status", 7);
-	scom->statfd = open(status_path, O_RDONLY);
 
 	return &scom->adal;
 }
@@ -105,8 +101,6 @@ int adal_scom_close(adal_t * adal)
 		return 0;
 
 	rc = close(adal->fd);
-	if (scom->statfd != -1)
-		close(scom->statfd);
 
 	free(scom);
 	adal = NULL;
@@ -115,58 +109,25 @@ int adal_scom_close(adal_t * adal)
 
 }
 
-int adal_scom_get_chipid(uint32_t *id)
-{
-	int rc;
-	int fd = open(fsiraw, O_RDONLY);
-
-	if (fd == -1)
-		return -ENODEV;
-
-	lseek(fd, 0x1028, SEEK_SET);
-	rc = read(fd, id, 4);
-	if (rc >= 0)
-		rc = 0;
-	
-	close(fd);
-	return rc;
-}
-
 ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
 {
-	adal_scom_t *scom = to_scom_adal(adal);
 	int rc = 0, rc1 = 0;
-	char stat[9] = { 0 };
 
   lseek64(adal->fd, scom_address, SEEK_SET);
   rc = read(adal->fd, buf, SCOM_DATA_LEN);
 
-	if (scom->statfd != -1) {
-		rc1 = lseek64(scom->statfd, 0, SEEK_SET);
-		rc1 = read(scom->statfd, stat, 8);
-		*status = strtoul(stat, NULL, 16);
-	}
-	else
-		*status = 0;
+	rc1 = adal_scom_get_register(adal, SCOM_STATUS_REGISTER_NO, status);
 
 	return rc;
 }
 ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
-	adal_scom_t *scom = to_scom_adal(adal);
 	int rc = 0, rc1 = 0;
-	char stat[9] = { 0 };
 
   lseek64(adal->fd, scom_address, SEEK_SET);
   rc = write(adal->fd, buf, SCOM_DATA_LEN);
 
-	if (scom->statfd != -1) {
-		rc1 = lseek64(scom->statfd, 0, SEEK_SET);
-		rc1 = read(scom->statfd, stat, 8);
-		*status = strtoul(stat, NULL, 16);
-	}
-	else
-		*status = 0;
+	rc1 = adal_scom_get_register(adal, SCOM_STATUS_REGISTER_NO, status);
 
 	return rc;
 }
@@ -176,6 +137,7 @@ int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
 {
 	int rc = 0;
 	int fd;
+	char x = '1';
 	adal_scom_t *scom = to_scom_adal(adal);
 	char reset_path[64] = { 0 };
 
@@ -186,12 +148,7 @@ int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
 	if (fd == -1)
 		return -ENODEV;
 
-	if (type == SCOMRESETENGINE)
-		rc = write(fd, "1", 1);
-	else if (type == SCOMRESETFULL)
-		rc = write(fd, "full", 4);
-	else
-		rc = -EINVAL;
+	rc = write(fd, &x, 1);
 
 	close(fd);
 
@@ -213,7 +170,7 @@ ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_addr
 	memcpy(usermask, mask, SCOM_DATA_LEN);
 
   rc = adal_scom_read(adal, &old_data, scom_address, status);
-        if (rc) return rc;
+  if (rc < 0) return rc;
 
 	new_data[0] = old_data[0] & ~(usermask[0]);
 	new_data[0] =	new_data[0] | ((userbuffer[0]) & (usermask[0]));
@@ -238,46 +195,35 @@ int adal_scom_ffdc_unlock(adal_t * adal, int scope)
 }
 
 
-ssize_t adal_scom_get_register(adal_t * adal, int registerNo, unsigned long * data)
+ssize_t adal_scom_get_register(adal_t *adal, int registerNo,
+			       unsigned long *data)
 {
 
-	ssize_t rc=-1;
-/*stub out. Still need to figure out how to do this */
-        if ((adal != NULL) && (registerNo == 0x100A))
-        {
-            uint32_t l_chipid = 0;
-            rc = adal_scom_get_chipid(&l_chipid);
-            if (rc >= 0)
-            {
-                rc = 4;
-                *data = l_chipid;
-            }
-        }
-	else if (registerNo == 0x1007)
-	{
-		adal_scom_t *scom = to_scom_adal(adal);
-		int rc1 = 0;
-		char stat[9] = { 0 };
-		printf("statfd = %d\n", scom->statfd);
-		if (scom->statfd != -1) {
-			rc1 = lseek64(scom->statfd, 0, SEEK_SET);
-			printf("lseek64 rc = %d\n", rc1);
-			rc1 = read(scom->statfd, stat, 8);
-			printf("read rc = %d\n", rc1);
-			if (rc1 >= 0)
-			{
-				*data = strtoul(stat, NULL, 16);
-				rc = 4;
-			}
-		}
-	}
+	int rc;
+	int fd = open(fsiraw, O_RDONLY);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	rc = read(fd, data, 4);
+	
+	close(fd);
 	return rc;
 }
 
-ssize_t adal_scom_set_register(adal_t * adal, int registerNo, unsigned long data)
+ssize_t adal_scom_set_register(adal_t *adal, int registerNo,
+			       unsigned long data)
 {
+	int rc;
+	int fd = open(fsiraw, O_WRONLY);
 
-/*stub out. Still need to figure out how to do this */
+	if (fd == -1)
+		return -ENODEV;
 
-    return -1;
+	lseek(fd, SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	rc = write(fd, &data, 4);
+	
+	close(fd);
+	return rc;
 }
