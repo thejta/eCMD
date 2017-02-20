@@ -60,7 +60,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 uint32_t ecmdIstepUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdDataBuffer steps(200);                    ///< Buffer to hold numbered steps (max of 200 steps)
@@ -257,7 +257,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif //ECMD_REMOVE_INIT_FUNCTIONS
 
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
