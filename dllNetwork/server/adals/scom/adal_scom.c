@@ -54,10 +54,11 @@ enum SCOM_REGS {
 };
 
 #define SCOM_ENGINE_OFFSET	0x1000
+#define P1_SLAVE_OFFSET		0x100000
 
 struct adal_scom {
 	adal_t adal;
-	int idx;
+	uint32_t offset;
 };
 typedef struct adal_scom adal_scom_t;
 
@@ -65,6 +66,7 @@ typedef struct adal_scom adal_scom_t;
 
 adal_t * adal_scom_open(const char * device, int flags)
 {
+	int idx = 1;
 	char *str;
 	char *prev = NULL;
 	adal_scom_t *scom;
@@ -90,7 +92,10 @@ adal_t * adal_scom_open(const char * device, int flags)
 	}
 
 	if (prev)
-		scom->idx = strtol(prev + 4, NULL, 10);
+		idx = strtol(prev + 4, NULL, 10);
+
+	if (idx > 1)
+		scom->offset = P1_SLAVE_OFFSET;
 
 	return &scom->adal;
 }
@@ -190,11 +195,12 @@ ssize_t adal_scom_get_register(adal_t *adal, int registerNo,
 
 	int rc;
 	int fd = open(fsiraw, O_RDONLY);
+	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
 		return -ENODEV;
 
-	lseek(fd, SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	lseek(fd, scom->offset + SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
 	rc = read(fd, data, 4);
 	
 	close(fd);
@@ -206,11 +212,12 @@ ssize_t adal_scom_set_register(adal_t *adal, int registerNo,
 {
 	int rc;
 	int fd = open(fsiraw, O_WRONLY);
+	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
 		return -ENODEV;
 
-	lseek(fd, SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	lseek(fd, scom->offset + SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
 	rc = write(fd, &data, 4);
 	
 	close(fd);
