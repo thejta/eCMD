@@ -39,14 +39,25 @@ static const char *fsiraw =
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 
-#define SCOM_STATUS_REGISTER_NO	7
-#define SCOM_DEVPATH_LENGTH	39
-#define SCOM_BUSNUM_OFFSET	35
+enum SCOM_REGS {
+	DATA0 = 0,
+	DATA1,
+	CMD,
+	FSI2PIB_RESET = 6,
+	STATUS,
+	RESET = STATUS,
+	JTAG_EMU = 9,
+	CHIPID,
+	IRQ,
+	COMP_MASK,
+	TRUE_MASK
+};
+
 #define SCOM_ENGINE_OFFSET	0x1000
 
 struct adal_scom {
 	adal_t adal;
-	char devpath[SCOM_DEVPATH_LENGTH];
+	int idx;
 };
 typedef struct adal_scom adal_scom_t;
 
@@ -54,8 +65,6 @@ typedef struct adal_scom adal_scom_t;
 
 adal_t * adal_scom_open(const char * device, int flags)
 {
-	long bus_num;
-	char bus_num_str[3] = { 0 };
 	char *str;
 	char *prev = NULL;
 	adal_scom_t *scom;
@@ -65,32 +74,26 @@ adal_t * adal_scom_open(const char * device, int flags)
 		return NULL;
 	}
 
+	memset(scom, 0, sizeof(*scom));
+
 	scom->adal.fd = open(device, flags);
 	if (scom->adal.fd == -1) {
 		free(scom);
 		scom = NULL;
 		return NULL;
-	}			       /* 1	    2	      3 */
-			     /* 012345678901234567890123456789012345678 */
-	strncpy(scom->devpath, "/sys/bus/fsi/drivers/scom/00:00:00:xx/",
-		SCOM_DEVPATH_LENGTH);
+	}
+
 	str = strstr((char *)device, "scom");
 	while (str) {
 		prev = str;
 		str = strstr(str + 1, "scom");
 	}
 
-	if (prev) {
-		bus_num = strtol(prev + 4, NULL, 10);
-		snprintf(bus_num_str, 3, "%02lx", bus_num);
-
-		scom->devpath[SCOM_BUSNUM_OFFSET] = bus_num_str[0];
-		scom->devpath[SCOM_BUSNUM_OFFSET + 1] = bus_num_str[1];
-	}
+	if (prev)
+		scom->idx = strtol(prev + 4, NULL, 10);
 
 	return &scom->adal;
 }
-
 
 int adal_scom_close(adal_t * adal)
 {
@@ -113,71 +116,57 @@ ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigne
 {
 	int rc = 0, rc1 = 0;
 
-  lseek64(adal->fd, scom_address, SEEK_SET);
-  rc = read(adal->fd, buf, SCOM_DATA_LEN);
+	lseek64(adal->fd, scom_address, SEEK_SET);
+	rc = read(adal->fd, buf, SCOM_DATA_LEN);
 
-	rc1 = adal_scom_get_register(adal, SCOM_STATUS_REGISTER_NO, status);
+	rc1 = adal_scom_get_register(adal, STATUS, status);
 
 	return rc;
 }
+
 ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
 	int rc = 0, rc1 = 0;
 
-  lseek64(adal->fd, scom_address, SEEK_SET);
-  rc = write(adal->fd, buf, SCOM_DATA_LEN);
+	lseek64(adal->fd, scom_address, SEEK_SET);
+	rc = write(adal->fd, buf, SCOM_DATA_LEN);
 
-	rc1 = adal_scom_get_register(adal, SCOM_STATUS_REGISTER_NO, status);
+	rc1 = adal_scom_get_register(adal, STATUS, status);
 
 	return rc;
 }
 
-
 int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
 {
-	int rc = 0;
-	int fd;
-	char x = '1';
-	adal_scom_t *scom = to_scom_adal(adal);
-	char reset_path[64] = { 0 };
+	int rc;
 
-	strncpy(reset_path, scom->devpath, SCOM_DEVPATH_LENGTH);
-	strncpy(&reset_path[SCOM_DEVPATH_LENGTH - 1], "reset", 6);
+	rc = adal_scom_set_register(adal, RESET, 0xFFFFFFFF);
 
-	fd = open(reset_path, O_WRONLY);
-	if (fd == -1)
-		return -ENODEV;
-
-	rc = write(fd, &x, 1);
-
-	close(fd);
-
-	if (rc > 0)
-		rc = 0;
-
+	rc = adal_scom_set_register(adal, FSI2PIB_RESET, 0xFFFFFFFF);
+	
 	return rc;
 }
 
 ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_address, void * mask, unsigned long * status)
 {
 	int rc = 0;
-
 	unsigned long old_data[SCOM_DATA_WORDS];
-  unsigned long new_data[SCOM_DATA_WORDS];
+	unsigned long new_data[SCOM_DATA_WORDS];
 	unsigned long userbuffer[SCOM_DATA_WORDS];
 	unsigned long usermask[SCOM_DATA_WORDS];
+
 	memcpy(userbuffer, buf, SCOM_DATA_LEN);
 	memcpy(usermask, mask, SCOM_DATA_LEN);
 
-  rc = adal_scom_read(adal, &old_data, scom_address, status);
-  if (rc < 0) return rc;
+	rc = adal_scom_read(adal, &old_data, scom_address, status);
+	if (rc < 0) return rc;
 
 	new_data[0] = old_data[0] & ~(usermask[0]);
-	new_data[0] =	new_data[0] | ((userbuffer[0]) & (usermask[0]));
+	new_data[0] = new_data[0] | ((userbuffer[0]) & (usermask[0]));
 	new_data[1] = old_data[1] & ~(usermask[1]);
-	new_data[1] =	new_data[1] | ((userbuffer[1]) & (usermask[1]));
+	new_data[1] = new_data[1] | ((userbuffer[1]) & (usermask[1]));
 
-  rc = adal_scom_write(adal, &new_data, scom_address, status);
+	rc = adal_scom_write(adal, &new_data, scom_address, status);
 
 	return rc;
 }
