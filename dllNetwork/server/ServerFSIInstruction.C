@@ -3,6 +3,7 @@
 
 #include <ServerFSIInstruction.H>
 #include <OutputLite.H>
+#include <sstream>
 #include <stdio.h>
 
 #include <adal_scom.h>
@@ -189,8 +190,22 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
 
   /* We need to open the device*/
   if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    //snprintf(device, 50, "/dev/mbx%s", deviceString.c_str());
-    snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
+    /* Figure out the slave device based on the deviceString */
+    std::istringstream iss;
+    iss.str(deviceString);
+    uint32_t l_idx = 0;
+    iss >> l_idx;
+    /* Validate and adjust the device string for the device to open */
+    if (l_idx == 1) {
+      snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
+    } else if (l_idx == 2) {
+      snprintf(device, 100, "/sys/devices/slave@01:00/raw");
+    } else {
+      *handle = NULL;
+      snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
+      o_status.errorMessage.append(errstr);
+      return SERVER_INVALID_FSI_DEVICE;
+    }
   } else {
     //ERROR
     *handle = NULL;
