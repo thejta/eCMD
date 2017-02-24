@@ -199,7 +199,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
     if (l_idx == 1) {
       snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
     } else if (l_idx == 2) {
-      snprintf(device, 100, "/sys/devices/slave@01:00/raw");
+      snprintf(device, 100, "/sys/devices/hub@00/slave@01:00/raw");
     } else {
       *handle = NULL;
       snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
