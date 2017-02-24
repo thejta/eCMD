@@ -110,7 +110,7 @@ uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_
             return SERVER_I2C_OPEN_FAIL;
         }
     } else {
-        snprintf(device, 50, "/dev/i2cfsi%02d", /*deviceString.c_str(), engineId,*/ port);
+        snprintf(device, 50, "/dev/i2cfsi%s.%02d", deviceString.c_str(), port);
         errno = 0;
 
         if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
