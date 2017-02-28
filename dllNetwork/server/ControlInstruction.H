@@ -60,6 +60,8 @@ typedef enum { // SERVER_MACHINE_TYPE
   SERVER_ICON,              ///< Bluegene Icon library
   SERVER_FTDI,
   SERVER_GSD2PIB,
+  SERVER_D2C,
+  SERVER_BMC,
 } SERVER_MACHINE_TYPE;
 
 /* Results for the INFO command will be formated as follows in the o_data ecmdDataBuffer */
@@ -231,6 +233,14 @@ class ControlInstruction : public Instruction {
      * @brief expands data returned in ecmdDataBuffer to a server_type_info structure
      */
     uint32_t populateTypeInfo(server_type_info & o_typeInfo, ecmdDataBuffer & i_data);
+    //@}
+
+    /** @name Utility Function */
+    //@{
+    /**
+     * @brief converts the SERVER_TYPE to a string
+     */
+    static std::string serverTypeToString( SERVER_MACHINE_TYPE i_type );
     //@}
 
   protected:

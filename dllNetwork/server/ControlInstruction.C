@@ -19,6 +19,10 @@ extern OutputLite out;
 #include <CronusData.H>
 #endif
 
+#ifndef SERVER_TYPE
+  #define SERVER_TYPE SERVER_BMC
+#endif
+
 /*****************************************************************************/
 /* ControlInstruction Implementation *****************************************/
 /*****************************************************************************/
@@ -111,7 +115,7 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
         /* They want to know who we are */
         o_data.setWordLength(7);
         o_data.setWord(0, 0x1);
-        o_data.setWord(1, SERVER_FSP);
+        o_data.setWord(1, SERVER_TYPE);
         o_data.setWord(2, 0x1FFFFFFF);
         o_data.setWord(3, 0x000000FF);
         o_data.setWord(4, 0x000000FF);
@@ -280,7 +284,7 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
           rc = o_status.rc = SERVER_COMMAND_COMPLETE;
           break;
         } else if (commandToRun == "SPTYPE") {
-          o_data.insertFromAsciiAndResize("BMC");
+          o_data.insertFromAsciiAndResize(serverTypeToString(SERVER_TYPE).c_str());
           rc = o_status.rc = SERVER_COMMAND_COMPLETE;
           break;
         } else {
@@ -467,4 +471,44 @@ uint32_t ControlInstruction::populateTypeInfo(server_type_info & o_typeInfo, ecm
     return 1;
   }
   return 0;
+}
+
+std::string ControlInstruction::serverTypeToString( SERVER_MACHINE_TYPE i_type )
+{
+    switch( i_type )
+    {
+        case(SERVER_CSP):
+            return std::string("CSP");
+        case(SERVER_BPC):
+            return std::string("BPC");
+        case(SERVER_FSP):
+            return std::string("FSP");
+        case(SERVER_SJM):
+            return std::string("SJM");
+        case(SERVER_PROXY):
+            return std::string("PROXY");
+        case(SERVER_SIM):
+            return std::string("SIM");
+        case(SERVER_LOFT):
+            return std::string("LOFT");
+        case(SERVER_6682TESTER):
+            return std::string("6682TESTER");
+        case(SERVER_SIMDISPATCHER):
+            return std::string("SIMDISPATCHER");
+        case(SERVER_UNDEFINED):
+            return std::string("UNDEFINED");
+        case(SERVER_ICON):
+            return std::string("ICON");
+        case(SERVER_FTDI):
+            return std::string("FTDI");
+        case(SERVER_GSD2PIB):
+            return std::string("GSD2PIB");
+        case(SERVER_D2C):
+            return std::string("D2C");
+        case(SERVER_BMC):
+            return std::string("BMC");
+        default:
+            return std::string("UNKNOWN");
+    }
+    return std::string("UNKNOWN");
 }
