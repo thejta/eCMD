@@ -13,6 +13,7 @@ import platform
 import textwrap
 import re
 import argparse
+import subprocess
 
 parser = argparse.ArgumentParser(description="This script creates all the variables necessary to buid eCMD", add_help = False)
 # Group for required args so the help displays properly
@@ -35,17 +36,44 @@ optgroup.add_argument("--host", help="The host architecture")
 # --target
 optgroup.add_argument("--target", help="The target architecture")
 
+# --cc
+optgroup.add_argument("--cc", help="The compiler to use")
+
+# --cc_r
+optgroup.add_argument("--cc_r", help="The reentrant compiler to use (AIX only)")
+
+# --ld
+optgroup.add_argument("--ld", help="The linker to use")
+
+# --ld_r
+optgroup.add_argument("--ld_r", help="The reentrant linker to use (AIX only)")
+
+# --ar
+optgroup.add_argument("--ar", help="The archive creator to use")
+
+# --sysroot
+optgroup.add_argument("--sysroot", help="The system root to us.  Default is /", default='/')
+
 # --swig
 optgroup.add_argument("--swig", help="The swig executable to use")
 
 # --perl
 optgroup.add_argument("--perl", help="The perl executable to use")
 
+# --perlinc
+optgroup.add_argument("--perlinc", help="The perl include path to use")
+
 # --python
 optgroup.add_argument("--python", help="The python executable to use")
 
+# --pythoninc
+optgroup.add_argument("--pythoninc", help="The python include path to use")
+
 # --python3
 optgroup.add_argument("--python3", help="The python3 executable to use")
+
+# --python3inc
+optgroup.add_argument("--python3inc", help="The python3 include path to use")
 
 # --doxygen
 optgroup.add_argument("--doxygen", help="The doxygen executable to use")
@@ -68,30 +96,24 @@ optgroup.add_argument("--no-python", help="Disable python module build", action=
 # --no-python3
 optgroup.add_argument("--no-python3", help="Disable python3 module build", action='store_true')
 
+# --disable-build-test
+optgroup.add_argument("--disable-build-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
+
 # Parse the cmdline for the args we just added
 args = parser.parse_args()
 
 # Store any variables we wish to write to the makefiles here
 buildvars = dict()
 
+##############################
+# Figure out a number of variables where our eCMD source is
+#
+
 # First, determine our ECMD_ROOT variable
 # ECMD_ROOT is the top level directory of the ecmd source repo
 # ECMD_ROOT is used to derive a number of variable throughout this script
 ECMD_ROOT = os.path.dirname(os.path.realpath(__file__))
 buildvars["ECMD_ROOT"] = ECMD_ROOT
-
-# If the OUTPUT_ROOT was passed in, use that for base directory for generated
-# files. Otherwise use ECMD_ROOT
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-if (args.output_root != None):
-    OUTPUT_ROOT = args.output_root
-else:
-    if "OUTPUT_ROOT" in os.environ:
-        OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
-    else:
-        OUTPUT_ROOT = ECMD_ROOT
-buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
 
 # The main ecmd repo contains the ecmd-core subdir
 # This is where the main eCMD source code is stored
@@ -156,15 +178,14 @@ buildvars["ECMD_PLUGINS"] = ' ' . join(sorted(ECMD_PLUGINS.split(" ")))
 EXTENSIONS = ""
 if (args.extensions != None):
     EXTENSIONS = args.extensions
+elif ("EXTENSIONS" in os.environ):
+    EXTENSIONS = os.environ["EXTENSIONS"]
 else:
-    if "EXTENSIONS" in os.environ:
-        EXTENSIONS = os.environ["EXTENSIONS"]
-    else:
-        # Not given, so dynamically create the list based on what's in the ECMD_REPOS
-        for repo in ECMD_REPOS.split(" "):
-            for ext in glob.glob(os.path.join(ECMD_ROOT, repo, "ext/*")):
-                EXTENSIONS += os.path.basename(ext) + " "
-        EXTENSIONS = EXTENSIONS[:-1] # Pull off trailing space
+    # Not given, so dynamically create the list based on what's in the ECMD_REPOS
+    for repo in ECMD_REPOS.split(" "):
+        for ext in glob.glob(os.path.join(ECMD_ROOT, repo, "ext/*")):
+            EXTENSIONS += os.path.basename(ext) + " "
+    EXTENSIONS = EXTENSIONS[:-1] # Pull off trailing space
 
 # Remove "template" from the extensions list
 EXTENSIONS = EXTENSIONS.replace("template", "")
@@ -226,21 +247,32 @@ buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 # We've figured out a bunch of stuff about our eCMD source available
 # Now let's setup up all the info about our build environment
 
+# If the OUTPUT_ROOT was passed in, use that for base directory for generated
+# files. Otherwise use ECMD_ROOT
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
+if (args.output_root != None):
+    OUTPUT_ROOT = args.output_root
+elif ("OUTPUT_ROOT" in os.environ):
+    OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
+else:
+    OUTPUT_ROOT = ECMD_ROOT
+buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
+
 # Grab the HOST_ARCH
 # See if the user specified it via the script cmdline
 # If not, set the default
 HOST_ARCH = ""
 if (args.host != None):
     HOST_ARCH = args.host
-else:
-    if (platform.system() == "AIX"):
-        atuple = platform.architecture()
-        if (atuple[0] == "32bit"):
-            HOST_ARCH="aix"
-        else:
-            HOST_ARCH="aix64"
+elif (platform.system() == "AIX"):
+    atuple = platform.architecture()
+    if (atuple[0] == "32bit"):
+        HOST_ARCH="aix"
     else:
-        HOST_ARCH = platform.machine()
+        HOST_ARCH="aix64"
+else:
+    HOST_ARCH = platform.machine()
 buildvars["HOST_ARCH"] = HOST_ARCH
 
 # Set the host base arch.  Just happens to be the first 3 characters
@@ -251,11 +283,10 @@ buildvars["HOST_BARCH"] = HOST_ARCH[0:3]
 # If not, pull it from the env or set the default
 if (args.target != None):
     TARGET_ARCH = args.target
+elif ("TARGET_ARCH" in os.environ):
+    TARGET_ARCH = os.environ["TARGET_ARCH"]
 else:
-    if "TARGET_ARCH" in os.environ:
-        TARGET_ARCH = os.environ["TARGET_ARCH"]
-    else:
-        TARGET_ARCH = HOST_ARCH
+    TARGET_ARCH = HOST_ARCH
 buildvars["TARGET_ARCH"] = TARGET_ARCH
 
 # Set the target base arch.  Just happens to be the first 3 characters
@@ -278,41 +309,6 @@ else:
     DISTRO="aix"
 buildvars["DISTRO"] = DISTRO
 
-# Now that we have the distro and arch, look for the disto makefile
-# A number of standard distro configs are included
-# Those can be overriden in the included repos
-# If more than 1 override file is found in the included repos, throw an error
-# The user can set DISTRO_MAKEFILE and then we don't do this logic at all
-DISTRO_MAKEFILE = ""
-if "DISTRO_MAKEFILE" in os.environ:
-    DISTRO_MAKEFILE = os.environ["DISTRO_MAKEFILE"]
-else:
-    # This loop includes ecmd-core, which should never have mkconfigs
-    for repo in ECMD_REPOS.split(" "):
-        mkfile = os.path.join(ECMD_ROOT, repo, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
-        if os.path.exists(mkfile):
-            if (DISTRO_MAKEFILE != ""):
-                print("ERROR: conflicting distro makefiles found!")
-                print("ERROR: %s" % DISTRO_MAKE)
-                print("ERROR: %S" % mkfile)
-                print("Please set DISTRO_MAKEFILE to your choice and re-run this command")
-                sys.exit(1)
-            else:
-                DISTRO_MAKEFILE = mkfile
-    
-    # If there wasn't one found in the repos, see if the top level has one
-    if (DISTRO_MAKEFILE == ""):
-        mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
-        if (os.path.exists(mkfile)):
-            DISTRO_MAKEFILE = mkfile
-        else:
-            print("ERROR: No distro makefile found for your configuration!")
-            print("ERROR: DISTRO=%s, HOST_ARCH=%s, TARGET_ARCH=%s" % (DISTRO, HOST_ARCH, TARGET_ARCH))
-            print("ERROR: Please consider creating a makefile for your build type")
-            print("ERROR: Or set DISTRO_MAKEFILE to your makefile and re-run this command")
-            sys.exit(1)
-    
-buildvars["DISTRO_MAKEFILE"] = DISTRO_MAKEFILE
 
 ######## Default things we need setup for every compile ########
 # CC = the compiler
@@ -333,35 +329,45 @@ LD = ""
 LD_R = ""
 AR = ""
 # Compiler
-if "CC" in os.environ:
+if (args.cc != None):
+    CC = args.cc
+elif ("CC" in os.environ):
     CC = os.environ["CC"]
 else:
     CC = "/usr/bin/g++"
 buildvars["CC"] = CC
 
 # Compiler Reentrant
-if "CC_R" in os.environ:
+if (args.cc_r != None):
+    CC_R = args.cc_r
+elif ("CC_R" in os.environ):
     CC_R = os.environ["CC_R"]
 else:
     CC_R = "/usr/bin/g++"
 buildvars["CC_R"] = CC_R
 
 # Linker
-if "LD" in os.environ:
+if (args.ld != None):
+    LD = args.ld
+elif ("LD" in os.environ):
     LD = os.environ["LD"]
 else:
     LD = "/usr/bin/g++"
 buildvars["LD"] = LD
 
 # Linker Reentrant
-if "LD_R" in os.environ:
+if (args.ld_r != None):
+    LD_R = args.ld_r
+elif ("LD_R" in os.environ):
     LD_R = os.environ["LD_R"]
 else:
     LD_R = "/usr/bin/g++"
 buildvars["LD_R"] = LD_R
 
 # Archive
-if "AR" in os.environ:
+if (args.ar != None):
+    AR = args.ar
+elif ("AR" in os.environ):
     AR = os.environ["AR"]
 else:
     AR = "/usr/bin/ar"
@@ -449,54 +455,88 @@ if (args.no_python3):
 SWIG = ""
 if (args.swig != None):
     SWIG = args.swig
+elif ("SWIG" in os.environ):
+    SWIG = os.environ["SWIG"]
 else:
-    if "SWIG" in os.environ:
-        SWIG = os.environ["SWIG"]
-    else:
-        SWIG = "/usr/bin/swig"
+    SWIG = "/usr/bin/swig"
 buildvars["SWIG"] = SWIG
 
-# Use the default path for a perl install
+# Location of the perl binary
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
-# The user can override before calling this script or in the distro makefile
 ECMDPERLBIN = ""
 if (args.perl != None):
     ECMDPERLBIN = args.perl
+elif ("ECMDPERLBIN" in os.environ):
+    ECMDPERLBIN = os.environ["ECMDPERLBIN"]
 else:
-    if "ECMDPERLBIN" in os.environ:
-        ECMDPERLBIN = os.environ["ECMDPERLBIN"]
-    else:
-        ECMDPERLBIN = "/usr/bin/perl"
+    ECMDPERLBIN = "/usr/bin/perl"
 buildvars["ECMDPERLBIN"] = ECMDPERLBIN
 
-# Use the default path for a python install
+# Location of the python binary
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
-# The user can override before calling this script or in the distro makefile
 ECMDPYTHONBIN = ""
 if (args.python != None):
     ECMDPYTHONBIN = args.python
+elif ("ECMDPYTHONBIN" in os.environ):
+    ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
 else:
-    if "ECMDPYTHONBIN" in os.environ:
-        ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
-    else:
-        ECMDPYTHONBIN = "/usr/bin/python"
+    ECMDPYTHONBIN = "/usr/bin/python"
 buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
 
-# Use the default path for a python3 install
+# Location of the python3 binary
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
-# The user can override before calling this script or in the distro makefile
 ECMDPYTHON3BIN = ""
 if (args.python3 != None):
     ECMDPYTHON3BIN = args.python3
+elif ("ECMDPYTHON3BIN" in os.environ):
+    ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
 else:
-    if "ECMDPYTHON3BIN" in os.environ:
-        ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
-    else:
-        ECMDPYTHON3BIN = "/usr/bin/python3"
+    ECMDPYTHON3BIN = "/usr/bin/python3"
 buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
+
+# Establish our perl/python include path variables
+# See if the user specified them via the script cmdline or environment
+# If not, we'll loop through the sysroot to look for what is missing
+# perl
+PERLINC = ""
+if (args.perlinc != None):
+    PERLINC = args.perlinc
+elif ("PERLINC" in os.environ):
+    PERLINC = os.environ["PERLINC"]
+
+# python
+PYINC = ""
+if (args.pythoninc != None):
+    PYINC = args.pythoninc
+elif ("PYINC" in os.environ):
+    PYINC = os.environ["PYINC"]
+
+# python3
+PY3INC = ""
+if (args.python3inc != None):
+    PY3INC = args.python3inc
+elif ("PY3INC" in os.environ):
+    PY3INC = os.environ["PY3INC"]
+
+# Do the search for the includes path
+for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
+    for file in files:
+        # Same include for python 2/3, so figure that out after finding the file
+        if (file == "Python.h"):
+            if ("python2" in root):
+                PYINC = "-I" + root
+            if ("python3" in root):
+                PY3INC = "-I" + root
+        # EXTERN.h is unique to perl
+        if (file == "EXTERN.h"):
+            PERLINC = "-I" + root
+
+buildvars["PERLINC"] = PERLINC
+buildvars["PYINC"] = PYINC
+buildvars["PY3INC"] = PY3INC
 
 ##################
 # Setup info around an install
@@ -505,12 +545,11 @@ buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
 # If not, pull it from the env or set the default
 if (args.install_path != None):
     INSTALL_PATH = args.install_path
-else:
+elif ("INSTALL_PATH" in os.environ):
+    INSTALL_PATH = os.environ["INSTALL_PATH"]
+else:    
     # If INSTALL_PATH wasn't given, install into our local dir
-    if "INSTALL_PATH" not in os.environ:
-        INSTALL_PATH = os.path.join(ECMD_ROOT, "install")
-    else:
-        INSTALL_PATH = os.environ["INSTALL_PATH"]
+    INSTALL_PATH = os.path.join(ECMD_ROOT, "install")
 buildvars["INSTALL_PATH"] = INSTALL_PATH
 
 # If not given, create INSTALL_BIN_PATH off INSTALL_PATH
@@ -525,17 +564,18 @@ buildvars["INSTALL_PATH"] = INSTALL_PATH
 # If you want to call config.py to set the value in the env, do it like this:
 # INSTALL_BIN_PATH="\\\\\\\\\$\$\"COMMONPATH\"" ./config.py
 # That escapes all the right things so you end up with \\\\$$ in makefile.config
-if "INSTALL_BIN_PATH" not in os.environ:
-    INSTALL_BIN_PATH = os.path.join(INSTALL_PATH, "bin")
-else:
+if ("INSTALL_BIN_PATH" in os.environ):
     INSTALL_BIN_PATH = os.environ["INSTALL_BIN_PATH"]
+else:
+    INSTALL_BIN_PATH = os.path.join(INSTALL_PATH, "bin")
 buildvars["INSTALL_BIN_PATH"] = INSTALL_BIN_PATH
 
 # If DOXYGEN_PATH wasn't given, use INSTALL_PATH
-if "DOXYGEN_PATH" not in os.environ:
-    DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
-else:
+if ("DOXYGEN_PATH" in os.environ):
     DOXYGEN_PATH = os.environ["DOXYGEN_PATH"]
+else:
+    DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
+
 # Setup our capi/perl/python paths based on DOXYGEN_PATH
 DOXYGEN_CAPI_PATH = os.path.join(DOXYGEN_PATH, "Capi")
 DOXYGEN_PERLAPI_PATH = os.path.join(DOXYGEN_PATH, "Perlapi")
@@ -567,19 +607,76 @@ buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
 DOXYGENBIN = ""
 if (args.doxygen != None):
     DOXYGENBIN = args.doxygen
+elif ("DOXYGENBIN" in os.environ):
+    DOXYGENBIN = os.environ["DOXYGENBIN"]
 else:
-    if "DOXYGENBIN" not in os.environ:
-        DOXYGENBIN = "/usr/bin/doxygen"
-    else:
-        DOXYGENBIN = os.environ["DOXYGENBIN"]
+    DOXYGENBIN = "/usr/bin/doxygen"
 buildvars["DOXYGENBIN"] = DOXYGENBIN
 
 ##################
-# Write out all our variables to makefile.config
-if "MAKEFILE_CONFIG_NAME" not in os.environ:
-    MAKEFILE_CONFIG_NAME = "makefile.config"
+# Look for a distro override file
+# If found, process it and apply any values there over top of anything determined above
+# Now that we have the distro and arch, look for the disto makefile
+# A number of standard distro configs are included
+# Those can be overriden in the included repos
+# If more than 1 override file is found in the included repos, throw an error
+# The user can set DISTRO_OVERRIDE and then we don't do this logic at all
+DISTRO_OVERRIDE = ""
+if "DISTRO_OVERRIDE" in os.environ:
+    DISTRO_OVERRIDE = os.environ["DISTRO_OVERRIDE"]
 else:
+    # This loop includes ecmd-core, which should never have mkconfigs
+    for repo in ECMD_REPOS.split(" "):
+        mkfile = os.path.join(ECMD_ROOT, repo, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        if os.path.exists(mkfile):
+            # This logic is triggered if multiple of the subrepos have the same override
+            if (DISTRO_OVERRIDE != ""):
+                print("ERROR: conflicting distro overrides found!")
+                print("ERROR: %s" % DISTRO_OVERRIDE)
+                print("ERROR: %S" % mkfile)
+                print("Please set DISTRO_OVERRIDE to your choice and re-run this command")
+                sys.exit(1)
+            else:
+                DISTRO_OVERRIDE = mkfile
+    
+    # If there wasn't one found in the sub repos, see if the top level has one
+    if (DISTRO_OVERRIDE == ""):
+        mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        if (os.path.exists(mkfile)):
+            DISTRO_OVERRIDE = mkfile
+
+# If DISTRO_OVERRIDE is set, open the file and process the contents into overridevars
+# overrridevars are put into the makefile.config after the build vars so they can - hey, override!
+overridevars = list()
+overrideexports = list()
+if (DISTRO_OVERRIDE != ""):
+    print("Processing override file %s" % DISTRO_OVERRIDE)
+    orfile = open(DISTRO_OVERRIDE, 'r')
+    for line in orfile:
+        # pull carriage returns
+        line = line.rstrip()
+        # Split on white space
+        pieces = line.split()
+
+        # Blank lines, comments and export statements
+        if (not len(pieces) or (pieces[0][0] == "#")):
+            next;
+        # Grab an export and save that for the makefile.config
+        elif (pieces[0] == "export"):
+            overrideexports.append(line)
+        # Look for := and assign the right the value of the left
+        elif (pieces[1] == ":=" or pieces[1] == "?="):
+            overridevars.append(line)
+        else:
+            print("ERROR: unknown override case - \"%s\"", line)
+            sys.exit(1)
+
+##################
+# Write out all our variables to makefile.config
+if ("MAKEFILE_CONFIG_NAME" in os.environ):
     MAKEFILE_CONFIG_NAME = os.environ["MAKEFILE_CONFIG_NAME"]
+else:
+    MAKEFILE_CONFIG_NAME = "makefile.config"
 
 # Now go thru everything that has been setup and write it out to the file
 print("Writing %s" % os.path.join(ECMD_ROOT, MAKEFILE_CONFIG_NAME))
@@ -592,11 +689,24 @@ config.write("\n")
 for var in sorted(buildvars):
     config.write("%s := %s\n" % (var, buildvars[var]))
 
+# Write out the override variables.  Do this after the basevars so they can.. override!
+# Only do if not empty
+if overridevars:
+    config.write("# These variables are from any distro specific overrides found\n")
+    config.write("# They may undo/change any values established above\n")
+    for var in overridevars:
+        config.write("%s\n" % var)
+
 config.write("\n")
 
 # Export them so they can be referenced by any scripts used in the build
 for var in sorted(buildvars):
     config.write("export %s\n" % var)
+# Add in an exports from makefile overrides
+if overrideexports:
+    config.write("# Exports added from any distro specific overrides found\n")
+    for var in overrideexports:
+        config.write("%s\n" % var)
 
 config.write("\n")
 

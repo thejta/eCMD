@@ -49,9 +49,6 @@ endif
 # Some concluding base makefile info
 # *****************************************************************************
 
-# Include the makefile for this build type
-include ${DISTRO_MAKEFILE}
-
 # If not disabled in the distro makefile, enable build tests
 # Disabling this is usually done when cross compiling
 TEST_BUILD ?= yes
