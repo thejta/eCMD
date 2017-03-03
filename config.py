@@ -613,6 +613,13 @@ else:
     DOXYGENBIN = "/usr/bin/doxygen"
 buildvars["DOXYGENBIN"] = DOXYGENBIN
 
+# Enable build test as long as we aren't cross compiling
+if (HOST_ARCH == TARGET_ARCH):
+    TEST_BUILD = "yes"
+else:
+    TEST_BUILD = "no"
+buildvars["TEST_BUILD"] = TEST_BUILD
+
 ##################
 # Look for a distro override file
 # If found, process it and apply any values there over top of anything determined above
