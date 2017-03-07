@@ -188,7 +188,7 @@ buildvars["ECMD_PLUGINS"] = ' ' . join(sorted(ECMD_PLUGINS.split(" ")))
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
 EXTENSIONS = ""
-if (args.extensions not None):
+if (args.extensions is not None):
     EXTENSIONS = args.extensions
 elif ("EXTENSIONS" in os.environ):
     EXTENSIONS = os.environ["EXTENSIONS"]
@@ -263,7 +263,7 @@ buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 # If the OUTPUT_ROOT was passed in, use that for base directory for generated
 # files. Otherwise use ECMD_ROOT.
 # OUTPUT_ROOT establishes the top level of where all build artifacts will go
-if (args.output_root not None):
+if (args.output_root is not None):
     OUTPUT_ROOT = args.output_root
 elif ("OUTPUT_ROOT" in os.environ):
     OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
@@ -273,7 +273,7 @@ buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
 
 # Determine the HOST_ARCH
 HOST_ARCH = ""
-if (args.host not None):
+if (args.host is not None):
     HOST_ARCH = args.host
 elif ("HOST_ARCH" in os.environ):
     HOST_ARCH = os.environ["HOST_ARCH"]
@@ -295,7 +295,7 @@ buildvars["HOST_BARCH"] = HOST_BARCH
 
 # Determine the TARGET_ARCH
 TARGET_ARCH = ""
-if (args.target not None):
+if (args.target is not None):
     TARGET_ARCH = args.target
 elif ("TARGET_ARCH" in os.environ):
     TARGET_ARCH = os.environ["TARGET_ARCH"]
@@ -336,16 +336,9 @@ buildvars["DISTRO"] = DISTRO
 # AR = the archive creator
 # DEFINES = -D defines to pass thru
 
-# Assign default values, unless the user set them before calling the script
-# The distro makefiles also have the ability to override
-CC = ""
-CC_R = ""
-LD = ""
-LD_R = ""
-AR = ""
-
 # Compiler - CC
-if (args.cc not None):
+CC = ""
+if (args.cc is not None):
     CC = args.cc
 elif ("CC" in os.environ):
     CC = os.environ["CC"]
@@ -354,7 +347,8 @@ else:
 buildvars["CC"] = CC
 
 # Compiler Reentrant - CC_R
-if (args.cc_r not None):
+CC_R = ""
+if (args.cc_r is not None):
     CC_R = args.cc_r
 elif ("CC_R" in os.environ):
     CC_R = os.environ["CC_R"]
@@ -363,7 +357,8 @@ else:
 buildvars["CC_R"] = CC_R
 
 # Linker - LD
-if (args.ld not None):
+LD = ""
+if (args.ld is not None):
     LD = args.ld
 elif ("LD" in os.environ):
     LD = os.environ["LD"]
@@ -372,7 +367,8 @@ else:
 buildvars["LD"] = LD
 
 # Linker Reentrant - LD_R
-if (args.ld_r not None):
+LD_R = ""
+if (args.ld_r is not None):
     LD_R = args.ld_r
 elif ("LD_R" in os.environ):
     LD_R = os.environ["LD_R"]
@@ -381,7 +377,8 @@ else:
 buildvars["LD_R"] = LD_R
 
 # Archive - AR
-if (args.ar not None):
+AR = ""
+if (args.ar is not None):
     AR = args.ar
 elif ("AR" in os.environ):
     AR = os.environ["AR"]
@@ -469,7 +466,7 @@ if (args.no_python3):
 # If not, pull it from the env or set the default
 # The user can override before calling this script or in the distro makefile
 SWIG = ""
-if (args.swig not None):
+if (args.swig is not None):
     SWIG = args.swig
 elif ("SWIG" in os.environ):
     SWIG = os.environ["SWIG"]
@@ -481,7 +478,7 @@ buildvars["SWIG"] = SWIG
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
 ECMDPERLBIN = ""
-if (args.perl not None):
+if (args.perl is not None):
     ECMDPERLBIN = args.perl
 elif ("ECMDPERLBIN" in os.environ):
     ECMDPERLBIN = os.environ["ECMDPERLBIN"]
@@ -493,7 +490,7 @@ buildvars["ECMDPERLBIN"] = ECMDPERLBIN
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
 ECMDPYTHONBIN = ""
-if (args.python not None):
+if (args.python is not None):
     ECMDPYTHONBIN = args.python
 elif ("ECMDPYTHONBIN" in os.environ):
     ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
@@ -505,7 +502,7 @@ buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
 ECMDPYTHON3BIN = ""
-if (args.python3 not None):
+if (args.python3 is not None):
     ECMDPYTHON3BIN = args.python3
 elif ("ECMDPYTHON3BIN" in os.environ):
     ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
@@ -518,21 +515,21 @@ buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
 # If not, we'll loop through the sysroot to look for what is missing
 # perl
 PERLINC = ""
-if (args.perlinc not None):
+if (args.perlinc is not None):
     PERLINC = args.perlinc
 elif ("PERLINC" in os.environ):
     PERLINC = os.environ["PERLINC"]
 
 # python
 PYINC = ""
-if (args.pythoninc not None):
+if (args.pythoninc is not None):
     PYINC = args.pythoninc
 elif ("PYINC" in os.environ):
     PYINC = os.environ["PYINC"]
 
 # python3
 PY3INC = ""
-if (args.python3inc not None):
+if (args.python3inc is not None):
     PY3INC = args.python3inc
 elif ("PY3INC" in os.environ):
     PY3INC = os.environ["PY3INC"]
@@ -558,7 +555,7 @@ buildvars["PY3INC"] = PY3INC
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
 DOXYGENBIN = ""
-if (args.doxygen not None):
+if (args.doxygen is not None):
     DOXYGENBIN = args.doxygen
 elif ("DOXYGENBIN" in os.environ):
     DOXYGENBIN = os.environ["DOXYGENBIN"]
@@ -588,7 +585,7 @@ buildvars["VERBOSE"] = VERBOSE
 
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
-if (args.install_path not None):
+if (args.install_path is not None):
     INSTALL_PATH = args.install_path
 elif ("INSTALL_PATH" in os.environ):
     INSTALL_PATH = os.environ["INSTALL_PATH"]
