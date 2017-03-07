@@ -15,6 +15,15 @@ import re
 import argparse
 import subprocess
 
+#######################################
+# Create the cmdline objects and args #
+#######################################
+
+# Add into -h text to describe variable determination via this script
+# 1) Script command line args
+# 2) From environment variables
+# 3) Automatic determination if possible
+
 parser = argparse.ArgumentParser(description="This script creates all the variables necessary to buid eCMD", add_help = False)
 # Group for required args so the help displays properly
 reqgroup = parser.add_argument_group('Required Arguments')
@@ -96,8 +105,8 @@ optgroup.add_argument("--no-python", help="Disable python module build", action=
 # --no-python3
 optgroup.add_argument("--no-python3", help="Disable python3 module build", action='store_true')
 
-# --disable-build-test
-optgroup.add_argument("--disable-build-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
+# --build-disable-test
+optgroup.add_argument("--build-disable-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
 
 # Parse the cmdline for the args we just added
 args = parser.parse_args()
@@ -105,9 +114,9 @@ args = parser.parse_args()
 # Store any variables we wish to write to the makefiles here
 buildvars = dict()
 
-##############################
-# Figure out a number of variables where our eCMD source is
-#
+#########################################################
+# Determine all the build variables required build eCMD #
+#########################################################
 
 # First, determine our ECMD_ROOT variable
 # ECMD_ROOT is the top level directory of the ecmd source repo
@@ -243,14 +252,14 @@ buildvars["EXT_PYAPI"] = EXT_PYAPI
 EXT_TEMPLATE_PATH = os.path.join(ECMD_CORE, "ext", "template")
 buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 
-##############################
-# We've figured out a bunch of stuff about our eCMD source available
-# Now let's setup up all the info about our build environment
+###################################################################
+# We've deterimined a bunch of stuff about what to build for eCMD #
+# Now let's setup up all the info about our build environment     #
+###################################################################
 
 # If the OUTPUT_ROOT was passed in, use that for base directory for generated
-# files. Otherwise use ECMD_ROOT
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
+# files. Otherwise use ECMD_ROOT.
+# OUTPUT_ROOT establishes the top level of where all build artifacts will go
 if (args.output_root != None):
     OUTPUT_ROOT = args.output_root
 elif ("OUTPUT_ROOT" in os.environ):
@@ -259,33 +268,36 @@ else:
     OUTPUT_ROOT = ECMD_ROOT
 buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
 
-# Grab the HOST_ARCH
-# See if the user specified it via the script cmdline
-# If not, set the default
+# Determine the HOST_ARCH
 HOST_ARCH = ""
 if (args.host != None):
     HOST_ARCH = args.host
-elif (platform.system() == "AIX"):
-    atuple = platform.architecture()
-    if (atuple[0] == "32bit"):
-        HOST_ARCH="aix"
-    else:
-        HOST_ARCH="aix64"
+elif ("HOST_ARCH" in os.environ):
+    HOST_ARCH = os.environ["HOST_ARCH"]
 else:
-    HOST_ARCH = platform.machine()
+    if (platform.system() == "AIX"):
+        atuple = platform.architecture()
+        if (atuple[0] == "32bit"):
+            HOST_ARCH="aix"
+        else:
+            HOST_ARCH="aix64"
+    else:
+        # Linux
+        HOST_ARCH = platform.machine()
 buildvars["HOST_ARCH"] = HOST_ARCH
 
 # Set the host base arch.  Just happens to be the first 3 characters
-buildvars["HOST_BARCH"] = HOST_ARCH[0:3]
+HOST_BARCH = HOST_ARCH[0:3]
+buildvars["HOST_BARCH"] = HOST_BARCH
 
-# If the TARGET_ARCH was passed in, use that.  Otherwise, HOST_ARCH
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
+# Determine the TARGET_ARCH
+TARGET_ARCH = ""
 if (args.target != None):
     TARGET_ARCH = args.target
 elif ("TARGET_ARCH" in os.environ):
     TARGET_ARCH = os.environ["TARGET_ARCH"]
 else:
+    # Not given, default to the HOST_ARCH
     TARGET_ARCH = HOST_ARCH
 buildvars["TARGET_ARCH"] = TARGET_ARCH
 
@@ -328,7 +340,8 @@ CC_R = ""
 LD = ""
 LD_R = ""
 AR = ""
-# Compiler
+
+# Compiler - CC
 if (args.cc != None):
     CC = args.cc
 elif ("CC" in os.environ):
@@ -337,7 +350,7 @@ else:
     CC = "/usr/bin/g++"
 buildvars["CC"] = CC
 
-# Compiler Reentrant
+# Compiler Reentrant - CC_R
 if (args.cc_r != None):
     CC_R = args.cc_r
 elif ("CC_R" in os.environ):
@@ -346,7 +359,7 @@ else:
     CC_R = "/usr/bin/g++"
 buildvars["CC_R"] = CC_R
 
-# Linker
+# Linker - LD
 if (args.ld != None):
     LD = args.ld
 elif ("LD" in os.environ):
@@ -355,7 +368,7 @@ else:
     LD = "/usr/bin/g++"
 buildvars["LD"] = LD
 
-# Linker Reentrant
+# Linker Reentrant - LD_R
 if (args.ld_r != None):
     LD_R = args.ld_r
 elif ("LD_R" in os.environ):
@@ -364,7 +377,7 @@ else:
     LD_R = "/usr/bin/g++"
 buildvars["LD_R"] = LD_R
 
-# Archive
+# Archive - AR
 if (args.ar != None):
     AR = args.ar
 elif ("AR" in os.environ):
@@ -538,8 +551,28 @@ buildvars["PERLINC"] = PERLINC
 buildvars["PYINC"] = PYINC
 buildvars["PY3INC"] = PY3INC
 
-##################
-# Setup info around an install
+# Define where to get the doxygen executable from
+# See if the user specified it via the script cmdline
+# If not, pull it from the env or set the default
+DOXYGENBIN = ""
+if (args.doxygen != None):
+    DOXYGENBIN = args.doxygen
+elif ("DOXYGENBIN" in os.environ):
+    DOXYGENBIN = os.environ["DOXYGENBIN"]
+else:
+    DOXYGENBIN = "/usr/bin/doxygen"
+buildvars["DOXYGENBIN"] = DOXYGENBIN
+
+# Enable build test as long as we aren't cross compiling
+if (HOST_ARCH == TARGET_ARCH):
+    TEST_BUILD = "yes"
+else:
+    TEST_BUILD = "no"
+buildvars["TEST_BUILD"] = TEST_BUILD
+
+#######################################
+# Setup info around doing the install #
+#######################################
 
 # See if the user specified it via the script cmdline
 # If not, pull it from the env or set the default
@@ -601,27 +634,10 @@ else:
     DOXYGEN_ECMD_VERSION = os.environ["DOXYGEN_ECMD_VERSION"]
 buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
 
-# Define where to get the doxygen executable from
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-DOXYGENBIN = ""
-if (args.doxygen != None):
-    DOXYGENBIN = args.doxygen
-elif ("DOXYGENBIN" in os.environ):
-    DOXYGENBIN = os.environ["DOXYGENBIN"]
-else:
-    DOXYGENBIN = "/usr/bin/doxygen"
-buildvars["DOXYGENBIN"] = DOXYGENBIN
+###################################
+# Look for a distro override file #
+###################################
 
-# Enable build test as long as we aren't cross compiling
-if (HOST_ARCH == TARGET_ARCH):
-    TEST_BUILD = "yes"
-else:
-    TEST_BUILD = "no"
-buildvars["TEST_BUILD"] = TEST_BUILD
-
-##################
-# Look for a distro override file
 # If found, process it and apply any values there over top of anything determined above
 # Now that we have the distro and arch, look for the disto makefile
 # A number of standard distro configs are included
@@ -678,8 +694,11 @@ if (DISTRO_OVERRIDE != ""):
             print("ERROR: unknown override case - \"%s\"", line)
             sys.exit(1)
 
-##################
-# Write out all our variables to makefile.config
+##################################################
+# Write out all our variables to makefile.config #
+##################################################
+
+# Get the makefile.config to use, otherwise use the default
 if ("MAKEFILE_CONFIG_NAME" in os.environ):
     MAKEFILE_CONFIG_NAME = os.environ["MAKEFILE_CONFIG_NAME"]
 else:
@@ -703,7 +722,6 @@ if overridevars:
     config.write("# They may undo/change any values established above\n")
     for var in overridevars:
         config.write("%s\n" % var)
-
 config.write("\n")
 
 # Export them so they can be referenced by any scripts used in the build
@@ -714,7 +732,6 @@ if overrideexports:
     config.write("# Exports added from any distro specific overrides found\n")
     for var in overrideexports:
         config.write("%s\n" % var)
-
 config.write("\n")
 
 # Write our optional extension makefile.config includes
