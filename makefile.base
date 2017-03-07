@@ -19,9 +19,6 @@ MAKEFILE_BASE := y
 %: s.%
 %: SCCS/s.%
 
-# Remove the @ when debugging build problems to see more output
-VERBOSE := @
-
 #These are needed to define a space char for substitutions later on
 empty :=
 space := ${empty} ${empty}

@@ -108,6 +108,9 @@ optgroup.add_argument("--no-python3", help="Disable python3 module build", actio
 # --build-disable-test
 optgroup.add_argument("--build-disable-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
 
+# --build-verbose
+optgroup.add_argument("--build-verbose", help="Enable verbose messaging during builds.  Displays compiler calls, etc..", action='store_true')
+
 # Parse the cmdline for the args we just added
 args = parser.parse_args()
 
@@ -569,6 +572,15 @@ if (HOST_ARCH == TARGET_ARCH):
 else:
     TEST_BUILD = "no"
 buildvars["TEST_BUILD"] = TEST_BUILD
+
+# Enable verbose build option
+# By default, we want it quiet which is @
+VERBOSE = "@"
+if (args.build_verbose):
+    VERBOSE = ""
+elif ("VERBOSE" in os.environ):
+    VERBOSE = os.environ["VERBOSE"]
+buildvars["VERBOSE"] = VERBOSE
 
 #######################################
 # Setup info around doing the install #
