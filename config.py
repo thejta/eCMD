@@ -696,16 +696,18 @@ if (not args.without_swig):
 
     for line in cmdsplit:
         if ("SWIG Version" in line):
-            # SWIG Version 3.0.8
+            # SWIG Version 3.1.8
+            # Swig versioning is 3 numbers and doesn't usually go above a 10's value
+            # To pad it, we'll use 100's
+            # So we'll turn 3.1.8 into 003001008
+            # The version we want to check is 2.0.11.  If our converted number is less than 2000011, it's not valid
             version = line.split()[2]
-            print(version)
             versplit = line.split('.')
-            if (versplit[0] <= 2):
-                if (versplit[1] <= 0):
-                    if (versplit[2] < 11):
-                        print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
-                        print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
-                        sys.exit(1)
+            verNoFloat = versplit[0] * 1000000 + versplit[1] * 1000 + versplit[2]
+            if (verNoFloat < 2000011):
+                print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
+                print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
+                sys.exit(1)
 
 
         
