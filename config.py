@@ -555,12 +555,12 @@ if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
         for file in files:
             # Same include for python 2/3, so figure that out after finding the file
             if (file == "Python.h"):
-                if ((PY3INC != "") and ("python2" in root)):
+                if ((PYINC == "") and ("python2" in root)):
                     PYINC = "-I" + root
-                if ("python3" in root):
+                if ((PY3INC == "") and ("python3" in root)):
                     PY3INC = "-I" + root
             # EXTERN.h is unique to perl
-            if (file == "EXTERN.h"):
+            if ((PERLINC == "") and (file == "EXTERN.h")):
                 PERLINC = "-I" + root
 
 # If set, make sure it's valid then save it
