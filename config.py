@@ -702,8 +702,8 @@ if (not args.without_swig):
             # So we'll turn 3.1.8 into 003001008
             # The version we want to check is 2.0.11.  If our converted number is less than 2000011, it's not valid
             version = line.split()[2]
-            versplit = line.split('.')
-            verNoFloat = versplit[0] * 1000000 + versplit[1] * 1000 + versplit[2]
+            versplit = version.split('.')
+            verNoFloat = (int(versplit[0]) * 1000000) + (int(versplit[1]) * 1000) + int(versplit[2])
             if (verNoFloat < 2000011):
                 print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
                 print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
