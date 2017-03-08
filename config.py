@@ -93,17 +93,20 @@ optgroup.add_argument("--output-root", help="The location to place build output"
 # --extensions
 optgroup.add_argument("--extensions", help="Filter down the list of extensions to build")
 
-# --no-sim
-optgroup.add_argument("--no-sim", help="Enable REMOVE_SIM in build", action='store_true')
+# --remove-sim
+optgroup.add_argument("--remove-sim", help="Enable REMOVE_SIM in build", action='store_true')
 
-# --no-perl
-optgroup.add_argument("--no-perl", help="Disable perl module build", action='store_true')
+# --without-swig
+optgroup.add_argument("--without-swig", help="Disable all swig actions", action='store_true')
 
-# --no-python
-optgroup.add_argument("--no-python", help="Disable python module build", action='store_true')
+# --without-perl
+optgroup.add_argument("--without-perl", help="Disable perl module build", action='store_true')
 
-# --no-python3
-optgroup.add_argument("--no-python3", help="Disable python3 module build", action='store_true')
+# --without-python
+optgroup.add_argument("--without-python", help="Disable python module build", action='store_true')
+
+# --without-python3
+optgroup.add_argument("--without-python3", help="Disable python3 module build", action='store_true')
 
 # --build-disable-test
 optgroup.add_argument("--build-disable-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
@@ -429,7 +432,7 @@ else:
     DEFINES += " -DAIX"
 
 # See if REMOVE_SIM is enabled from the cmdline
-if (args.no_sim):
+if (args.remove_sim):
     DEFINES += " -DREMOVE_SIM"
     
 # Export everything we defined
@@ -451,109 +454,140 @@ buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 
+
+###################################
+# Setup for creating SWIG outputs #
+###################################
+
 # Check for optional args to disable building of perl and python module
-if (args.no_perl):
-    buildvars["CREATE_PERLAPI"] = "no"
-
-if (args.no_python):
-    buildvars["CREATE_PYAPI"] = "no"
-
-if (args.no_python3):
-    buildvars["CREATE_PY3API"] = "no"
-
-# Use the default path for a swig install
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-# The user can override before calling this script or in the distro makefile
-SWIG = ""
-if (args.swig is not None):
-    SWIG = args.swig
-elif ("SWIG" in os.environ):
-    SWIG = os.environ["SWIG"]
+if (args.without_swig or args.without_perl):
+    CREATE_PERLAPI = "no"
 else:
-    SWIG = "/usr/bin/swig"
-buildvars["SWIG"] = SWIG
+    CREATE_PERLAPI = "yes"
+buildvars["CREATE_PERLAPI"] = CREATE_PERLAPI
+
+if (args.without_swig or args.without_python):
+    CREATE_PYAPI = "no"
+else:
+    CREATE_PYAPI = "yes"
+buildvars["CREATE_PYAPI"] = CREATE_PYAPI
+
+if (args.without_swig or args.without_python3):
+    CREATE_PY3API = "no"
+else:
+    CREATE_PY3API = "yes"
+buildvars["CREATE_PY3API"] = CREATE_PY3API
+
+# The swig executable to use
+if (not args.without_swig):
+    SWIG = ""
+    if (args.swig is not None):
+        SWIG = args.swig
+    elif ("SWIG" in os.environ):
+        SWIG = os.environ["SWIG"]
+    else:
+        SWIG = "/usr/bin/swig"
+    buildvars["SWIG"] = SWIG
 
 # Location of the perl binary
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-ECMDPERLBIN = ""
-if (args.perl is not None):
-    ECMDPERLBIN = args.perl
-elif ("ECMDPERLBIN" in os.environ):
-    ECMDPERLBIN = os.environ["ECMDPERLBIN"]
-else:
-    ECMDPERLBIN = "/usr/bin/perl"
-buildvars["ECMDPERLBIN"] = ECMDPERLBIN
+if (CREATE_PERLAPI == "yes"):
+    ECMDPERLBIN = ""
+    if (args.perl is not None):
+        ECMDPERLBIN = args.perl
+    elif ("ECMDPERLBIN" in os.environ):
+        ECMDPERLBIN = os.environ["ECMDPERLBIN"]
+    else:
+        ECMDPERLBIN = "/usr/bin/perl"
+    buildvars["ECMDPERLBIN"] = ECMDPERLBIN
 
 # Location of the python binary
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-ECMDPYTHONBIN = ""
-if (args.python is not None):
-    ECMDPYTHONBIN = args.python
-elif ("ECMDPYTHONBIN" in os.environ):
-    ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
-else:
-    ECMDPYTHONBIN = "/usr/bin/python"
-buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
+if (CREATE_PYAPI == "yes"):
+    ECMDPYTHONBIN = ""
+    if (args.python is not None):
+        ECMDPYTHONBIN = args.python
+    elif ("ECMDPYTHONBIN" in os.environ):
+        ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
+    else:
+        ECMDPYTHONBIN = "/usr/bin/python"
+    buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
 
 # Location of the python3 binary
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
-ECMDPYTHON3BIN = ""
-if (args.python3 is not None):
-    ECMDPYTHON3BIN = args.python3
-elif ("ECMDPYTHON3BIN" in os.environ):
-    ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
-else:
-    ECMDPYTHON3BIN = "/usr/bin/python3"
-buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
+if (CREATE_PY3API == "yes"):
+    ECMDPYTHON3BIN = ""
+    if (args.python3 is not None):
+        ECMDPYTHON3BIN = args.python3
+    elif ("ECMDPYTHON3BIN" in os.environ):
+        ECMDPYTHON3BIN = os.environ["ECMDPYTHON3BIN"]
+    else:
+        ECMDPYTHON3BIN = "/usr/bin/python3"
+    buildvars["ECMDPYTHON3BIN"] = ECMDPYTHON3BIN
 
-# Establish our perl/python include path variables
-# See if the user specified them via the script cmdline or environment
-# If not, we'll loop through the sysroot to look for what is missing
-# perl
-PERLINC = ""
-if (args.perlinc is not None):
-    PERLINC = args.perlinc
-elif ("PERLINC" in os.environ):
-    PERLINC = os.environ["PERLINC"]
+# perl include path
+PERLINC = None
+if (CREATE_PERLAPI == "yes"):
+    PERLINC = ""
+    if (args.perlinc is not None):
+        PERLINC = args.perlinc
+    elif ("PERLINC" in os.environ):
+        PERLINC = os.environ["PERLINC"]
 
-# python
-PYINC = ""
-if (args.pythoninc is not None):
-    PYINC = args.pythoninc
-elif ("PYINC" in os.environ):
-    PYINC = os.environ["PYINC"]
+# python include path
+PYINC = None
+if (CREATE_PYAPI == "yes"):
+    PYINC = ""
+    if (args.pythoninc is not None):
+        PYINC = args.pythoninc
+    elif ("PYINC" in os.environ):
+        PYINC = os.environ["PYINC"]
 
 # python3
-PY3INC = ""
-if (args.python3inc is not None):
-    PY3INC = args.python3inc
-elif ("PY3INC" in os.environ):
-    PY3INC = os.environ["PY3INC"]
+PY3INC = None
+if (CREATE_PY3API == "yes"):
+    PY3INC = ""
+    if (args.python3inc is not None):
+        PY3INC = args.python3inc
+    elif ("PY3INC" in os.environ):
+        PY3INC = os.environ["PY3INC"]
 
 # Do the search for the includes path
-for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
-    for file in files:
-        # Same include for python 2/3, so figure that out after finding the file
-        if (file == "Python.h"):
-            if ("python2" in root):
-                PYINC = "-I" + root
-            if ("python3" in root):
-                PY3INC = "-I" + root
-        # EXTERN.h is unique to perl
-        if (file == "EXTERN.h"):
-            PERLINC = "-I" + root
+if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
+    for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
+        for file in files:
+            # Same include for python 2/3, so figure that out after finding the file
+            if (file == "Python.h"):
+                if ((PY3INC != "") and ("python2" in root)):
+                    PYINC = "-I" + root
+                if ("python3" in root):
+                    PY3INC = "-I" + root
+            # EXTERN.h is unique to perl
+            if (file == "EXTERN.h"):
+                PERLINC = "-I" + root
 
-buildvars["PERLINC"] = PERLINC
-buildvars["PYINC"] = PYINC
-buildvars["PY3INC"] = PY3INC
+# If set, make sure it's valid then save it
+if (PERLINC is not None):
+    if (PERLINC == ""):
+        print("ERROR: Unable to determine path to perl includes")
+        print("ERROR: Please install the perl includes, specify the path via --perlinc or disable perl module build")
+        sys.exit(1)
+    buildvars["PERLINC"] = PERLINC
+if (PYINC is not None):
+    if (PYINC == ""):
+        print("ERROR: Unable to determine path to python includes")
+        print("ERROR: Please install the python includes, specify the path via --pyinc or disable python module build")
+        sys.exit(1)
+    buildvars["PYINC"] = PYINC
+if (PY3INC is not None):
+    if (PY3INC == ""):
+        print("ERROR: Unable to determine path to python3 includes")
+        print("ERROR: Please install the python3 includes, specify the path via --py3inc or disable python3 module build")
+        sys.exit(1)
+    buildvars["PY3INC"] = PY3INC
 
-# Define where to get the doxygen executable from
-# See if the user specified it via the script cmdline
-# If not, pull it from the env or set the default
+#################################
+# Misc. variables for the build #
+#################################
+
+# Where to get the doxygen binary
 DOXYGENBIN = ""
 if (args.doxygen is not None):
     DOXYGENBIN = args.doxygen
@@ -567,6 +601,10 @@ buildvars["DOXYGENBIN"] = DOXYGENBIN
 if (HOST_ARCH == TARGET_ARCH):
     TEST_BUILD = "yes"
 else:
+    TEST_BUILD = "no"
+
+# Enabling build test doesn't matter if you user disabled it from the command line
+if (args.build_disable_test):
     TEST_BUILD = "no"
 buildvars["TEST_BUILD"] = TEST_BUILD
 
@@ -643,14 +681,40 @@ else:
     DOXYGEN_ECMD_VERSION = os.environ["DOXYGEN_ECMD_VERSION"]
 buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
 
+###########################################################
+# Test certain components of the build for version, etc.. #
+###########################################################
+
+# The minimum required version of SWIG for eCMD to build
+# properly is version 2.0.11.  Check that version.
+if (not args.without_swig):
+    cmdout = subprocess.Popen([SWIG, "-version"],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          stdin=subprocess.PIPE).communicate()[0]
+    cmdsplit = cmdout.split('\n')
+
+    for line in cmdsplit:
+        if ("SWIG Version" in line):
+            # SWIG Version 3.0.8
+            version = line.split()[2]
+            print(version)
+            versplit = line.split('.')
+            if (versplit[0] <= 2):
+                if (versplit[1] <= 0):
+                    if (versplit[2] < 11):
+                        print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
+                        print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
+                        sys.exit(1)
+
+
+        
 ###################################
 # Look for a distro override file #
 ###################################
 
 # If found, process it and apply any values there over top of anything determined above
-# Now that we have the distro and arch, look for the disto makefile
-# A number of standard distro configs are included
-# Those can be overriden in the included repos
+# Now that we have the distro and arch, look for the disto overrride file
 # If more than 1 override file is found in the included repos, throw an error
 # The user can set DISTRO_OVERRIDE and then we don't do this logic at all
 DISTRO_OVERRIDE = ""
@@ -690,13 +754,13 @@ if (DISTRO_OVERRIDE != ""):
         # Split on white space
         pieces = line.split()
 
-        # Blank lines, comments and export statements
+        # Ignore blank lines and comments
         if (not len(pieces) or (pieces[0][0] == "#")):
             next;
         # Grab an export and save that for the makefile.config
         elif (pieces[0] == "export"):
             overrideexports.append(line)
-        # Look for := and assign the right the value of the left
+        # Look for := or the ?= and save away the line for writing back out
         elif (pieces[1] == ":=" or pieces[1] == "?="):
             overridevars.append(line)
         else:
