@@ -188,53 +188,67 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   if(*handle != NULL)
     return rc;
 
+  const char * devices[3][2] = {
+    {"", ""},
+    {"/sys/devices/platform/fsi-master/slave@00:00/raw",
+     "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"},
+    {"/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
+     "/sys/devices/hub@00/slave@01:00/raw"}};
+
   /* We need to open the device*/
-  if (flags & INSTRUCTION_FLAG_DEVSTR) {
-    /* Figure out the slave device based on the deviceString */
-    std::istringstream iss;
-    iss.str(deviceString);
-    uint32_t l_idx = 0;
-    iss >> l_idx;
-    /* Validate and adjust the device string for the device to open */
-    if (l_idx == 1) {
-      snprintf(device, 100, "/sys/bus/platform/devices/fsi-master/slave@00:00/raw");
-    } else if (l_idx == 2) {
-      snprintf(device, 100, "/sys/devices/hub@00/slave@01:00/raw");
-    } else {
-      *handle = NULL;
-      snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
-      o_status.errorMessage.append(errstr);
-      return SERVER_INVALID_FSI_DEVICE;
-    }
-  } else {
+  if ((flags & INSTRUCTION_FLAG_DEVSTR) == 0) {
     //ERROR
     *handle = NULL;
     snprintf(errstr, 200, "ServerFSIInstruction::mbx_open INSTRUCTION_FLAG_DEVSTR must be set\n");
     o_status.errorMessage.append(errstr);
     return SERVER_INVALID_FSI_DEVICE;
   }
-  errno = 0;
 
-  if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open(%s, O_RDWR | O_SYNC)\n", device);
+  /* Figure out the slave device based on the deviceString */
+  std::istringstream iss;
+  iss.str(deviceString);
+  uint32_t l_idx = 0;
+  iss >> l_idx;
+
+  if ((l_idx != 1) && (l_idx != 2)) {
+    *handle = NULL;
+    snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
     o_status.errorMessage.append(errstr);
+    return SERVER_INVALID_FSI_DEVICE;
   }
 
+  for (uint32_t l_try = 0; l_try < 2; l_try++) {
+    /* Validate and adjust the device string for the device to open */
+    snprintf(device, 100, devices[l_idx][l_try]);
+
+    errno = 0;
+
+    if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+      snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open(%s, O_RDWR | O_SYNC)\n", device);
+      o_status.errorMessage.append(errstr);
+    }
+
 #ifdef TESTING
-  TEST_PRINT("*handle = adal_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
-  *handle = (Handle *) 0x1;
+    TEST_PRINT("*handle = adal_mbx_open(%s, O_RDWR | O_SYNC);\n", device);
+    *handle = (Handle *) 0x1;
 #else
-  *handle = (Handle *) adal_mbx_open(device, O_RDWR | O_SYNC);
+    *handle = (Handle *) adal_mbx_open(device, O_RDWR | O_SYNC);
 #endif
 
-  if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-    snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open() *handle = %p\n", *handle);
-    o_status.errorMessage.append(errstr);
+    if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+      snprintf(errstr, 200, "SERVER_DEBUG : adal_mbx_open() *handle = %p\n", *handle);
+      o_status.errorMessage.append(errstr);
+    }
+
+    if (*handle == NULL) {
+      snprintf(errstr, 200, "ServerFSIInstruction::mbx_open Problem opening FSI device %s : errno %d\n", device, errno);
+      o_status.errorMessage.append(errstr);
+    } else {
+      break;
+    }
   }
 
   if (*handle == NULL) {
-    snprintf(errstr, 200, "ServerFSIInstruction::mbx_open Problem opening FSI device %s : errno %d\n", device, errno);
-    o_status.errorMessage.append(errstr);
     return SERVER_INVALID_FSI_DEVICE;
   }
 

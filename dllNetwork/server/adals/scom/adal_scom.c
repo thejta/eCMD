@@ -32,8 +32,10 @@ static const char copyright [] __attribute__((unused)) =
 #include <stdio.h>
 #include "adal_scom.h"
 
-static const char *fsiraw =
+static const char *fsirawold =
 	"/sys/bus/platform/devices/fsi-master/slave@00:00/raw";
+static const char *fsiraw =
+	"/sys/devices/platform/fsi-master/slave@00:00/raw";
 
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
@@ -195,6 +197,10 @@ ssize_t adal_scom_get_register(adal_t *adal, int registerNo,
 
 	int rc;
 	int fd = open(fsiraw, O_RDONLY);
+	if (fd == -1)
+	{
+		fd = open(fsirawold, O_RDONLY);
+	}
 	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
@@ -212,6 +218,10 @@ ssize_t adal_scom_set_register(adal_t *adal, int registerNo,
 {
 	int rc;
 	int fd = open(fsiraw, O_WRONLY);
+	if (fd == -1)
+	{
+		fd = open(fsirawold, O_RDONLY);
+	}
 	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
