@@ -686,10 +686,36 @@ uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit, uint32_t i_len) {
     ETRAC3("**** ERROR : ecmdDataBufferBase::clearBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+  // The following code will call recursively
+  // breaking up the request into portions that contain whole words
+  // where memset can be used to optimally clear bits
   
-  for (uint32_t idx = 0; idx < i_len; idx ++) {
-    rc |= this->clearBit(i_bit + idx);
-  }   
+  if (((i_bit % 32) == 0) && (i_len >= 32)) {
+    // word aligned start and greater that word length
+    int index = i_bit/32;
+    int length = i_len/32;
+    memset(iv_Data + index, 0x00, length * 4);
+
+    // clear bits of any remainder of i_len
+    if (i_len % 32) {
+      rc |= clearBit(i_bit + (length * 32), i_len - (length * 32));
+    }
+  } else if (((i_bit + i_len) / 32) - (i_bit / 32) >= 2) {
+    // unaligned start and end covering a word
+
+    // call clearBit() unaligned and smaller than 32
+    int l_len = 32 - (i_bit % 32);
+    rc |= clearBit(i_bit, l_len);
+
+    // call clearBit() with start aligned to word boundary
+    rc |= clearBit(i_bit + l_len, i_len - l_len);
+    
+  } else {
+    // any case not containing a whole word
+    for (uint32_t idx = 0; idx < i_len; idx ++) {
+      rc |= this->clearBit(i_bit + idx);
+    }   
+  }
   
   return rc;
 }
