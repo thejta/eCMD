@@ -24,9 +24,30 @@ import subprocess
 # 2) From environment variables
 # 3) Automatic determination if possible
 
-parser = argparse.ArgumentParser(description="This script creates all the variables necessary to buid eCMD", add_help = False)
+parser = argparse.ArgumentParser(add_help=False, formatter_class=argparse.RawTextHelpFormatter,
+                                 description=textwrap.dedent('''\
+                                 This script creates all the variables necessary to build eCMD
+
+                                 It determines the proper values in 3 ways:
+                                 1) Command line options to this script
+                                 2) Environment variables defined when script is invoked
+                                 3) Looking in default locations (i.e. /usr/bin/g++)
+
+                                 For most users building using the default packages of their distro,
+                                 no options should be required.
+                                 '''), 
+                                 epilog=textwrap.dedent('''\
+                                 Examples:
+                                   ./config.py
+                                   ./config.py --swig /usr/local/swig/bin/swig
+                                   EXTENSIONS="cmd cip" ./config.py
+                                 ''')
+)
+
 # Group for required args so the help displays properly
 reqgroup = parser.add_argument_group('Required Arguments')
+# No required command line args!
+
 # Group for the optional args so the help displays properly
 optgroup = parser.add_argument_group('Optional Arguments')
 
@@ -37,82 +58,106 @@ optgroup = parser.add_argument_group('Optional Arguments')
 optgroup.add_argument("-h", "--help", help="Show this message and exit", action="help")
 
 # --install-path
-optgroup.add_argument("--install-path", help="Path to install to")
+#optgroup.add_argument("--install-path", help="Path to install to")
+optgroup.add_argument("--install-path", help="Path to install to\n"
+                                              "INSTALL_PATH from the environment")
 
 # --host
-optgroup.add_argument("--host", help="The host architecture")
+optgroup.add_argument("--host", help="The host architecture\n"
+                                     "HOST_ARCH from the environment")
 
 # --target
-optgroup.add_argument("--target", help="The target architecture")
+optgroup.add_argument("--target", help="The target architecture\n"
+                                       "TARGET_ARCH from the environment")
 
 # --cc
-optgroup.add_argument("--cc", help="The compiler to use")
+optgroup.add_argument("--cc", help="The compiler to use\n"
+                                   "CC from the environment")
 
 # --cc_r
-optgroup.add_argument("--cc_r", help="The reentrant compiler to use (AIX only)")
+optgroup.add_argument("--cc_r", help="The reentrant compiler to use (AIX only)\n"
+                                     "CC_R from the environment")
 
 # --ld
-optgroup.add_argument("--ld", help="The linker to use")
+optgroup.add_argument("--ld", help="The linker to use\n"
+                                   "LD from the environment")
 
 # --ld_r
-optgroup.add_argument("--ld_r", help="The reentrant linker to use (AIX only)")
+optgroup.add_argument("--ld_r", help="The reentrant linker to use (AIX only)\n"
+                                     "LD_R from the environment")
 
 # --ar
-optgroup.add_argument("--ar", help="The archive creator to use")
+optgroup.add_argument("--ar", help="The archive creator to use\n"
+                                   "AR from the environment")
 
 # --sysroot
 optgroup.add_argument("--sysroot", help="The system root to us.  Default is /", default='/')
 
 # --swig
-optgroup.add_argument("--swig", help="The swig executable to use")
+optgroup.add_argument("--swig", help="The swig executable to use\n"
+                                     "SWIG from the environment")
 
 # --perl
-optgroup.add_argument("--perl", help="The perl executable to use")
+optgroup.add_argument("--perl", help="The perl executable to use\n"
+                                     "ECMDPERLBIN from the environment")
 
 # --perlinc
-optgroup.add_argument("--perlinc", help="The perl include path to use")
+optgroup.add_argument("--perlinc", help="The perl include path to use\n"
+                                        "PERLINC from the environment")
 
 # --python
-optgroup.add_argument("--python", help="The python executable to use")
+optgroup.add_argument("--python", help="The python executable to use\n"
+                                       "ECMDPYTHONBIN from the environment")
 
 # --pythoninc
-optgroup.add_argument("--pythoninc", help="The python include path to use")
+optgroup.add_argument("--pythoninc", help="The python include path to use\n"
+                                          "PYINC from the environment")
 
 # --python3
-optgroup.add_argument("--python3", help="The python3 executable to use")
+optgroup.add_argument("--python3", help="The python3 executable to use\n"
+                                        "ECMDPYTHON3BIN from the environment")
 
 # --python3inc
-optgroup.add_argument("--python3inc", help="The python3 include path to use")
+optgroup.add_argument("--python3inc", help="The python3 include path to use\n"
+                                           "PY3INC from the environment")
 
 # --doxygen
-optgroup.add_argument("--doxygen", help="The doxygen executable to use")
+optgroup.add_argument("--doxygen", help="The doxygen executable to use\n"
+                                        "DOXYGENBIN from the environment")
 
 # --output-root
-optgroup.add_argument("--output-root", help="The location to place build output")
+optgroup.add_argument("--output-root", help="The location to place build output\n"
+                                            "OUTPUT_ROOT from the environment")
 
 # --extensions
-optgroup.add_argument("--extensions", help="Filter down the list of extensions to build")
+optgroup.add_argument("--extensions", help="Filter down the list of extensions to build\n"
+                                           "EXTENSIONS from the environment")
 
 # --remove-sim
-optgroup.add_argument("--remove-sim", help="Enable REMOVE_SIM in build", action='store_true')
+optgroup.add_argument("--remove-sim", action='store_true', help="Enable REMOVE_SIM in build")
 
 # --without-swig
-optgroup.add_argument("--without-swig", help="Disable all swig actions", action='store_true')
+optgroup.add_argument("--without-swig", action='store_true', help="Disable all swig actions")
 
 # --without-perl
-optgroup.add_argument("--without-perl", help="Disable perl module build", action='store_true')
+optgroup.add_argument("--without-perl", action='store_true', help="Disable perl module build\n"
+                                                                  "CREATE_PERLAPI from the environment")
 
 # --without-python
-optgroup.add_argument("--without-python", help="Disable python module build", action='store_true')
+optgroup.add_argument("--without-python", action='store_true', help="Disable python module build\n"
+                                                                    "CREATE_PYAPI from the environment")
 
 # --without-python3
-optgroup.add_argument("--without-python3", help="Disable python3 module build", action='store_true')
+optgroup.add_argument("--without-python3", action='store_true', help="Disable python3 module build\n"
+                                                                     "CREATE_PY3API from the environment")
 
 # --build-disable-test
-optgroup.add_argument("--build-disable-test", help="Disable any build tests.  Useful for cross compiling", action='store_true')
+optgroup.add_argument("--build-disable-test", action='store_true', help="Disable any build tests.  Useful for cross compiling")
 
 # --build-verbose
-optgroup.add_argument("--build-verbose", help="Enable verbose messaging during builds.  Displays compiler calls, etc..", action='store_true')
+optgroup.add_argument("--build-verbose", action='store_true', help="Enable verbose messaging during builds.\n"
+                                                                   "Displays compiler calls, etc..\n"
+                                                                   "VERBOSE from the environment")
 
 # Parse the cmdline for the args we just added
 args = parser.parse_args()
@@ -462,18 +507,24 @@ buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 # Check for optional args to disable building of perl and python module
 if (args.without_swig or args.without_perl):
     CREATE_PERLAPI = "no"
+elif ("CREATE_PERLAPI" in os.environ):
+    CREATE_PERLAPI = os.environ["CREATE_PERLAPI"]
 else:
     CREATE_PERLAPI = "yes"
 buildvars["CREATE_PERLAPI"] = CREATE_PERLAPI
 
 if (args.without_swig or args.without_python):
     CREATE_PYAPI = "no"
+elif ("CREATE_PYAPI" in os.environ):
+    CREATE_PYAPI = os.environ["CREATE_PYAPI"]
 else:
     CREATE_PYAPI = "yes"
 buildvars["CREATE_PYAPI"] = CREATE_PYAPI
 
 if (args.without_swig or args.without_python3):
     CREATE_PY3API = "no"
+elif ("CREATE_PY3API" in os.environ):
+    CREATE_PY3API = os.environ["CREATE_PY3API"]
 else:
     CREATE_PY3API = "yes"
 buildvars["CREATE_PY3API"] = CREATE_PY3API
