@@ -499,7 +499,6 @@ buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 
-
 ###################################
 # Setup for creating SWIG outputs #
 ###################################
@@ -610,9 +609,10 @@ if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
                     PYINC = "-I" + root
                 if ((PY3INC == "") and ("python3" in root)):
                     PY3INC = "-I" + root
-            # EXTERN.h is unique to perl
-            if ((PERLINC == "") and (file == "EXTERN.h")):
-                PERLINC = "-I" + root
+            # CORE/EXTERN.h is unique to perl
+            if (file == "EXTERN.h"):
+                if ((PERLINC == "") and ("CORE" in root)):
+                    PERLINC = "-I" + root
 
 # If set, make sure it's valid then save it
 if (PERLINC is not None):
@@ -747,10 +747,10 @@ if (not args.without_swig):
 
     for line in cmdsplit:
         if ("SWIG Version" in line):
-            # SWIG Version 3.1.8
+            # Return value is "SWIG Version 3.1.8"
             # Swig versioning is 3 numbers and doesn't usually go above a 10's value
             # To pad it, we'll use 100's
-            # So we'll turn 3.1.8 into 003001008
+            # So we'll turn 3.1.8 into 003001008 (well, drop the leading zeros so we don't go octal)
             # The version we want to check is 2.0.11.  If our converted number is less than 2000011, it's not valid
             version = line.split()[2]
             versplit = version.split('.')
