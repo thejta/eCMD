@@ -165,9 +165,11 @@ args = parser.parse_args()
 # Store any variables we wish to write to the makefiles here
 buildvars = dict()
 
-#########################################################
-# Determine all the build variables required build eCMD #
-#########################################################
+############################################################
+# Determine all the build variables required to build eCMD #
+############################################################
+
+print("Establishing eCMD build variables..")
 
 # First, determine our ECMD_ROOT variable
 # ECMD_ROOT is the top level directory of the ecmd source repo
@@ -308,16 +310,7 @@ buildvars["EXT_TEMPLATE_PATH"] = EXT_TEMPLATE_PATH
 # Now let's setup up all the info about our build environment     #
 ###################################################################
 
-# If the OUTPUT_ROOT was passed in, use that for base directory for generated
-# files. Otherwise use ECMD_ROOT.
-# OUTPUT_ROOT establishes the top level of where all build artifacts will go
-if (args.output_root is not None):
-    OUTPUT_ROOT = args.output_root
-elif ("OUTPUT_ROOT" in os.environ):
-    OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
-else:
-    OUTPUT_ROOT = ECMD_ROOT
-buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
+print("Determining host and distro..")
 
 # Determine the HOST_ARCH
 HOST_ARCH = ""
@@ -372,8 +365,92 @@ else:
     DISTRO="aix"
 buildvars["DISTRO"] = DISTRO
 
+###################################
+# Look for a distro override file #
+###################################
 
-######## Default things we need setup for every compile ########
+# If found or given, it will be included at the end of the generated makefile
+# That may undo or override anything established via this script
+# We'll also use the presence of that file to disable some aspects of this script
+# 1) We won't do anything swig related and assume that's in the override
+# 2) We won't do any version checking of executables
+# Now that we have the distro and arch, look for the disto overrride file
+# If more than 1 override file is found in the included repos, throw an error
+# The user can set DISTRO_OVERRIDE and then we don't do this search logic at all
+DISTRO_OVERRIDE = ""
+if "DISTRO_OVERRIDE" in os.environ:
+    DISTRO_OVERRIDE = os.environ["DISTRO_OVERRIDE"]
+else:
+    # This loop includes ecmd-core, which should never have mkconfigs
+    for repo in ECMD_REPOS.split(" "):
+        mkfile = os.path.join(ECMD_ROOT, repo, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        if os.path.exists(mkfile):
+            # This logic is triggered if multiple of the subrepos have the same override
+            if (DISTRO_OVERRIDE != ""):
+                print("ERROR: conflicting distro overrides found!")
+                print("ERROR: %s" % DISTRO_OVERRIDE)
+                print("ERROR: %S" % mkfile)
+                print("Please set DISTRO_OVERRIDE to your choice and re-run this command")
+                sys.exit(1)
+            else:
+                DISTRO_OVERRIDE = mkfile
+    
+    # If there wasn't one found in the sub repos, see if the top level has one
+    if (DISTRO_OVERRIDE == ""):
+        mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
+        if (os.path.exists(mkfile)):
+            DISTRO_OVERRIDE = mkfile
+
+# If we have a distro makefile, print out the file we found
+# Also disable swig for the rest of the script
+if (DISTRO_OVERRIDE != ""):
+    print("Using DISTRO_OVERRIDE %s" % DISTRO_OVERRIDE)
+    args.without_swig = True
+
+################################################
+# Set our output locations for build artifacts #
+################################################
+
+print("Establishing output locations..")
+
+# If the OUTPUT_ROOT was passed in, use that for base directory for generated
+# files. Otherwise use ECMD_ROOT.
+# OUTPUT_ROOT establishes the top level of where all build artifacts will go
+if (args.output_root is not None):
+    OUTPUT_ROOT = args.output_root
+elif ("OUTPUT_ROOT" in os.environ):
+    OUTPUT_ROOT = os.environ["OUTPUT_ROOT"]
+else:
+    OUTPUT_ROOT = ECMD_ROOT
+buildvars["OUTPUT_ROOT"] = OUTPUT_ROOT
+
+# All objects from the build go to a common dir at the top level
+# OBJPATH includes TARGET_ARCH to allow for side by side builds
+# This does come with the stipulation that all source must have unique names
+OBJPATH = os.path.join(OUTPUT_ROOT, "obj_" + TARGET_ARCH)
+OBJPATH += "/" # Tack this on so the .C->.o rules run properly
+buildvars["OBJPATH"] = OBJPATH
+
+# All generated source from makedll.pl, swig, etc.. go into this directory
+# Previous source was dumped in the local dir and it was hard to distinguish it from normal source
+SRCPATH = os.path.join(OUTPUT_ROOT, "src_" + TARGET_ARCH)
+buildvars["SRCPATH"] = SRCPATH
+
+# Setup the output path info for the created binaries and libraries
+# We have one top level output path where all output binaries go
+# This could be shared libs, archives or executables
+# OUTPATH includes the TARGET_ARCH to allow for side by side builds
+OUTPATH = os.path.join(OUTPUT_ROOT, "out_" + TARGET_ARCH)
+buildvars["OUTPATH"] = OUTPATH
+buildvars["OUTBIN"] = os.path.join(OUTPATH, "bin")
+buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
+buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
+buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
+buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
+
+##################################################
+# Default things we need setup for every compile #
+##################################################
 # CC = the compiler
 # CC_R = the reentrant compiler, only different for AIX
 # CFLAGS = flags to pass to the compiler
@@ -383,6 +460,8 @@ buildvars["DISTRO"] = DISTRO
 # SLDFLAGS = flags to pass to the linker when linking shared libs
 # AR = the archive creator
 # DEFINES = -D defines to pass thru
+
+print("Establishing compiler locations..")
 
 # Compiler - CC
 CC = ""
@@ -434,17 +513,7 @@ else:
     AR = "/usr/bin/ar"
 buildvars["AR"] = AR
 
-# All objects from the build go to a common dir at the top level
-# OBJPATH includes TARGET_ARCH to allow for side by side builds
-# This does come with the stipulation that all source must have unique names
-OBJPATH = os.path.join(OUTPUT_ROOT, "obj_" + TARGET_ARCH)
-OBJPATH += "/" # Tack this on so the .C->.o rules run properly
-buildvars["OBJPATH"] = OBJPATH
-
-# All generated source from makedll.pl, swig, etc.. go into this directory
-# Previous source was dumped in the local dir and it was hard to distinguish it from normal source
-SRCPATH = os.path.join(OUTPUT_ROOT, "src_" + TARGET_ARCH)
-buildvars["SRCPATH"] = SRCPATH
+print("Establishing compiler options..")
 
 # Setup the variable defaults
 DEFINES = ""
@@ -486,18 +555,6 @@ buildvars["GPATH"] = GPATH
 buildvars["CFLAGS"] = CFLAGS
 buildvars["LDFLAGS"] = LDFLAGS
 buildvars["SLDFLAGS"] = SLDFLAGS
-
-# Setup the output path info for the created binaries and libraries
-# We have one top level output path where all output binaries go
-# This could be shared libs, archives or executables
-# OUTPATH includes the TARGET_ARCH to allow for side by side builds
-OUTPATH = os.path.join(OUTPUT_ROOT, "out_" + TARGET_ARCH)
-buildvars["OUTPATH"] = OUTPATH
-buildvars["OUTBIN"] = os.path.join(OUTPATH, "bin")
-buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
-buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
-buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
-buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 
 ###################################
 # Setup for creating SWIG outputs #
@@ -601,6 +658,7 @@ if (CREATE_PY3API == "yes"):
 
 # Do the search for the includes path
 if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
+    print("Finding swig include files..")
     for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
         for file in files:
             # Same include for python 2/3, so figure that out after finding the file
@@ -732,9 +790,13 @@ else:
     DOXYGEN_ECMD_VERSION = os.environ["DOXYGEN_ECMD_VERSION"]
 buildvars["DOXYGEN_ECMD_VERSION"] = DOXYGEN_ECMD_VERSION
 
+print("eCMD %s found in ecmdStructs.H" % DOXYGEN_ECMD_VERSION)
+
 ###########################################################
 # Test certain components of the build for version, etc.. #
 ###########################################################
+
+print("Testing program versions..")
 
 # The minimum required version of SWIG for eCMD to build
 # properly is version 2.0.11.  Check that version.
@@ -760,66 +822,6 @@ if (not args.without_swig):
                 print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
                 sys.exit(1)
 
-
-        
-###################################
-# Look for a distro override file #
-###################################
-
-# If found, process it and apply any values there over top of anything determined above
-# Now that we have the distro and arch, look for the disto overrride file
-# If more than 1 override file is found in the included repos, throw an error
-# The user can set DISTRO_OVERRIDE and then we don't do this logic at all
-DISTRO_OVERRIDE = ""
-if "DISTRO_OVERRIDE" in os.environ:
-    DISTRO_OVERRIDE = os.environ["DISTRO_OVERRIDE"]
-else:
-    # This loop includes ecmd-core, which should never have mkconfigs
-    for repo in ECMD_REPOS.split(" "):
-        mkfile = os.path.join(ECMD_ROOT, repo, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
-        if os.path.exists(mkfile):
-            # This logic is triggered if multiple of the subrepos have the same override
-            if (DISTRO_OVERRIDE != ""):
-                print("ERROR: conflicting distro overrides found!")
-                print("ERROR: %s" % DISTRO_OVERRIDE)
-                print("ERROR: %S" % mkfile)
-                print("Please set DISTRO_OVERRIDE to your choice and re-run this command")
-                sys.exit(1)
-            else:
-                DISTRO_OVERRIDE = mkfile
-    
-    # If there wasn't one found in the sub repos, see if the top level has one
-    if (DISTRO_OVERRIDE == ""):
-        mkfile = os.path.join(ECMD_ROOT, "mkconfigs", DISTRO, "make-" + HOST_ARCH + "-" + TARGET_ARCH)
-        if (os.path.exists(mkfile)):
-            DISTRO_OVERRIDE = mkfile
-
-# If DISTRO_OVERRIDE is set, open the file and process the contents into overridevars
-# overrridevars are put into the makefile.config after the build vars so they can - hey, override!
-overridevars = list()
-overrideexports = list()
-if (DISTRO_OVERRIDE != ""):
-    print("Processing override file %s" % DISTRO_OVERRIDE)
-    orfile = open(DISTRO_OVERRIDE, 'r')
-    for line in orfile:
-        # pull carriage returns
-        line = line.rstrip()
-        # Split on white space
-        pieces = line.split()
-
-        # Ignore blank lines and comments
-        if (not len(pieces) or (pieces[0][0] == "#")):
-            next;
-        # Grab an export and save that for the makefile.config
-        elif (pieces[0] == "export"):
-            overrideexports.append(line)
-        # Look for := or the ?= and save away the line for writing back out
-        elif (pieces[1] == ":=" or pieces[1] == "?="):
-            overridevars.append(line)
-        else:
-            print("ERROR: unknown override case - \"%s\"", line)
-            sys.exit(1)
-
 ##################################################
 # Write out all our variables to makefile.config #
 ##################################################
@@ -840,28 +842,24 @@ config.write("\n")
 # Write out all the variables
 for var in sorted(buildvars):
     config.write("%s := %s\n" % (var, buildvars[var]))
-
-# Write out the override variables.  Do this after the basevars so they can.. override!
-# Only do if not empty
-if overridevars:
-    config.write("# These variables are from any distro specific overrides found\n")
-    config.write("# They may undo/change any values established above\n")
-    for var in overridevars:
-        config.write("%s\n" % var)
 config.write("\n")
 
 # Export them so they can be referenced by any scripts used in the build
 for var in sorted(buildvars):
     config.write("export %s\n" % var)
-# Add in an exports from makefile overrides
-if overrideexports:
-    config.write("# Exports added from any distro specific overrides found\n")
-    for var in overrideexports:
-        config.write("%s\n" % var)
 config.write("\n")
+
+# If the DISTRO_OVERRIDE was given, write it out to the file
+if (DISTRO_OVERRIDE != ""):
+    config.write("# Include the distro specific overrides found/specified\n")
+    config.write("# It may undo/change any values established above\n")
+    config.write("include %s\n" % DISTRO_OVERRIDE)
+    config.write("\n")
+
 
 # Write our optional extension makefile.config includes
 # This allows you to add values to variables defined above
+config.write("# Optionally include any extension specific makefile.config overrides\n")
 for ext in sorted(EXTENSIONS.split(" ")):
     config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config")) 
 
