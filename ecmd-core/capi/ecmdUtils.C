@@ -725,6 +725,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "RiscWatch\n";
   else if (info.dllType == ECMD_DLL_LINUXHOSTTOOL)
     printed += "Linux Host Tool\n";
+  else if (info.dllType == ECMD_DLL_PDBG)
+    printed += "pdbg\n";
   else 
     printed += "Unknown\n";
   ecmdOutput(printed.c_str());

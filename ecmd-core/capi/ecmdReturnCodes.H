@@ -36,6 +36,7 @@
 #define ECMD_ERR_Z                              0x08000000 ///< Error came from Z GFW
 #define ECMD_ERR_SCAND                          0x10000000 ///< Error came from Z GFW
 #define ECMD_ERR_LHT                            0x20000000 ///< Error came from Linux Host Tool
+#define ECMD_ERR_PDBG                           0x40000000 ///< Error came from pdbg
 
 #define ECMD_SUCCESS                            0x0    ///< API Returned Successfully
 

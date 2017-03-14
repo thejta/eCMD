@@ -313,6 +313,7 @@ typedef enum {
   ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
   ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
   ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
+  ECMD_DLL_PDBG,                ///< Running against the pdbg plugin
 } ecmdDllType_t;
 
 /**
