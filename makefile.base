@@ -19,9 +19,6 @@ MAKEFILE_BASE := y
 %: s.%
 %: SCCS/s.%
 
-# Remove the @ when debugging build problems to see more output
-VERBOSE := @
-
 #These are needed to define a space char for substitutions later on
 empty :=
 space := ${empty} ${empty}
@@ -48,13 +45,6 @@ endif
 # *****************************************************************************
 # Some concluding base makefile info
 # *****************************************************************************
-
-# Include the makefile for this build type
-include ${DISTRO_MAKEFILE}
-
-# If not disabled in the distro makefile, enable build tests
-# Disabling this is usually done when cross compiling
-TEST_BUILD ?= yes
 
 # Optionally include the makefile.override, this will override anything above
 -include ${ECMD_ROOT}/makefile.override
