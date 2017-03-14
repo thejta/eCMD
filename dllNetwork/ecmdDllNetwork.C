@@ -84,7 +84,7 @@ uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     uint32_t scomlen = 64;
     uint32_t flags = 0x0;
 
-    std::string deviceString = "L02C0";
+    std::string deviceString = "1";
 
     scomoutInstruction->setup(Instruction::SCOMOUT, deviceString, i_address, scomlen, flags);
     InstructionStatus resultStatus;
@@ -120,7 +120,7 @@ uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     uint32_t scomlen = 64;
     uint32_t flags = 0x0;
 
-    std::string deviceString = "L02C0";
+    std::string deviceString = "1";
 
     scominInstruction->setup(Instruction::SCOMIN, deviceString, i_address, scomlen, flags, &i_data);
     InstructionStatus resultStatus;
@@ -157,7 +157,7 @@ uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmd
     uint32_t scomlen = 64;
     uint32_t flags = 0x0;
 
-    std::string deviceString = "L02C0";
+    std::string deviceString = "1";
 
     scominInstruction->setup(Instruction::SCOMIN_MASK, deviceString, i_address, scomlen, flags, &i_data, &i_mask);
     InstructionStatus resultStatus;
