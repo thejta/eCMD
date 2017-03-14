@@ -6,7 +6,7 @@
 # If we don't do this, then perl starts complaining.
 # I don't know the reason for this, we just have to.
 #
-export LANG=C
+export LANG=${LANG:-C}
 
 ##########################################
 # alias for setting target script
