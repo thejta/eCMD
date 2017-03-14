@@ -1,0 +1,24 @@
+##
+# Any compiler customization
+##
+CC   := ${CXX}
+CC_R := ${CXX}
+LD   := ${CXX}
+LD_R := ${CXX} 
+AR   := arm-openbmc-linux-gnueabi-ar
+
+
+EXTENSIONS := cmd cip
+EXT_CAPI := cmd cip
+EXT_CMD :=  cip
+
+##
+# Any perl customization
+##
+CREATE_PERLAPI := no
+
+##
+# Any python customization
+##
+CREATE_PYAPI := no
+CREATE_PY3API := no
