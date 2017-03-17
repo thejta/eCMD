@@ -132,6 +132,8 @@ optgroup.add_argument("--output-root", help="The location to place build output\
 # --extensions
 optgroup.add_argument("--extensions", help="Filter down the list of extensions to build\n"
                                            "EXTENSIONS from the environment")
+# --ecmd-repos
+optgroup.add_argument("--ecmd-repos", help="Other ecmd extension/plugin repos to include in build\n")
 
 # --remove-sim
 optgroup.add_argument("--remove-sim", action='store_true', help="Enable REMOVE_SIM in build")
@@ -188,8 +190,12 @@ buildvars["ECMD_CORE"] = ECMD_CORE
 # We store the results in a form that make can loop over using foreach
 ECMD_REPOS = ""
 for repo in glob.glob(ECMD_ROOT + "/ecmd-*"):
-    ECMD_REPOS += os.path.basename(repo) + " "
+    ECMD_REPOS += repo + " "
 ECMD_REPOS = ECMD_REPOS[:-1] # Pull off trailing space
+
+# Add any cmdline repos given into what was found above
+if (args.ecmd_repos is not None):
+    ECMD_REPOS += " " + args.ecmd_repos
 buildvars["ECMD_REPOS"] = ECMD_REPOS
 
 # Each of the sub repos could contain a utils directory
@@ -199,7 +205,7 @@ buildvars["ECMD_REPOS"] = ECMD_REPOS
 ECMD_REPOS_UTILS = ""
 for repo in ECMD_REPOS.split(" "):
     # Create the utils dir path
-    testpath = os.path.join(ECMD_ROOT, repo, "utils")
+    testpath = os.path.join(repo, "utils")
     # See if this repo has a utils dir, if it does add it to the list
     if (os.path.exists(testpath)):
         ECMD_REPOS_UTILS += repo + " "
@@ -217,7 +223,7 @@ ECMD_REPOS_PLUGINS = ""
 ECMD_PLUGINS = ""
 for repo in ECMD_REPOS.split(" "):
     # Create the plugins dir path
-    testpath = os.path.join(ECMD_ROOT, repo, "plugins")
+    testpath = os.path.join(repo, "plugins")
     # If it exists, setup a number of variables from that dir
     if (os.path.exists(testpath)):
         ECMD_REPOS_PLUGINS += repo + " "
@@ -245,7 +251,7 @@ elif ("EXTENSIONS" in os.environ):
 else:
     # Not given, so dynamically create the list based on what's in the ECMD_REPOS
     for repo in ECMD_REPOS.split(" "):
-        for ext in glob.glob(os.path.join(ECMD_ROOT, repo, "ext/*")):
+        for ext in glob.glob(os.path.join(repo, "ext/*")):
             EXTENSIONS += os.path.basename(ext) + " "
     EXTENSIONS = EXTENSIONS[:-1] # Pull off trailing space
 
@@ -271,25 +277,25 @@ EXT_PYAPI = ""
 for ext in sorted(EXTENSIONS.split()):
     # Loop through the repos to find where the extension lives
     for repo in ECMD_REPOS.split(" "):
-        testpath = os.path.join(ECMD_ROOT, repo, "ext", ext)
+        testpath = os.path.join(repo, "ext", ext)
         # If we found it, setup a number of things
         if (os.path.exists(testpath)):
             buildvars["EXT_" + ext + "_PATH"] = testpath
 
             # Now that we have a valid ext dir, test it for each build type
-            testpath = os.path.join(ECMD_ROOT, repo, "ext", ext, "capi")
+            testpath = os.path.join(repo, "ext", ext, "capi")
             if (os.path.exists(testpath)):
                 EXT_CAPI += ext + " "
 
-            testpath = os.path.join(ECMD_ROOT, repo, "ext", ext, "cmd")
+            testpath = os.path.join(repo, "ext", ext, "cmd")
             if (os.path.exists(testpath)):
                 EXT_CMD += ext + " "
 
-            testpath = os.path.join(ECMD_ROOT, repo, "ext", ext, "perlapi")
+            testpath = os.path.join(repo, "ext", ext, "perlapi")
             if (os.path.exists(testpath)):
                 EXT_PERLAPI += ext + " "
 
-            testpath = os.path.join(ECMD_ROOT, repo, "ext", ext, "pyapi")
+            testpath = os.path.join(repo, "ext", ext, "pyapi")
             if (os.path.exists(testpath)):
                 EXT_PYAPI += ext + " "
 EXT_CAPI = EXT_CAPI[:-1] # Pull off trailing space
