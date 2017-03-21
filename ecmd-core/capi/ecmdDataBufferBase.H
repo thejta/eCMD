@@ -43,7 +43,7 @@
 // Determine endianness of the machine we are building for
 // Since AIX and Linux do it different, we are creating our own defines
 // _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
-#ifdef LINUX
+#ifdef __linux__
 #include <endian.h>
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN

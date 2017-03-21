@@ -537,7 +537,6 @@ if "DEFINES" in os.environ:
 
 # Setup common variables across distros
 if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
-    DEFINES += " -DLINUX"
     GPATH += " " + OBJPATH
     CFLAGS += " -Wall"
     if (TARGET_ARCH.find("64") != -1):
@@ -549,7 +548,6 @@ if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
         LDFLAGS += " -m32 -fPIC"
         SLDFLAGS += " -shared -m32 -fPIC"
 elif (TARGET_BARCH == "arm"):
-    DEFINES += " -DLINUX"
     GPATH += " " + OBJPATH
     CFLAGS += " -Wall"
     CFLAGS += " -fPIC"
