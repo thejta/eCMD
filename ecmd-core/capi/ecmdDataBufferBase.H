@@ -1173,6 +1173,18 @@ public:
   uint32_t flatten(uint8_t * o_data, uint32_t i_len) const;
 
   /**
+   * @brief Flatten all the object data into a uint8_t buffer using minimized capacity
+   * @param o_data Byte buffer to write the flattened data to - should 
+   * @param i_len Number of bytes in the o_data buffer
+   * @post o_data buffer has a flattened version of the DataBuffer - must be pre-allocated
+   * Data format (all in network byte order):
+   * First Word:      (iv_numBits + 31 / 32)*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  uint32_t flattenMinCap(uint8_t * o_data, uint32_t i_len) const;
+
+  /**
    * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
    * @param i_data Byte buffer to read the flattened data from
    * @param i_len Number of bytes in the i_data buffer
@@ -1201,6 +1213,12 @@ public:
    * @retval Number of bytes needed
    */
   uint32_t flattenSize(void) const;
+
+  /**
+   * @brief Return number of bytes needed for a buffer to flatten the object with minimized capacity
+   * @retval Number of bytes needed
+   */
+  uint32_t flattenSizeMinCap(void) const;
 
   //@}
 

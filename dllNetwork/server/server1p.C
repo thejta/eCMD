@@ -419,7 +419,7 @@ void processClient(int socket, enum socketState & state)
         currentInstruction = instructionList.begin();
         while(currentInstruction != instructionList.end())
         {
-            uint32_t resultDataSize = dataMap[currentInstruction->first.key]->flattenSize();
+            uint32_t resultDataSize = dataMap[currentInstruction->first.key]->flattenSizeMinCap();
             uint32_t resultStatusSize = statusMap[currentInstruction->first.key]->flattenSize();
             resultBufferSize += sizeof(DataTransferInfo_t) * 2 + resultDataSize + resultStatusSize;
             numberOfResults += 2;
@@ -441,14 +441,14 @@ void processClient(int socket, enum socketState & state)
             }
 
             /* Return results */
-            uint32_t resultDataSize = dataMap[currentInstruction->first.key]->flattenSize();
+            uint32_t resultDataSize = dataMap[currentInstruction->first.key]->flattenSizeMinCap();
             uint32_t resultStatusSize = statusMap[currentInstruction->first.key]->flattenSize();
 
             DataTransferInfo_t * dataResultInfo = (DataTransferInfo_t *) (resultBuffer + offset);
             dataResultInfo->key = currentInstruction->first.key;
             dataResultInfo->type = ECMD_DBUF;
             uint8_t * resultData = resultBuffer + offset + sizeof(DataTransferInfo_t);
-            rc = dataMap[currentInstruction->first.key]->flatten(resultData, resultDataSize);
+            rc = dataMap[currentInstruction->first.key]->flattenMinCap(resultData, resultDataSize);
             if (rc)
             {
                 printf("ERROR : problem flattening data for %s : %s\n",

@@ -2176,6 +2176,32 @@ uint32_t ecmdDataBufferBase::flatten(uint8_t * o_data, uint32_t i_len) const {
   return rc;
 }
 
+uint32_t ecmdDataBufferBase::flattenMinCap(uint8_t * o_data, uint32_t i_len) const {
+
+  ECMD_NULL_PTR_CHECK(o_data);
+  
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  uint32_t * o_ptr = (uint32_t *) o_data;
+
+  uint32_t l_Capacity = (iv_NumBits + 31) / 32;
+
+  if ((i_len < 8) || (l_Capacity*32 > ((i_len - 8) * 8))) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::flattenMinCap: i_len %d bytes is too small to flatten a capacity of %d words ", i_len, l_Capacity);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
+  memset(o_data, 0, this->flattenSizeMinCap());
+  o_ptr[0] = htonl(l_Capacity*32);
+  o_ptr[1] = htonl(iv_NumBits);
+  if (l_Capacity > 0) {
+    for (uint32_t i = 0; i < l_Capacity; i++)
+      o_ptr[2+i] = htonl(iv_Data[i]);
+  }
+
+  return rc;
+}
+
 uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
 
   ECMD_NULL_PTR_CHECK(i_data);
@@ -2282,6 +2308,11 @@ uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, ui
 
 uint32_t ecmdDataBufferBase::flattenSize() const {
   return (iv_Capacity + 2) * 4;
+}
+
+uint32_t ecmdDataBufferBase::flattenSizeMinCap() const {
+  uint32_t l_Capacity = (iv_NumBits + 31) / 32;
+  return (l_Capacity + 2) * 4;
 }
 
 
