@@ -4441,6 +4441,7 @@ void ecmdPopCommandArgs();
 
 /** @name Other BackDoor Functions */
 //@{
+#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
  @brief Find out if the JTAG or FSI column if the scandef should be used
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -4449,7 +4450,8 @@ void ecmdPopCommandArgs();
  @retval non-zero on failure
 */
 uint32_t ecmdGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
-
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+  
 /**
  @brief Get Current Cmdline String 
  @retval String representing current cmdline string being processed
