@@ -553,8 +553,6 @@ elif (TARGET_BARCH == "arm"):
     CFLAGS += " -fPIC"
     LDFLAGS += " -fPIC"
     SLDFLAGS += " -shared -fPIC"
-else:
-    DEFINES += " -DAIX"
 
 # See if REMOVE_SIM is enabled from the cmdline
 if (args.remove_sim):

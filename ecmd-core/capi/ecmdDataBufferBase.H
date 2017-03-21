@@ -55,7 +55,7 @@
 #    endif
 #  endif
 #endif
-#ifdef AIX
+#ifdef _AIX
 #include <sys/machine.h>
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -99,7 +99,7 @@
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-#ifdef AIX
+#ifdef _AIX
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
     ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \

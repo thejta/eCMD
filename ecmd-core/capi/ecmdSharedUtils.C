@@ -64,7 +64,7 @@ typedef u_int8_t u8 ;
 #    endif
 #  endif
 #endif
-#ifdef AIX
+#ifdef _AIX
 #include <sys/machine.h>
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN

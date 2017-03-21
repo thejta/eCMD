@@ -37,7 +37,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
-#if defined (AIX) && defined (_LP64)
+#if defined (_AIX) && defined (_LP64)
   #include "/usr/include/zlib.h"
 #else
   #include <zlib.h>
