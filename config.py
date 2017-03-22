@@ -486,7 +486,12 @@ if (args.cc_r is not None):
 elif ("CC_R" in os.environ):
     CC_R = os.environ["CC_R"]
 else:
-    CC_R = "/usr/bin/g++"
+    # If not specified, use best guess for AIX
+    # Everyone else, use the CC value
+    if (TARGET_BARCH == "aix"):
+        CC_R = "/usr/bin/g++"
+    else:
+        CC_R = CC
 buildvars["CC_R"] = CC_R
 
 # Linker - LD
@@ -506,7 +511,12 @@ if (args.ld_r is not None):
 elif ("LD_R" in os.environ):
     LD_R = os.environ["LD_R"]
 else:
-    LD_R = "/usr/bin/g++"
+    # If not specified, use best guess for AIX
+    # Everyone else, use the LD value
+    if (TARGET_BARCH == "aix"):
+        LD_R = "/usr/bin/g++"
+    else:
+        LD_R = LD
 buildvars["LD_R"] = LD_R
 
 # Archive - AR
