@@ -25,9 +25,9 @@ SWIG_INPUT := ecmdClientPyapi.i ecmdCommon.i ecmdExtPyIncludes.i ecmdExtPyInsert
 # Setup all the options to pass into swig
 SWIGFLAGS := ${SWIGFLAGS} -c++ -python -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH} -I../pyapi -I../pyapi/distro -DECMD_PYAPI
 
-#### Setup our CFLAGS and VPATH
-CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${ECMD_CORE}/cmd -I${SRCPATH}
-VPATH  := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:${OBJPATH}
+#### Setup our CXXFLAGS and VPATH
+CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${ECMD_CORE}/cmd -I${SRCPATH}
+VPATH    := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:${OBJPATH}
 
 ### Add all of the extension information onto our variables
 INCLUDES  := ${INCLUDES} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.H ${ext}ClientPyapi.H)
@@ -35,7 +35,7 @@ SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.C ${ext}Cli
 # Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
 SOURCE    := $(subst fapi2ClientCapi.C,,${SOURCE})
 SOURCE    := $(subst fapiClientCapi.C,,${SOURCE})
-CFLAGS    := ${CFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/pyapi)
 
@@ -106,7 +106,7 @@ SWIG_OBJS   := $(addsuffix .o, ${SWIG_OBJS})
 # *****************************************************************************
 ${SOURCE_OBJS} ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC_R} -c ${CFLAGS} ${PYCFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
+	${VERBOSE}${CXX_R} -c ${CXXFLAGS} ${PYCXXFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
 ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
 	@echo Swigging $@

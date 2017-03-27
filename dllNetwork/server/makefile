@@ -9,8 +9,8 @@ include ../../makefile.base
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := server1p
-CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
-CFLAGS       += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo -Iadals/mbx -Iadals/iic_master
+CXXFLAGS     += -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
+CXXFLAGS     += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo -Iadals/mbx -Iadals/iic_master
 VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan:adals/sbefifo:adals/mbx:adals/iic_master
 
 # *****************************************************************************
@@ -108,11 +108,11 @@ TGT_SOURCE_C_OBJS := $(addsuffix .o, ${TGT_SOURCE_C_OBJS})
 # *****************************************************************************
 ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 ${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Target

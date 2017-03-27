@@ -70,13 +70,13 @@ optgroup.add_argument("--host", help="The host architecture\n"
 optgroup.add_argument("--target", help="The target architecture\n"
                                        "TARGET_ARCH from the environment")
 
-# --cc
-optgroup.add_argument("--cc", help="The compiler to use\n"
-                                   "CC from the environment")
+# --cxx
+optgroup.add_argument("--cxx", help="The compiler to use\n"
+                                    "CXX from the environment")
 
-# --cc_r
-optgroup.add_argument("--cc_r", help="The reentrant compiler to use (AIX only)\n"
-                                     "CC_R from the environment")
+# --cxx_r
+optgroup.add_argument("--cxx_r", help="The reentrant compiler to use (AIX only)\n"
+                                      "CXX_R from the environment")
 
 # --ld
 optgroup.add_argument("--ld", help="The linker to use\n"
@@ -457,9 +457,9 @@ buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 ##################################################
 # Default things we need setup for every compile #
 ##################################################
-# CC = the compiler
-# CC_R = the reentrant compiler, only different for AIX
-# CFLAGS = flags to pass to the compiler
+# CXX = the compiler
+# CXX_R = the reentrant compiler, only different for AIX
+# CXXFLAGS = flags to pass to the compiler
 # LD = the linker
 # LD_R = the reentrant linker, only different for AIX
 # LDFLAGS = flags to pass to the linker when linking exe's
@@ -469,30 +469,30 @@ buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
 
 print("Establishing compiler locations..")
 
-# Compiler - CC
-CC = ""
-if (args.cc is not None):
-    CC = args.cc
-elif ("CC" in os.environ):
-    CC = os.environ["CC"]
+# Compiler - CXX
+CXX = ""
+if (args.cxx is not None):
+    CXX = args.cxx
+elif ("CXX" in os.environ):
+    CXX = os.environ["CXX"]
 else:
-    CC = "/usr/bin/g++"
-buildvars["CC"] = CC
+    CXX = "/usr/bin/g++"
+buildvars["CXX"] = CXX
 
-# Compiler Reentrant - CC_R
-CC_R = ""
-if (args.cc_r is not None):
-    CC_R = args.cc_r
-elif ("CC_R" in os.environ):
-    CC_R = os.environ["CC_R"]
+# Compiler Reentrant - CXX_R
+CXX_R = ""
+if (args.cxx_r is not None):
+    CXX_R = args.cxx_r
+elif ("CXX_R" in os.environ):
+    CXX_R = os.environ["CXX_R"]
 else:
     # If not specified, use best guess for AIX
-    # Everyone else, use the CC value
+    # Everyone else, use the CXX value
     if (TARGET_BARCH == "aix"):
-        CC_R = "/usr/bin/g++"
+        CXX_R = "/usr/bin/g++"
     else:
-        CC_R = CC
-buildvars["CC_R"] = CC_R
+        CXX_R = CXX
+buildvars["CXX_R"] = CXX_R
 
 # Linker - LD
 LD = ""
@@ -534,12 +534,12 @@ print("Establishing compiler options..")
 # Setup the variable defaults
 DEFINES = ""
 GPATH = ""
-CFLAGS = ""
+CXXFLAGS = ""
 LDFLAGS = ""
 SLDFLAGS = ""
 
 # Common compile flags across any OS
-CFLAGS = "-g -I."
+CXXFLAGS = "-g -I."
 
 # If the user passed thru extra defines, grab them
 if "DEFINES" in os.environ:
@@ -549,20 +549,19 @@ if "DEFINES" in os.environ:
 if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):
     DEFINES += " -DLINUX"
     GPATH += " " + OBJPATH
-    CFLAGS += " -Wall"
+    CXXFLAGS += " -Wall"
     if (TARGET_ARCH.find("64") != -1):
-        CFLAGS += " -m64 -fPIC"
+        CXXFLAGS += " -m64 -fPIC"
         LDFLAGS += " -m64 -fPIC"
         SLDFLAGS += " -shared -m64 -fPIC"
     else:
-        CFLAGS += " -m32 -fPIC"
+        CXXFLAGS += " -m32 -fPIC"
         LDFLAGS += " -m32 -fPIC"
         SLDFLAGS += " -shared -m32 -fPIC"
 elif (TARGET_BARCH == "arm"):
     DEFINES += " -DLINUX"
     GPATH += " " + OBJPATH
-    CFLAGS += " -Wall"
-    CFLAGS += " -fPIC"
+    CXXFLAGS += " -Wall -fPIC"
     LDFLAGS += " -fPIC"
     SLDFLAGS += " -shared -fPIC"
 else:
@@ -575,7 +574,7 @@ if (args.remove_sim):
 # Export everything we defined
 buildvars["DEFINES"] = DEFINES
 buildvars["GPATH"] = GPATH
-buildvars["CFLAGS"] = CFLAGS
+buildvars["CXXFLAGS"] = CXXFLAGS
 buildvars["LDFLAGS"] = LDFLAGS
 buildvars["SLDFLAGS"] = SLDFLAGS
 

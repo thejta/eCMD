@@ -37,9 +37,9 @@ endif
 # Setup all the options to pass into swig
 SWIGFLAGS := ${SWIGFLAGS} -c++ -perl5 -exportall -const -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH} -Idistro/${INC_DISTRO} -DECMD_PERLAPI -I../perlapi
 
-### Setup our CFLAGS and VPATH
-CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
-VPATH  := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:distro/${INC_DISTRO}:${OBJPATH}
+### Setup our CXXFLAGS and VPATH
+CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
+VPATH    := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:distro/${INC_DISTRO}:${OBJPATH}
 
 ### Add all of the extension information onto our variables
 INCLUDES  := ${INCLUDES} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientPerlapi.H ${ext}ClientCapi.H)
@@ -47,7 +47,7 @@ SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientPerlapi.C ${ext}
 # Remove the fapiClientPerlapiFunc.C from the build, only will use fapiClientPerlapi.C which has the init extension
 SOURCE    := $(subst fapi2ClientPerlapiFunc.C,,${SOURCE})
 SOURCE    := $(subst fapiClientPerlapiFunc.C,,${SOURCE})
-CFLAGS    := ${CFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/perlapi -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/perlapi)
 
@@ -115,11 +115,11 @@ ${SWIG_SOURCE}: ${INCLUDES} ${GENERATED_INCLUDES} ${SWIG_INPUT}
 
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${GENERATED_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
+	${VERBOSE}${CXX_R} -c ${CXXFLAGS} ${PERLCXXFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
 ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${SWIG_SOURCE}
 	@echo Compiling $<
-	${VERBOSE}${CC_R} -c ${CFLAGS} ${PERLCFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
+	${VERBOSE}${CXX_R} -c ${CXXFLAGS} ${PERLCXXFLAGS} ${PERLINC} $< -o $@ ${DEFINES} ${PERLDEFINES}
 
 # *****************************************************************************
 # Create the Perl Shared Library
