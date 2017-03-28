@@ -71,7 +71,7 @@ ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 # *****************************************************************************
 ${TARGET}: ${TGT_SOURCE_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${TARGET} $^ ${OUTLIB}/ecmdClientCapi.a -L${OUTLIB} -lecmd
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${TARGET} $^ -L${OUTLIB} -lecmd
 
 # *****************************************************************************
 # Include any global default rules

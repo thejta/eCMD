@@ -52,8 +52,6 @@ SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/perla
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/perlapi)
 
 ### Setup all of the additional objects to link
-LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_PERLAPI}, ${OUTLIB}/${ext}ClientCapi.a)
 EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_PERLAPI},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # The reference to libecmd.so has to go at the end of the link in Ubuntu
@@ -83,11 +81,13 @@ install:
 	cp ${OUTPERL}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/perl/.
 
 test:
+	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
         ifeq (${TARGET_BARCH},aix)
 	@slibclean
-        endif
-	@echo "***** If you see perl load errors this build of the perl module is invalid, ignore ECMD_DLL_FILE errors ****"
+	ECMD_DLL_FILE=${OUTLIB}/stub.dll PERL5LIB=${OUTPERL} LIBPATH=${OUTLIB}:${OUTPERL} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
+        else
 	ECMD_DLL_FILE=${OUTLIB}/stub.dll PERL5LIB=${OUTPERL} LD_LIBRARY_PATH=${OUTLIB}:${OUTPERL} ECMD_ARCH=${TARGET_ARCH} ./testBuild.pl
+        endif
 
 doxygen-perlapi: ecmdClientPerlapiFunc.H
 	@cp ecmdBit64.H ecmdPerlApiTypes.H ${DOXYGEN_PERLAPI_PATH}/.

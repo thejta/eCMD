@@ -24,6 +24,7 @@ endif
 ### Concat variables together for the build
 # Can't use TEMPLATE_SOURCE, don't want to include *DllCapi.C
 CAPI_SOURCE := ${CAPI_SOURCE} ${GENERATED_SOURCE} ${EXTENSION_NAME}ClientCapi.C
+EMPTY_SOURCE := ecmdEmptyFile.C
 ### Variables used for the build
 CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I${SRCPATH}
 INCLUDES := ${INCLUDES} ${CAPI_INCLUDES} ${GENERATED_INCLUDES}
@@ -32,10 +33,8 @@ VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${EXT_TEMPLATE_PATH}/capi:${SR
 # *****************************************************************************
 # Define our output files
 # *****************************************************************************
-TARGET = ${EXTENSION_NAME}ClientCapi.a
-ifneq (${SLIB_SOURCE},)
-  SLIB    := lib${EXTENSION_NAME}.so
-endif
+EMPTY_TARGET := ${EXTENSION_NAME}ClientCapi.a
+SLIB    := lib${EXTENSION_NAME}.so
 
 # *****************************************************************************
 # The Main Targets
@@ -46,7 +45,7 @@ all:
 
 generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES} ${TEMPLATE_SOURCE}
 
-build: ${TARGET} ${SLIB}
+build: ${EMPTY_TARGET} ${SLIB}
 
 test:
   # Do nothing
@@ -54,10 +53,8 @@ test:
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/
-	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-        ifneq (${SLIB},)
-	  cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-        endif
+	cp ${OUTLIB}/${EMPTY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension includes to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
 
@@ -73,12 +70,15 @@ doxygen-pyapi:
 # *****************************************************************************
 # Object Build Targets
 # *****************************************************************************
-CAPI_SOURCE_OBJS  = $(basename ${CAPI_SOURCE})
+CAPI_SOURCE_OBJS := $(basename ${CAPI_SOURCE})
 CAPI_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${CAPI_SOURCE_OBJS})
 CAPI_SOURCE_OBJS := $(addsuffix .o, ${CAPI_SOURCE_OBJS})
-SLIB_SOURCE_OBJS  = $(basename ${SLIB_SOURCE})
+SLIB_SOURCE_OBJS := $(basename ${SLIB_SOURCE})
 SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${SLIB_SOURCE_OBJS})
 SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
+EMPTY_SOURCE_OBJS := $(basename ${EMPTY_SOURCE})
+EMPTY_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${EMPTY_SOURCE_OBJS})
+EMPTY_SOURCE_OBJS := $(addsuffix .o, ${EMPTY_SOURCE_OBJS})
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
@@ -91,20 +91,23 @@ ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CC} -c ${CFLAGS} ${SLIBCFLAGS} $< -o $@ ${DEFINES}
+${EMPTY_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	@echo Compiling $<
+	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
-${TARGET}: ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
+${EMPTY_TARGET}: ${EMPTY_SOURCE_OBJS}
 	@echo Creating $@
-	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
+	${VERBOSE}${AR} r ${OUTLIB}/${EMPTY_TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
-${SLIB}: ${SLIB_SOURCE_OBJS}
+${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ -ldl -L ${OUTLIB} -lecmd
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

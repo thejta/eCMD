@@ -251,6 +251,8 @@ uint32_t ecmdUnloadDll() {
   }
 #endif
 
+  /* Go reset all the extensions so they know we have been unloaded */
+  ecmdResetExtensionInitState();
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllUnloadDll();
@@ -280,9 +282,6 @@ uint32_t ecmdUnloadDll() {
   }
   dlHandle = NULL;
 #endif
-
-  /* Go reset all the extensions so they know we have been unloaded */
-  ecmdResetExtensionInitState();
 
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdClientDebug != 0) {
