@@ -21,7 +21,7 @@ The default for the targeting parms is 0 if it is not given on the command line.
 
         -p#             Specify which chip position to act on.
 
-        -c#             Specify which core/chipUnit to act on.
+        -c#             Specify which chipUnit to act on.
 
         -t#             Specify which thread to act on.
                         This has the extra option alive, to act on only alive threads.

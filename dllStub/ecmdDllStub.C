@@ -60,11 +60,13 @@ uint32_t dllSpecificCommandArgs(int* argc, char** argv[]) {
 }
 
 /* Dll Specific Return Codes */
-std::string dllSpecificParseReturnCode(uint32_t i_returnCode) { return ""; }
+std::string dllSpecificParseReturnCode(uint32_t i_returnCode) {
+  return ""; 
+}
 
-uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
-uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
+  return ECMD_SUCCESS;
+}
 
 uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
@@ -86,71 +88,96 @@ uint32_t dllPutRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ec
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
-
+uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllPutScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
+  return ECMD_SUCCESS;
+}
 
+uint32_t dllPutScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
+uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
+  return ECMD_SUCCESS;
+}
 
 /* ##################################################################### */
 /* Query Functions - Query Functions - Query Functions - Query Functions */
 /* ##################################################################### */
-uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, false);
 }
 
-uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, true);
 }
 
 uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
+
+  // queryConfig is a central function of any eCMD plugin.  The data from this function drives
+  // the eCMD chip loopers in the cmdline or any other eCMD program.
+  // This creates a complex set of nested structures that represents all the available targets in a system
+  // It can be filted down by the state variables of the target passed in
+
+  // This version for the stub just creates a small set of fake data
+
+  // The stack of target data variables
+  ecmdThreadData threadData;
   ecmdChipUnitData chipUnitData;
   ecmdChipData chipData;
   ecmdNodeData nodeData;
   ecmdSlotData slotData;
   ecmdCageData cageData;
-  ecmdThreadData threadData;
 
+  /* Let's return some dummy info, we will return a proc with cores and threads */
+
+  // Setup the threadData
   threadData.threadId = 0;
 
-  /* Let's return some dummy info , we will return a proc with cores and threads */
+  // Setup the chipUnitData
   chipUnitData.chipUnitType = "core";
   chipUnitData.chipUnitNum = 0;
   chipUnitData.numThreads = 2;
   chipUnitData.threadData.push_front(threadData);
 
+  // Setup the chipData
   chipData.chipUnitData.push_front(chipUnitData);
   chipData.chipType = "pu";
   chipData.pos = 0;
   slotData.chipData.push_front(chipData);
 
-  ecmdChipData cd2;
-  cd2.chipUnitData.clear();
-  cd2.chipType = "pu";
-  cd2.pos = 1;
-  slotData.chipData.push_back(cd2);
+  // Create positions 1-3 without any chipunit data
+  ecmdChipData cdReplicate;
+  cdReplicate.chipUnitData.clear();
+  cdReplicate.chipType = "pu";
+  cdReplicate.pos = 1;
+  slotData.chipData.push_back(cdReplicate);
 
-  cd2.pos = 2;
-  slotData.chipData.push_back(cd2);
+  cdReplicate.pos = 2;
+  slotData.chipData.push_back(cdReplicate);
 
-  cd2.pos = 3;
-  slotData.chipData.push_back(cd2);
+  cdReplicate.pos = 3;
+  slotData.chipData.push_back(cdReplicate);
 
+  // Define slot 0
   slotData.slotId = 0;
 
+  // Setup the node
+  nodeData.nodeId = 0;
   nodeData.slotData.push_front(slotData);
 
-  nodeData.nodeId = 0;
-
+  // Setup the cage
   cageData.cageId = 0;
   cageData.nodeData.push_front(nodeData);
 
+  // Add it all to the return structs
   queryData.cageData.push_front(cageData);
   
   return ECMD_SUCCESS;
@@ -181,15 +208,21 @@ uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_que
   return ECMD_SUCCESS;
 }
 
-uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName) {
+  return ECMD_SUCCESS;
+} 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version){ return ECMD_SUCCESS; } 
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version) {
+  return ECMD_SUCCESS;
+} 
 
+uint32_t dllFlushSys () {
+  return ECMD_SUCCESS;
+} 
 
-uint32_t dllFlushSys () { return ECMD_SUCCESS; } 
-
-uint32_t dllIplSys () { return ECMD_SUCCESS; }
-
+uint32_t dllIplSys () {
+  return ECMD_SUCCESS;
+}
 
 void dllOutputError(const char* message) {
   printf("DLLSTUBERROR : %s\n",message);
@@ -203,19 +236,33 @@ void dllOutput(const char* message) {
   printf("%s", message);
 }
 
-uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) { return ECMD_SUCCESS; }
+uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllEnableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllEnableRingCache(ecmdChipTarget & i_target) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllDisableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllDisableRingCache(ecmdChipTarget & i_target) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllFlushRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllFlushRingCache(ecmdChipTarget & i_target) {
+  return ECMD_SUCCESS;
+}
 
-bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) { return false; }
+bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) {
+  return false;
+}
 
-uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
+uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) {
+  return ECMD_SUCCESS;
+}
 
-uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
+uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) {
+  return ECMD_SUCCESS;
+}
 
 /* ################################################################# */
 /* Misc Functions - Misc Functions - Misc Functions - Misc Functions */

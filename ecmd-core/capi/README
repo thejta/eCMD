@@ -1,1 +1,3 @@
-This is the eCMD C Programming API
+This is the source for eCMD C/C++ programming API
+
+The source for the eCMD shared lib (libecmd.so) is also here
