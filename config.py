@@ -78,6 +78,10 @@ optgroup.add_argument("--cxx", help="The compiler to use\n"
 optgroup.add_argument("--cxx_r", help="The reentrant compiler to use (AIX only)\n"
                                       "CXX_R from the environment")
 
+# --cxxflags
+optgroup.add_argument("--cxxflags", help="Any CXXFLAGS to use in the build\n"
+                                         "CXXFLAGS from the environment")
+
 # --ld
 optgroup.add_argument("--ld", help="The linker to use\n"
                                    "LD from the environment")
@@ -538,8 +542,17 @@ CXXFLAGS = ""
 LDFLAGS = ""
 SLDFLAGS = ""
 
+# C++ compiler flags - CXXFLAGS
+if (args.cxxflags is not None):
+    CXXFLAGS = args.cxxflags
+elif ("CXXFLAGS" in os.environ):
+    CXXFLAGS = os.environ["CXXFLAGS"]
+
+# Take the ones from the environment or command line,
+# then add them to the ones we'll define here
+
 # Common compile flags across any OS
-CXXFLAGS = "-g -I."
+CXXFLAGS += " -g -I."
 
 # If the user passed thru extra defines, grab them
 if "DEFINES" in os.environ:
