@@ -9,7 +9,7 @@ include ../makefile.base
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := network.dll
-CFLAGS       := ${CFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH} -Iserver -Iserver/fips_headers
+CXXFLAGS     := ${CXXFLAGS} -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH} -Iserver -Iserver/fips_headers
 VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:server
 
 # *****************************************************************************
@@ -64,7 +64,7 @@ TGT_SOURCE_OBJS := $(addsuffix .o, ${TGT_SOURCE_OBJS})
 # *****************************************************************************
 ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Target

@@ -20,7 +20,7 @@ VPATH        := $(subst ${space},,${VPATH})
 # These are includes not to be exported
 INT_INCLUDES := ${INT_INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
-CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/cmd)
+CXXFLAGS     += -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/cmd)
 
 #######################
 # Extension Objects   #

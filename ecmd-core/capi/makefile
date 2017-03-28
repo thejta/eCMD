@@ -19,7 +19,7 @@ EMPTY_SOURCE := ecmdEmptyFile.C
 ### Generated source by makedll.pl
 GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H
 GENERATED_SOURCE   := ecmdClientCapiFunc.C
-CFLAGS             := ${CFLAGS} -I${SRCPATH}
+CXXFLAGS           := ${CXXFLAGS} -I${SRCPATH}
 VPATH              := ${VPATH}:${SRCPATH}
 
 # Tell the SEDC code we import that we just want the scomdef parser
@@ -28,7 +28,7 @@ SEDC_INCLUDES := ${SEDC_INCLUDES} sedcCommonParser.H sedcCommonClasses.H
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C 
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcCommonParser.C sedcCommonClasses.C
 VPATH         := ${VPATH}:sedcScomdef
-CFLAGS        := ${CFLAGS} -IsedcScomdef
+CXXFLAGS      := ${CXXFLAGS} -IsedcScomdef
 # Variables for install
 SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, ${SEDC_INCLUDES})
 
@@ -37,8 +37,8 @@ VPATH := ${VPATH}:${OBJPATH}
 
 # Compile libecmd optimized
 # Set optimaztion level to 3 if not set in the included makefiles
-OPT_LEVEL   ?= -O3
-SLIB_CFLAGS := ${CFLAGS} ${OPT_LEVEL}
+OPT_LEVEL     ?= -O3
+SLIB_CXXFLAGS := ${CXXFLAGS} ${OPT_LEVEL}
 
 # Direct where to get zlib from
 ifeq (${TARGET_ARCH},aix)
@@ -111,13 +111,13 @@ EMPTY_SOURCE_OBJS := $(addsuffix .o, ${EMPTY_SOURCE_OBJS})
 # *****************************************************************************
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${SLIB_CXXFLAGS} $< -o $@ ${DEFINES}
 ${EMPTY_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive

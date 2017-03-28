@@ -43,7 +43,7 @@
 // Determine endianness of the machine we are building for
 // Since AIX and Linux do it different, we are creating our own defines
 // _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
-#ifdef LINUX
+#ifdef __linux__
 #include <endian.h>
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -55,7 +55,7 @@
 #    endif
 #  endif
 #endif
-#ifdef AIX
+#ifdef _AIX
 #include <sys/machine.h>
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -99,7 +99,7 @@
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-#ifdef AIX
+#ifdef _AIX
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
     ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \

@@ -15,7 +15,7 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <netinet/in.h>
-#ifdef AIX
+#ifdef _AIX
 extern "C"
 {
 #include "/usr/include/arpa/inet.h"
@@ -123,7 +123,7 @@ int eth_transfer::initialize(const char * opt) {
 
     struct hostent host;
     struct hostent *hostp = &host;
-#ifdef AIX
+#ifdef _AIX
     struct hostent_data hostdata;
     memset((void *) &hostdata, 0, sizeof hostdata);
     //example rc = gethostbyname_r(name, &host, &hostdata);
