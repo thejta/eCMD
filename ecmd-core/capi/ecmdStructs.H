@@ -716,7 +716,9 @@ struct ecmdChipTarget {
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
+#if !defined(DOCUMENTATION)
     uint8_t   core;
+#endif
     uint8_t   chipUnitNum;      ///< number of the chip unit to access
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
@@ -732,7 +734,9 @@ struct ecmdChipTarget {
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
+#if !defined(DOCUMENTATION)
     ecmdChipTargetState_t coreState;
+#endif
     ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
