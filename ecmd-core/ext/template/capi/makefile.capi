@@ -25,7 +25,7 @@ endif
 # Can't use TEMPLATE_SOURCE, don't want to include *DllCapi.C
 CAPI_SOURCE := ${CAPI_SOURCE} ${GENERATED_SOURCE} ${EXTENSION_NAME}ClientCapi.C
 ### Variables used for the build
-CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I${SRCPATH}
+CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${SRCPATH}
 INCLUDES := ${INCLUDES} ${CAPI_INCLUDES} ${GENERATED_INCLUDES}
 VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${EXT_TEMPLATE_PATH}/capi:${SRCPATH}
 
@@ -87,10 +87,10 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 # *****************************************************************************
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} ${SLIBCFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive

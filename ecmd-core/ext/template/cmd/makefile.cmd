@@ -16,7 +16,7 @@ INT_INCLUDES  := ${INT_INCLUDES} ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecm
 SOURCE       := ${SOURCE} ${EXTENSION_NAME}Interpreter.C
 
 ### Variables used for the build
-CFLAGS   := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/cmd/ -I${EXT_${EXTENSION_NAME}_PATH}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
+CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/cmd/ -I${EXT_${EXTENSION_NAME}_PATH}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
 INCLUDES := ${INCLUDES} ${CAPI_INCLUDES}
 VPATH    := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${ECMD_CORE}/cmd:${EXT_${EXTENSION_NAME}_PATH}/capi:${SRCPATH}
 
@@ -72,7 +72,7 @@ SOURCE_OBJS := $(addsuffix .o, ${SOURCE_OBJS})
 # *****************************************************************************
 ${SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive
