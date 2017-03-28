@@ -21,7 +21,7 @@
 // This ifdef is super stupid, but the damn aix compiler won't work with just fstream included.
 // Here is the error I got: "/afs/rchland.ibm.com/rs_aix53/lpp/vacpp.6008/usr/vacpp/include/iostream.h", line 86.33: 1540-0063 (S) The text "(" is unexpected.
 // If you can fix it, I'll buy you a beer.  JTA 07/22/08
-//#ifdef AIX
+//#ifdef _AIX
 //#include <fstream.h>
 //#else
 #include <fstream>

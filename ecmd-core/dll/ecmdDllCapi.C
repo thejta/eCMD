@@ -38,7 +38,7 @@
 #include <ecmdStructs.H>
 #include <ecmdSharedUtils.H>
 
-#ifndef AIX
+#ifndef _AIX
   #include <byteswap.h>
   #ifndef htonll
     #if BYTE_ORDER == BIG_ENDIAN
