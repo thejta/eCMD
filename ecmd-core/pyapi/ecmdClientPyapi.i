@@ -11,6 +11,7 @@
 %include std_vector.i
 %include stdint.i
 %include ecmdCommon.i
+%apply uint32_t &OUTPUT { uint32_t & };
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/

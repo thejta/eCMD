@@ -32,12 +32,11 @@ CXXFLAGS     += -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PAT
 # We can't just blanket include all OBJPATH .o's because everything gets dumped there
 # Only do this during the build goal, otherwise we might throw errors for files not existing
 ifeq (${MAKECMDGOALS},build)
-  # LINK_OBJS - capi
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, $(shell ${AR} t ${OUTLIB}/${ext}ClientCapi.a))
   # LINK_OBJS - cmd
   LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, $(shell ${AR} t ${OUTLIB}/${ext}CmdInterpreter.a)) 
   # The Core Interpreter
   LINK_OBJS := ${LINK_OBJS} $(shell ${AR} t ${OUTLIB}/ecmdClientCmd.a)
+  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/lib${ext}.so) 
 endif
 
 # Include the common extension makefile to do all the work
