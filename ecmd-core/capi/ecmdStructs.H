@@ -715,11 +715,11 @@ struct ecmdChipTarget {
   std::string chipUnitType;     ///< name of the chip unit to access
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
-    unit8_t   core;
 #endif
+    uint8_t   core;
     uint8_t   chipUnitNum;      ///< number of the chip unit to access
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  }
+  };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
@@ -731,11 +731,11 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
-    ecmdChipTargetState_t coreState;
 #endif
+    ecmdChipTargetState_t coreState;
     ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  }
+  };
 #endif
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
