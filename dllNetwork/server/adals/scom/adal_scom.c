@@ -58,6 +58,15 @@ enum SCOM_REGS {
 #define SCOM_ENGINE_OFFSET	0x1000
 #define P1_SLAVE_OFFSET		0x100000
 
+#define DIRECT_SCOM_ADDR	0x7FFFFFFFULL
+#define FORM1_SCOM		0x1000000000000000ULL
+#define FORM1_SCOM_ADDR		0x00000FFF00000000ULL
+#define FORM1_SCOM_SHIFT	20
+#define FORM1_SCOM_DATA		0x000FFFFFFFFFFFFFULL
+#define INDIRECT_SCOM_READ	0x8000000000000000ULL
+#define INDIRECT_SCOM_ADDR	0x000FFFFF00000000ULL
+#define INDIRECT_SCOM_READ_DATA	0xFFFFULL
+
 struct adal_scom {
 	adal_t adal;
 	uint32_t offset;
@@ -123,8 +132,24 @@ ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigne
 {
 	int rc = 0, rc1 = 0;
 
-	lseek64(adal->fd, scom_address, SEEK_SET);
-	rc = read(adal->fd, buf, SCOM_DATA_LEN);
+	if (scom_address & INDIRECT_SCOM_ADDR) {
+		uint64_t read_data;
+		uint64_t data = (scom_address & INDIRECT_SCOM_ADDR) | INDIRECT_SCOM_READ;
+
+		lseek(adal->fd, (uint32_t)(scom_address & DIRECT_SCOM_ADDR), SEEK_SET);
+		rc = write(adal->fd, &data, SCOM_DATA_LEN);
+
+		lseek(adal->fd, (uint32_t)(scom_address & DIRECT_SCOM_ADDR), SEEK_SET);
+		rc = read(adal->fd, &data, SCOM_DATA_LEN);
+
+		read_data = data & INDIRECT_SCOM_READ_DATA;
+
+		memcpy(buf, &read_data, SCOM_DATA_LEN);
+	}
+	else {
+		lseek64(adal->fd, scom_address, SEEK_SET);
+		rc = read(adal->fd, buf, SCOM_DATA_LEN);
+	}
 
 	rc1 = adal_scom_get_register(adal, STATUS, status);
 
@@ -135,8 +160,33 @@ ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsig
 {
 	int rc = 0, rc1 = 0;
 
-	lseek64(adal->fd, scom_address, SEEK_SET);
-	rc = write(adal->fd, buf, SCOM_DATA_LEN);
+	if (scom_address & INDIRECT_SCOM_ADDR) {
+		uint64_t data;
+
+		if (scom_address & FORM1_SCOM) {
+			uint64_t form1_write_data;
+
+			memcpy(&form1_write_data, buf, 8);
+
+			data = (scom_address & FORM1_SCOM_ADDR) << FORM1_SCOM_SHIFT;
+			data |= (form1_write_data & FORM1_SCOM_DATA);
+		}
+		else {
+			uint64_t write_data;
+
+			memcpy(&write_data, buf, SCOM_DATA_LEN);
+
+			data = scom_address & INDIRECT_SCOM_ADDR;
+			data |= write_data;
+		}
+
+		lseek(adal->fd, (uint32_t)(scom_address & DIRECT_SCOM_ADDR), SEEK_SET);
+		rc = write(adal->fd, &data, SCOM_DATA_LEN);
+	}
+	else {
+		lseek64(adal->fd, scom_address, SEEK_SET);
+		rc = write(adal->fd, buf, SCOM_DATA_LEN);
+	}
 
 	rc1 = adal_scom_get_register(adal, STATUS, status);
 
