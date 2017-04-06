@@ -39,6 +39,7 @@ VPATH := ${VPATH}:${OBJPATH}
 # Set optimaztion level to 3 if not set in the included makefiles
 OPT_LEVEL     ?= -O3
 SLIB_CXXFLAGS := ${CXXFLAGS} ${OPT_LEVEL}
+CXXFLAGS := ${CXXFLAGS} ${OPT_LEVEL}
 
 # Direct where to get zlib from
 ifeq (${TARGET_ARCH},aix)
