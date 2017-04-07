@@ -107,7 +107,7 @@ ${EMPTY_TARGET}: ${EMPTY_SOURCE_OBJS}
 # *****************************************************************************
 ${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ -ldl -L ${OUTLIB} -lecmd
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ -ldl -L ${OUTLIB} -lecmd ${EXTLIBS}
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

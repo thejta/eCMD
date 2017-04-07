@@ -36,7 +36,7 @@ ifeq (${MAKECMDGOALS},build)
   LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, $(shell ${AR} t ${OUTLIB}/${ext}CmdInterpreter.a)) 
   # The Core Interpreter
   LINK_OBJS := ${LINK_OBJS} $(shell ${AR} t ${OUTLIB}/ecmdClientCmd.a)
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/lib${ext}.so) 
+  EXTLIBS := ${EXTLIBS} $(foreach ext, ${EXT_CMD}, $(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi))
 endif
 
 # Include the common extension makefile to do all the work
