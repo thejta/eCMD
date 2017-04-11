@@ -866,6 +866,8 @@ uint32_t ecmdGetMemPbaUser(int argc, char * argv[]) {
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
 
+  bool passthroughFlag = false;         ///< Send passthrough option
+  uint32_t pbaMode = 0x0;               ///< Procedure mode to use - default to none
   bool expectFlag = false;              ///< Are we doing an expect?
   bool maskFlag = false;                ///< Are we masking our expect data?
   char* expectPtr = NULL;               ///< Pointer to expected data in arg list
@@ -925,6 +927,12 @@ uint32_t ecmdGetMemPbaUser(int argc, char * argv[]) {
   } else {
     // If we are passing in data with a file, just look for -exp
     expectFlag = ecmdParseOption(&argc, &argv, "-exp");
+  }
+
+  // Check for passthrough flag
+  passthroughFlag = ecmdParseOption(&argc, &argv, "-pt");
+  if (passthroughFlag) {
+    pbaMode |= PBA_OPTION_PASSTHROUGH;
   }
 
   /************************************************************************/
@@ -1043,7 +1051,7 @@ uint32_t ecmdGetMemPbaUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
-    rc = getMemPba(target, address, numBytes, returnData);
+    rc = getMemPbaHidden(target, address, numBytes, returnData, pbaMode);
 
     if (rc) {
       printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";
@@ -1146,6 +1154,7 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
   int match;                            ///< For sscanf
   std::string printLine;                ///< Output data
   uint32_t pbaMode = PBA_MODE_LCO;  ///< Procedure mode to use - default to lco
+  bool passthroughFlag = false;         ///< Send passthrough option
 
   /************************************************************************/
   /* Setup the cmdlineName variable                                       */
@@ -1192,6 +1201,13 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
   }
+
+  // Check for passthrough flag
+  passthroughFlag = ecmdParseOption(&argc, &argv, "-pt");
+  if (passthroughFlag) {
+    pbaMode |= PBA_OPTION_PASSTHROUGH;
+  }
+
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
   /************************************************************************/
@@ -1230,7 +1246,7 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
-  if (pbaMode == PBA_MODE_LCO) {
+  if ((pbaMode & PBA_MODE_MASK) == PBA_MODE_LCO) {
     target.chipUnitType = "ex";
     target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
