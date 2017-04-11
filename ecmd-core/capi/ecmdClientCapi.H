@@ -5117,6 +5117,33 @@ uint32_t ecmdQueryRingInversionMask(ecmdChipTarget & i_target, const std::string
 //@}
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
+/** @name Memory Functions */
+//@{
+#ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
+/**
+ @brief Reads System Mainstore through the processor chip using PBA
+ @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that contains chip and cage/node/slot/position information
+ @param i_address Starting address to read from
+ @param i_bytes Number of bytes to write
+ @param o_data DataBuffer object that holds data read from memory
+ @param i_mode Future use
+
+ TARGET DEPTH  : Pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t getMemPbaHidden (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
+
+#endif // ECMD_REMOVE_MEMORY_FUNCTIONS
+//@}
+/* End Memory Functions */
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

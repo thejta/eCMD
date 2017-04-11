@@ -3,6 +3,7 @@ Syntax: getmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
         getmempba <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]]
         getmempba <MemAddress>  [-exp -f[d|b]<filename>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+        [-pt]
 
         ECMD:           Core Common Function
 
@@ -35,6 +36,8 @@ Syntax: getmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
 
         -mask     [opt] Data is AND'ed with the mask bits. Only for use with -exp.
                         Not valid with '-exp -f[d|b]'
+
+        -pt  [optional] Enable passthrough mode for SBE PBA operations
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
