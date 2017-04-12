@@ -2673,7 +2673,7 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
 */
 uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
 
-
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
 /**
  *  @brief Converts an eCmd (physical) Target to a HOM Unit Id
  *  @param io_target an ecmdChipTarget struct representing a specific eCmd target
@@ -2766,10 +2766,7 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
 
 */
 uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num);
-
-
-
-
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
 //@}
 
 

@@ -594,10 +594,12 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         /* case : u             */
         /************************/
         case 'u':
-        if (!strcmp(argv[0], "unitid")) {            
-          rc = ecmdUnitIdUser(argc - 1, argv + 1);
-        }
-        break;
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
+          if (!strcmp(argv[0], "unitid")) {            
+            rc = ecmdUnitIdUser(argc - 1, argv + 1);
+          }
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
+          break;
         
         /************************/
         /* The Unknown          */

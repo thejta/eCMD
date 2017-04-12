@@ -389,6 +389,7 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
   // Set to unknown so we can error check later
   io_state.initialized = false;
 
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
   /* Are we using a unitid ? */
   if ((io_target.chipTypeState == ECMD_TARGET_FIELD_VALID) && (io_target.chipType.length() > 0) && (io_target.chipType[0] == 'u')) {
 
@@ -401,8 +402,8 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     } else if (rc == ECMD_FUNCTION_NOT_SUPPORTED) {
       dllOutputError("ecmdConfigLooperInit - Current plugin doesn't support Unitid's\n");
     }
-
     if (rc) return rc;
+
     io_state.ecmdUseUnitid = true;
     io_state.ecmdLooperInitFlag = true;
     io_state.prevTarget = io_target;
@@ -437,10 +438,10 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     }
     if (rc) return rc;
 
-    /* Standard physical targets */
   } else {
-
-
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
+    
+    /* Standard physical targets */
     io_state.ecmdUseUnitid = false;
 
     queryTarget = io_target;
@@ -526,8 +527,11 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     io_state.ecmdCurCage = io_state.ecmdSystemConfigData.cageData.begin();
     io_state.ecmdLooperInitFlag = true;
     io_state.prevTarget = io_target;
+    
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
   }
-
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
+  
   /* Success! */
   io_state.initialized = true;
 

@@ -1654,6 +1654,7 @@ uint32_t ecmdDelayUser(int argc, char * argv[]) {
 
 }
 
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
 uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
     
   uint32_t rc = ECMD_SUCCESS;
@@ -1850,7 +1851,7 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
       ecmdOutput(buf);
     }
 
-  }else if(!strcmp(argv[0], "getversion")){
+  } else if(!strcmp(argv[0], "getversion")) {
 
       if (argc >1 ) {
         ecmdOutputError("unitid - Too many arguments specified for 'getversion'.You  only need 'getversion'\n");
@@ -1874,13 +1875,14 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
         }
      }
 
-  }else{
+  } else {
     ecmdOutputError("unitid- Invalid arguments-Type 'unitid -h' for correct arguments\n");
     return ECMD_INVALID_ARGS;
-  } 
+  }
+  
   return rc; 
-
 }
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
 uint32_t ecmdGetSensorUser(int argc, char* argv[]) 
