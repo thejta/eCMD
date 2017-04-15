@@ -73,6 +73,8 @@ CAPI_INCLUDES += vpd_access.H
 CAPI_INCLUDES += vpd_access_defs.H
 CAPI_INCLUDES += fapi2_spd_access.H
 CAPI_INCLUDES += plat_spd_access.H
+CAPI_INCLUDES += fapi2_subroutine_executor.H
+CAPI_INCLUDES += subroutine_executor.H
 # remove the following when mbvpd_access.H is in use
 CAPI_INCLUDES += mbvpdAccess.H
 
