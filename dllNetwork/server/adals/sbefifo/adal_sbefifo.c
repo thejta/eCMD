@@ -20,17 +20,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/ioctl.h>
+#include <poll.h>
+#include <stdio.h>
 #include "adal_sbefifo.h"
-
-
-struct adal_sbefifo_submit
-{
-	adal_sbefifo_request request;
-	adal_sbefifo_reply reply;
-	unsigned long timout_in_msec;
-};
-typedef struct adal_sbefifo_submit adal_sbefifo_submit_t;
 
 
 adal_t * adal_sbefifo_open(const char * device, int flags) {
@@ -55,21 +47,63 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 
 	int rc = -1;
 
-	adal_sbefifo_submit_t submit;
-	memcpy(&submit.request, request, sizeof(adal_sbefifo_request));
-	memcpy(&submit.reply, reply, sizeof(adal_sbefifo_reply));
-	submit.timout_in_msec = timeout_in_msec;
+	struct pollfd pollfd;
+	int ret = 0;
 
-	rc = ioctl(adal->fd, IOCTL_SUBMIT, &submit);
+	pollfd.fd = adal->fd;
+	pollfd.events = POLLOUT | POLLERR;
 
-	if (rc>0) {
-		reply->wordcount=submit.reply.wordcount;
-		rc = (reply->wordcount) * 4;
+	if((ret = poll(&pollfd, 1, timeout_in_msec)) < 0) {
+		perror("Waiting for fifo device failed");
+		return -1;
 	}
-	else
-	{
-		rc=-1;
+
+	if (pollfd.revents & POLLERR) {
+
+		return -1;
 	}
+
+	uint8_t * buf = (uint8_t *) request->data;
+	int size_bytes = request->wordcount << 2;
+	ret = write(adal->fd, buf, size_bytes);
+	if (ret < 0) {
+		perror("Writing user input failed");
+		return -1;
+	} else if (ret != size_bytes) {
+		fprintf(stderr, "Incorrect number of bytes written %d != %d\n", ret, size_bytes);
+		return -1;
+	}
+
+	pollfd.fd = adal->fd;
+	pollfd.events = POLLIN | POLLERR;
+
+	if((ret = poll(&pollfd, 1, timeout_in_msec) < 0)) {
+		perror("Waiting for fifo device failed");
+		return -1;
+	}
+
+	if (pollfd.revents & POLLERR) {
+		fprintf(stderr, "POLLERR while waiting for readable fifo\n");
+		return -1;
+	}
+
+	buf = (uint8_t *) reply->data;
+	int ret_bytes = 0;
+	size_bytes = reply->wordcount << 2;
+	while (size_bytes > 0) {
+		if((ret = read(adal->fd, buf + ret_bytes, size_bytes)) < 0) {
+			if (errno == EAGAIN)
+				break;
+			perror("Reading fifo device failed");
+			return -1;
+		}
+		ret_bytes += ret;
+		size_bytes -= ret;
+	}
+
+
+	reply->wordcount = ret_bytes >> 2;
+	rc = ret_bytes;
 
 	return rc;
 

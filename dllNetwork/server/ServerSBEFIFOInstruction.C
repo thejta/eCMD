@@ -41,15 +41,15 @@ uint32_t ServerSBEFIFOInstruction::sbefifo_open(Handle ** handle, InstructionSta
 
     if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
     {
-        snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_open(%s, O_RDWR | O_EXCL)\n", device);
+        snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_open(%s, O_RDWR | O_NONBLOCK)\n", device);
         o_status.errorMessage.append(errstr);
     }
 
 #ifdef TESTING
-    TEST_PRINT("*handle = adal_sbefifo_open(%s, O_RDWR | O_EXCL);\n", device);
+    TEST_PRINT("*handle = adal_sbefifo_open(%s, O_RDWR | O_NONBLOCK);\n", device);
     *handle = (Handle *) 0x1;
 #else
-    *handle = (Handle *) adal_sbefifo_open(device, O_RDWR | O_EXCL);
+    *handle = (Handle *) adal_sbefifo_open(device, O_RDWR | O_NONBLOCK);
 #endif
 
     if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
