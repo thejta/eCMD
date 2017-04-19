@@ -4,10 +4,15 @@ eCMD is the hardware access API for IBM Systems.  It provides the user
 a consistent way to address hardware between system types and even across
 processor generations.
 
-The core of eCMD is a C programing API.  Built on top of that are a 
+The core of eCMD is a C/C++ programing API.  Built on top of that are a 
 cmdline, python module and perl module.
 
-An eCMD Plugin is an implementation of the API
+Distros
+=============
+eCMD will build for Linux x86, x86_64, ppc64 and ppc64le
+
+RHEL, Ubuntu, Fedora and Debian have all been tested and makefile configs
+for recent releases are included.
 
 --------   ---------   ------  ↑
 |python|   |cmdline|   |perl|  |
@@ -31,18 +36,36 @@ An eCMD Plugin is an implementation of the API
 
 Building
 ========
-To build eCMD:
+To build eCMD you need to generate a makefile.config
+That is done via the config.py script in the top level
+To create:
 ~/ecmd$ ./config.py 
 Writing /home/user/ecmd/makefile.config
+
+If config.py isn't called, you'll see an error like this:
+makefile.base:45: *** makefile.config not found!  Please run config.py in ~/ecmd/.  Stop.
+
+To build, then invoke make
 ~/ecmd$ make
+
+The make runs through 4 steps
+- creates output directories
+- creates any generated source
+- builds all source
+- runs simple build tests
+
+A build will take about 1-2 minutes
 
 Install
 =======
+By default, the install is done into an install dir in your repo.
+You can change this by setting INSTALL_PATH before calling config.py
+
 ~/ecmd$ make install
 
 Documentation
 =============
-~/ecmd$ make doxygen
+Please see docs/README for instructions on how to generate API documentation
 
 License
 =======

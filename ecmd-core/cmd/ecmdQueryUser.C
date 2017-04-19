@@ -1967,6 +1967,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     /* ---------- */
     /* sp         */
     /* ---------- */
+#ifndef ECMD_REMOVE_SP_FUNCTIONS
   } else if (!strcmp(argv[0],"sp")) {
     /* query the service processor */
     if (argc < 2) {
@@ -2017,6 +2018,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
+#endif // ECMD_REMOVE_SP_FUNCTIONS
+    
     /* ---------- */
     /* mode       */
     /* ---------- */

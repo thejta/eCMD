@@ -20,7 +20,7 @@ VPATH        := $(subst ${space},,${VPATH})
 # These are includes not to be exported
 INT_INCLUDES := ${INT_INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
-CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/cmd)
+CXXFLAGS     += -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/cmd)
 
 #######################
 # Extension Objects   #
@@ -32,12 +32,11 @@ CFLAGS       := ${CFLAGS} -I${ECMD_CORE}/cmd $(foreach ext, ${EXT_CMD}, -I${EXT_
 # We can't just blanket include all OBJPATH .o's because everything gets dumped there
 # Only do this during the build goal, otherwise we might throw errors for files not existing
 ifeq (${MAKECMDGOALS},build)
-  # LINK_OBJS - capi
-  LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, $(shell ${AR} t ${OUTLIB}/${ext}ClientCapi.a))
   # LINK_OBJS - cmd
   LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, $(shell ${AR} t ${OUTLIB}/${ext}CmdInterpreter.a)) 
   # The Core Interpreter
   LINK_OBJS := ${LINK_OBJS} $(shell ${AR} t ${OUTLIB}/ecmdClientCmd.a)
+  EXTLIBS := ${EXTLIBS} $(foreach ext, ${EXT_CMD}, $(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi))
 endif
 
 # Include the common extension makefile to do all the work

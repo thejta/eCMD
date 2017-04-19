@@ -52,7 +52,7 @@ typedef u_int8_t u8 ;
 // Determine endianness of the machine we are building for
 // Since AIX and Linux do it different, we are creating our own defines
 // _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
-#ifdef LINUX
+#ifdef __linux__
 #include <endian.h>
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -64,7 +64,7 @@ typedef u_int8_t u8 ;
 #    endif
 #  endif
 #endif
-#ifdef AIX
+#ifdef _AIX
 #include <sys/machine.h>
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN

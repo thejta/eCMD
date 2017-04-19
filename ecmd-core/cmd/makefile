@@ -31,16 +31,15 @@ SOURCE   := ${GENERATED_SOURCE} ${SOURCE}
 INCLUDES := ${INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
 ### Setup our link objs
-LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a  ${OUTLIB}/${ext}ClientCapi.a)
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a)
 EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_CMD},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
-# Setup our CFLAGS and VPATH
+# Setup our CXXFLAGS and VPATH
 VPATH  := ${VPATH}$(foreach ext, ${EXT_CMD},:${EXT_${ext}_PATH}/cmd/:${EXT_${ext}_PATH}/capi/)
 VPATH  := ${VPATH}:${OBJPATH}:${SRCPATH}:${ECMD_CORE}/capi
 
-CFLAGS := ${CFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
-CFLAGS := ${CFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
+CXXFLAGS := ${CXXFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
 
 # *****************************************************************************
 # Define our output files
@@ -65,6 +64,13 @@ endif
 # The ppc Linux Setup stuff
 # *****************************************************************************
 ifeq (${TARGET_BARCH},ppc)
+  LDLIBS    := ${LDLIBS} -ldl -L${OUTLIB} -lecmd
+endif
+
+# *****************************************************************************
+# The arm Linux Setup stuff
+# *****************************************************************************
+ifeq (${TARGET_BARCH},arm)
   LDLIBS    := ${LDLIBS} -ldl -L${OUTLIB} -lecmd
 endif
 
@@ -132,7 +138,7 @@ MAIN_SOURCE_OBJS := $(addsuffix .o, $(MAIN_SOURCE_OBJS))
 # *****************************************************************************
 $(SOURCE_OBJS) $(MAIN_SOURCE_OBJS) $(VER_SOURCE_OBJS): ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client 

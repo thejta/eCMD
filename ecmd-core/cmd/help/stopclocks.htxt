@@ -50,5 +50,12 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
                         > stopclocks pu.ex -c4  # stops ex4 clocks only
                         > stopclocks pu perv    # stops pervasive/tp domain only
 
+        P9 Specific Examples:
+	               > stopclocks pu all      # stops all clocks except tp, pib, vitl
+		       > stopclocks pu pcie     # stops pcie clock only
+		       > stopclocks pu cachecore# stops cache & core clocks only
+		       > stopclocks pu pervpib  # stops perv and pib only
+		       > stopclocks pu vitl     # stops only vital clocks
+
 			To skip the setting of the io valid bits for the X/A bus
 			use -skip_iovalid

@@ -15,20 +15,20 @@ Syntax: psi <op> [op options]
 
                         enable ChipSelect port state 
                             - Set the enable state of the specified port to the given state. 
-			    - state value 0 disables the link and 1 enables it.
+                            - state value 0 disables the link and 1 enables it.
 
                         verify ChipSelect port
                             - Display the state of the specified port
 
                         setspeed ChipSelect port speed mode
                             - Set the speed of the port to given speed in mhz and in specified mode. 
-			    - mode value 0 sets in slow mode and 1 in fast mode.
+                            - mode value 0 sets in slow mode and 1 in fast mode.
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
         --------------------------------------------------------------------------------
 
-        Example:        psi init pu 0
-	                psi enable pu 1 2
-			psi verify pu 2
-			psi setspeed pu 3 167 0
+        Example:        psi init fsp2 0
+                        psi enable fsp2 1 2
+                        psi verify fsp2 2
+                        psi setspeed fsp2 3 167 0

@@ -28,12 +28,6 @@ endif
 # Pull cmd then use the list to build ext targets
 EXT_CAPI_TARGETS := $(subst cmdcapi,,${EXT_CAPI_TARGETS})
 
-# These variables can be controlled from the distro or makefile.config to determine if python/perl should be built
-# The default here is yes
-CREATE_PERLAPI ?= yes
-CREATE_PYAPI ?= yes
-CREATE_PY3API ?= yes
-
 # Set the actual build targets used in the build if yes
 ifeq (${CREATE_PERLAPI},yes)
   PERLAPI_BUILD := ecmdperlapi
@@ -160,7 +154,7 @@ ${EXT_PYAPI_RULES}:
 ########################
 ecmdutils:
 	@echo "eCMD Utilities ${TARGET_ARCH} ..."
-	@${MAKE} -C ecmd-core/utils ${MAKECMDGOALS} ${MAKEFLAGS}
+	@${MAKE} -C ${ECMD_CORE}/utils ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ########################

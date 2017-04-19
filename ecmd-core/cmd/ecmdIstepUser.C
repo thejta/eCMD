@@ -60,7 +60,7 @@
 //---------------------------------------------------------------------
 // Member Function Specifications
 //---------------------------------------------------------------------
-
+#ifndef ECMD_REMOVE_INIT_FUNCTIONS
 uint32_t ecmdIstepUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdDataBuffer steps(200);                    ///< Buffer to hold numbered steps (max of 200 steps)
@@ -202,6 +202,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   bool validPosFound = false;   ///< Did we find something to actually execute on ?
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperData;     ///< Store internal Looper data
+  uint32_t ringMode = 0;         ///< Multicast information passed along
 
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
@@ -209,6 +210,13 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   char* file = ecmdParseOptionWithArgs(&argc, &argv, "-file");
   char* name = ecmdParseOptionWithArgs(&argc, &argv, "-name");
   char* mode = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+  //Check for mcast flag
+  char * mcast = ecmdParseOptionWithArgs(&argc, &argv, "-mcast");
+  if (mcast != NULL)
+  {
+      ringMode = (uint32_t)strtol(mcast, NULL, 16);
+      ringMode |= ECMD_RING_MODE_MULTICAST;
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -234,7 +242,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    rc = initChipFromFile(target, file, name, mode);
+    rc = initChipFromFileHidden(target, file, name, mode, ringMode);
     if (rc) {
       printed = "initchipfromfile - Error occured performing initchipfromfile on ";
       printed += ecmdWriteTarget(target);
@@ -257,7 +265,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif //ECMD_REMOVE_INIT_FUNCTIONS
 
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 uint32_t ecmdStartClocksUser(int argc, char * argv[]) {
@@ -939,6 +947,8 @@ uint32_t ecmdGetClockSpeedUser(int argc, char* argv[]) {
     clockType = ECMD_MEMCTRL_REFCLOCK;
   } else if (clocktype == "pu_coreclock") {
     clockType = ECMD_PROC_CORE_CLOCK;
+  } else if (clocktype == "pu_coredpllclock") {
+    clockType = ECMD_PROC_CORE_DPLL_CLOCK;
   } else if (clocktype == "pu_nestclock") {
     clockType = ECMD_PROC_NEST_CLOCK;
   } else if (clocktype == "memctrl_clock") {

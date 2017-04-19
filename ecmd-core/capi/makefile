@@ -14,11 +14,12 @@ INT_INCLUDES  := ecmdDllCapi.H
 ### Source
 CAPI_SOURCE := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
 SLIB_SOURCE := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C ecmdChipTargetCompare.C
+EMPTY_SOURCE := ecmdEmptyFile.C
 
 ### Generated source by makedll.pl
 GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H
 GENERATED_SOURCE   := ecmdClientCapiFunc.C
-CFLAGS             := ${CFLAGS} -I${SRCPATH}
+CXXFLAGS           := ${CXXFLAGS} -I${SRCPATH}
 VPATH              := ${VPATH}:${SRCPATH}
 
 # Tell the SEDC code we import that we just want the scomdef parser
@@ -27,7 +28,7 @@ SEDC_INCLUDES := ${SEDC_INCLUDES} sedcCommonParser.H sedcCommonClasses.H
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcScomdefParser.C sedcScomdefClasses.C 
 CAPI_SOURCE   := ${CAPI_SOURCE} sedcCommonParser.C sedcCommonClasses.C
 VPATH         := ${VPATH}:sedcScomdef
-CFLAGS        := ${CFLAGS} -IsedcScomdef
+CXXFLAGS      := ${CXXFLAGS} -IsedcScomdef
 # Variables for install
 SEDC_INCLUDES_INSTALL := $(addprefix sedcScomdef/, ${SEDC_INCLUDES})
 
@@ -36,8 +37,9 @@ VPATH := ${VPATH}:${OBJPATH}
 
 # Compile libecmd optimized
 # Set optimaztion level to 3 if not set in the included makefiles
-OPT_LEVEL   ?= -O3
-SLIB_CFLAGS := ${CFLAGS} ${OPT_LEVEL}
+OPT_LEVEL     ?= -O3
+SLIB_CXXFLAGS := ${CXXFLAGS} ${OPT_LEVEL}
+CXXFLAGS := ${CXXFLAGS} ${OPT_LEVEL}
 
 # Direct where to get zlib from
 ifeq (${TARGET_ARCH},aix)
@@ -54,7 +56,7 @@ INCLUDES := ${CAPI_INCLUDES} ${SEDC_INCLUDES}
 # *****************************************************************************
 # Define our output files
 # *****************************************************************************
-TARGET   := ecmdClientCapi.a
+EMPTY_TARGET   := ecmdClientCapi.a
 SLIB     := libecmd.so
 
 # *****************************************************************************
@@ -66,7 +68,7 @@ all:
 
 generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 
-build: ${TARGET} ${SLIB}
+build: ${EMPTY_TARGET} ${SLIB}
 
 test:
   # Do nothing
@@ -74,7 +76,7 @@ test:
 install:
 	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
 	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+	cp ${OUTLIB}/${EMPTY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
 	chmod 644 ${INSTALL_PATH}/capi/*
@@ -99,6 +101,9 @@ CAPI_SOURCE_OBJS := $(addsuffix .o, ${CAPI_SOURCE_OBJS})
 SLIB_SOURCE_OBJS := $(basename ${SLIB_SOURCE})
 SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${SLIB_SOURCE_OBJS})
 SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
+EMPTY_SOURCE_OBJS := $(basename ${EMPTY_SOURCE})
+EMPTY_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${EMPTY_SOURCE_OBJS})
+EMPTY_SOURCE_OBJS := $(addsuffix .o, ${EMPTY_SOURCE_OBJS})
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
@@ -107,24 +112,27 @@ SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
 # *****************************************************************************
 ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CC} -c ${SLIB_CFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${SLIB_CXXFLAGS} $< -o $@ ${DEFINES}
+${EMPTY_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
+	@echo Compiling $<
+	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
-${TARGET}: ${CAPI_SOURCE_OBJS}
+${EMPTY_TARGET}: ${EMPTY_SOURCE_OBJS}
 	@echo Creating $@
-	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
+	${VERBOSE}${AR} r ${OUTLIB}/${EMPTY_TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
-${SLIB}: ${SLIB_SOURCE_OBJS}
+${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ ${ZLIB}
+	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ ${ZLIB} -ldl
 
 # *****************************************************************************
 # Autogenerate the Client side of the Dll

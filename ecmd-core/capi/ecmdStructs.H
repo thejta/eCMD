@@ -44,7 +44,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "14.4"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "14.6"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -214,6 +214,7 @@ typedef enum {
   ECMD_IO_CLOCK,                        ///< IO Chip Clock (actual speed of the chip)
   ECMD_GX_REFCLOCK,                     ///< GX reference Clock
   ECMD_DRAM_FREQ,                       ///< DRAM Frequency
+  ECMD_PROC_CORE_DPLL_CLOCK,            ///< Processor Core DPLL Clock (actual speed of the domain)
 } ecmdClockType_t;
 
 /**
@@ -312,6 +313,7 @@ typedef enum {
   ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
   ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
   ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
+  ECMD_DLL_PDBG,                ///< Running against the pdbg plugin
 } ecmdDllType_t;
 
 /**
@@ -711,68 +713,18 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
-  // In the perl module, the union construct isn't supported
-  // We need to define these variables without the union so that the perl module interface is generated correctly
-  // In the swig wrapper code the C union is supported, so when you set core, chipUnitNum is set and vice versa
-  // This also now pulled from doxygen because it can't represent unions properly
-  // Union also not supported by python module - JTA 7/29/14
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
-    /**
-     @brief which core on the chip to access.  <b>NOTE</b>: union'd with chipUnitNum.  Details below.
-
-     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
-     and vice versa.  Example:
-
-     <pre>
-     <b>Code Snippet</b>
-     target.core = 0;
-     target.chipUnitNum = 1;
-     printf("target.core = %d\n", target.core);
-     target.core = 2;
-     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
-
-     <b>Program Output</b>
-     target.core = 1
-     target.chipUnitNum = 2
-     </pre>
-
-     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
-     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
-     */
-    uint8_t     core;
-
-    /**
-     @brief which chip unit on a chip to access. <b>NOTE</b>: union'd with core.  Details below.
-
-     The core and chipUnitNum variables are joined together with a C union.  This means if you set core, you are setting chipUnitNum
-     and vice versa.  Example:
-
-     <pre>
-     <b>Code Snippet</b>
-     target.core = 0;
-     target.chipUnitNum = 1;
-     printf("target.core = %d\n", target.core);
-     target.core = 2;
-     printf("target.chipUnitNum = %d\n", target.chipUnitNum);
-
-     <b>Program Output</b>
-     target.core = 1
-     target.chipUnitNum = 2
-     </pre>
-
-     If you are writing code for p6/z6 chips, you want to use core.  If you are writing code for chips that support chipUnits (p7/z7 and later)
-     you want to use chipUnitNum.  If you are using chipUnitNum, you also need to set the chipUnitType.
-
-     @see chipUnitType
-     */
-    uint8_t     chipUnitNum;
+#if !defined(DOCUMENTATION)
+    uint8_t   core;
+#endif
+    uint8_t   chipUnitNum;      ///< number of the chip unit to access
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
 #endif
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
-  uint32_t    unitId;       ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
+  uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
   ecmdChipTargetState_t nodeState;            ///< node field state
   ecmdChipTargetState_t slotState;            ///< slot field state
@@ -782,55 +734,10 @@ struct ecmdChipTarget {
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   union {
 #endif
-    /**
-     @brief core field state.  <b>NOTE</b>: union'd with chipUnitNumState.  Details below.
-
-     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
-     and vice versa.  Example:
-
-     <pre>
-     <b>Code Snippet</b>
-     target.coreState = ECMD_TARGET_FIELD_VALID;
-     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
-     printf("target.coreState = %s\n", target.coreState);
-     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
-
-     <b>Program Output</b>
-     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
-     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
-     </pre>
-
-     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
-     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
-     */
+#if !defined(DOCUMENTATION)
     ecmdChipTargetState_t coreState;
-
-    /**
-     @brief chipUnitNum field state.  <b>NOTE</b>: union'd with coreState.  Details below.
-
-     The coreState and chipUnitNumState variables are joined together with a C union.  This means if you set coreState, you are setting chipUnitNumState
-     and vice versa.  Example:
-
-     <pre>
-     <b>Code Snippet</b>
-     target.coreState = ECMD_TARGET_FIELD_VALID;
-     target.chipUnitNumState = ECMD_TARGET_FIELD_UNKNOWN;
-     printf("target.coreState = %s\n", target.coreState);
-     target.coreState = ECMD_TARGET_FIELD_WILDCARD;
-     printf("target.chipUnitNumState = %s\n", target.chipUnitNumState);
-
-     <b>Program Output</b>
-     target.coreState = ECMD_TARGET_FIELD_UNKNOWN
-     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD
-     </pre>
-
-     If you are writing code for p6/z6 chips, you want to use coreState.  If you are writing code for chips that support chipUnits (p7/z7 and later)
-     you want to use chipUnitNumState.  If you are using chipUnitNumState, you also need to set the chipUnitTypeState.
-
-     @see chipUnitTypeState
-     */
-    ecmdChipTargetState_t chipUnitNumState;
+#endif
+    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
 #if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
   };
 #endif
@@ -845,7 +752,7 @@ cage(0),
 node(0),
 slot(0),
 pos(0),
-core(0),
+chipUnitNum(0),
 thread(0),
 unitId(0),
 cageState(ECMD_TARGET_UNKNOWN_STATE),
@@ -1024,6 +931,8 @@ inline ecmdChipUnitData::~ecmdChipUnitData() { }
 
 #define ECMD_CHIPFLAG_32BIT_HEADERCHECK  0x08000000 
 #define ECMD_CHIPFLAG_64BIT_HEADERCHECK  0x04000000
+
+#define ECMD_CHIPFLAG_DEF_USE_SPARSE_SCAN 0x00800000
 
 #define ECMD_FLAG_STATEMASK         0x0000001F
 #define ECMD_FLAG_CONFIGED_USEABLE  0x00000001
@@ -2381,6 +2290,8 @@ std::string ecmdGetSharedLibVersion();
 #define PBA_MODE_LCO    0x00000001  ///< Use LCO mode with putMemPba
 #define PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with putMemPba
 #define PBA_MODE_DMA    0x00000003  ///< Use DMA mode with putMemPba
+#define PBA_MODE_MASK   0x000000FF  ///< Mask for determining PBA mode
+#define PBA_OPTION_PASSTHROUGH 0x80000000  ///< Use SBE Host Passthrough, input address will be ignored
 
 
 /**
@@ -2388,6 +2299,7 @@ std::string ecmdGetSharedLibVersion();
 */
 #define ECMD_TRACE_ARRAY_START 0x00000001
 #define ECMD_TRACE_ARRAY_STOP  0x00000002
+#define ECMD_TRACE_IGNORE_MUX  0x00000004
 
 /**
  Defines for chipCleanup

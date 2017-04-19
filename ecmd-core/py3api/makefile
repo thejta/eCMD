@@ -24,8 +24,8 @@ PYTHON_NAME := python3
 # Set testBuild.py to use python3
 ECMDPYTHONBIN := ${ECMDPYTHON3BIN}
 
-# Set the CFLAGS to pickup out of the pyapi directory
-CFLAGS := -I../pyapi ${CFLAGS}
+# Set the CXXFLAGS to pickup out of the pyapi directory
+CXXFLAGS := -I../pyapi ${CXXFLAGS}
 # As of 07/24/2014 - this ECMD_PY3API define is ONLY needed to properly generate
 # the typemap in ecmdCommon.i.  That 1 additional line is needed for python 3.  JTA
 SWIGFLAGS := -py3 -I../py3api/distro -DECMD_PY3API ${SWIGFLAGS}

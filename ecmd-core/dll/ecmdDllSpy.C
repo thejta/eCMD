@@ -46,7 +46,7 @@
 #include <sedcSpyParser.H>
 #include <sedcCommonParser.H>
 
-#ifndef AIX
+#ifndef _AIX
   #include <byteswap.h>
   #ifndef htonll
     #if BYTE_ORDER == BIG_ENDIAN
@@ -237,10 +237,7 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
 
       /* Fill in the latch information in high detail mode */
       if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
-        if (spyent.states & SPY_GROUP_BITS) {
-          // Groups aren't supported for latch return data
-        } else {
-
+          // Group spys didn't used to get returned, but we're going to return all the latches for those now too.
           // Loop over the latches, putting them together */
           ecmdSpyLatchData latchData;
           std::list<sedcLatchLine>::iterator aeiLineIter = spyent.aeiLines.begin();
@@ -261,7 +258,6 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
 
             aeiLineIter++;
           }
-        }
       }
 
     } else {

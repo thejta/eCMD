@@ -43,7 +43,7 @@
 // Determine endianness of the machine we are building for
 // Since AIX and Linux do it different, we are creating our own defines
 // _BIG_ENDIAN & _LITTLE_ENDIAN are the defines we are creating
-#ifdef LINUX
+#ifdef __linux__
 #include <endian.h>
 #  if __BYTE_ORDER == __LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -55,7 +55,7 @@
 #    endif
 #  endif
 #endif
-#ifdef AIX
+#ifdef _AIX
 #include <sys/machine.h>
 #  if BYTE_ORDER == LITTLE_ENDIAN
 #    ifndef _LITTLE_ENDIAN
@@ -99,7 +99,7 @@
 //--------------------------------------------------------------------
 // Macros
 //--------------------------------------------------------------------
-#ifdef AIX
+#ifdef _AIX
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
     ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \
@@ -1173,6 +1173,18 @@ public:
   uint32_t flatten(uint8_t * o_data, uint32_t i_len) const;
 
   /**
+   * @brief Flatten all the object data into a uint8_t buffer using minimized capacity
+   * @param o_data Byte buffer to write the flattened data to - should 
+   * @param i_len Number of bytes in the o_data buffer
+   * @post o_data buffer has a flattened version of the DataBuffer - must be pre-allocated
+   * Data format (all in network byte order):
+   * First Word:      (iv_numBits + 31 / 32)*32 (in bits)
+   * Second Word:     iv_NumBits
+   * Remaining Words: Buffer data
+   */
+  uint32_t flattenMinCap(uint8_t * o_data, uint32_t i_len) const;
+
+  /**
    * @brief Unflatten object data from a uint8_t buffer into this DataBuffer
    * @param i_data Byte buffer to read the flattened data from
    * @param i_len Number of bytes in the i_data buffer
@@ -1201,6 +1213,12 @@ public:
    * @retval Number of bytes needed
    */
   uint32_t flattenSize(void) const;
+
+  /**
+   * @brief Return number of bytes needed for a buffer to flatten the object with minimized capacity
+   * @retval Number of bytes needed
+   */
+  uint32_t flattenSizeMinCap(void) const;
 
   //@}
 

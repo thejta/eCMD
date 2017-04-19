@@ -81,6 +81,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   ecmdQueryDetail_t detail = ECMD_QUERY_DETAIL_LOW;  ///< Should we get all the possible info about this spy?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
+  ecmdChipData chipData;                ///< Chip data to find out sparse default value
   bool l_cond = false;                          ///< Use setpulse ring conditioning
   bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
 
@@ -125,6 +126,13 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
   if (l_sparse)
   {
       spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+  }
+
+  bool no_sparse = ecmdParseOption(&argc, &argv, "-nosparse");
+  if (l_sparse && no_sparse)
+  {
+      ecmdOutputError("getspy - Cannot specify both -sparse and -nosparse at the same time. \n");
+      return ECMD_INVALID_ARGS;
   }
 
   //Check for ring conditioning flags
@@ -203,6 +211,15 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
 
+    rc = ecmdGetChipData(target, chipData);
+    if (rc) {
+        coeRc = rc;
+        continue;
+    }
+
+    if ((chipData.chipFlags & ECMD_CHIPFLAG_DEF_USE_SPARSE_SCAN) && !no_sparse) {
+        spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+    }
     // as of STGC00401862  we are disabling caching for spy accesses
     /* We are going to enable ring caching to speed up performance */
     /* Since we are in a target looper, the state fields should be set properly so just use this target */
@@ -502,13 +519,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 		  rc = ECMD_DATA_BOUNDS_OVERFLOW;
 		  break;
 		}
+              }
 
-		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
-	      }
-	      else
-	      {
-		rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-	      }
+              rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
 	      if (rc) break;
 	    }
 	  }
@@ -538,6 +551,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       /* Check if verbose then print details */
       if (verbose) {
         /* Get Spy Groups */
+        bool l_has_groups = false; 
         getSpyGroupsHidden(cuTarget, spyName.c_str(), spygroups, spy_flags);
         if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) {
           coeRc = rc;
@@ -557,6 +571,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
           ecmdOutput(printed.c_str());
           i++;
           groupiter++;
+          l_has_groups = true;
         }
         /* Ecc Checkers */
         /* Must have entries - setup variables and iterators, start looping */
@@ -589,9 +604,25 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         char tempstr[50];
         uint32_t offset = 0;
         if (!spyData->isEnumerated) { // Can't do this on enumerated spies
+          if (l_has_groups)
+          {
+              //reuse some stuff from earlier
+              i = 0;
+              groupiter = spygroups.begin();
+              sprintf(gpnum,"%3.3d",i);
+              printed = "   ===== Group " + (std::string)gpnum + " =====\n";
+              ecmdOutput(printed.c_str());
+          }
           while (latchDataIter != spyData->spyLatches.end()) {
             // Format my data
-            sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            if (l_has_groups)
+            {   
+                sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? groupiter->extractBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : groupiter->extractBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            }
+            else
+            {
+                sprintf(tempstr,"   %s%-8s ", (((uint32_t)latchDataIter->length > 8) ? "0x" : "0b"), (((uint32_t)latchDataIter->length > 8) ? spyBuffer.genHexLeftStr(offset, (uint32_t)latchDataIter->length).c_str() : spyBuffer.genBinStr(offset, (uint32_t)latchDataIter->length).c_str()));
+            }
             printed = tempstr;
             // Now tack on the latch name
             printed += latchDataIter->latchName;
@@ -600,6 +631,21 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
             // Walk some stuff
             offset += (uint32_t)latchDataIter->length;
+            // For groups, we're returning latch data now for all groups
+            // Reset the offset when it reaches the length and move to next group buf
+            if (l_has_groups && (offset >= groupiter->extractBuffer.getBitLength()))
+            {
+                offset = 0;
+                groupiter++;
+                if (groupiter != spygroups.end())
+                {
+                    i++;
+                    sprintf(gpnum,"%3.3d",i);
+                    printed = "   ===== Group " + (std::string)gpnum + " =====\n";
+                    ecmdOutput(printed.c_str());
+                }
+
+            } 
             latchDataIter++;
           }
         }
@@ -669,6 +715,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   //bool enabledCache = false;            ///< Did we enable the cache ?
   uint8_t oneLoop = 0;                      ///< Used to break out of the chipUnit loop after the first pass for non chipUnit operations
   uint32_t spy_flags = 0;               ///< Flag to pass to spy functions
+  ecmdChipData chipData;                        ///< Chip data to find out sparse default value
   bool l_cond = false;                          ///< Use setpulse ring conditioning
   bool l_cond_all = false;                      ///< Use setpulse all ring conditioning
   uint32_t l_read_spy_flags = 0;
@@ -699,6 +746,13 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   {
       l_read_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
       l_write_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+  }
+
+  bool no_sparse = ecmdParseOption(&argc, &argv, "-nosparse");
+  if (l_sparse && no_sparse)
+  {
+      ecmdOutputError("putspy - Cannot specify both -sparse and -nosparse at the same time. \n");
+      return ECMD_INVALID_ARGS;
   }
 
   //Check for ring conditioning flags
@@ -767,6 +821,17 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
+
+    rc = ecmdGetChipData(target, chipData);
+    if (rc) {
+        coeRc = rc;
+        continue;     
+    }
+     
+   if ((chipData.chipFlags & ECMD_CHIPFLAG_DEF_USE_SPARSE_SCAN) && !no_sparse) {
+       l_read_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+       l_write_spy_flags |= ECMD_RING_MODE_SPARSE_ACCESS;
+   }
 
     // as of STGC00401862  we are disabling caching for spy accesses
     /* We are going to enable ring caching to speed up performance */
@@ -1223,18 +1288,7 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
 
 
 	  if (inputformat != "enum") {
-	    if (inputformat == "d") 
-	    {
-	      //char msgbuf[100];
-	      //sprintf(msgbuf,"Resizing expected value to requested number of bits (%d).\n", bitsToFetch);
-	      //ecmdOutput(msgbuf);
-
-	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
-	    }
-	    else
-	    {
-	      rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat);
-	    }
+            rc = ecmdReadDataFormatted(expectedRaw, expectArg.c_str(), inputformat, bitsToFetch);
 	    if (rc) break;
 	  }
     

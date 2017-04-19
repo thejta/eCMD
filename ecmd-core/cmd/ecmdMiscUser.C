@@ -824,6 +824,7 @@ uint32_t ecmdPutCfamUser(int argc, char* argv[]) {
 }
 #endif // ECMD_REMOVE_FSI_FUNCTIONS
 
+#ifndef ECMD_REMOVE_SP_FUNCTIONS
 uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
 
@@ -833,7 +834,9 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
   std::string command;          ///< Print Buffer
   std::string standardop = "";       ///< Standard out captured by running command
   ecmdLooperData looperData;    ///< Store internal Looper data
+  bool raw = false;             ///< Only output data from command, force quiet mode
 
+  raw = ecmdParseOption(&argc, &argv, "-raw");
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -844,6 +847,10 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
+
+  if (raw && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      ecmdSetGlobalVar(ECMD_GLOBALVAR_QUIETMODE, 1);
+  }
 
   //Pull out the system call
   if(argc == 0) {
@@ -870,7 +877,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
     /* Actually go fetch the data */
     rc = makeSPSystemCall(target, command, standardop);
-    if (rc) {
+    if (rc && !raw) {
       printed = "makespsystemcall - Error occured performing makeSPSystemCall on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
@@ -886,13 +893,15 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
       validPosFound = true;
     }
     //Print Output
-    printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
-    ecmdOutput( printed.c_str() );
+    if (!raw) {
+     printed = "makespsystemcall - Output from executing the command '" + command + "':\n\n";
+     ecmdOutput( printed.c_str() );
+    }
     
     if(standardop.length() != 0) {
      ecmdOutput( standardop.c_str() );
     }
-    else {
+    else if (!raw) {
      ecmdOutput( "No Output received from makeSPSystemCall\n");
     }
   }
@@ -907,7 +916,7 @@ uint32_t ecmdMakeSPSystemCallUser(int argc, char * argv[]) {
 
   return rc;
 }
-
+#endif // ECMD_REMOVE_SP_FUNCTIONS
 
 uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -1645,6 +1654,7 @@ uint32_t ecmdDelayUser(int argc, char * argv[]) {
 
 }
 
+#ifndef ECMD_REMOVE_UNITID_FUNCTIONS
 uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
     
   uint32_t rc = ECMD_SUCCESS;
@@ -1751,9 +1761,9 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
     target.nodeState     = ECMD_TARGET_FIELD_UNUSED;
     target.slotState     = ECMD_TARGET_FIELD_UNUSED;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
-    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
     target.posState      = ECMD_TARGET_FIELD_UNUSED;
-    target.coreState     = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+    target.chipUnitNumState  = ECMD_TARGET_FIELD_UNUSED;
     target.threadState   = ECMD_TARGET_FIELD_UNUSED;
 
     rc = ecmdParseTargetFields(&argc, &argv, "cage", target, cageType, cage);
@@ -1841,7 +1851,7 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
       ecmdOutput(buf);
     }
 
-  }else if(!strcmp(argv[0], "getversion")){
+  } else if(!strcmp(argv[0], "getversion")) {
 
       if (argc >1 ) {
         ecmdOutputError("unitid - Too many arguments specified for 'getversion'.You  only need 'getversion'\n");
@@ -1865,13 +1875,14 @@ uint32_t ecmdUnitIdUser(int argc, char* argv[]) {
         }
      }
 
-  }else{
+  } else {
     ecmdOutputError("unitid- Invalid arguments-Type 'unitid -h' for correct arguments\n");
     return ECMD_INVALID_ARGS;
-  } 
+  }
+  
   return rc; 
-
 }
+#endif // ECMD_REMOVE_UNITID_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SENSOR_FUNCTIONS
 uint32_t ecmdGetSensorUser(int argc, char* argv[]) 

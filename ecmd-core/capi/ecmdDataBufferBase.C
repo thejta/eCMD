@@ -37,7 +37,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
-#if defined (AIX) && defined (_LP64)
+#if defined (_AIX) && defined (_LP64)
   #include "/usr/include/zlib.h"
 #else
   #include <zlib.h>
@@ -686,10 +686,36 @@ uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit, uint32_t i_len) {
     ETRAC3("**** ERROR : ecmdDataBufferBase::clearBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+  // The following code will call recursively
+  // breaking up the request into portions that contain whole words
+  // where memset can be used to optimally clear bits
   
-  for (uint32_t idx = 0; idx < i_len; idx ++) {
-    rc |= this->clearBit(i_bit + idx);
-  }   
+  if (((i_bit % 32) == 0) && (i_len >= 32)) {
+    // word aligned start and greater that word length
+    int index = i_bit/32;
+    int length = i_len/32;
+    memset(iv_Data + index, 0x00, length * 4);
+
+    // clear bits of any remainder of i_len
+    if (i_len % 32) {
+      rc |= clearBit(i_bit + (length * 32), i_len - (length * 32));
+    }
+  } else if (((i_bit + i_len) / 32) - (i_bit / 32) >= 2) {
+    // unaligned start and end covering a word
+
+    // call clearBit() unaligned and smaller than 32
+    int l_len = 32 - (i_bit % 32);
+    rc |= clearBit(i_bit, l_len);
+
+    // call clearBit() with start aligned to word boundary
+    rc |= clearBit(i_bit + l_len, i_len - l_len);
+    
+  } else {
+    // any case not containing a whole word
+    for (uint32_t idx = 0; idx < i_len; idx ++) {
+      rc |= this->clearBit(i_bit + idx);
+    }   
+  }
   
   return rc;
 }
@@ -2150,6 +2176,32 @@ uint32_t ecmdDataBufferBase::flatten(uint8_t * o_data, uint32_t i_len) const {
   return rc;
 }
 
+uint32_t ecmdDataBufferBase::flattenMinCap(uint8_t * o_data, uint32_t i_len) const {
+
+  ECMD_NULL_PTR_CHECK(o_data);
+  
+  uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  uint32_t * o_ptr = (uint32_t *) o_data;
+
+  uint32_t l_Capacity = (iv_NumBits + 31) / 32;
+
+  if ((i_len < 8) || (l_Capacity*32 > ((i_len - 8) * 8))) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::flattenMinCap: i_len %d bytes is too small to flatten a capacity of %d words ", i_len, l_Capacity);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+
+  memset(o_data, 0, this->flattenSizeMinCap());
+  o_ptr[0] = htonl(l_Capacity*32);
+  o_ptr[1] = htonl(iv_NumBits);
+  if (l_Capacity > 0) {
+    for (uint32_t i = 0; i < l_Capacity; i++)
+      o_ptr[2+i] = htonl(iv_Data[i]);
+  }
+
+  return rc;
+}
+
 uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
 
   ECMD_NULL_PTR_CHECK(i_data);
@@ -2256,6 +2308,11 @@ uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, ui
 
 uint32_t ecmdDataBufferBase::flattenSize() const {
   return (iv_Capacity + 2) * 4;
+}
+
+uint32_t ecmdDataBufferBase::flattenSizeMinCap() const {
+  uint32_t l_Capacity = (iv_NumBits + 31) / 32;
+  return (l_Capacity + 2) * 4;
 }
 
 

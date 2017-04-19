@@ -3,7 +3,7 @@ Syntax: putmempba <MemAddress> <Data> [-i<format>]
         putmempba <MemAddress> -fb<filename>
         putmempba [AddressOffset] -fd<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
-        [-mode <PbaMode>]
+        [-mode <PbaMode>] [-pt]
 
         ECMD:           Core Common Function
 
@@ -29,6 +29,8 @@ Syntax: putmempba <MemAddress> <Data> [-i<format>]
         -i<format>[opt] Specifies the format type of input data : default 'xl'
                         Not valid with -f option
                         Run 'ecmdquery formats' to view available formats
+
+        -pt  [optional] Enable passthrough mode for SBE PBA operations
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
