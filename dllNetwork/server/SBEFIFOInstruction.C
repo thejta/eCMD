@@ -118,7 +118,6 @@ uint32_t SBEFIFOInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
                 snprintf(errstr, 200, "SBEFIFOInstruction::execute(SBEFIFO) adal_sbefifo_submit: rc = %d, errno %d\n", rc, errno);
                 o_status.errorMessage.append(errstr);
                 rc = o_status.rc = SERVER_SBEFIFO_SUBMIT_FAIL;
-                sbefifo_ffdc_and_reset(io_handle, o_status);
                 break;
             }
 
