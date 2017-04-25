@@ -1236,7 +1236,7 @@ uint32_t ecmdDataBuffer::insertFromHexLeft(const char * i_hexChars, uint32_t i_s
     number_ptr[i>>3] |= (tmpb32 << (28 - (4 * (i & 0x07))));
   }
 
-  this->insert(number_ptr, i_start, bitlength);
+  rc = this->insert(number_ptr, i_start, bitlength);
 
   delete[] number_ptr;
 
@@ -1315,7 +1315,7 @@ uint32_t ecmdDataBuffer::insertFromHexRight(const char * i_hexChars, uint32_t i_
   }
 
   /* Now we have our data insert into ourselves */
-  this->insert(insertBuffer, i_start, bitlength);
+  rc = this->insert(insertBuffer, i_start, bitlength);
 
   return rc;
 }
