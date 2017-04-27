@@ -6,6 +6,7 @@
 %include ecmdVector.i
 %include ecmdList.i
 %include ecmdCommon.i
+%include ecmdConst.i
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/

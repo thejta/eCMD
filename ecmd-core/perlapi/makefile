@@ -23,7 +23,7 @@ SWIG_SOURCE := ecmdClientPerlapiSwig.C
 GENERATED_SWIG_INPUT := ecmdExtPerlIncludes.i ecmdExtPerlInserts.i
 
 ### SWIG input files
-SWIG_INPUT := ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i 
+SWIG_INPUT := ecmdClientPerlapi.i ecmdString.i ecmdVector.i ecmdList.i ecmdCommon.i ecmdConst.i 
 SWIG_INPUT := ${SWIG_INPUT} ecmdClientPerlapi.pl ecmdExtPerlIncludes.i ecmdExtPerlInserts.i
 
 # We may have to pickup a different version of ecmdClientPerlapi.pl depending upon the distro
