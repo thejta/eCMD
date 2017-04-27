@@ -72,11 +72,12 @@
 #define ECMD_CHIPT_IOU                  "iou"
 #define ECMD_CHIPT_NOCHIP               "nochip"
 
-
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define ECMD_UNSET          0xFFFFFFFF ///< Used to signify unset or -1 for uint32_t types
 
 
 #define ECMD_TARGETDEPTH_NA 0xFFFFFFFF ///< Used to signify a level of the ecmdChipTarget depth is not used (only valid for node/slot depths)
+#endif
 
 #define ECMD_ARG_LIMIT      100        ///< Used in a few spots set the limit of command line args
 
@@ -923,11 +924,15 @@ inline ecmdChipUnitData::~ecmdChipUnitData() { }
  Defines for the ecmdChipData chipFlags field
 */
 /* The Bus type flags use the first two bits of the chipflags field */
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define ECMD_CHIPFLAG_BUSMASK   0xC0000000
+#endif
 #define ECMD_CHIPFLAG_RSVDBUS1  0x00000000      ///< This is reserved for later expansion (should not be used)
 #define ECMD_CHIPFLAG_JTAG      0x40000000
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define ECMD_CHIPFLAG_FSI       0x80000000
 #define ECMD_CHIPFLAG_RSVDBUS2  0xC0000000      ///< This is reserved for later expansion (should not be used)
+#endif
 
 #define ECMD_CHIPFLAG_32BIT_HEADERCHECK  0x08000000 
 #define ECMD_CHIPFLAG_64BIT_HEADERCHECK  0x04000000
@@ -1192,7 +1197,9 @@ struct ecmdLooperData {
   std::list<ecmdChipTarget>::iterator curUnitIdTarget;          ///< Pointer to current unitid target
 };
 
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define ECMD_CONFIG_VALID_FIELD_STRING  0x80000000
+#endif
 #define ECMD_CONFIG_VALID_FIELD_UINT32  0x40000000
 #define ECMD_CONFIG_VALID_FIELD_UINT64  0x20000000
 #define ECMD_CONFIG_VALID_FIELD_FLOAT   0x10000000
@@ -2291,8 +2298,9 @@ std::string ecmdGetSharedLibVersion();
 #define PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with putMemPba
 #define PBA_MODE_DMA    0x00000003  ///< Use DMA mode with putMemPba
 #define PBA_MODE_MASK   0x000000FF  ///< Mask for determining PBA mode
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define PBA_OPTION_PASSTHROUGH 0x80000000  ///< Use SBE Host Passthrough, input address will be ignored
-
+#endif
 
 /**
  Defines for getTraceArrayMultiple 
@@ -2335,7 +2343,9 @@ struct ecmdDTSData{
  Defines for ring/spy/latch functions 
 */
 #define ECMD_RING_MODE_HEADER_CHECK            0x00000000
+#if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define ECMD_RING_MODE_MULTICAST               0x80000000
+#endif
 #define ECMD_RING_MODE_SET_PULSE_NO_OPCG_COND  0x40000000
 #define ECMD_RING_MODE_NO_HEADER_CHECK         0x20000000
 #define ECMD_RING_MODE_SET_PULSE_NSL           0x10000000
