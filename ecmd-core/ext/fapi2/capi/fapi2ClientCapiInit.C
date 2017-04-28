@@ -112,7 +112,7 @@ uint32_t fapi2InitExtension() {
 #endif /* ECMD_STATIC_FUNCTIONS */
 
   /* Now as part of defect 18081 we register to the core client that we have been initialized */
-  ecmdRegisterExtensionInitState(&fapi2Initialized);
+  ecmdRegisterExtensionInitStateHidden(&fapi2Initialized);
 
   if (rc) {
     std::string errorString;

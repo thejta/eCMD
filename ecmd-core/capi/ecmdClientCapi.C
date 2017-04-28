@@ -252,7 +252,8 @@ uint32_t ecmdUnloadDll() {
 #endif
 
   /* Go reset all the extensions so they know we have been unloaded */
-  ecmdResetExtensionInitState();
+  ecmdResetExtensionInitStateHidden();
+  ecmdResetExtensionInitState(); // TODO remove ecmd 15
 
 #ifdef ECMD_STATIC_FUNCTIONS
   rc = dllUnloadDll();

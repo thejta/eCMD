@@ -2480,6 +2480,27 @@ void ecmdResetExtensionInitState() {
 }
 
 /**
+ @brief Registers an extensions initstate pointer defect #18081
+ @param i_initState Pointer to initState static so it can be reset later
+ */
+static std::list<bool*> g_initPtrsHidden;
+void ecmdRegisterExtensionInitStateHidden(bool* i_initState) {
+  if (find(g_initPtrsHidden.begin(), g_initPtrsHidden.end(), i_initState) == g_initPtrsHidden.end()) {
+    g_initPtrsHidden.push_back(i_initState);
+  }
+}
+
+/**
+ @brief Reset Extension initstate pointer to uninitialized and remove from list
+*/
+void ecmdResetExtensionInitStateHidden() {
+  while (!g_initPtrsHidden.empty()) {
+    *(g_initPtrsHidden.front()) = false;
+    g_initPtrsHidden.pop_front();
+  }
+}
+
+/**
  @brief opens the groupscomdef parses the file
  @param i_filename file to open
  @param o_total_scomGroupRecord list of scomgroups that is returned
