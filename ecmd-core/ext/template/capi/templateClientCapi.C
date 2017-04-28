@@ -108,7 +108,7 @@ uint32_t templateInitExtension() {
 #endif /* ECMD_STATIC_FUNCTIONS */
 
   /* Now as part of defect 18081 we register to the core client that we have been initialized */
-  ecmdRegisterExtensionInitState(&templateInitialized);
+  ecmdRegisterExtensionInitStateHidden(&templateInitialized);
 
   if (rc) {
     std::string errorString;
