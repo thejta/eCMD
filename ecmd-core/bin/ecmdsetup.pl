@@ -271,12 +271,12 @@ sub main {
     $ENV{"PATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/$arch/bin(:|$)!:!g;
     $ENV{"PATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/bin(:|$)!:!g;
   }
+  # Any multiple : cases, reduce to one
+  $ENV{"PATH"} =~ s/(:+)/:/g;
   # We might have left a : on the front, remove it
   $ENV{"PATH"} =~ s/^://g;
   # Same with the back, might have left a :
   $ENV{"PATH"} =~ s/:$//g;
-  # Any multiple : cases, reduce to one
-  $ENV{"PATH"} =~ s/(:+)/:/g;
   # Now mark the path modifed
   $modified{"PATH"} = 1;
 
@@ -384,6 +384,33 @@ sub main {
     $ENV{"PATH"} = $releasePath . "/bin:" . $ENV{"PATH"};
     $ENV{"PATH"} = $releasePath . "/" . $arch . "/bin:" . $ENV{"PATH"};
     $modified{"PATH"} = 1;
+  }
+
+  ##########################################################################
+  # Change shared lib path to point to release for cronus
+  # This is because the release may have changed from the installPath that was used
+  #
+  if ((!$cleanup) && ($plugin eq "cro") && (!$singleInstall)) {
+      my $sharedLib;
+      if ($arch =~ m/aix/) {
+          $sharedLib = "LIBPATH";
+      } else {
+          $sharedLib = "LD_LIBRARY_PATH";
+      }
+      # This expression matches anything after a : up to /<something>/ecmd/<ver>/<arch>/lib and then a : or end of line
+      $ENV{"$sharedLib"} =~ s!([^:]*?)/ecmd/([^\/]*?)/([^\/]*?)/lib(:|$)!:!g;
+
+      # Any multiple : cases, reduce to one
+      $ENV{"$sharedLib"} =~ s/(:+)/:/g;
+      # We might have left a : on the front, remove it
+      $ENV{"$sharedLib"} =~ s/^://g;
+      # Same with the back, might have left a :
+      $ENV{"$sharedLib"} =~ s/:$//g;
+
+      # Now add the releasePath that we've determined to the sharedLib path
+      $ENV{"$sharedLib"} = $ENV{"$sharedLib"} . ":" . $releasePath . "/" . $arch . "/lib";
+      $modified{"$sharedLib"} = 1;
+
   }
 
   ##########################################################################
