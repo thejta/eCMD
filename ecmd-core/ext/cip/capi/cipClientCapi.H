@@ -34,7 +34,7 @@
  <ul>
  <li> cipClientCapi.H</li>
  <li> cipStructs.H</li>
- <li> Library : libcip.so</li>
+ <li> Library : cipClientCapi.a</li>
  </ul>
 
 */

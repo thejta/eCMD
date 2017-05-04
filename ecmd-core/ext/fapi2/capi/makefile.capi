@@ -7,7 +7,6 @@ EXTENSION_NAME_u := $(shell echo ${EXTENSION_NAME} | tr 'a-z' 'A-Z')
 EXTENSION_NAME_u1 := $(shell perl -e 'printf(ucfirst(${EXTENSION_NAME}))')
 
 CAPI_SOURCE   := ${CAPI_SOURCE} ${EXTENSION_NAME}ClientCapi.C ${EXTENSION_NAME}ClientCapiInit.C
-EMPTY_SOURCE := ecmdEmptyFile.C
 CAPI_INCLUDES := ${CAPI_INCLUDES} ${EXTENSION_NAME}ClientCapi.H ${EXTENSION_NAME}Structs.H
 INT_INCLUDES  := ${INT_INCLUDES} ecmdClientCapi.H  ecmdDataBufferBase.H ecmdDataBuffer.H  ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H
 
@@ -35,8 +34,10 @@ endif
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-EMPTY_TARGET := ${EXTENSION_NAME}ClientCapi.a
-SLIB    := lib${EXTENSION_NAME}.so
+TARGET = ${EXTENSION_NAME}ClientCapi.a
+ifneq (${SLIB_SOURCE},)
+  SLIB    := lib${EXTENSION_NAME}.so
+endif
 
 VPATH := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${EXT_TEMPLATE_PATH}/capi:${SRCPATH}
 
@@ -49,7 +50,7 @@ all:
 
 generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES} ${TEMPLATE_SOURCE}
 
-build: ${EMPTY_TARGET} ${SLIB}
+build: ${TARGET} ${SLIB}
 
 test:
   # Do nothing
@@ -57,8 +58,10 @@ test:
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/
-	cp ${OUTLIB}/${EMPTY_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+        ifneq (${SLIB},)
+	  cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
+        endif
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Includes to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Scripts to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts ..."
@@ -93,9 +96,6 @@ CAPI_SPECIAL_SOURCE_OBJS := $(addsuffix .o, ${CAPI_SPECIAL_SOURCE_OBJS})
 SLIB_SOURCE_OBJS  = $(basename ${SLIB_SOURCE})
 SLIB_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${SLIB_SOURCE_OBJS})
 SLIB_SOURCE_OBJS := $(addsuffix .o, ${SLIB_SOURCE_OBJS})
-EMPTY_SOURCE_OBJS := $(basename ${EMPTY_SOURCE})
-EMPTY_SOURCE_OBJS := $(addprefix ${OBJPATH}, ${EMPTY_SOURCE_OBJS})
-EMPTY_SOURCE_OBJS := $(addsuffix .o, ${EMPTY_SOURCE_OBJS})
 
 # *****************************************************************************
 # Compile code for the common C++ objects if their respective
@@ -114,21 +114,18 @@ ${CAPI_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
-${EMPTY_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
-	@echo Compiling $<
-	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
 # Create the Client Archive
 # *****************************************************************************
-${EMPTY_TARGET}: ${EMPTY_SOURCE_OBJS}
+${TARGET}: ${CAPI_SOURCE_OBJS} ${CAPI_SPECIAL_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Creating $@
-	${VERBOSE}${AR} r ${OUTLIB}/${EMPTY_TARGET} $^
+	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
 
 # *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
-${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS} ${CAPI_SPECIAL_SOURCE_OBJS} ${LINK_OBJS}
+${SLIB}: ${SLIB_SOURCE_OBJS}
 	@echo Linking $@
 	${VERBOSE}${LD} ${SLDFLAGS} -lecmd -L ${OUTLIB} -o ${OUTLIB}/${SLIB} $^ -ldl
 
