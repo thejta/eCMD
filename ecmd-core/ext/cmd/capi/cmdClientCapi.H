@@ -34,7 +34,7 @@
  <ul>
  <li> cmdClientCapi.H</li>
  <li> cmdStructs.H</li>
- <li> Library : libcmd.so</li>
+ <li> Library : cmdClientCapi.a</li>
  </ul>
 
 */
