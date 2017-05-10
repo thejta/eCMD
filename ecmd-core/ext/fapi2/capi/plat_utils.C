@@ -59,8 +59,6 @@ extern int fppCallCount;
 extern bool ecmdDebugOutput;
 #endif
 
-std::shared_ptr<fapi2::ErrorInfo> l_ei(new fapi2::ErrorInfo());
-
 namespace fapi2
 {
     ///
