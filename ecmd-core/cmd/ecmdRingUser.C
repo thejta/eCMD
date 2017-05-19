@@ -2189,6 +2189,100 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
+int readInversionFile(std::string i_filename, ecmdDataBuffer & o_inv_mask, std::list<std::string> ringnames, int i_ringlen) {
+
+  int rc = 0;
+  std::ifstream ins;
+  char charring[150];
+  int idx = 0,idx2 = 0, done = 0;
+  int len, exp;
+  char ringmatch[50];
+  std::string printed;
+
+  std::list<std::string>::iterator strit;
+
+  ins.open(i_filename.c_str());
+  if (ins.fail()) {
+    printed = "readInversionFile : Unable to open inversion mask file : " + i_filename + "\n";
+    ecmdOutputError( printed.c_str() );
+    return ECMD_INVALID_ARGS;
+  }
+
+  /* File is there, let's read it in */
+
+  /* ----------------------------------------------------------------- */
+  /*  Find and parse the inversionmask                                 */
+  /* ----------------------------------------------------------------- */
+
+  /* First off, read the first line and see if it's the format I expect */
+  ins.getline(charring,400,'\n');
+  if (strcmp(charring,"#FORMAT 2")) {
+    printed = "readInversionFile : Your inversion file is in the wrong format! filename = " + i_filename + "\n";
+    ecmdOutputError( printed.c_str() );
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Now continue on
+  while (!done) {
+    ins.getline(charring,400,'\n');
+    if (!ins.good()) { break; }
+    if (charring[0] == '{') {
+      for (strit = ringnames.begin(); strit != ringnames.end() && !done; strit++) {
+        sprintf(ringmatch,"{%s}",strit->c_str());        
+        if (!strcasecmp(ringmatch,charring))
+          done = 1;
+      }     
+    }
+  }
+
+  if (!done) {
+#if 0
+    printed = "readInversionFile : ring " + ringnames.front() + " not found in inversion mask file " + i_filename + "\n";
+    ecmdOutputWarning( printed.c_str() );
+#endif
+    ins.close();
+    return ECMD_INVALID_ARGS;
+  }
+
+  o_inv_mask.setBitLength(i_ringlen);
+  uint32_t * data_ptr = ecmdDataBufferImplementationHelper::getDataPtr((void*)(&o_inv_mask));
+
+  /* Now read in the inversion mask */
+  while (!idx2) {                   /* Scan all Data into scanring */
+    ins.getline(charring,150,'\n');
+    if (!ins.good() || (charring[0] == '{') || (strlen(charring) < 4)) break;
+    if ((idx * 32) > i_ringlen) {
+      printed = "readInversionFile : Parse Error reading inversion mask file " + i_filename + " for ring " + ringnames.front() + " : MASK TO LONG\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_INVALID_ARGS;
+    }
+    if (strlen(charring) < 10) {
+      len = sscanf(charring,"%x",&data_ptr[idx+0]);
+      exp = 1;
+    } else if (strlen(charring) < 19) {
+      len = sscanf(charring,"%x %x",&data_ptr[idx+0], &data_ptr[idx+1]);
+      exp = 2;
+    } else if (strlen(charring) < 28) {
+      len = sscanf(charring,"%x %x %x",&data_ptr[idx+0], &data_ptr[idx+1], &data_ptr[idx+2]);
+      exp = 3;
+    } else {
+      len = sscanf(charring,"%x %x %x %x",&data_ptr[idx+0], &data_ptr[idx+1], &data_ptr[idx+2], &data_ptr[idx+3]);
+      exp = 4;
+    }
+
+    /* Let's make sure we were able to parse that line */
+    if (len != exp) {
+      printed = "readInversionFile : Parse Error reading inversion mask file " + i_filename + " for ring " + ringnames.front() + " : INVALID DATA FORMAT\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_INVALID_ARGS;
+    }
+    idx += 4;
+      
+  } /* End While */
+
+  ins.close();
+  return rc;
+}
 uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   uint32_t ret_rc = ECMD_SUCCESS;
@@ -2253,6 +2347,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
 
   l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  char * ignore_mask_filename = ecmdParseOptionWithArgs(&argc, &argv, "-ignoremask");
 
   if ((l_cond) && (l_cond_all))
   {
@@ -2680,6 +2776,28 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               sprintf(outstr, "checkrings - Data fetched from ring %s did not match expected header: %.08X.  Found: %.08X\n", ringName.c_str(), checkPattern, readRingBuffer.getWord(0));
               ecmdOutputWarning( outstr );
               foundProblem = true;
+            }
+          }
+
+          ecmdDataBuffer ignore_mask_data;
+          if(ignore_mask_filename != NULL) {
+            rc = readInversionFile(ignore_mask_filename, ignore_mask_data, curRingData->ringNames, curRingData->bitLength);
+          } else {
+            rc = ecmdQueryRingIgnoreMask(cuTarget, ringName, ignore_mask_data);
+          }
+          if((rc == 0) && (ignore_mask_data.getBitLength() > 0)) {
+            uint32_t ecmd_rc = readRingBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+            ecmd_rc |= ringBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+            if (ecmd_rc) {
+              sprintf(outstr, "checkrings - ecmdDataBuffer::setOr(ignore_mask) failed for ring %s", ringName.c_str());
+              ecmdOutputWarning( outstr );
+            } else {
+              std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
+              uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
+              uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
+              std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
+              sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+              ecmdOutput( outstr );
             }
           }
 
