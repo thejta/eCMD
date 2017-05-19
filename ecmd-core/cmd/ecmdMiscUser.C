@@ -238,7 +238,7 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
   ecmdConfigData configData;     ///< Holds the different config values
   configData.validMask = 0x0;
   ecmdDataBuffer inputBuffer;	 ///< Initialise data buffer with the numeric value(if input is Numeric)
-  char inputVal[400];		 ///< Value to set configuration variable to
+  char * inputVal = NULL;		 ///< Pointer to argv with value
   std::string printed;           ///< Print Buffer
   ecmdLooperData looperData;     ///< Store internal Looper data
 
@@ -317,13 +317,13 @@ uint32_t ecmdSetConfigUser(int argc, char * argv[]) {
       target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
     }
     configName = argv[1];
-    strcpy(inputVal, argv[2]);
+    inputVal = argv[2];
   }
   else {
     if (depth == 0) depth = CAGE;
     target.chipTypeState = ECMD_TARGET_FIELD_UNUSED;
     configName = argv[0];
-    strcpy(inputVal, argv[1]);
+    inputVal = argv[1];
   }
 
   if (format == "a") {
