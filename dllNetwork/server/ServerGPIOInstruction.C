@@ -27,14 +27,14 @@ Handle * system_gpio_open(const char * device, int flags) { return NULL; }
 
 uint32_t ServerGPIOInstruction::gpio_open(Handle ** handle, InstructionStatus & o_status)
 {
-  uint32_t rc = 0;
+    uint32_t rc = 0;
 
-  char device[50];
-  char errstr[200];
+    char device[50];
+    char errstr[200];
 
-  /* already have a handle lets reuse it */
-  if(*handle != NULL)
-    return rc;
+    /* already have a handle lets reuse it */
+    if(*handle != NULL)
+      return rc;
 
     /* Open the device */
     if (flags & INSTRUCTION_FLAG_DEVSTR) {

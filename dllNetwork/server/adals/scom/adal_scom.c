@@ -121,7 +121,7 @@ int adal_scom_close(adal_t * adal)
 
 ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
 {
-	int rc = 0, rc1 = 0;
+	int rc = 0;
 
 	if (scom_address & INDIRECT_SCOM_ADDR) {
 		uint64_t read_data;
@@ -142,14 +142,15 @@ ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigne
 		rc = read(adal->fd, buf, SCOM_DATA_LEN);
 	}
 
-	rc1 = adal_scom_get_register(adal, STATUS, status);
+        // ignore rc as status is checked later
+	adal_scom_get_register(adal, STATUS, status);
 
 	return rc;
 }
 
 ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
-	int rc = 0, rc1 = 0;
+	int rc = 0;
 
 	if (scom_address & INDIRECT_SCOM_ADDR) {
 		uint64_t data;
@@ -179,7 +180,8 @@ ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsig
 		rc = write(adal->fd, buf, SCOM_DATA_LEN);
 	}
 
-	rc1 = adal_scom_get_register(adal, STATUS, status);
+        // ignore rc as status is checked later
+	adal_scom_get_register(adal, STATUS, status);
 
 	return rc;
 }
