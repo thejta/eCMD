@@ -62,7 +62,7 @@ enum TargetType
     TARGET_TYPE_CAPP          = 0x00008000, ///< CAPP target
     TARGET_TYPE_DMI           = 0x00010000, ///< DMI type
     TARGET_TYPE_OBUS          = 0x00020000, ///< OBUS type
-    TARGET_TYPE_NV            = 0x00040000, ///< NV bus type
+    TARGET_TYPE_OBUS_BRICK    = 0x00040000, ///< OBUS_BRICK bus type
     TARGET_TYPE_SBE           = 0x00080000, ///< SBE type
     TARGET_TYPE_PPE           = 0x00100000, ///< PPE type
     TARGET_TYPE_PERV          = 0x00200000, ///< Pervasive type
@@ -89,7 +89,7 @@ enum TargetType
                                 TARGET_TYPE_MI     |
                                 TARGET_TYPE_DMI    |
                                 TARGET_TYPE_OBUS   |
-                                TARGET_TYPE_NV     |
+                                TARGET_TYPE_OBUS_BRICK     |
                                 TARGET_TYPE_SBE    |
                                 TARGET_TYPE_PPE    |
                                 TARGET_TYPE_PERV   |

@@ -159,7 +159,7 @@ const fapi2::TargetType TARGET_TYPE_PROC_CHIPLETS = fapi2::TARGET_TYPE_EX |
         fapi2::TARGET_TYPE_CAPP |
         fapi2::TARGET_TYPE_DMI |
         fapi2::TARGET_TYPE_OBUS |
-        fapi2::TARGET_TYPE_NV |
+        fapi2::TARGET_TYPE_OBUS_BRICK |
         fapi2::TARGET_TYPE_SBE |
         fapi2::TARGET_TYPE_PPE |
         fapi2::TARGET_TYPE_PERV |
@@ -182,7 +182,7 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_MI |
         fapi2::TARGET_TYPE_DMI |
         fapi2::TARGET_TYPE_OBUS |
-        fapi2::TARGET_TYPE_NV |
+        fapi2::TARGET_TYPE_OBUS_BRICK |
         fapi2::TARGET_TYPE_SBE |
         fapi2::TARGET_TYPE_PPE |
         fapi2::TARGET_TYPE_PERV |
