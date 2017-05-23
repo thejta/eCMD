@@ -118,7 +118,7 @@ inline Target<T, V> Target<K, V>::getParent(void) const
             fapi2::TARGET_TYPE_CAPP |
             fapi2::TARGET_TYPE_DMI |
             fapi2::TARGET_TYPE_OBUS |
-            fapi2::TARGET_TYPE_NV |
+            fapi2::TARGET_TYPE_OBUS_BRICK |
             fapi2::TARGET_TYPE_SBE |
             fapi2::TARGET_TYPE_PPE |
             fapi2::TARGET_TYPE_PERV |
@@ -136,7 +136,7 @@ inline Target<T, V> Target<K, V>::getParent(void) const
             fapi2::TARGET_TYPE_XBUS |
             fapi2::TARGET_TYPE_OBUS |
             fapi2::TARGET_TYPE_CAPP |
-            fapi2::TARGET_TYPE_NV |
+            fapi2::TARGET_TYPE_OBUS_BRICK |
             fapi2::TARGET_TYPE_MCBIST |
             fapi2::TARGET_TYPE_MCS |
             fapi2::TARGET_TYPE_MCA |
@@ -324,13 +324,15 @@ inline Target<T, V> Target<K, V>::getParent(void) const
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_OBUS");
 
-    // valid parents for NV
-    // NV -> PERV
-    // NV -> PROC
-    static_assert(!((K == fapi2::TARGET_TYPE_NV) &&
+    // valid parents for OBUS_BRICK
+    // OBUS_BRICK -> PERV
+    // OBUS_BRICK -> OBUS
+    // OBUS_BRICK -> PROC
+    static_assert(!((K == fapi2::TARGET_TYPE_OBUS_BRICK) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_OBUS) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
-                  "improper parent of fapi2::TARGET_TYPE_NV");
+                  "improper parent of fapi2::TARGET_TYPE_OBUS_BRICK");
 
     // valid parents for CAPP
     // CAPP -> PERV
@@ -409,7 +411,7 @@ Target<K, V>::getChildren(const TargetState i_state) const
                     (T != fapi2::TARGET_TYPE_XBUS) &&
                     (T != fapi2::TARGET_TYPE_OBUS) &&
                     (T != fapi2::TARGET_TYPE_CAPP) &&
-                    (T != fapi2::TARGET_TYPE_NV) &&
+                    (T != fapi2::TARGET_TYPE_OBUS_BRICK) &&
                     (T != fapi2::TARGET_TYPE_MCBIST) &&
                     (T != fapi2::TARGET_TYPE_MCS) &&
                     (T != fapi2::TARGET_TYPE_MCA) &&
@@ -499,6 +501,13 @@ Target<K, V>::getChildren(const TargetState i_state) const
                     (T != fapi2::TARGET_TYPE_DMI)),
                   "improper child of fapi2::TARGET_TYPE_MC");
 
+    // valid children for OBUS
+    // OBUS -> OBUS_BRICK
+    static_assert(!((K == fapi2::TARGET_TYPE_OBUS) &&
+                    (T != fapi2::TARGET_TYPE_OBUS_BRICK)),
+                  "improper child of fapi2::TARGET_TYPE_OBUS");
+
+
     std::list<const ecmdChipTarget*> l_targets;
     std::vector<Target<T, V> > l_children;
 
@@ -547,7 +556,7 @@ Target<K, V>::getChildren(const TargetFilter i_filter,
             fapi2::TARGET_TYPE_XBUS |
             fapi2::TARGET_TYPE_OBUS |
             fapi2::TARGET_TYPE_CAPP |
-            fapi2::TARGET_TYPE_NV |
+            fapi2::TARGET_TYPE_OBUS_BRICK |
             fapi2::TARGET_TYPE_MCBIST |
             fapi2::TARGET_TYPE_MCS |
             fapi2::TARGET_TYPE_MCA |
