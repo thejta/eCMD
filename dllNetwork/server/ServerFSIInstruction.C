@@ -204,11 +204,14 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   if(*handle != NULL)
     return rc;
 
-  const char * devices[3][2] = {
-    {"", ""},
-    {"/sys/devices/platform/fsi-master/slave@00:00/raw",
+  const uint32_t numPaths = 3;
+  const char * devices[3][3] = {
+    {"", "", ""},
+    {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
+     "/sys/devices/platform/fsi-master/slave@00:00/raw",
      "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"},
-    {"/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
+    {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
+     "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
      "/sys/devices/hub@00/slave@01:00/raw"}};
 
   /* We need to open the device*/
@@ -233,7 +236,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
     return SERVER_INVALID_FSI_DEVICE;
   }
 
-  for (uint32_t l_try = 0; l_try < 2; l_try++) {
+  for (uint32_t l_try = 0; l_try < numPaths; l_try++) {
     /* Validate and adjust the device string for the device to open */
     snprintf(device, 100, devices[l_idx][l_try]);
 

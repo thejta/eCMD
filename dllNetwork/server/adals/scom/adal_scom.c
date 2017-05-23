@@ -21,12 +21,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 #include "adal_scom.h"
 
-static const char *fsirawold =
-	"/sys/bus/platform/devices/fsi-master/slave@00:00/raw";
-static const char *fsiraw =
-	"/sys/devices/platform/fsi-master/slave@00:00/raw";
+static const uint32_t fsirawSize = 3;
+static const char *fsiraw[3] = {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",   // newest
+                                "/sys/devices/platform/fsi-master/slave@00:00/raw",   
+                                "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"}; // oldest
 
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
@@ -239,11 +240,18 @@ ssize_t adal_scom_get_register(adal_t *adal, int registerNo,
 {
 
 	int rc;
-	int fd = open(fsiraw, O_RDONLY);
-	if (fd == -1)
-	{
-		fd = open(fsirawold, O_RDONLY);
-	}
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_RDONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
 	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
@@ -251,6 +259,12 @@ ssize_t adal_scom_get_register(adal_t *adal, int registerNo,
 
 	lseek(fd, scom->offset + SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
 	rc = read(fd, data, 4);
+
+        if (adal_is_byte_swap_needed())
+        {
+                // based on device and openbmc version we know the driver is not swapping endianess
+                (*data) = ntohl((*data));
+        }
 	
 	close(fd);
 	return rc;
@@ -260,17 +274,30 @@ ssize_t adal_scom_set_register(adal_t *adal, int registerNo,
 			       unsigned long data)
 {
 	int rc;
-	int fd = open(fsiraw, O_WRONLY);
-	if (fd == -1)
-	{
-		fd = open(fsirawold, O_RDONLY);
-	}
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_RDONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
 	adal_scom_t *scom = to_scom_adal(adal);
 
 	if (fd == -1)
 		return -ENODEV;
 
 	lseek(fd, scom->offset + SCOM_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+        if (adal_is_byte_swap_needed())
+        {
+                // based on device and openbmc version we know the driver is not swapping endianess
+                data = htonl(data);
+        }
+	
 	rc = write(fd, &data, 4);
 	
 	close(fd);
