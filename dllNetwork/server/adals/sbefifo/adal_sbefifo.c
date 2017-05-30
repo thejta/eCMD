@@ -22,6 +22,7 @@
 #include <string.h>
 #include <poll.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 #include "adal_sbefifo.h"
 
 
@@ -65,6 +66,12 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 
 	uint8_t * buf = (uint8_t *) request->data;
 	int size_bytes = request->wordcount << 2;
+        if ( adal_is_byte_swap_needed() ) {
+                uint32_t *tmpBuf = (uint32_t *) request->data;
+                for ( uint32_t idx = 0; idx < request->wordcount; idx++ ){
+                        tmpBuf[idx] = htonl(tmpBuf[idx]);
+                }
+        }
 	ret = write(adal->fd, buf, size_bytes);
 	if (ret < 0) {
 		perror("Writing user input failed");
@@ -103,6 +110,14 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 
 
 	reply->wordcount = ret_bytes >> 2;
+
+        if ( adal_is_byte_swap_needed() ) {
+                uint32_t *tmpBuf = (uint32_t *) reply->data;
+                for ( uint32_t idx = 0; idx < reply->wordcount; idx++ ){
+                        tmpBuf[idx] = ntohl(tmpBuf[idx]);
+                }
+        }
+
 	rc = ret_bytes;
 
 	return rc;
@@ -139,5 +154,4 @@ int adal_sbefifo_unlock(adal_t * adal, int scope) {
 	return 0;
 
 }
-
 

@@ -11,7 +11,7 @@ include ../../makefile.base
 TARGET       := server1p
 CXXFLAGS     += -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
 CXXFLAGS     += -Iadals -Iadals/scom -Iadals/scan -Iadals/sbefifo -Iadals/mbx -Iadals/iic_master
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals/scom:adals/scan:adals/sbefifo:adals/mbx:adals/iic_master
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}:adals:adals/scom:adals/scan:adals/sbefifo:adals/mbx:adals/iic_master
 
 # *****************************************************************************
 # Setup all the files going into the build
@@ -59,7 +59,8 @@ TGT_SOURCE += ServerSBEFIFOInstruction.C
 TGT_SOURCE += SBEFIFOInstruction.C
 TGT_SOURCE += server1p.C
 
-TGT_SOURCE_C := adal_scom.c
+TGT_SOURCE_C := adal_base.c
+TGT_SOURCE_C += adal_scom.c
 TGT_SOURCE_C += adal_scan.c
 TGT_SOURCE_C += adal_sbefifo.c
 TGT_SOURCE_C += adal_mbx.c

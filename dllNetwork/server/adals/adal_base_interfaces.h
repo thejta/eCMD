@@ -752,6 +752,10 @@ adal_t * adal_base_wait_get_adal_t(adal_wait_t * evt);
 int adal_base_lctl(adal_t * adal, int type);
 
 
+/* adal method to determine if a endian byte swap is needed */
+/* based on the openbmc version */
+bool adal_is_byte_swap_needed(void);
+
 #ifdef __cplusplus
 }
 #endif
