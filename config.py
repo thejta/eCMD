@@ -832,6 +832,13 @@ print("Testing program versions..")
 # The minimum required version of SWIG for eCMD to build
 # properly is version 2.0.11.  Check that version.
 if (not args.without_swig):
+    # Ensure the file we are going to check exists
+    if (not os.path.isfile(SWIG)):
+        print("ERROR: The swig executable \"%s\" doesn't exist!" % SWIG)
+        print("ERROR: Please run again after resolving the issue")
+        sys.exit(1)
+    
+    # It does exist, check it
     cmdout = subprocess.Popen([SWIG, "-version"],
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
