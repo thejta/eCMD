@@ -22,6 +22,7 @@
 #include <stdlib.h>             /* NULL, malloc, free */
 #include <unistd.h>             /* close, read, write, fsync */
 #include <string.h>             /* memset, memcpy */
+#include <arpa/inet.h>
 
 
 /* GLOBAL VARIABLES ARE BAD IN SHARED LIBRARIES, DON'T USE THEM! */
@@ -118,57 +119,67 @@ int adal_mbx_scratch(adal_t *adal,
 int adal_mbx_get_register(adal_t * adal, unsigned long reg,
 		       uint32_t * value)
 {
-	int rc = -1;
-  unsigned long reg_address;
-	struct mbx_reg_data parms;
-	memset(&parms, 0, sizeof(parms));
+    int rc = -1;
+    unsigned long reg_address;
+    struct mbx_reg_data parms;
+    memset(&parms, 0, sizeof(parms));
 
-	if( (NULL != value) ) {
-    reg_address = reg;
-    reg_address &= ~0xFFFFFE00;
-    reg_address *=4;
-	reg_address += fsi_slave_mbx_offset;
-//	  parms.offset = reg_address;
-		/**
-		* Poison the read value in case we fail and user does not
-		* check return codes.
-		*/
-		*value = 0xA5A5A5A5;
-//		parms.value = *value;
-    lseek(adal->fd, reg_address, SEEK_SET);
-    rc = read(adal->fd, value, sizeof(uint32_t));
+    if( (NULL != value) ) {
+        reg_address = reg;
+        reg_address &= ~0xFFFFFE00;
+        reg_address *=4;
+        reg_address += fsi_slave_mbx_offset;
+        //  parms.offset = reg_address;
+        /**
+        * Poison the read value in case we fail and user does not
+        * check return codes.
+        */
+        *value = 0xA5A5A5A5;
+        //parms.value = *value;
+        lseek(adal->fd, reg_address, SEEK_SET);
+        rc = read(adal->fd, value, sizeof(uint32_t));
 
-//		rc = ioctl(adal->fd, MBX_IOCTL_READ_REG, &parms);
-//		if( 0 == rc ){
-//			*value = parms.value;
-//    }
-	} else {
-		errno = EBADF;
-	}
-	return rc;
+        //rc = ioctl(adal->fd, MBX_IOCTL_READ_REG, &parms);
+        //if( 0 == rc ){
+        //	*value = parms.value;
+        //    }a
+        if (adal_is_byte_swap_needed())
+        {
+            // based on version we know the driver is not swapping endianess
+            (*value) = ntohl((*value));
+        }
+    } else {
+        errno = EBADF;
+    }
+    return rc;
 }
 
 int adal_mbx_set_register(adal_t *adal, unsigned long reg,
 		       uint32_t value)
 {
-	int rc = -1;
-  unsigned long reg_address;
-	struct mbx_reg_data parms;
-	memset(&parms, 0, sizeof(parms));
+    int rc = -1;
+    unsigned long reg_address;
+    struct mbx_reg_data parms;
+    memset(&parms, 0, sizeof(parms));
 
-	reg_address = reg;
-  reg_address &= ~0xFFFFFE00;
-  reg_address *=4;
-	reg_address += fsi_slave_mbx_offset;
-  lseek(adal->fd, reg_address, SEEK_SET);
-  rc = write(adal->fd, &value, sizeof(uint32_t));
+    reg_address = reg;
+    reg_address &= ~0xFFFFFE00;
+    reg_address *=4;
+    reg_address += fsi_slave_mbx_offset;
+    lseek(adal->fd, reg_address, SEEK_SET);
+    if (adal_is_byte_swap_needed())
+    {
+        // based on device we know the driver is not swapping endianess
+        value = htonl(value);
+    }
+    rc = write(adal->fd, &value, sizeof(uint32_t));
 
 
 //  parms.offset = reg_address;
 //  parms.value = value;
-//	rc = ioctl(adal->fd, MBX_IOCTL_WRITE_REG, &parms);
+//  rc = ioctl(adal->fd, MBX_IOCTL_WRITE_REG, &parms);
 
-	return rc;
+    return rc;
 }
 
 

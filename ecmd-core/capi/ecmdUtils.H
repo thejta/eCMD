@@ -195,17 +195,6 @@ void ecmdRegisterExtensionInitState(bool* i_initState);
 */
 void ecmdResetExtensionInitState();
 
-/**
- @brief Registers an extensions initstate pointer defect #18081
- @param i_initState Pointer to initState static so it can be reset later
- */
-void ecmdRegisterExtensionInitStateHidden(bool* i_initState);
-
-/**
- @brief Reset Extension initstate pointer to uninitialized and remove from list
-*/
-void ecmdResetExtensionInitStateHidden();
-
 
 #endif
 

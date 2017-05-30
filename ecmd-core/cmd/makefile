@@ -31,7 +31,8 @@ SOURCE   := ${GENERATED_SOURCE} ${SOURCE}
 INCLUDES := ${INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
 ### Setup our link objs
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a)
+LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a  ${OUTLIB}/${ext}ClientCapi.a)
 EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_CMD},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Setup our CXXFLAGS and VPATH
