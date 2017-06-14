@@ -418,6 +418,13 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
     mode |= ECMD_STOP_CLOCK_MODE_SKIP_IOVALID;
   }
 
+  //Check async option
+  bool async = ecmdParseOption(&argc, &argv, "-async");
+  bool async_stopclocks = ecmdParseOption(&argc, &argv, "-async_stopclocks");
+  if (async || async_stopclocks) {
+    mode |= ECMD_STOP_CLOCK_MODE_ASYNC;
+  }
+
   strcpy(clockDomain, "ALL");
   
   //Convenience Clock Domains
