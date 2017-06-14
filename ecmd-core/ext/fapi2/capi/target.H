@@ -107,6 +107,32 @@ inline Target<T, V> Target<K, V>::getParent(void) const
 {
     // General compound chiplet check for proc parent
 
+#ifdef FAPI_2_Z_TARGET_RULES
+    const fapi2::TargetType TARGET_TYPE_EP_CHIPLETS =
+            fapi2::TARGET_TYPE_NEST |
+            fapi2::TARGET_TYPE_XBUS0 |
+            fapi2::TARGET_TYPE_XBUS1 |
+            fapi2::TARGET_TYPE_PERV |
+            fapi2::TARGET_TYPE_GXA |
+            fapi2::TARGET_TYPE_CORE |
+            fapi2::TARGET_TYPE_MCS |
+            fapi2::TARGET_TYPE_PCIE;
+
+    static_assert( !((T == fapi2::TARGET_TYPE_EP_CHIP) &&
+                     ((K & TARGET_TYPE_EP_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
+                   "fapi2::TARGET_TYPE_EP_CHIP is not a valid parent" );
+
+    const fapi2::TargetType TARGET_TYPE_SC_CHIPLETS =
+            fapi2::TARGET_TYPE_ABUS |
+            fapi2::TARGET_TYPE_NEST |
+            fapi2::TARGET_TYPE_XBUS0 |
+            fapi2::TARGET_TYPE_XBUS1 |
+            fapi2::TARGET_TYPE_PERV;
+
+    static_assert( !((T == fapi2::TARGET_TYPE_SC_CHIP) &&
+                     ((K & TARGET_TYPE_SC_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
+                   "fapi2::TARGET_TYPE_SC_CHIP is not a valid parent" );
+#else
     const fapi2::TargetType TARGET_TYPE_PROC_CHIPLETS = fapi2::TARGET_TYPE_EX |
             fapi2::TARGET_TYPE_MCS |
             fapi2::TARGET_TYPE_XBUS |
@@ -149,9 +175,85 @@ inline Target<T, V> Target<K, V>::getParent(void) const
     static_assert( !((T == fapi2::TARGET_TYPE_PERV) &&
                      ((K & TARGET_TYPE_PERV_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
                    "fapi2::TARGET_TYPE_PERV is not a valid parent" );
+#endif
 
     // Specific parent checks for each TargetType
+#ifdef FAPI_2_Z_TARGET_RULES
+    // valid parents for SC_CHIP
+    // SC_CHIP -> SYSTEM
+    static_assert(!((K == fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_SYSTEM)),
+                  "improper parent of fapi2::TARGET_TYPE_SC_CHIP");
 
+    // valid parents for EP_CHIP
+    // EP_CHIP -> SYSTEM
+    static_assert(!((K == fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_SYSTEM)),
+                  "improper parent of fapi2::TARGET_TYPE_EP_CHIP");
+
+    // valid parents for ABUS
+    // ABUS -> SC_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_ABUS) &&
+                    (T != fapi2::TARGET_TYPE_SC_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_ABUS");
+
+    // valid parents for NEST
+    // NEST -> SC_CHIP
+    // NEST -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_NEST) &&
+                    (T != fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_NEST");
+
+    // valid parents for XBUS0
+    // XBUS0 -> SC_CHIP
+    // XBUS0 -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_XBUS0) &&
+                    (T != fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_XBUS0");
+
+    // valid parents for XBUS1
+    // XBUS1 -> SC_CHIP
+    // XBUS1 -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_XBUS1) &&
+                    (T != fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_XBUS1");
+
+    // valid parents for PERV
+    // PERV -> SC_CHIP
+    // PERV -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_PERV");
+
+    // valid parents for GXA
+    // GXA -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_GXA) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_GXA");
+
+    // valid parents for CORE
+    // CORE -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_CORE) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_CORE");
+
+    // valid parents for MCS
+    // MCS -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_MCS");
+
+    // valid parents for PCIE
+    // PCIE -> EP_CHIP
+    static_assert(!((K == fapi2::TARGET_TYPE_PCIE) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_PCIE");
+
+#else
     // valid parents for DIMM
     // DIMM -> MCA
     // DIMM -> MBA
@@ -341,6 +443,7 @@ inline Target<T, V> Target<K, V>::getParent(void) const
                     (T != fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_CAPP");
+#endif
 
     std::list<const ecmdChipTarget*> l_targets;
 
@@ -377,6 +480,42 @@ template< TargetType T>
 inline std::vector<Target<T, V> >
 Target<K, V>::getChildren(const TargetState i_state) const
 {
+#ifdef FAPI_2_Z_TARGET_RULES
+    // valid children for SC_CHIP
+    // SC_CHIP -> ABUS
+    // SC_CHIP -> NEST
+    // SC_CHIP -> XBUS0
+    // SC_CHIP -> XBUS1
+    // SC_CHIP -> PERV
+    static_assert(!((K == fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_ABUS) &&
+                    (T != fapi2::TARGET_TYPE_NEST) &&
+                    (T != fapi2::TARGET_TYPE_XBUS0) &&
+                    (T != fapi2::TARGET_TYPE_XBUS1) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
+                  "improper child of fapi2::TARGET_TYPE_SC_CHIP");
+
+    // valid children for EP_CHIP
+    // EP_CHIP -> NEST
+    // EP_CHIP -> XBUS0
+    // EP_CHIP -> XBUS1
+    // EP_CHIP -> PERV
+    // EP_CHIP -> GXA
+    // EP_CHIP -> CORE
+    // EP_CHIP -> MCS
+    // EP_CHIP -> PCIE
+    static_assert(!((K == fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_NEST) &&
+                    (T != fapi2::TARGET_TYPE_XBUS0) &&
+                    (T != fapi2::TARGET_TYPE_XBUS1) &&
+                    (T != fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_GXA) &&
+                    (T != fapi2::TARGET_TYPE_CORE) &&
+                    (T != fapi2::TARGET_TYPE_MCS) &&
+                    (T != fapi2::TARGET_TYPE_PCIE)),
+                  "improper child of fapi2::TARGET_TYPE_EP_CHIP");
+
+#else
 #define INVALID_CHILD(PARENT, CHILD) \
     static_assert(!((K == PARENT) && (T == CHILD)), \
                   #CHILD " is not a child of " #PARENT );
@@ -507,6 +646,7 @@ Target<K, V>::getChildren(const TargetState i_state) const
                     (T != fapi2::TARGET_TYPE_OBUS_BRICK)),
                   "improper child of fapi2::TARGET_TYPE_OBUS");
 
+#endif
 
     std::list<const ecmdChipTarget*> l_targets;
     std::vector<Target<T, V> > l_children;
