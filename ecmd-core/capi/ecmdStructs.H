@@ -2320,6 +2320,7 @@ std::string ecmdGetSharedLibVersion();
  Defines for stopClocks
 */
 #define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
+#define ECMD_STOP_CLOCK_MODE_ASYNC          0x00000002
 
 /**
 @brief Used in ecmdReadDigitalThermalSensor function to get the dts readings for an ex target
