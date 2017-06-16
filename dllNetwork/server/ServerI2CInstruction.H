@@ -43,6 +43,11 @@ class ServerI2CInstruction : public I2CInstruction
     uint32_t iic_config_device_offset(Handle * i_handle, InstructionStatus & o_status);
     ssize_t iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
     ssize_t iic_write(Handle * i_handle, InstructionStatus & o_status);
+
+    private:
+    uint32_t iv_deviceIdx;
+    uint32_t iv_adalFsiDevice;
+    std::vector<std::string> iv_devicePaths;
 };
 
 #endif // _ServerI2CInstruction_H
