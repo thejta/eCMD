@@ -279,7 +279,7 @@ ssize_t adal_scom_set_register(adal_t *adal, int registerNo,
         for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
         {
                 // try an open to find a valid file
-                fd = open(fsiraw[fsiIdx], O_RDONLY);
+                fd = open(fsiraw[fsiIdx], O_WRONLY);
                 if (fd != -1)
                 {
                         break;
