@@ -61,6 +61,12 @@ std::string InstructionFlagToString(uint32_t i_flag) {
     returnString += "INSTRUCTION_FLAG_CFAM_MAILBOX, ";
   if (INSTRUCTION_FLAG_CACHE_INHIBITED & i_flag)
     returnString += "INSTRUCTION_FLAG_CACHE_INHIBITED, ";
+  if (INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE & i_flag)
+    returnString += "INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE, ";
+  if (INSTRUCTION_FLAG_POWR_DDR4 & i_flag)
+    returnString += "INSTRUCTION_FLAG_POWR_DDR4, ";
+  if (INSTRUCTION_FLAG_NO_PIB_RESET & i_flag)
+    returnString += "INSTRUCTION_FLAG_NO_PIB_RESET, ";
   return returnString;
 }
 

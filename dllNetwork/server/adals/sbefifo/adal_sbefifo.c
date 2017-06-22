@@ -25,22 +25,55 @@
 #include <arpa/inet.h>
 #include "adal_sbefifo.h"
 
+static const uint32_t fsirawSize = 3;
+static const char *fsiraw[3] = {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",   // newest
+                                "/sys/devices/platform/fsi-master/slave@00:00/raw",   
+                                "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"}; // oldest
+
+#define container_of(ptr, type, member) ({                      \
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+#define SBEFIFO_ENGINE_OFFSET 0x2400
+#define P1_SLAVE_OFFSET       0x100000
+
+struct adal_sbefifo {
+        adal_t adal;
+        uint32_t offset;
+};
+typedef struct adal_sbefifo adal_sbefifo_t;
+
+#define to_sbefifo_adal(x) container_of((x), struct adal_sbefifo, adal)
 
 adal_t * adal_sbefifo_open(const char * device, int flags) {
-	adal_t * adal = NULL;
+        int idx = 1;
+        char *str;
+        char *prev = NULL;
+        adal_sbefifo_t *sbefifo;
 
-	adal = (adal_t *)malloc(sizeof(*adal));
-	if (adal == NULL) {
+	sbefifo = (adal_sbefifo_t *)malloc(sizeof(*sbefifo));
+        sbefifo->adal.fd = open(device, flags);
+	if (sbefifo->adal.fd == -1)
+        {   
+                free(sbefifo);
+                sbefifo = NULL;
 		return NULL;
 	}
 
-	adal->fd = open(device, flags);
-	if (adal->fd == -1) {
-		free(adal);
-		adal = NULL;
-	}
+        str = strstr((char *)device, "sbefifo");
+        while (str)
+        {
+                prev = str;
+                str = strstr(str+1, "sbefifo");
+        }
 
-	return adal;
+        if (prev)
+                idx = strtol(prev+7, NULL, 10);
+
+        if (idx > 1)
+                sbefifo->offset = P1_SLAVE_OFFSET;
+
+	return &sbefifo->adal;
 }
 
 ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
@@ -125,28 +158,32 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 }
 
 int adal_sbefifo_close(adal_t * adal) {
-	int rc = 0;
+	int rc = -1;
+
+        adal_sbefifo_t *sbefifo = to_sbefifo_adal(adal);
 
 	if (!adal)
 		return 0;
 
 	rc = close(adal->fd);
 
-	free(adal);
+	free(sbefifo);
 	adal = NULL;
 
 	return rc;
 }
 
-int adal_sbefifo_request_reset(adal_t * adal) {
-
-	return 0;
+int adal_sbefifo_request_reset(adal_t * adal) 
+{
+        int rc = -1;
+        rc = adal_sbefifo_set_register(adal, 0x03, 0xFFFFFFFF);
+        return rc;
 }
 
 
 ssize_t adal_sbefifo_ffdc_extract(adal_t * adal, int scope, void ** buf) {
-  *buf=NULL;
-  return 0;
+        *buf=NULL;
+        return 0;
 }
 
 int adal_sbefifo_unlock(adal_t * adal, int scope) {
@@ -155,3 +192,59 @@ int adal_sbefifo_unlock(adal_t * adal, int scope) {
 
 }
 
+ssize_t adal_sbefifo_get_register(adal_t *adal, int registerNo,
+			       unsigned long *data)
+{
+
+	int rc;
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_RDONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
+	adal_sbefifo_t *sbefifo = to_sbefifo_adal(adal);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, sbefifo->offset + SBEFIFO_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	rc = read(fd, data, 4);
+	
+	close(fd);
+	return rc;
+}
+
+ssize_t adal_sbefifo_set_register(adal_t *adal, int registerNo,
+			       unsigned long data)
+{
+	int rc;
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_WRONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
+	adal_sbefifo_t *sbefifo = to_sbefifo_adal(adal);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, sbefifo->offset + SBEFIFO_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	rc = write(fd, &data, 4);
+	
+	close(fd);
+	return rc;
+}

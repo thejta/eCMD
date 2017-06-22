@@ -56,6 +56,9 @@
 #define INSTRUCTION_FLAG_CFAM_MAILBOX           0x00002000
 
 #define INSTRUCTION_FLAG_CACHE_INHIBITED        0x00001000
+#define INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE   0x00000800
+#define INSTRUCTION_FLAG_POWR_DDR4              0x00000400
+#define INSTRUCTION_FLAG_NO_PIB_RESET           0x00000200
 
 /**
  @brief function to create string from instruction flag

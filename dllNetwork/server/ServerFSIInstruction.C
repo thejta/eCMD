@@ -25,6 +25,7 @@
 #include <adal_scom.h>
 #include <adal_scan.h>
 #include <adal_mbx.h>
+#include <adal_sbefifo.h>
 
 //FIXME remove these
 adal_t * system_gp_reg_open(const char * device, int flags, int type)
@@ -274,6 +275,50 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   return rc;
 }
 
+uint32_t ServerFSIInstruction::sbefifo_open(Handle ** handle, InstructionStatus & o_status)
+{
+    int rc = 0;
+
+    char device[50];
+    char errstr[200];
+
+    /* already have a handle lets reuse it */
+    if(*handle != NULL)
+        return rc;
+
+    /* We need to open the device*/
+    snprintf(device, 50, "/dev/sbefifo%s", deviceString.c_str());
+    errno = 0;
+
+    if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+    {
+        snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_open(%s, O_RDWR | O_NONBLOCK)\n", device);
+        o_status.errorMessage.append(errstr);
+    }
+
+#ifdef TESTING
+    TEST_PRINT("*handle = adal_sbefifo_open(%s, O_RDWR | O_NONBLOCK);\n", device);
+    *handle = (Handle *) 0x1;
+#else
+    *handle = (Handle *) adal_sbefifo_open(device, O_RDWR | O_NONBLOCK);
+#endif
+
+    if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+    {
+        snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_open() *handle = %p\n", *handle);
+        o_status.errorMessage.append(errstr);
+    }
+
+    if (*handle == NULL)
+    {
+        snprintf(errstr, 200, "ServerFSIInstruction::sbefifo_open Problem opening SBEFIFO device %s : errno %d\n", device, errno);
+        o_status.errorMessage.append(errstr);
+        return SERVER_INVALID_SBEFIFO_DEVICE;
+    }
+
+    return rc;
+}
+
 void ServerFSIInstruction::scan_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) {
 
     // system_scan_ffdc_extract
@@ -331,6 +376,33 @@ void ServerFSIInstruction::mbx_ffdc_and_reset(Handle ** handle, InstructionStatu
 
 }
 
+void ServerFSIInstruction::sbefifo_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status)
+{
+    uint32_t rc = 0;
+    // system_sbefifo_ffdc_extract
+    //  append to o_status.errorMessage
+    // system_sbefifo ffdc_unlock
+
+    if (flags & INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE) {
+        errno = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_sbefifo_request_reset(*handle);\n");
+#else
+        rc = adal_sbefifo_request_reset((adal_t *) *handle);
+#endif
+        if (rc) {
+            char errstr[200];
+            snprintf(errstr, 200, "ServerFSIInstruction::sbefifo_ffdc_and_reset Reset of adal failed!\n");
+            o_status.errorMessage.append(errstr);
+            o_status.rc = SERVER_SBEFIFO_ADAL_RESET_FAIL;
+        }
+    }
+
+    rc = sbefifo_close(*handle);
+    *handle = NULL;
+    if (rc) o_status.rc = SERVER_SBEFIFO_CLOSE_FAIL;
+}
+
 uint32_t ServerFSIInstruction::scan_close(Handle * handle)
 {
 #ifdef TESTING
@@ -368,6 +440,16 @@ uint32_t ServerFSIInstruction::mbx_close(Handle * handle)
     return 0;
 #else
     return adal_mbx_close((adal_t *) handle);
+#endif
+}
+
+uint32_t ServerFSIInstruction::sbefifo_close(Handle * handle)
+{
+#ifdef TESTING
+    TEST_PRINT("adal_sbefifo_close((adal_t *) handle);\n");
+    return 0;
+#else
+    return adal_sbefifo_close((adal_t *) handle);
 #endif
 }
 
@@ -600,6 +682,20 @@ ssize_t ServerFSIInstruction::gp_reg_get(Handle * i_handle, ecmdDataBufferBase &
         return rc;
 }
 
+ssize_t ServerFSIInstruction::sbefifo_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
+{
+        ssize_t rc = 0;
+        unsigned long l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_sbefifo_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
+        rc = 4;
+#else
+        rc = adal_sbefifo_get_register((adal_t *) i_handle, address, &l_data);
+#endif
+        o_data.setWord(0, l_data);
+        return rc;
+}
+
 ssize_t ServerFSIInstruction::scan_set_register(Handle * i_handle, InstructionStatus & o_status)
 {
         ssize_t rc = 0;
@@ -701,3 +797,15 @@ ssize_t ServerFSIInstruction::gp_reg_set(Handle * i_handle, InstructionStatus & 
         return rc;
 }
 
+ssize_t ServerFSIInstruction::sbefifo_set_register(Handle * i_handle, InstructionStatus & o_status)
+{
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+#ifdef TESTING
+        TEST_PRINT("adal_sbefifo_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+        rc = 4;
+#else
+        rc = adal_sbefifo_set_register((adal_t *) i_handle, address, l_data);
+#endif
+        return rc;
+}
