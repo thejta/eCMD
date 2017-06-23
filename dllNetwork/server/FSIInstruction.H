@@ -47,6 +47,7 @@ class FSIInstruction : public Instruction {
     CFAM_TYPE_MBX,
     CFAM_TYPE_MBX_SCRATCH,
     CFAM_TYPE_GP_REG,
+    CFAM_TYPE_SBEFIFO,
     } CFAMType;
 
     /** @name FSIInstruction Constructors */
@@ -259,16 +260,19 @@ bits 0:3  bits 4:7,            bits 8:15,     bits 16:23,    bits 24:31 </pre>
     virtual uint32_t scom_open(Handle ** handle, InstructionStatus & o_status) { return -1; }
     virtual uint32_t gp_reg_open(Handle ** handle, InstructionStatus & o_status) { return -1; }
     virtual uint32_t mbx_open(Handle ** handle, InstructionStatus & o_status) { return -1; }
+    virtual uint32_t sbefifo_open(Handle ** handle, InstructionStatus & o_status) { return -1; }
 
     virtual void scan_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) { }
     virtual void scom_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) { }
     virtual void gp_reg_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) { }
     virtual void mbx_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) { }
+    virtual void sbefifo_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status) { }
 
     virtual uint32_t scan_close(Handle * handle) { return -1; }
     virtual uint32_t scom_close(Handle * handle) { return -1; }
     virtual uint32_t gp_reg_close(Handle * handle) { return -1; }
     virtual uint32_t mbx_close(Handle * handle) { return -1; }
+    virtual uint32_t sbefifo_close(Handle * handle) { return -1; }
 
     virtual ssize_t scan_write(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t scan_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
@@ -283,12 +287,14 @@ bits 0:3  bits 4:7,            bits 8:15,     bits 16:23,    bits 24:31 </pre>
     virtual ssize_t mbx_get_scratch_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
     virtual ssize_t mbx_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
     virtual ssize_t gp_reg_get(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
+    virtual ssize_t sbefifo_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
 
     virtual ssize_t scan_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t scom_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t mbx_set_scratch_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t mbx_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t gp_reg_set(Handle * i_handle, InstructionStatus & o_status) { return -1; }
+    virtual ssize_t sbefifo_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
 };
 
 #endif // _FSIInstruction_H

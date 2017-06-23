@@ -553,6 +553,44 @@ uint32_t FSIInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           }
 
         }
+        else if (l_type == CFAM_TYPE_SBEFIFO)
+        {
+          /* Open the Handle */
+          rc = sbefifo_open(io_handle, o_status);
+          if (rc) {
+            o_status.rc = rc;
+            break;
+          }
+
+          errno = 0;
+          o_data.setBitLength(32);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            snprintf(errstr, 200, "SERVER_DEBUG : sbefifo_get_register() address = 0x%08X\n", address);
+            o_status.errorMessage.append(errstr);
+          }
+
+          len = sbefifo_get_register(*io_handle, o_data, o_status);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            std::string words;
+            genWords(o_data, words);
+            snprintf(errstr, 200, "SERVER_DEBUG : sbefifo_get_register() o_data = %s, rc = %zd\n", words.c_str(), len);
+            o_status.errorMessage.append(errstr);
+          }
+
+          if (len != 4 && len != 0) {
+            snprintf(errstr, 200, "FSIInstruction::execute(READSPMEM) Read length exp (%d) actual (%zd)\n", 4, len);
+            o_status.errorMessage.append(errstr);
+            snprintf(errstr, 200, "FSIInstruction::execute(READSPMEM) Problem reading from FSI device : errno %d\n", errno);
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_FSI_SBEFIFO_READ_FAIL;
+            sbefifo_ffdc_and_reset(io_handle, o_status);
+            break;
+          } else {
+            rc = o_status.rc = SERVER_COMMAND_COMPLETE;
+          }
+        }
 
         /* Debug interfaces */
         else if (flags & INSTRUCTION_FLAG_FSI_USE_DRA) {
@@ -760,6 +798,42 @@ uint32_t FSIInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
             rc = o_status.rc = SERVER_COMMAND_COMPLETE;
           }
 
+        }
+        else if (l_type == CFAM_TYPE_SBEFIFO)
+        {
+
+          /* Open the Handle */
+          rc = sbefifo_open(io_handle, o_status);
+          if (rc) {
+            o_status.rc = rc;
+            break;
+          }
+
+          errno = 0;
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            snprintf(errstr, 200, "SERVER_DEBUG : sbefifo_set_register() address = 0x%08X data = %08X)\n", address, localData);
+            o_status.errorMessage.append(errstr);
+          }
+
+          len = sbefifo_set_register(*io_handle, o_status);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            snprintf(errstr, 200, "SERVER_DEBUG : sbefifo_set_register() rc = %zd\n", len);
+            o_status.errorMessage.append(errstr);
+          }
+
+          if (len != 4 && len != 0) {
+            snprintf(errstr, 200, "FSIInstruction::execute(WRITESPMEM) Write length exp (%d) actual (%zd)\n", 4, len);
+            o_status.errorMessage.append(errstr);
+            snprintf(errstr, 200, "FSIInstruction::execute(WRITESPMEM) Problem writing to FSI device : errno %d\n", errno);
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_FSI_SBEFIFO_WRITE_FAIL;
+            sbefifo_ffdc_and_reset(io_handle, o_status);
+            break;
+          } else {
+            rc = o_status.rc = SERVER_COMMAND_COMPLETE;
+          }
         }
         /* Debug interfaces */
         else if (flags & INSTRUCTION_FLAG_FSI_USE_DRA) {
@@ -1308,6 +1382,9 @@ uint32_t FSIInstruction::closeHandle(Handle ** i_handle) {
           case CFAM_TYPE_GP_REG:
             rc = gp_reg_close(*i_handle);
             break;
+          case CFAM_TYPE_SBEFIFO:
+            rc = sbefifo_close(*i_handle);
+            break;
           case CFAM_TYPE_INVALID:
           default:
             break;
@@ -1366,6 +1443,10 @@ FSIInstruction::CFAMType FSIInstruction::getCFAMType(const uint32_t i_address, c
     else if ((i_address & 0x0FFFFF00) == 0x0001000)
     {
         l_type = CFAM_TYPE_SCOM;
+    }
+    else if ((i_address & 0x0FFFF00) == 0x0002400)
+    {
+        l_type = CFAM_TYPE_SBEFIFO;
     }
     else if (((i_address & 0x0FFFFFFF) >= 0x0002838) && ((i_address & 0x0FFFFFFF) <= 0x000283F))
     {
