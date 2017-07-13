@@ -232,6 +232,15 @@ sub main {
         ecmd_print("'$bits' is not a valid bit value!", 1);
         return 1;
       }
+      # PPC64LE
+    } elsif (`uname -a|grep ppc64le` ne "") {
+      if ($bits eq "64") {
+        $arch = "ppc64le";
+      }
+      else {
+        ecmd_print("'$bits' is not a valid bit value!", 1);
+        return 1;
+      }
       # PPC
     } elsif (`uname -a|grep ppc` ne "") {
       if ($bits eq "32") {
