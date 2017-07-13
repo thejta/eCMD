@@ -56,6 +56,7 @@ enum SCOM_REGS {
 #define FORM1_SCOM_SHIFT	20
 #define FORM1_SCOM_DATA		0x000FFFFFFFFFFFFFULL
 #define INDIRECT_SCOM_READ	0x8000000000000000ULL
+#define INDIRECT_SCOM_FLAG	0x8000000000000000ULL
 #define INDIRECT_SCOM_ADDR	0x000FFFFF00000000ULL
 #define INDIRECT_SCOM_READ_DATA	0xFFFFULL
 
@@ -124,7 +125,7 @@ ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigne
 {
 	int rc = 0;
 
-	if (scom_address & INDIRECT_SCOM_ADDR) {
+	if (scom_address & INDIRECT_SCOM_FLAG) {
 		uint64_t read_data;
 		uint64_t data = (scom_address & INDIRECT_SCOM_ADDR) | INDIRECT_SCOM_READ;
 
@@ -153,7 +154,7 @@ ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsig
 {
 	int rc = 0;
 
-	if (scom_address & INDIRECT_SCOM_ADDR) {
+	if (scom_address & INDIRECT_SCOM_FLAG) {
 		uint64_t data;
 
 		if (scom_address & FORM1_SCOM) {
