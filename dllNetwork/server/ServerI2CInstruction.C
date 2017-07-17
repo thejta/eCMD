@@ -483,7 +483,7 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
         }
         else
         {
-            perror("i2c read");
+            //perror("i2c read");
         }
 
         for (msg_offset = 0; msg_offset < messages; msg_offset++)
