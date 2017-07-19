@@ -37,7 +37,7 @@
 #include <fapi2Structs.H>
 #include <attribute_ids.H>
 #include <mvpd_access_defs.H>
-//#include <fapiMBvpdAccess.H>
+#include <fapi2_mbvpd_access_defs.H>
 //#include <fapi2Util.H>
 
 extern "C" {
@@ -187,21 +187,21 @@ fapi2::ReturnCode dllFapi2GetOtherSideOfMemChannel(
 	fapi2::Target<fapi2::TARGET_TYPE_MEMBUF_CHIP | fapi2::TARGET_TYPE_PROC_CHIP> & o_target, 
 	const fapi2::TargetState i_state);
 
-fapi2::ReturnCode dllFapi2GetMBvpdField(
-	const fapi2::MBvpdRecord i_record,
-	const fapi2::MBvpdKeyword i_keyword,
-	const fapi2::Target<fapi2::TARGET_TYPE_MEMBUF_CHIP> &i_memBufTarget,
-	uint8_t * const i_pBuffer,
-	uint32_t &io_fieldSize);
-
-fapi2::ReturnCode dllFapi2SetMBvpdField(
-	const fapi2::MBvpdRecord i_record,
-	const fapi2::MBvpdKeyword i_keyword,
-	const fapi2::Target<fapi2::TARGET_TYPE_MEMBUF_CHIP> &i_memBufTarget,
-	const uint8_t * const i_pBuffer,
-	const uint32_t i_fieldSize);
-
 #endif
+
+uint32_t dllFapi2GetMBvpdField(
+	const fapi2::MBvpdRecord i_record,
+	const fapi2::MBvpdKeyword i_keyword,
+	const ecmdChipTarget & i_target,
+	uint8_t * const i_pBuffer,
+	size_t &io_fieldSize);
+
+uint32_t dllFapi2SetMBvpdField(
+	const fapi2::MBvpdRecord i_record,
+	const fapi2::MBvpdKeyword i_keyword,
+	const ecmdChipTarget & i_target,
+	const uint8_t * const i_pBuffer,
+	const size_t i_fieldSize);
 
 bool dllFapi2IsOutputInfoEnabled(); 
 
