@@ -104,7 +104,7 @@ uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_
         iv_devicePaths.clear();
     }
 
-    uint32_t deviceId = std::stoul( deviceString );
+    uint32_t deviceId = strtoul( deviceString.c_str(), NULL, 10 );
 
     snprintf(device, 50, "/dev/i2c-%d", ((deviceId * 100) + port));
     iv_devicePaths.push_back(device);
