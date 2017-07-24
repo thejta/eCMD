@@ -2331,6 +2331,11 @@ uint32_t ecmdFlushRegisteredErrorTargets(uint32_t i_returnCode);
 */
 std::string ecmdParseReturnCode(uint32_t i_returnCode);
 
+/**
+ @brief return error from last ecmd executed in current thread
+*/
+std::string ecmdLastError();
+
 //@}
 
 
