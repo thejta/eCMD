@@ -1,5 +1,5 @@
 
-Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn | -ds | -dp | -dc]
+Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-hostboot] [-o<format>] [-dk | -dn | -ds | -dp | -dc]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           FAPI2 Extension
@@ -14,6 +14,8 @@ Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn
                         with ChipUnit: pu.mc
 
         AttributeName   Name of attribute to fetch
+
+        -hostboot [opt] Attempt to get requested attribute value from hostboot.
 
         -o<format>[opt] Output Format : default 'x'. Only valid with numeric data
                         Run 'ecmdquery formats' to view available formats
