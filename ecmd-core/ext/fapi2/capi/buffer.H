@@ -222,7 +222,7 @@ class buffer
             static_assert((B >= 0) &&
                           ((B + C - 1) < TT::bits_per_unit()), "failed range check");
 
-            iv_data &= buffer<T>().setBit<B, C>().invert();
+            iv_data &= buffer<T>().template setBit<B, C>().invert();
             return *this;
         }
 
@@ -307,7 +307,7 @@ class buffer
             static_assert((B >= 0) &&
                           ((B + C - 1) < TT::bits_per_unit()), "failed range check");
 
-            iv_data ^= buffer<T>().setBit<B, C>();
+            iv_data ^= buffer<T>().template setBit<B, C>();
             return *this;
         }
 
@@ -321,7 +321,7 @@ class buffer
         template< bits_type B, bits_type C = 1>
         inline bool getBit(void) const
         {
-            return buffer<T>().setBit<B, C>() & iv_data;
+            return buffer<T>().template setBit<B, C>() & iv_data;
         }
 
         ///
