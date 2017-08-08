@@ -898,7 +898,7 @@ if (DISTRO_OVERRIDE != ""):
 # Write our optional extension makefile.config includes
 # This allows you to add values to variables defined above
 config.write("# Optionally include any extension specific makefile.config overrides\n")
-for ext in sorted(EXTENSIONS.split(" ")):
+for ext in sorted(EXTENSIONS.split()):
     config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config")) 
 
 config.close()
