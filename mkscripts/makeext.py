@@ -16,10 +16,7 @@ import errno
 # -----------------------
 if (sys.argv[1] == "cmd"):
   # Pull EXT_CMD out of the environment
-  extlist = os.environ["EXT_CMD"].split(" ")
-  # EXT_CMD could be empty, but splitting on " " will create 1 entry
-  # Filter out any empty entries
-  extlist = filter(None, extlist)
+  extlist = os.environ["EXT_CMD"].split()
 
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtInterpreter.C", 'w')
@@ -74,11 +71,11 @@ if (sys.argv[1] == "doxygen"):
   # Pull the right EXT list out of the env based on arg2
   extlist = list()
   if (sys.argv[2] == "capi"):
-    extlist = os.environ["EXT_CAPI"].split(" ")
+    extlist = os.environ["EXT_CAPI"].split()
   elif (sys.argv[2] == "perlapi"):
-    extlist = os.environ["EXT_PERLAPI"].split(" ")
+    extlist = os.environ["EXT_PERLAPI"].split()
   elif (sys.argv[2] == "pyapi"):
-    extlist = os.environ["EXT_PYAPI"].split(" ")
+    extlist = os.environ["EXT_PYAPI"].split()
   else:
     print("Unknown API \"%s\" passed in!  Exiting.." % (sys.argv[2]))
     exit(1)
@@ -112,7 +109,7 @@ if (sys.argv[1] == "doxygen"):
 if (sys.argv[1] == "pyapi"):
   
   # Pull EXT_PYAPI out of the environment
-  extlist = os.environ["EXT_PYAPI"].split(" ")
+  extlist = os.environ["EXT_PYAPI"].split()
 
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtPyIncludes.i", 'w')
@@ -153,7 +150,7 @@ if (sys.argv[1] == "pyapi"):
 if (sys.argv[1] == "perlapi"):
   
   # Pull EXT_PERLAPI out of the environment
-  extlist = os.environ["EXT_PERLAPI"].split(" ")
+  extlist = os.environ["EXT_PERLAPI"].split()
 
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtPerlIncludes.i", 'w')
