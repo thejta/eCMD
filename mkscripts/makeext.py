@@ -11,16 +11,15 @@ import errno
 # This is a combo of generated code from this script and code snippets
 # stored with the extension
 
-# Get the list of extensions from the env and turn it into python
-extlist = os.environ["EXTENSIONS"].split(" ")
-extlist.sort()
-
 # -----------------------
 # cmd files
 # -----------------------
 if (sys.argv[1] == "cmd"):
   # Pull EXT_CMD out of the environment
   extlist = os.environ["EXT_CMD"].split(" ")
+  # EXT_CMD could be empty, but splitting on " " will create 1 entry
+  # Filter out any empty entries
+  extlist = filter(None, extlist)
 
   # Open our file and start writing
   extfile = open(os.environ["SRCPATH"] + "/ecmdExtInterpreter.C", 'w')
