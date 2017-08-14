@@ -857,7 +857,7 @@ if (not args.without_swig):
             verNoFloat = (int(versplit[0]) * 1000000) + (int(versplit[1]) * 1000) + int(versplit[2])
             if (verNoFloat < 2000011):
                 print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
-                print("ERROR: Please run again and specify a differen swig executable or disable swig with --without-swig")
+                print("ERROR: Please run again and specify a different swig (--swig) or disable swig (--without-swig)")
                 sys.exit(1)
 
 ##################################################
