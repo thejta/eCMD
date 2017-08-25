@@ -41,9 +41,4 @@
 
 #include <mvpd_access.H>
 
-// Block of headers not currently in fapi2
-#ifdef FAPI2_MISSING_HEADERS
-    #include <mbvpdAccess.H>
-#endif
-
 #endif // __FAPI2_TOP_LEVEL__
