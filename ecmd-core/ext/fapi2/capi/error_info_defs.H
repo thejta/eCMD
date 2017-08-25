@@ -48,10 +48,10 @@ struct sbeFfdc_t
     uint64_t  data;
 } __attribute__((packed));
 
-// 10 entries limits the size of SbeFfdcData_t to 128 bytes
+// 20 entries limits the size of SbeFfdcData_t under 256 bytes
 enum
 {
-    MAX_SBE_FFDC_ENTRIES = 10
+    MAX_SBE_FFDC_ENTRIES = 20
 };
 
 // Data type for SBE ffdc buffer sent through fifo
@@ -60,7 +60,7 @@ typedef struct
     uint32_t  fapiRc;      // Return code from failure
     uint32_t  ffdcLength;  // length of Fapi FFDC data (in bytes)
     struct sbeFfdc_t ffdcData[MAX_SBE_FFDC_ENTRIES]; // fapi FFDC data
-} SbeFfdcData_t; // 128 bytes
+} SbeFfdcData_t; // ~248 bytes
 
 ///
 /// @brief Type to hold the ffdc element in the ffdc class
@@ -224,6 +224,7 @@ enum CalloutPriority
     LOW = 0,
     MEDIUM = 1,
     HIGH   = 2,
+    NONE   = 3,
 };
 }
 
@@ -247,30 +248,56 @@ enum CollectTrace
 // NOTE - this assumes no buffer_t or variable_buffers are passed
 //        data is converted to a uint64_t when placed into the sbe ffdc
 //        buffer
-inline fapi2::ffdc_t getFfdcData( sbeFfdc_t& i_sbeFfdc )
+inline fapi2::ffdc_t getFfdcData( sbeFfdc_t& i_sbeFfdc, bool& invalid_data )
 {
-    fapi2::ffdc_t temp;
+    fapi2::ffdc_t l_ffdc;
 
-    temp.size() = static_cast<size_t>(i_sbeFfdc.size);
+    l_ffdc.size() = static_cast<size_t>(i_sbeFfdc.size);
 
-    if(temp.size() == EI_FFDC_SIZE_TARGET)
+    if(l_ffdc.size() == EI_FFDC_SIZE_TARGET)
     {
 #ifdef FAPI2_ENABLE_PLATFORM_GET_TARGET
         uint64_t targetData = i_sbeFfdc.data;
         fapi2::TargetType type = static_cast<fapi2::TargetType>(targetData >> 32);
         uint8_t instance = static_cast<uint8_t>(targetData & 0xFFFFFFFF);
         // call hostboot to get the fapi2 target reference
-        temp.ptr() = static_cast<void*>(getTarget<TARGET_TYPE_ALL>(type, instance));
+        l_ffdc.ptr() = static_cast<void*>(getTarget<TARGET_TYPE_ALL>(type, instance));
+
+        if(l_ffdc.ptr() == nullptr )
+        {
+            invalid_data = true;
+        }
+
 #endif
     }
     else
     {
-        // adjust the pointer based on the data size.
-        temp.ptr() = static_cast<void*>(reinterpret_cast<uint8_t*>(&i_sbeFfdc.data) +
-                                        (sizeof(uint64_t) - i_sbeFfdc.size));
+        // validate the size in the buffer - assumes no buffers are returned
+        // from sbe -
+        switch( i_sbeFfdc.size )
+        {
+            // valid sizes are 1,2,4 and 8 bytes only.
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+                // data is at least a reasonable size
+                break;
+
+            default:
+                FAPI_ERR("Invalid data size in SBE FFDC buffer");
+                invalid_data = true;
+        }
+
+        if(!invalid_data)
+        {
+            // adjust the pointer based on the data size.
+            l_ffdc.ptr() = static_cast<void*>(reinterpret_cast<uint8_t*>(&i_sbeFfdc.data) +
+                                              (sizeof(uint64_t) - i_sbeFfdc.size));
+        }
     }
 
-    return temp;
+    return l_ffdc;
 }
 #endif
 ///
