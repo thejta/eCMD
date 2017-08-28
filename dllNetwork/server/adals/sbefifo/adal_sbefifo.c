@@ -88,7 +88,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 	pollfd.events = POLLOUT | POLLERR;
 
 	if((ret = poll(&pollfd, 1, timeout_in_msec)) < 0) {
-		perror("Waiting for fifo device failed");
+		//perror("Waiting for fifo device failed");
 		return -1;
 	}
 
@@ -107,7 +107,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
         }
 	ret = write(adal->fd, buf, size_bytes);
 	if (ret < 0) {
-		perror("Writing user input failed");
+		//perror("Writing user input failed");
         bool retry = false;
         if (errno == EAGAIN)
         {
@@ -129,7 +129,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 	        pollfd.events = POLLOUT | POLLERR;
 
 	        if((ret = poll(&pollfd, 1, timeout_in_msec)) < 0) {
-		        perror("Waiting for fifo device failed");
+		        //perror("Waiting for fifo device failed");
 		        return -1;
 	        }
 
@@ -140,7 +140,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 	        ret = write(adal->fd, buf, size_bytes);
             if (ret < 0)
             {
-		        perror("Writing user input retry failed");
+		        //perror("Writing user input retry failed");
                 if (errno == EAGAIN)
                 {
                     retry_count++;
@@ -163,7 +163,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
         }
 	}
     if (ret != size_bytes) {
-		fprintf(stderr, "Incorrect number of bytes written %d != %d\n", ret, size_bytes);
+		//fprintf(stderr, "Incorrect number of bytes written %d != %d\n", ret, size_bytes);
 		return -1;
 	}
 
@@ -171,12 +171,12 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 	pollfd.events = POLLIN | POLLERR;
 
 	if((ret = poll(&pollfd, 1, timeout_in_msec) < 0)) {
-		perror("Waiting for fifo device failed");
+		//perror("Waiting for fifo device failed");
 		return -1;
 	}
 
 	if (pollfd.revents & POLLERR) {
-		fprintf(stderr, "POLLERR while waiting for readable fifo\n");
+		//fprintf(stderr, "POLLERR while waiting for readable fifo\n");
 		return -1;
 	}
 
@@ -187,7 +187,7 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 		if((ret = read(adal->fd, buf + ret_bytes, size_bytes)) < 0) {
 			if (errno == EAGAIN)
 				break;
-			perror("Reading fifo device failed");
+			//perror("Reading fifo device failed");
 			return -1;
 		}
 		ret_bytes += ret;
