@@ -108,8 +108,61 @@ ssize_t adal_sbefifo_submit(adal_t * adal, adal_sbefifo_request * request,
 	ret = write(adal->fd, buf, size_bytes);
 	if (ret < 0) {
 		perror("Writing user input failed");
-		return -1;
-	} else if (ret != size_bytes) {
+        bool retry = false;
+        if (errno == EAGAIN)
+        {
+            retry = true;
+        }
+        else
+        {
+            return -1;
+        }
+        // sleep and retry up to 10 times
+        uint32_t retry_count = 0;
+        const uint32_t retry_limit = 10;
+        while (retry)
+        {
+            sleep(1);
+	        size_bytes = request->wordcount << 2;
+
+	        pollfd.fd = adal->fd;
+	        pollfd.events = POLLOUT | POLLERR;
+
+	        if((ret = poll(&pollfd, 1, timeout_in_msec)) < 0) {
+		        perror("Waiting for fifo device failed");
+		        return -1;
+	        }
+
+	        if (pollfd.revents & POLLERR) {
+		        return -1;
+	        }
+
+	        ret = write(adal->fd, buf, size_bytes);
+            if (ret < 0)
+            {
+		        perror("Writing user input retry failed");
+                if (errno == EAGAIN)
+                {
+                    retry_count++;
+                    // too many retries, fail
+                    if (retry_count > retry_limit)
+                    {
+                        return -1;
+                    }
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                // write succeeded, exit loop
+                retry = false;
+            }
+        }
+	}
+    if (ret != size_bytes) {
 		fprintf(stderr, "Incorrect number of bytes written %d != %d\n", ret, size_bytes);
 		return -1;
 	}
