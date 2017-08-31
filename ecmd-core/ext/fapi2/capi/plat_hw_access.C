@@ -874,6 +874,7 @@ namespace fapi2plat
     {
         fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
+        uint32_t l_mode = ECMD_RING_MODE_SPARSE_ACCESS;
 
         ecmdDataBuffer l_ecmd_buffer;
         l_ecmdRc = fapi2::bufferCopy(l_ecmd_buffer, i_data);
@@ -885,7 +886,7 @@ namespace fapi2plat
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
         {
-	        fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
+	        fprintf(stderr,"dllPutSpyHidden%s",ECMD_DLL_NOT_LOADED_ERROR);
 	        exit(ECMD_DLL_INVALID);
         }
 #endif
@@ -898,30 +899,31 @@ namespace fapi2plat
             args.push_back((void*) &i_target);
             args.push_back((void*) &i_spyId);
             args.push_back((void*) &l_ecmd_buffer);
+            args.push_back((void*) &l_mode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putgetSpy");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpyHidden");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-        l_ecmdRc = dllPutSpy(i_target, i_spyId, l_ecmd_buffer);
+        l_ecmdRc = dllPutSpyHidden(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #else
-        if (DllFnTable[ECMD_PUTSPY] == NULL)
+        if (DllFnTable[ECMD_PUTSPYHIDDEN] == NULL)
         {
-            DllFnTable[ECMD_PUTSPY] = (void*)dlsym(dlHandle, "dllPutSpy");
-            if (DllFnTable[ECMD_PUTSPY] == NULL)
+            DllFnTable[ECMD_PUTSPYHIDDEN] = (void*)dlsym(dlHandle, "dllPutSpyHidden");
+            if (DllFnTable[ECMD_PUTSPYHIDDEN] == NULL)
             {
-                fprintf(stderr,"dllPutSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                fprintf(stderr,"dllPutSpyHidden%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
                 ecmdDisplayDllInfo();
                 exit(ECMD_DLL_INVALID);
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSPY];
-        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer);
+        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t) = 
+            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t))DllFnTable[ECMD_PUTSPYHIDDEN];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #endif
         if (l_ecmdRc)
         {
@@ -932,8 +934,8 @@ namespace fapi2plat
         if (ecmdClientDebug != 0)
         {
             args.push_back((void*) &l_ecmdRc);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpy");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpyHidden");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
         }
 #endif
 
