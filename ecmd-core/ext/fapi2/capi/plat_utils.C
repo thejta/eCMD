@@ -148,6 +148,19 @@ namespace fapi2
     }
 
     ///
+    /// @brief Associate an error to PRD PLID.
+    ///
+    void log_related_error(
+        const Target<TARGET_TYPE_ALL>& i_target,
+        fapi2::ReturnCode& io_rc,
+        const fapi2::errlSeverity_t i_sev,
+        const bool i_unitTestError )
+    {
+        // Just commit the log in default implementation
+        logError( io_rc, i_sev, i_unitTestError );
+    } // end log_related_error
+
+    ///
     /// @brief Delay this thread.
     ///
     ReturnCode delay(uint64_t i_nanoSeconds, uint64_t i_simCycles, bool i_fixed)
