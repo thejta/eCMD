@@ -82,11 +82,11 @@ class I2CInstruction : public Instruction {
      * @brief Used as alternate way to set variables normally set on construction
      * @retval ECMD_SUCCESS on success
      * @retval nonzero on failure
-     * @post command, deviceString, engineId, port, slaveAddress, busSpeed, offset, offsetFieldSize, length, i2cFlags, and flags are set, if i_data is not NULL it is copied to data
+     * @post command, deviceString, engineId, port, slaveAddress, busSpeed, offset/address, offsetFieldSize, length, i2cFlags, and flags are set, if i_data is not NULL it is copied to data
      * @post flag has INSTRUCTION_FLAG_DEVSTR set
      * @post version is set to 0x4
      */
-    uint32_t setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data = NULL);
+    uint32_t setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data = NULL);
     //@}
 
     /** @name Execution Function */
