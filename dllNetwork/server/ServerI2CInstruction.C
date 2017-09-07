@@ -53,7 +53,7 @@ struct system_iic
     uint32_t slave_address;
     uint32_t slave_address_mask;
     uint8_t offset_width;
-    uint32_t offset;
+    uint64_t offset;
     uint32_t funcs;
 };
 
@@ -335,7 +335,7 @@ uint32_t ServerI2CInstruction::iic_config_device_width(Handle * i_handle, Instru
     {
         system_iic * handle = (system_iic *) i_handle;
         handle->offset_width = offsetFieldSize;
-        if (handle->offset_width > 4)
+        if (handle->offset_width > 8)
         {
             char errstr[200];
             snprintf(errstr, 200, "ServerI2CInstruction::iic_config_device_width Invalid offsetFieldSize: %d is not supported\n", handle->offset_width);
@@ -361,7 +361,14 @@ uint32_t ServerI2CInstruction::iic_config_device_offset(Handle * i_handle, Instr
     else
     {
         system_iic * handle = (system_iic *) i_handle;
-        handle->offset = offset;
+        if (offsetFieldSize > 4)
+        {
+            handle->offset = address;
+        }
+        else
+        {
+            handle->offset = offset;
+        }
     }
     return rc;
 }
@@ -391,7 +398,7 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
         if (rc)
         {
             delete [] buffer;
-	    return rc;
+            return rc;
         }
 #endif
 
@@ -410,11 +417,11 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
 #endif
 
 #if 0
-	for (int i = 0; i < (len + 4); i++)
-	{
-		printf("%02X ", (uint32_t) buffer[i]);
-	}
-	printf ("\n");
+        for (int i = 0; i < (len + 4); i++)
+        {
+            printf("%02X ", (uint32_t) buffer[i]);
+        }
+        printf ("\n");
 #endif
 
         uint32_t rc_ecmd = o_data.insert(buffer, 0, length);
@@ -455,7 +462,7 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
             for (uint8_t buf_offset = 0; buf_offset < handle->offset_width; buf_offset++)
             {
                 rdwr_data->msgs[msg_offset].buf[buf_offset] =
-		    (handle->offset >> ((handle->offset_width - buf_offset - 1) * 8)) & 0xFF;
+                    (handle->offset >> ((handle->offset_width - buf_offset - 1) * 8)) & 0xFF;
             }
 
             msg_offset++;
@@ -524,7 +531,7 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
         if (rc)
         {
             delete [] buffer;
-	    return rc;
+            return rc;
         }
 #endif
 
