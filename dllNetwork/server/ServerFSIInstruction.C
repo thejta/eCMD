@@ -214,6 +214,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
     {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
      "/sys/devices/hub@00/slave@01:00/raw"}};
+  int errnos[3] = { 0, 0, 0 };
 
   /* We need to open the device*/
   if ((flags & INSTRUCTION_FLAG_DEVSTR) == 0) {
@@ -261,14 +262,21 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
     }
 
     if (*handle == NULL) {
-      snprintf(errstr, 200, "ServerFSIInstruction::mbx_open Problem opening FSI device %s : errno %d\n", device, errno);
-      o_status.errorMessage.append(errstr);
+      // suppress errors being appended to the o_status
+      errnos[l_try] = errno;
     } else {
       break;
     }
   }
 
   if (*handle == NULL) {
+    // exhausted all file paths to find a valid device, tell the user what we tried for FA
+    for ( uint32_t l_try = 0; l_try < numPaths; l_try++ )
+    {
+      // print all paths we tried
+      snprintf(errstr, 200, "ServerFSIInstruction::mbx_open Problem opening FSI device %s : errno %d\n", devices[l_idx][l_try], errnos[l_try]);
+      o_status.errorMessage.append(errstr);
+    }
     return SERVER_INVALID_FSI_DEVICE;
   }
 

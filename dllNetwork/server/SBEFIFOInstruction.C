@@ -112,7 +112,7 @@ uint32_t SBEFIFOInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
                 o_status.errorMessage.append(errstr);
                 if (db_rc == ECMD_DBUF_BUFFER_OVERFLOW)
                 {
-                    snprintf(errstr, 200, "SBEFIFOInstruction::execute(SBEFIFO) rc = ECMD_DBUF_BUFFER_OVERFLOW, max reply = %d, actual reply = %zd\n", replyLength, l_reply_wordcount);
+                    snprintf(errstr, 200, "SBEFIFOInstruction::execute(SBEFIFO) rc = ECMD_DBUF_BUFFER_OVERFLOW, max reply = %d, actual reply = %d\n", replyLength, l_reply_wordcount);
                     o_status.errorMessage.append(errstr);
                 }
                 snprintf(errstr, 200, "SBEFIFOInstruction::execute(SBEFIFO) adal_sbefifo_submit: rc = %d, errno %d\n", rc, errno);
