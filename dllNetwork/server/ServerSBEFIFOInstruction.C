@@ -130,7 +130,7 @@ ssize_t ServerSBEFIFOInstruction::sbefifo_submit(Handle * i_handle, ecmdDataBuff
             if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
             {
                 char errstr[200];
-                snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_submit() rc = %u\n", rc);
+                snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_submit() rc = %u\n", (uint32_t) rc);
                 o_status.errorMessage.append(errstr);
                 snprintf(errstr, 200, "SERVER_DEBUG : l_request.status = %08X\n", (uint32_t) l_request.status);
                 o_status.errorMessage.append(errstr);
