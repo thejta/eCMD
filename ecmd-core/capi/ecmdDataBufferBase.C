@@ -405,7 +405,7 @@ uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
     return rc;
   } else if (i_newNumBits < iv_NumBits) {
     /* You can't grow smaller, use shrink */
-    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempted to grow to a smaller size then current buffer size.");
+    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempted to grow to a smaller size than current buffer size.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
 

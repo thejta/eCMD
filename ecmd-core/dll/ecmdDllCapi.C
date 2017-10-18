@@ -257,10 +257,10 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
     fprintf(stderr,"**** FATAL : Client Version : %s   : DLL Version : %s\n",i_clientVersion, ECMD_CAPI_VERSION);
 
     if (atoi(i_clientVersion) < atoi(ECMD_CAPI_VERSION)) {
-      fprintf(stderr,"**** FATAL : Your client is older then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : Your client is older than the eCMD Dll Plugin you are running\n");
       fprintf(stderr,"**** FATAL : You must grab the latest client libraries and rebuild your client to continue\n");
     } else {
-      fprintf(stderr,"**** FATAL : It appears your client is newer then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : It appears your client is newer than the eCMD Dll Plugin you are running\n");
       fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match your client\n");
       fprintf(stderr,"**** FATAL : Or get ahold of down level client libraries and rebuild your client to match\n");
 
@@ -275,10 +275,10 @@ uint32_t dllLoadDll (const char* i_clientVersion, uint32_t debugLevel) {
     fprintf(stderr,"**** FATAL : Shared Library Version : %s   : DLL Version : %s\n",ecmdGetSharedLibVersion().c_str(), ECMD_CAPI_VERSION);
 
     if (atoi(ecmdGetSharedLibVersion().c_str()) < atoi(ECMD_CAPI_VERSION)) {
-      fprintf(stderr,"**** FATAL : Your shared library is older then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : Your shared library is older than the eCMD Dll Plugin you are running\n");
       fprintf(stderr,"**** FATAL : You must grab the latest library to continue\n");
     } else {
-      fprintf(stderr,"**** FATAL : It appears your shared library is newer then the eCMD Dll Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : It appears your shared library is newer than the eCMD Dll Plugin you are running\n");
       fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match\n");
       fprintf(stderr,"**** FATAL : Or get ahold of a down level shared library and rerun\n");
 
@@ -400,7 +400,7 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     if (rc == ECMD_INVALID_ARGS) {
       dllOutputError("ecmdConfigLooperInit - Invalid Unitid specified\n");
     } else if (rc == ECMD_FUNCTION_NOT_SUPPORTED) {
-      dllOutputError("ecmdConfigLooperInit - Current plugin doesn't support Unitid's\n");
+      dllOutputError("ecmdConfigLooperInit - Current plugin doesn't support Unitids\n");
     }
     if (rc) return rc;
 
@@ -3444,11 +3444,11 @@ uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is greater then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is greater than numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is less then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is less than numBits requested to write\n");
     return rc;
   }
 
@@ -3742,11 +3742,11 @@ uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is greater then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is greater than numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is less then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Data buffer length is less than numBits requested to write\n");
     return rc;
   }
 
@@ -4011,7 +4011,7 @@ uint32_t dllGetLatchImage(ecmdChipTarget & i_target, const char* i_ringName, con
       if (i_ringImage.getBitLength() != l_ring_info.begin()->bitLength)
       {
           rc = ECMD_DBUF_MISMATCH;
-          dllRegisterErrorMsg(rc, "dllPutLatchImage", "Ring image data buffer isn't the size of the ring being operated on.\n");
+          dllRegisterErrorMsg(rc, "dllGetLatchImage", "Ring image data buffer isn't the size of the ring being operated on.\n");
           return rc;
       }
   }
@@ -4193,11 +4193,11 @@ uint32_t dllPutLatchImage(ecmdChipTarget & i_target, const char* i_ringName, con
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is greater then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is greater than numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is less then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchImage", "Data buffer length is less than numBits requested to write\n");
     return rc;
   }
 
@@ -4589,11 +4589,11 @@ uint32_t dllPutLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data,
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is greater then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is greater than numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is less then numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatchImageOpt", "Data buffer length is less than numBits requested to write\n");
     return rc;
   }
 
@@ -5523,7 +5523,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
               curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
               curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
             } else if ((colon = temp.find(',')) != std::string::npos) {
-              dllOutputError("readScandef - Array's not currently supported with getlatch\n");
+              dllOutputError("readScandef - Arrays not currently supported with getlatch\n");
               return ECMD_FUNCTION_NOT_SUPPORTED;
             } else {
               curLatch.latchEndBit = curLatch.latchStartBit;
@@ -6134,7 +6134,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
         	curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
                 curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
               } else if ((colon = temp.find(',')) != std::string::npos) {
-        	dllOutputError("readScandef - Array's not currently supported with getlatch\n");
+        	dllOutputError("readScandef - Arrays not currently supported with getlatch\n");
         	return ECMD_FUNCTION_NOT_SUPPORTED;
               } else {
         	curLatch.latchEndBit = curLatch.latchStartBit;

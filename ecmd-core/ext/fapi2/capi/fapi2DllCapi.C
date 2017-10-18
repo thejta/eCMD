@@ -79,10 +79,10 @@ uint32_t dllFapi2InitExtension (const char * i_clientVersion) {
     fprintf(stderr,"**** FATAL : Client Version : %s   : Extension Version : %s\n",i_clientVersion, DllVersion.c_str());
 
     if (atoi(i_clientVersion) < atoi(DllVersion.c_str())) {
-      fprintf(stderr,"**** FATAL : Your client is older then the eCMD FAPI Extension Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : Your client is older than the eCMD FAPI Extension Plugin you are running\n");
       fprintf(stderr,"**** FATAL : You must grab the latest client libraries and rebuild your client to continue\n");
     } else {
-      fprintf(stderr,"**** FATAL : It appears your client is newer then the eCMD FAPI Extension Plugin you are running\n");
+      fprintf(stderr,"**** FATAL : It appears your client is newer than the eCMD FAPI Extension Plugin you are running\n");
       fprintf(stderr,"**** FATAL : Contact the eCMD team to have the Plugin rebuilt to match your client\n");
       fprintf(stderr,"**** FATAL : Or get ahold of down level client libraries and rebuild your client to match\n");
 
