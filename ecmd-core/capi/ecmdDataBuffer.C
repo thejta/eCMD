@@ -297,7 +297,7 @@ uint32_t ecmdDataBuffer::growBitLength(uint32_t i_newNumBits) {
     return rc;
   } else if (i_newNumBits < iv_NumBits) {
     /* You can't grow smaller, use shrink */
-    ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempted to grow to a smaller size then current buffer size.");
+    ETRAC0("**** ERROR (ecmdDataBuffer::growBitLength) : Attempted to grow to a smaller size than current buffer size.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
 
@@ -1676,7 +1676,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bit, char i_value, uint32_t i_leng
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstates enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
 
@@ -1701,7 +1701,7 @@ uint32_t ecmdDataBuffer::setXstate(uint32_t i_bitOffset, const char* i_datastr) 
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::setXstate: Xstate operation called on buffer without xstates enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
 
@@ -1742,7 +1742,7 @@ uint32_t ecmdDataBuffer::memCopyInXstate(const char * i_buf, uint32_t i_bits) { 
   uint32_t index;
 
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyInXstate: Xstate operation called on buffer without xstates enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
   uint32_t buf_len = strlen(i_buf);
@@ -1777,7 +1777,7 @@ uint32_t ecmdDataBuffer::memCopyOutXstate(char * o_buf, uint32_t i_bits) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bits < getBitLength() ? i_bits : getBitLength();
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyOutXstate: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::memCopyOutXstate: Xstate operation called on buffer without xstates enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
 
@@ -1877,7 +1877,7 @@ ecmdDataBuffer ecmdDataBuffer::operator | (const ecmdDataBuffer& i_other) const 
 #ifndef REMOVE_SIM
 uint32_t ecmdDataBuffer::fillDataStr(char i_fillChar) {
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::fillDataStr: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::fillDataStr: Xstate operation called on buffer without xstates enabled");
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
   if (getWordLength() > 0) {
@@ -2075,7 +2075,7 @@ uint32_t ecmdDataBuffer::writeFileMultiple(const char * i_filename, ecmdFormatTy
 #ifndef REMOVE_SIM
   else if ( i_format == ECMD_SAVE_FORMAT_XSTATE) {
   if (!iv_XstateEnabled) {
-    ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstate's enabled");
+    ETRAC0("**** ERROR : ecmdDataBuffer::getXstate: Xstate operation called on buffer without xstates enabled");
     if (offsetTableData != NULL) delete[] offsetTableData;
     RETURN_ERROR(ECMD_DBUF_XSTATE_NOT_ENABLED);
   }
