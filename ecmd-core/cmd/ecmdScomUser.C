@@ -786,6 +786,21 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
 
+  curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
+  if (curArg != NULL) {
+    interval = (uint32_t)atoi(curArg);
+    if (strstr(curArg, "c")) {
+      intervalFlag = CYCLES_T;
+    }
+    else {
+      intervalFlag = SECONDS_T;
+    }
+  } else {
+    /* The default */
+    interval = 5;
+    intervalFlag = SECONDS_T;
+  }
+
   /* get format flag, if it's there */
   char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
   if (formatPtr != NULL) {
@@ -824,23 +839,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
   if (ecmdParseOption(&argc, &argv, "-verbose")) {
     verboseFlag = true;
   }
-
-  curArg = ecmdParseOptionWithArgs(&argc, &argv, "-interval");
-  if (curArg != NULL) {
-    interval = (uint32_t)atoi(curArg);
-    if (strstr(curArg, "c")) {
-      intervalFlag = CYCLES_T;
-    }
-    else {
-      intervalFlag = SECONDS_T;
-    }
-  } else {
-    /* The default */
-    interval = 5;
-    intervalFlag = SECONDS_T;
-  }
-    
-
+  
   curArg = ecmdParseOptionWithArgs(&argc, &argv, "-limit");
   if (curArg != NULL) {
     maxPolls = (uint32_t)atoi(curArg);
