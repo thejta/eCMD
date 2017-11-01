@@ -290,6 +290,25 @@ sub main {
   $modified{"PATH"} = 1;
 
   ##########################################################################
+  # Cleanup any old dirs that might be in the python path
+  #
+  # Pull out any of the matching cases
+  if ($singleInstall) {
+    $ENV{"PYTHONPATH"} =~ s!$installPath/$arch/python!:!g;
+  } else {
+    # This expression matches anything after a : up to /<something>/ecmd/<ver>/bin and then a : or end of line
+    $ENV{"PYTHONPATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/$arch/python(:|$)!:!g;
+  }
+  # Any multiple : cases, reduce to one
+  $ENV{"PYTHONPATH"} =~ s/(:+)/:/g;
+  # We might have left a : on the front, remove it
+  $ENV{"PYTHONPATH"} =~ s/^://g;
+  # Same with the back, might have left a :
+  $ENV{"PYTHONPATH"} =~ s/:$//g;
+  # Now mark the path modifed
+  $modified{"PYTHONPATH"} = 1;
+
+  ##########################################################################
   # Call cleanup on plugins
   #
   # Only do this if the plugin has changed from last time
@@ -427,6 +446,14 @@ sub main {
   #
   if (!$cleanup) {
     $ENV{"PYTHONPATH"} = $releasePath . "/" . $arch . "/python:" . $ENV{"PYTHONPATH"};
+    
+    # Any multiple : cases, reduce to one
+    $ENV{"PYTHONPATH"} =~ s/(:+)/:/g;
+    # We might have left a : on the front, remove it
+    $ENV{"PYTHONPATH"} =~ s/^://g;
+    # Same with the back, might have left a :
+    $ENV{"PYTHONPATH"} =~ s/:$//g;
+
     $modified{"PYTHONPATH"} = 1;
   }
 
