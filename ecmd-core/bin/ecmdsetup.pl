@@ -508,6 +508,7 @@ sub help {
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
   ecmd_print("[quiet] - Disables status output");
+  ecmd_print("[noret] - Removes return code from variable set string");
   ecmd_print("<plugin options> - anything else passed into the script is passed onto the plugin");
   ecmd_print("-h - this help text");
 }
