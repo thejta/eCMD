@@ -88,13 +88,14 @@ my $shortcut = 0;
 my $singleInstall = 1;  # Assume it's a single install and then disprove it by looking at the path
 my $copyLocal = 0;  # Does the user want ECMD_EXE and ECMD_DLL_FILE copied to /tmp and run from there?
 my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they might have put out there.
+my $noret = 0; # Don't insert a return statement into output string
 
 #####################################################
 # Call the main function, then add the rc from that to the output
 #
 $rc = main();
 # Yet again, csh sucks and doesn't have a return value.  They will have to go without
-if ($shell eq "ksh") {
+if ($shell eq "ksh" && !$noret) {
   printf("return $rc;");
 }
 exit($rc);
@@ -207,6 +208,9 @@ sub main {
 	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } elsif ($ARGV[$x] eq "quiet") {
 	$ecmdsetup::quiet = 1;
+	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "noret") {
+	$noret = 1;
 	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } else {
       # We have to walk the array here because the splice shortens up the array
