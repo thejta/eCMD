@@ -670,8 +670,10 @@ Target<K, V>::getChildren(const TargetState i_state) const
 
     // valid children for OBUS
     // OBUS -> OBUS_BRICK
+    // OBUS -> OBUS
     static_assert(!((K == fapi2::TARGET_TYPE_OBUS) &&
-                    (T != fapi2::TARGET_TYPE_OBUS_BRICK)),
+                    (T != fapi2::TARGET_TYPE_OBUS_BRICK) &&
+                    (T != fapi2::TARGET_TYPE_OBUS)),
                   "improper child of fapi2::TARGET_TYPE_OBUS");
 
 #endif
