@@ -2056,6 +2056,12 @@ uint32_t dllCommonCommandArgs(int*  io_argc, char** io_argv[]) {
   /* Grab the quiet mode flag */
   if (ecmdParseOption(io_argc, io_argv, "-quiet")) {
     ecmdGlobal_quiet = 1;
+  } else {
+    /* Check for quiet mode env variable */
+    const char * quiet_mode = getenv("ECMD_QUIETMODE");
+    if ((quiet_mode != NULL) && (strncmp("quiet", quiet_mode, 5) == 0)) {
+      ecmdGlobal_quiet = 1;
+    }
   }
 
   /* Grab the quiet error mode flag */
