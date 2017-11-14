@@ -601,6 +601,30 @@ int adal_siic_write(adal_t* adal, uint8_t dev_addr, uint8_t offset, uint8_t* dat
  */
 int adal_siic_reset_irq(adal_t* adal, uint8_t dev_addr, uint8_t offset, uint8_t* flags, uint8_t len);
 
+/*!
+ * @brief	Read a single register in IIC Engine.
+ *		This is for debug only.
+ *
+ * @param	adal		adal_t of the target device.
+ * @param	registerNo	Address of the register.
+ * @param	data		Data read out of the register.
+ *
+ * @return	'0' on success, negative on error.
+ */
+ssize_t adal_iic_get_register(adal_t * adal, int registerNo, unsigned long * data);
+
+/*!
+ * @brief	Write a single register in IIC Engine.
+ *		This is for debug only.
+ *
+ * @param	adal		adal_t of the target device.
+ * @param	registerNo	Address of the register.
+ * @param	data		Data written to the register.
+ *
+ * @return	'0' on success, negative on error..
+ */
+ssize_t adal_iic_set_register(adal_t * adal, int registerNo, unsigned long data);
+
 
 #ifdef __cplusplus
 }

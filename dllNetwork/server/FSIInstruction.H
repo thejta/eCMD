@@ -288,6 +288,7 @@ bits 0:3  bits 4:7,            bits 8:15,     bits 16:23,    bits 24:31 </pre>
     virtual ssize_t mbx_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
     virtual ssize_t gp_reg_get(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
     virtual ssize_t sbefifo_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
+    virtual ssize_t iic_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
 
     virtual ssize_t scan_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t scom_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
@@ -295,6 +296,7 @@ bits 0:3  bits 4:7,            bits 8:15,     bits 16:23,    bits 24:31 </pre>
     virtual ssize_t mbx_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t gp_reg_set(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t sbefifo_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
+    virtual ssize_t iic_set_register(Handle * i_handle, InstructionStatus & o_status) { return -1; }
 };
 
 #endif // _FSIInstruction_H

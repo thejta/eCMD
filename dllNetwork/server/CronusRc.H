@@ -185,6 +185,9 @@
 #define SERVER_I2C_SCAN_WRITE_FAIL                     (ECMD_ERR_CRONUS | 0x401959)
 #define SERVER_I2C_SCAN_READ_FAIL                      (ECMD_ERR_CRONUS | 0x40195A)
 #define SERVER_I2C_USE_FSP_FAIL                        (ECMD_ERR_CRONUS | 0x40195B)
+#define SERVER_I2C_RESET_FULL_FAIL                     (ECMD_ERR_CRONUS | 0x40195C)
+#define SERVER_I2C_RESET_LIGHT_FAIL                    (ECMD_ERR_CRONUS | 0x40195D)
+#define SERVER_I2C_RESET_SUCCESS                       (ECMD_ERR_CRONUS | 0x40195E)
 
 #define SERVER_GPIO_GENERAL_ERROR                      (ECMD_ERR_CRONUS | 0x401960)
 #define SERVER_GPIO_OPEN_FAIL                          (ECMD_ERR_CRONUS | 0x401961)

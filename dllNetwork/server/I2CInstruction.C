@@ -29,6 +29,8 @@
 #include <iomanip>
 #include <errno.h>
 
+#include <adal_base_types.h>
+
 #include <OutputLite.H>
 extern OutputLite out;
 
@@ -133,10 +135,18 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_devi
   if(i_data != NULL) {
     i_data->shareBuffer(&data);
   }
+  if ( i_command == I2CRESETLIGHT || i_command == I2CRESETFULL )
+  {
+    version = 0x5;
+  }
+  else
+  {
+    version = 0x4;
+  }
+
   if ((i_offsetFieldSize & 0x0FFFFFFF) <= 4)
   {
     offset = (uint32_t) i_offset;
-    version = 0x4;
   }
   else
   {
@@ -161,6 +171,8 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
   switch(command) {
     case I2CREAD:
     case I2CWRITE:
+    case I2CRESETLIGHT:
+    case I2CRESETFULL:
       {
           char errstr[200];
 
@@ -266,7 +278,82 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           // TODO implement policy
         }
 
-        if (command == I2CREAD) {
+        if (command == I2CRESETLIGHT){
+          int rcReset = 0;
+          errno = 0;
+
+          rcReset = iic_reset(*io_handle, ADAL_RESET_LIGHT);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            std::string words;
+            genWords(o_data, words);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETLIGHT errno=%d, rc = %zu)\n", errno, rcReset);
+            o_status.errorMessage.append(errstr);
+          }
+         
+          if ( rcReset < -1 )
+          {
+            // in this case the errno value is set
+            snprintf( errstr, 200, "I2CInstruction::execute light reset problem errno=%d rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_LIGHT_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == -1 )
+          {
+            snprintf( errstr, 200, "I2CInstruction::execute Failure to release stuck data line errno=%d, rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_LIGHT_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == 1 )
+          {
+            // set status here to RESET SUCCESS indicating to the caller that 
+            // the stuck bus has been recovered
+            rc = o_status.rc = SERVER_I2C_RESET_SUCCESS;
+            break;
+          } 
+        } else if (command == I2CRESETFULL){
+          int rcReset = 0;
+          errno = 0;
+
+          rcReset = iic_reset(*io_handle, ADAL_RESET_FULL);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            std::string words;
+            genWords(o_data, words);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETFULL errno=%d, rc = %zu)\n", errno, rcReset);
+            o_status.errorMessage.append(errstr);
+          }
+         
+          if ( rcReset < -1 )
+          {
+            // in this case the errno value is set
+            snprintf( errstr, 200, "I2CInstruction::execute full reset problem errno=%d rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_FULL_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == -1 )
+          {
+            snprintf( errstr, 200, "I2CInstruction::execute Failure to release stuck data line errno=%d, rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_FULL_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == 1 )
+          {
+            // set status here to RESET SUCCESS indicating to the caller that 
+            // the stuck bus has been recovered
+            rc = o_status.rc = SERVER_I2C_RESET_SUCCESS;
+            break;
+          } 
+        
+        } else if (command == I2CREAD) {
           /* Perform the read */
           o_data.setBitLength(length);
           ssize_t bytelen = length % 8 ? (length / 8) + 1 : length / 8;
@@ -373,7 +460,7 @@ uint32_t I2CInstruction::flatten(uint8_t * o_data, uint32_t i_len) const {
         o_ptr[13] = htonl((uint32_t) (address & 0xFFFFFFFF));
         l_offset += 2;
       }
-      if (command == I2CREAD) {
+      if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to flatten
       } else {
         uint32_t dataSize = data.flattenSize();
@@ -447,7 +534,7 @@ uint32_t I2CInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
         address |= ((uint64_t) ntohl(i_ptr[13]));
         l_offset += 2;
       }
-      if (command == I2CREAD) {
+      if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to unflatten
       } else {
         uint32_t dataSize = ntohl(i_ptr[12 + l_offset]);

@@ -256,6 +256,7 @@ bits 0:3  bits 4:7,      bits 8:15,     bits 16:23,      bits 24:31 </pre>
     virtual uint32_t iic_config_device_offset(Handle * i_handle, InstructionStatus & o_status) { return -1; }
     virtual ssize_t iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
     virtual ssize_t iic_write(Handle * i_handle, InstructionStatus & o_status) { return -1; }
+    virtual uint32_t iic_reset(Handle * i_handle, int type) { return -1; }
 };
 
 #endif // _I2CINSTRUCTION_H

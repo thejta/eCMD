@@ -210,6 +210,11 @@ class Instruction{
         PNORPUT,
 
         QUERYSP,
+
+        ADJUST_PROC_VOLTAGES,
+
+        I2CRESETLIGHT,
+        I2CRESETFULL,
     } InstructionCommand;
 
     /** @name Instruction Constructor */
