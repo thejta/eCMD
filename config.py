@@ -691,6 +691,9 @@ if (CREATE_PY3API == "yes"):
 if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
     print("Finding swig include files..")
     for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
+        # exit if we found everything before the dir walk is over
+        if PERLINC and PYINC and PY3INC:
+            break
         for file in files:
             # Same include for python 2/3, so figure that out after finding the file
             if (file == "Python.h"):
