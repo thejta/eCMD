@@ -157,6 +157,10 @@ optgroup.add_argument("--without-python", action='store_true', help="Disable pyt
 optgroup.add_argument("--without-python3", action='store_true', help="Disable python3 module build\n"
                                                                      "CREATE_PY3API from the environment")
 
+# --without-pyecmd
+optgroup.add_argument("--without-pyecmd", action='store_true', help="Disable pyecmd module build\n"
+                                                                    "CREATE_PYECMD from the environment")
+
 # --build-disable-test
 optgroup.add_argument("--build-disable-test", action='store_true', help="Disable any build tests.  Useful for cross compiling")
 
@@ -457,6 +461,7 @@ buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
 buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
+buildvars["OUTPYECMD"] = os.path.join(OUTPATH, "pyecmd")
 
 ##################################################
 # Default things we need setup for every compile #
@@ -615,6 +620,14 @@ elif ("CREATE_PY3API" in os.environ):
 else:
     CREATE_PY3API = "yes"
 buildvars["CREATE_PY3API"] = CREATE_PY3API
+
+if (args.without_swig or (args.without_python and args.without_python3) or args.without_pyecmd):
+    CREATE_PYECMD = "no"
+elif ("CREATE_PYECMD" in os.environ):
+    CREATE_PYECMD = os.environ["CREATE_PYECMD"]
+else:
+    CREATE_PYECMD = "yes"
+buildvars["CREATE_PYECMD"] = CREATE_PYECMD
 
 # The swig executable to use
 if (not args.without_swig):

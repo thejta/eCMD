@@ -331,3 +331,13 @@ uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }
+
+uint32_t dllQueryClockState(ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP) {
+  o_relatedTargets.push_back(i_target);
+  return ECMD_SUCCESS;
+}
