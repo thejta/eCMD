@@ -99,19 +99,12 @@ uint32_t system_iic_reset(Handle * i_handle, int i_type)
     if( i_type == ADAL_RESET_FULL || i_type == ADAL_RESET_LIGHT)
     {
         // set diag_mode on
-#ifdef _BIG_ENDIAN
-        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x400000000 );
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x00000004 );
         if ( global_server_debug )
-            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x400000000 )  rc(%d) errno(%d)\n", rc, errno);
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x00000004 )  rc(%d) errno(%d)\n", rc, errno);
         if ( rc < 0 )
             return rc;
-#else
-        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x20000000 );
-        if ( global_server_debug )
-            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x20000000 )  rc(%d) errno(%d)\n", rc, errno);
-        if ( rc < 0 )
-            return rc;
-#endif
+
         // toggle clock line
         rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SCL, 0x0 );
         if ( global_server_debug )
