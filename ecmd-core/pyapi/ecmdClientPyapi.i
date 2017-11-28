@@ -12,14 +12,13 @@
 %include stdint.i
 %include ecmdCommon.i
 %include ecmdConst.i
-%apply uint32_t &OUTPUT { uint32_t & };
-%apply uint64_t &OUTPUT { uint64_t & };
-//typemap for ecmdClockFreqMode_t input value passed by reference
-%typemap(in) ecmdClockFreqMode_t & (ecmdClockFreqMode_t temp) { temp = (ecmdClockFreqMode_t) PyInt_AsLong($input); $1 = &temp; }
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/
 // These are used to map C types that swig doesn't understand to types swig does understand
+#if defined(APPLY_OUTARGS)
+%include ecmdApplyOutArgs.i
+#endif
 /*********** End Applies ***********/
 
 /*********** Start Insert Code ***********/

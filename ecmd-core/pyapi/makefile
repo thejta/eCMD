@@ -114,8 +114,12 @@ ${SOURCE_OBJS} ${SWIG_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	${VERBOSE}${CXX_R} -c ${CXXFLAGS} ${PYCXXFLAGS} ${PYINC} $< -o $@ ${DEFINES} ${PYDEFINES}
 
 ${SWIG_SOURCE}: ${INCLUDES} ${SWIG_INPUT}
+	@echo Determining SWIG dependencies of $@
+	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -M -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OUTPY} ../pyapi/ecmdClientPyapi.i
+	@echo Generating mapping of output parameters
+	${VERBOSE}${ECMD_CORE}/pyapi/gen_apply.py $$(grep "\.H" $(basename ${SRCPATH}/${SWIG_SOURCE}).d | sed 's/\\//;' ) > ${SRCPATH}/ecmdApplyOutArgs.i
 	@echo Swigging $@
-	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OUTPY} ../pyapi/ecmdClientPyapi.i
+	${VERBOSE}${SWIG} ${SWIGFLAGS} ${DEFINES} ${PYDEFINES} -DAPPLY_OUTARGS -o ${SRCPATH}/${SWIG_SOURCE} -outdir ${OUTPY} ../pyapi/ecmdClientPyapi.i
 
 # *****************************************************************************
 # Create the Python Shared Library
