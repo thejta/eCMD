@@ -29,7 +29,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <arpa/inet.h>
 
+#define IIC_ENGINE_OFFSET	0x1800
 
 /*
  * Secure IIC
@@ -42,9 +45,26 @@
 
 #define SIIC_MK_OFFSET(t) (((t) << 8) | ((~(t)) & 0x000000ff))
 
-
 /******************************************************************************
  */
+
+#define container_of(ptr, type, member) ({                      \
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+static const uint32_t fsirawSize = 3;
+static const char *fsiraw[3] = {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",   // newest
+                                "/sys/devices/platform/fsi-master/slave@00:00/raw",   
+                                "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"}; // oldest
+
+struct adal_iic {
+	adal_t adal;
+	uint32_t offset;
+};
+typedef struct adal_iic adal_iic_t;
+
+#define to_iic_adal(x) container_of((x), struct adal_iic, adal)
+
 
 adal_t *adal_iic_open(const char *device, int flags)
 {
@@ -137,6 +157,11 @@ int adal_iic_ffdc_unlock(adal_t * adal, int scope)
 	return 0;
 }
 
+int adal_iic_reset(adal_t * adal, int type)
+{
+        return 0;
+}
+
 
 
 /******************************************************************************
@@ -182,5 +207,74 @@ exit:
 }
 
 
+
+ssize_t adal_iic_get_register(adal_t *adal, int registerNo,
+			       unsigned long *data)
+{
+
+	int rc;
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_RDONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
+	adal_iic_t *iic = to_iic_adal(adal);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, iic->offset + IIC_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+	rc = read(fd, data, 4);
+
+        if (adal_is_byte_swap_needed())
+        {
+                // based on device and openbmc version we know the driver is not swapping endianess
+                (*data) = ntohl((*data));
+        }
+	
+	close(fd);
+	return rc;
+}
+
+ssize_t adal_iic_set_register(adal_t *adal, int registerNo,
+	                        unsigned long data)
+{
+	int rc;
+        int fd = 0;
+        uint32_t fsiIdx = 0;
+        for (fsiIdx=0; fsiIdx < fsirawSize; fsiIdx++ )
+        {
+                // try an open to find a valid file
+                fd = open(fsiraw[fsiIdx], O_WRONLY);
+                if (fd != -1)
+                {
+                        break;
+                }
+                close(fd);
+        } 
+	adal_iic_t *iic = to_iic_adal(adal);
+
+	if (fd == -1)
+		return -ENODEV;
+
+	lseek(fd, iic->offset + IIC_ENGINE_OFFSET + ((registerNo & ~0xFFFFFF00) * 4), SEEK_SET);
+        if (adal_is_byte_swap_needed())
+        {
+                // based on device and openbmc version we know the driver is not swapping endianess
+                data = htonl(data);
+        }
+	
+	rc = write(fd, &data, 4);
+	
+	close(fd);
+	return rc;
+}
 
 

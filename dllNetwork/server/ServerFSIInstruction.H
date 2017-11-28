@@ -63,6 +63,7 @@ class ServerFSIInstruction : public FSIInstruction
     ssize_t mbx_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
     ssize_t gp_reg_get(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
     ssize_t sbefifo_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
+    ssize_t iic_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
 
     ssize_t scan_set_register(Handle * i_handle, InstructionStatus & o_status);
     ssize_t scom_set_register(Handle * i_handle, InstructionStatus & o_status);
@@ -70,6 +71,7 @@ class ServerFSIInstruction : public FSIInstruction
     ssize_t mbx_set_register(Handle * i_handle, InstructionStatus & o_status);
     ssize_t gp_reg_set(Handle * i_handle, InstructionStatus & o_status);
     ssize_t sbefifo_set_register(Handle * i_handle, InstructionStatus & o_status);
+    ssize_t iic_set_register(Handle * i_handle, InstructionStatus & o_status);
 };
 
 #endif // _ServerFSIInstruction_H

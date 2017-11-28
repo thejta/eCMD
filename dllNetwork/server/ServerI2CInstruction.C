@@ -43,6 +43,8 @@
 #include <sys/time.h>
 #endif
 
+extern bool global_server_debug;
+
 /* For this code device string is used to build file paths of valid i2c devices */
 /* this include fsi i2c and native i2c devices */
 /* we'll determine a valid device by what we find in the filesystem */
@@ -78,6 +80,81 @@ void system_iic_close(system_iic * handle)
         close(handle->fd);
         delete handle;
     }
+}
+
+uint32_t system_iic_reset(Handle * i_handle, int i_type)
+{
+    int rc = 0;
+
+    if( i_type == ADAL_RESET_LIGHT || i_type == ADAL_RESET_FULL )
+    {
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+    }
+
+    // always attempt full reset even for light mode
+    if( i_type == ADAL_RESET_FULL || i_type == ADAL_RESET_LIGHT)
+    {
+        // set diag_mode on
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x00000004 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x00000004 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        // toggle clock line
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SCL, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SCL, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SCL, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SCL, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        // stop signal
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SCL, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SCL, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SDA, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_RESET_SDA, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SCL, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SCL, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SDA, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_SET_SDA, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+
+        // set diag mode off
+        rc = adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x0 );
+        if ( global_server_debug )
+            printf("adal_iic_set_register( (adal_t *) i_handle, ADAL_IIC_REG_MODE, 0x0 )  rc(%d) errno(%d)\n", rc, errno);
+        if ( rc < 0 )
+            return rc;
+    }
+    else
+    {
+        return -1;
+    } 
+    return rc;
 }
 
 uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_status)
@@ -179,6 +256,13 @@ uint32_t ServerI2CInstruction::iic_open(Handle ** handle, InstructionStatus & o_
             system_iic_close(l_handle);
             *handle = NULL;
             return SERVER_I2C_OPEN_FAIL;
+        }
+        else
+        {
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+                snprintf(errstr, 200, "SERVER_DEBUG : I2C_FUNCS = %08X\n", l_handle->funcs);
+                o_status.errorMessage.append(errstr);
+            }
         }
     }
 
@@ -597,6 +681,66 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
         }
         delete [] rdwr_data->msgs;
         delete rdwr_data;
+
+        return rc;
+    } 
+}
+
+uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, int i_type)
+{
+#ifdef SERVER_PRINT_PERF
+    struct timeval start_time;
+    struct timeval end_time;
+#endif
+
+    uint32_t rc = 0;
+
+    if ( iv_deviceIdx == iv_adalFsiDevice )
+    {
+        int timeout = 60 * 1000;
+#ifdef TESTING
+        TESTPRINT("rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, %x, 0);\n", timeout);
+#else
+        ssize_t rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, &timeout, 0);
+        if (rc)
+        {
+            return rc;
+        }
+#endif
+
+#ifdef SERVER_PRINT_PERF
+        gettimeofday(&start_time, NULL);
+#endif
+#ifdef TESTING
+        TESTPRINT("len = adal_iic_reset((adal_t *) i_handle, i_type));\n");
+#else
+        rc = adal_iic_reset((adal_t *) i_handle, i_type);
+#endif
+#ifdef SERVER_PRINT_PERF
+        gettimeofday(&end_time, NULL);
+        int perf_run_time = (end_time.tv_sec - start_time.tv_sec) * 1000 + ((end_time.tv_usec - start_time.tv_usec) / 1000);
+        printf("time: %d, rc %d\n", perf_run_time, len);
+#endif
+        return rc;
+    }
+    else
+    {
+
+#ifdef TESTING
+        TESTPRINT("rc = system_iic_reset((adal_t *) handle, i_type);\n");
+#else
+        // disabling calling system_iic_reset 
+        //rc = system_iic_reset( i_handle, i_type );
+#endif
+
+        if (rc < 0 && i_type == ADAL_RESET_FULL)
+        {
+            rc = SERVER_I2C_RESET_FULL_FAIL;
+        }
+        else if (rc < 0 && i_type == ADAL_RESET_LIGHT)
+        {
+            rc = SERVER_I2C_RESET_LIGHT_FAIL;
+        }
 
         return rc;
     } 

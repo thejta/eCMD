@@ -26,6 +26,7 @@
 #include <adal_scan.h>
 #include <adal_mbx.h>
 #include <adal_sbefifo.h>
+#include <adal_iic.h>
 
 //FIXME remove these
 adal_t * system_gp_reg_open(const char * device, int flags, int type)
@@ -727,6 +728,33 @@ ssize_t ServerFSIInstruction::scom_set_register(Handle * i_handle, InstructionSt
 #else
         rc = adal_scom_set_register((adal_t *) i_handle, address, l_data);
 #endif
+        return rc;
+}
+
+ssize_t ServerFSIInstruction::iic_set_register(Handle * i_handle, InstructionStatus & o_status)
+{
+        ssize_t rc = 0;
+        unsigned long l_data = data.getWord(0);
+#ifdef TESTING
+        TEST_PRINT("adal_iic_set_register((adal_t *) i_handle, %08X, %08lX);\n", address, l_data);
+        rc = 4;
+#else
+        rc = adal_iic_set_register((adal_t *) i_handle, address, l_data);
+#endif
+        return rc;
+}
+
+ssize_t ServerFSIInstruction::iic_get_register(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
+{
+        ssize_t rc = 0;
+        unsigned long l_data = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_iic_get_register((adal_t *) i_handle, %08X, &l_data);\n", address);
+        rc = 4;
+#else
+        rc = adal_iic_get_register((adal_t *) i_handle, address, &l_data);
+#endif
+        o_data.setWord(0, l_data);
         return rc;
 }
 
