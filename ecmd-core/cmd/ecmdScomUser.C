@@ -929,6 +929,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
     
+    oneLoop = 0; //reset this for next iteration
     /* Now we need to find out if this is a chipUnit scom or not */
     rc = ecmdQueryScomHidden(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
@@ -947,36 +948,51 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
 
     /* Setup our chipUnit looper if needed */
     cuTarget = target;
+    bool isCuRelatedOverride = false;
     if (scomData->isChipUnitRelated) {
-      /* Error check the chipUnit returned */
-      if (!scomData->isChipUnitMatch(chipUnitType)) {
-        printed = "pollscom - Provided chipUnit \"";
-        printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryScom \"";
-	std::list<std::string>::iterator relatedChipUnitIter;
-        for ( relatedChipUnitIter = scomData->relatedChipUnit.begin(); relatedChipUnitIter != scomData->relatedChipUnit.end(); relatedChipUnitIter++) {
+      // check if the user provided a chipUnitType
+      if (chipUnitType == "" )
+      {
+	 // This means the user is using a chipUnit address with a chip target. This is valid so no error.
+	 oneLoop = 1;
+	 isCuRelatedOverride = false;
+      }
+      else 
+      {
+        /* Error check the chipUnit returned */
+        if (!scomData->isChipUnitMatch(chipUnitType)) {
+          printed = "pollscom - Provided chipUnit \"";
+          printed += chipUnitType;
+          printed += "\" doesn't match chipUnit returned by queryScom \"";
+	  std::list<std::string>::iterator relatedChipUnitIter;
+          for ( relatedChipUnitIter = scomData->relatedChipUnit.begin(); relatedChipUnitIter != scomData->relatedChipUnit.end(); relatedChipUnitIter++) {
 	    if (chipUnitType != *relatedChipUnitIter) {
                printed += "  \"";
 	       printed +=  *relatedChipUnitIter;
                printed += "\"";
 	    }
-	}
-        printed += "\"\n";
-        ecmdOutputError(printed.c_str());
-        rc = ECMD_INVALID_ARGS;
-        break;
-      }
-      /* If we have a chipUnit, set the state fields properly */
-      if (chipUnitType != "") {
-        cuTarget.chipUnitType = chipUnitType;
-        cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
-      }
-      cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
-      cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+	  }
+          printed += "\"\n";
+          ecmdOutputError(printed.c_str());
+          rc = ECMD_INVALID_ARGS;
+          break;
+        }
+        else
+        {
+          isCuRelatedOverride = true;
+          /* If we have a chipUnit, set the state fields properly */
+          if (chipUnitType != "") {
+            cuTarget.chipUnitType = chipUnitType;
+            cuTarget.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+          }
+          cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+          cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
-      /* Init the chipUnit loop */
-      rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
-      if (rc) break;
+          /* Init the chipUnit loop */
+          rc = ecmdLooperInit(cuTarget, ECMD_SELECTED_TARGETS_LOOP, cuLooper);
+          if (rc) break;
+        }
+      }
     } else { // !scomData->isChipUnitRelated
       if (chipUnitType != "") {
         printed = "pollscom - A chipUnit \"";
@@ -991,7 +1007,7 @@ uint32_t ecmdPollScomUser(int argc, char* argv[]) {
     }
 
     /* If this isn't a chipUnit scom we will fall into while loop and break at the end, if it is we will call run through configloopernext */
-    while ((scomData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
+    while ((isCuRelatedOverride ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 	   
      bool done = false;
      timerStart = time(NULL);
