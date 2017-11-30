@@ -5146,6 +5146,25 @@ uint32_t getMemPbaHidden (ecmdChipTarget & i_target, uint64_t i_address, uint32_
 //@}
 /* End Memory Functions */
 
+/** @name Query Functions  */
+//@{
+/**
+ @brief Query related targets
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_relatedType String (format of chip[.unit]) that specifies the desired relationship of the output targets to the input
+ @param o_relatedTargets List of targets that fulfill the relatedType relationship to the input target
+ @param i_mode Select existing or configured targets through the ecmdLoopMode_t
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
+//@}
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif
