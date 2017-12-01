@@ -80,6 +80,9 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         mode
                             - Query mode of the processor. Displays mode and core name.
 
+                        related Chip[.ChipUnit] RelatedChip[.ChipUnit] [-a#] [-k#] [-n#] [-s#] [-p#] [-exist]
+                            - Query the targets related to another target
+
         Addendum Options
 
                         -a#  [optional] Operate on all levels of targeting with same value.
