@@ -47,10 +47,6 @@
 //  Constants
 //----------------------------------------------------------------------
 #define EDB_RANDNUM 0x12345678
-#define EDB_ADMIN_HEADER_SIZE 1
-#define EDB_ADMIN_FOOTER_SIZE 1
-// This define is the sum of EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 2
 #define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
