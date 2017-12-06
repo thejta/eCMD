@@ -130,12 +130,14 @@ typedef enum {
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
+class ecmdDataBufferBase;
 /**
  @brief This is used to help low-level implementation of the ecmdDataBufferBase, this CAN NOT be used by any eCMD client or data corruption will occur
 */
 class ecmdDataBufferBaseImplementationHelper {
 public:
   static uint32_t* getDataPtr( void* i_buffer );
+  static const uint32_t * getConstDataPtr( const ecmdDataBufferBase * i_buffer );
 };
 
 class ecmdDataBuffer;

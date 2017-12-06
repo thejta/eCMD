@@ -2627,6 +2627,11 @@ uint32_t* ecmdDataBufferImplementationHelper::getDataPtr( void* i_buffer ) {
   return buff->iv_Data;
 };
 
+const uint32_t * ecmdDataBufferImplementationHelper::getConstDataPtr( const ecmdDataBuffer * i_buffer ) {
+  if (i_buffer == NULL) return NULL;
+  return i_buffer->iv_Data;
+};
+
 #ifndef REMOVE_SIM
 void ecmdDataBufferImplementationHelper::applyRawBufferToXstate( void* i_buffer ) {
   if (i_buffer == NULL) return;

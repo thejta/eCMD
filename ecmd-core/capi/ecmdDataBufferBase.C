@@ -2802,6 +2802,11 @@ uint32_t* ecmdDataBufferBaseImplementationHelper::getDataPtr( void* i_buffer ) {
   return buff->iv_Data;
 };
 
+const uint32_t * ecmdDataBufferBaseImplementationHelper::getConstDataPtr( const ecmdDataBufferBase * i_buffer ) {
+  if (i_buffer == NULL) return NULL;
+  return i_buffer->iv_Data;
+}
+
 
 /********************************************************************************
        These routines belong to derived class ecmdOptimizableDataBufferBase
