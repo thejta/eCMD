@@ -75,6 +75,10 @@
 //----------------------------------------------------------------------
 //  Constants
 //----------------------------------------------------------------------
+#define EDB_ADMIN_HEADER_SIZE 1
+#define EDB_ADMIN_FOOTER_SIZE 1
+#define EDB_ADMIN_TOTAL_SIZE (EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE)
+#define EDB_ADMIN_TOTAL_SIZE_BYTES (EDB_ADMIN_TOTAL_SIZE * sizeof(uint32_t))
 /* Define these if for some reason we are building without ecmdReturnCodes.H */
 #ifndef ECMD_DBUF_SUCCESS
  #define ECMD_ERR_ECMD                           0x01000000 ///< Error came from eCMD
@@ -130,12 +134,14 @@ typedef enum {
 //----------------------------------------------------------------------
 //  User Types
 //----------------------------------------------------------------------
+class ecmdDataBufferBase;
 /**
  @brief This is used to help low-level implementation of the ecmdDataBufferBase, this CAN NOT be used by any eCMD client or data corruption will occur
 */
 class ecmdDataBufferBaseImplementationHelper {
 public:
   static uint32_t* getDataPtr( void* i_buffer );
+  static const uint32_t * getConstDataPtr( const ecmdDataBufferBase * i_buffer );
 };
 
 class ecmdDataBuffer;

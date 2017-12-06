@@ -47,10 +47,6 @@
 //  Constants
 //----------------------------------------------------------------------
 #define EDB_RANDNUM 0x12345678
-#define EDB_ADMIN_HEADER_SIZE 1
-#define EDB_ADMIN_FOOTER_SIZE 1
-// This define is the sum of EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 2
 #define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
@@ -2625,6 +2621,11 @@ uint32_t* ecmdDataBufferImplementationHelper::getDataPtr( void* i_buffer ) {
   if (i_buffer == NULL) return NULL;
   ecmdDataBuffer* buff = (ecmdDataBuffer*)i_buffer;
   return buff->iv_Data;
+};
+
+const uint32_t * ecmdDataBufferImplementationHelper::getConstDataPtr( const ecmdDataBuffer * i_buffer ) {
+  if (i_buffer == NULL) return NULL;
+  return i_buffer->iv_Data;
 };
 
 #ifndef REMOVE_SIM
