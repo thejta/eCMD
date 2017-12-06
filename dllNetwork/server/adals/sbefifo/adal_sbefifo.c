@@ -88,6 +88,12 @@ adal_t * adal_sbefifo_open(const char * device, int flags) {
         adal_sbefifo_t *sbefifo;
 
 	sbefifo = (adal_sbefifo_t *)malloc(sizeof(*sbefifo));
+	if (sbefifo == NULL) {
+		return NULL;
+	}
+
+	memset(sbefifo, 0, sizeof(*sbefifo));
+
         sbefifo->adal.fd = open(device, flags);
 	if (sbefifo->adal.fd == -1)
         {   
