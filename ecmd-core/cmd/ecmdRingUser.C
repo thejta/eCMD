@@ -856,7 +856,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 	/* Does the user want too much data? */
 	if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+        {
 	  curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+          char warnstring[120];
+          sprintf(warnstring, "getlatch - Data requested beyond length of latch - discarding extra data - reading %d bits.\n", curNumBits);
+          ecmdOutputWarning(warnstring);
+        }
 
 	/* was the startbit before this latch ? */
 	if (curStartBit < (uint32_t) latchit->latchStartBit) {
@@ -2025,7 +2030,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
               
               /* Does the user want too much data? */
               if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+              {
                   curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+                  char warnstring[120];
+                  sprintf(warnstring, "putlatch - Data input beyond length of latch - discarding extra data - writing %d bits.\n", curNumBits);
+                  ecmdOutputWarning(warnstring);
+              }
               
               /* was the startbit before this latch ? */
               if (curStartBit < (uint32_t) latchit->latchStartBit) {
@@ -2091,7 +2101,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
             
           /* Does the user want too much data? */
           if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
+          {
               curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
+              char warnstring[120];
+              sprintf(warnstring, "putlatch - Data input beyond length of latch - discarding extra data - writing %d bits.\n", curNumBits);
+              ecmdOutputWarning(warnstring);
+          }
           
           /* was the startbit before this latch ? */
           if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
