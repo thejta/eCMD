@@ -13,6 +13,7 @@
 %include ecmdCommon.i
 %include ecmdConst.i
 %apply uint32_t &OUTPUT { uint32_t & };
+%apply uint64_t &OUTPUT { uint64_t & };
 //typemap for ecmdClockFreqMode_t input value passed by reference
 %typemap(in) ecmdClockFreqMode_t & (ecmdClockFreqMode_t temp) { temp = (ecmdClockFreqMode_t) PyInt_AsLong($input); $1 = &temp; }
 /*********** End Typemaps ***********/
