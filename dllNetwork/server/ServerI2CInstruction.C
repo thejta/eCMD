@@ -686,7 +686,7 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
     } 
 }
 
-uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, int i_type)
+uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, ResetType i_type)
 {
 #ifdef SERVER_PRINT_PERF
     struct timeval start_time;
@@ -694,6 +694,15 @@ uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, int i_type)
 #endif
 
     uint32_t rc = 0;
+    int l_type = 0;
+    if (i_type == IIC_RESET_LIGHT)
+    {
+        l_type == ADAL_RESET_LIGHT;
+    }
+    else if (i_type == IIC_RESET_FULL)
+    {
+        l_type == ADAL_RESET_FULL;
+    }
 
     if ( iv_deviceIdx == iv_adalFsiDevice )
     {

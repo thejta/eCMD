@@ -43,7 +43,7 @@ class ServerI2CInstruction : public I2CInstruction
     uint32_t iic_config_device_offset(Handle * i_handle, InstructionStatus & o_status);
     ssize_t iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
     ssize_t iic_write(Handle * i_handle, InstructionStatus & o_status);
-    uint32_t iic_reset(Handle * i_handle, int i_type);
+    uint32_t iic_reset(Handle * i_handle, ResetType i_type);
 
     private:
     uint32_t iv_deviceIdx;

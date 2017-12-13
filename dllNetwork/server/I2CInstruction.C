@@ -29,8 +29,6 @@
 #include <iomanip>
 #include <errno.h>
 
-#include <adal_base_types.h>
-
 #include <OutputLite.H>
 extern OutputLite out;
 
@@ -282,7 +280,7 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           int rcReset = 0;
           errno = 0;
 
-          rcReset = iic_reset(*io_handle, ADAL_RESET_LIGHT);
+          rcReset = iic_reset(*io_handle, IIC_RESET_LIGHT);
 
           if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
             std::string words;
@@ -319,7 +317,7 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           int rcReset = 0;
           errno = 0;
 
-          rcReset = iic_reset(*io_handle, ADAL_RESET_FULL);
+          rcReset = iic_reset(*io_handle, IIC_RESET_FULL);
 
           if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
             std::string words;
