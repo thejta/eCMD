@@ -34,6 +34,7 @@
 //--------------------------------------------------------------------
 #include <stdio.h>
 #include <map>
+#include <sys/time.h>
 
 #include <Instruction.H>
 #define CSP_DRV_FUNCTION_NOT_DEFINED TRANSFER_FUNCTION_NOT_DEFINED
