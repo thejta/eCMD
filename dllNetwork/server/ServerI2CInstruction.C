@@ -697,11 +697,11 @@ uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, ResetType i_type)
     int l_type = 0;
     if (i_type == IIC_RESET_LIGHT)
     {
-        l_type == ADAL_RESET_LIGHT;
+        l_type = ADAL_RESET_LIGHT;
     }
     else if (i_type == IIC_RESET_FULL)
     {
-        l_type == ADAL_RESET_FULL;
+        l_type = ADAL_RESET_FULL;
     }
 
     if ( iv_deviceIdx == iv_adalFsiDevice )
@@ -721,9 +721,9 @@ uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, ResetType i_type)
         gettimeofday(&start_time, NULL);
 #endif
 #ifdef TESTING
-        TESTPRINT("len = adal_iic_reset((adal_t *) i_handle, i_type));\n");
+        TESTPRINT("len = adal_iic_reset((adal_t *) i_handle, l_type));\n");
 #else
-        rc = adal_iic_reset((adal_t *) i_handle, i_type);
+        rc = adal_iic_reset((adal_t *) i_handle, l_type);
 #endif
 #ifdef SERVER_PRINT_PERF
         gettimeofday(&end_time, NULL);
@@ -736,17 +736,17 @@ uint32_t ServerI2CInstruction::iic_reset(Handle * i_handle, ResetType i_type)
     {
 
 #ifdef TESTING
-        TESTPRINT("rc = system_iic_reset((adal_t *) handle, i_type);\n");
+        TESTPRINT("rc = system_iic_reset((adal_t *) handle, l_type);\n");
 #else
         // disabling calling system_iic_reset 
-        //rc = system_iic_reset( i_handle, i_type );
+        //rc = system_iic_reset( i_handle, l_type );
 #endif
 
-        if (rc < 0 && i_type == ADAL_RESET_FULL)
+        if (rc < 0 && l_type == ADAL_RESET_FULL)
         {
             rc = SERVER_I2C_RESET_FULL_FAIL;
         }
-        else if (rc < 0 && i_type == ADAL_RESET_LIGHT)
+        else if (rc < 0 && l_type == ADAL_RESET_LIGHT)
         {
             rc = SERVER_I2C_RESET_LIGHT_FAIL;
         }
