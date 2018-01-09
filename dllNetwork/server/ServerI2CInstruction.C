@@ -526,7 +526,8 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
 
         // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
         // value is in 10ms units, only set timeout to something larger than 100.
-        int timeout = (length / 81) * 1.5;
+        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
+        int timeout = (length / timeoutFactor) * 1.5;
 
         errno = 0;
         int rc = 0;
@@ -550,12 +551,15 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
             if ( rc ) return rc;
         }
 
-        uint32_t messages = 1;
+        uint32_t messages = 0;
         // check if we need to write address to the bus before the write
         if (handle->offset_width > 0)
         {
-            messages = 2;
+            messages = 1;
         }
+        
+        const uint32_t msgMax = (i2cFlags & INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK) == 0 ? 8192 : ((i2cFlags & INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK) >> INSTRUCITON_I2C_FLAG_MSG_SIZE_SHIFT);
+        messages += (bytes / (msgMax)) + ((bytes % msgMax) > 0 ? 1 : 0);
 
         i2c_rdwr_ioctl_data * rdwr_data = new i2c_rdwr_ioctl_data;
         rdwr_data->msgs = new i2c_msg[messages];
@@ -581,10 +585,17 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
         }
 
         // set up read message
-        rdwr_data->msgs[msg_offset].addr = handle->slave_address;
-        rdwr_data->msgs[msg_offset].flags = I2C_M_RD;
-        rdwr_data->msgs[msg_offset].len = bytes;
-        rdwr_data->msgs[msg_offset].buf = new uint8_t[bytes];
+        for( uint32_t idx=0; (msgMax*idx) < bytes && msg_offset < messages; idx++ )
+        {
+            // set up read message
+            rdwr_data->msgs[msg_offset].addr = handle->slave_address;
+            rdwr_data->msgs[msg_offset].flags = I2C_M_RD;
+            uint32_t tmpbytes = ((msgMax*(idx+1)) > bytes) ? bytes - (msgMax*idx) : msgMax;
+            rdwr_data->msgs[msg_offset].len = tmpbytes;
+            rdwr_data->msgs[msg_offset].buf = new uint8_t[tmpbytes];
+
+            msg_offset++;
+        }
 
         if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
         {
@@ -610,8 +621,20 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
 
         if (rc >= 0)
         {
-            // copy out data
-            o_data.insert(rdwr_data->msgs[msg_offset].buf, 0, length);
+            rc = 0;
+            uint32_t byteidx = 0;
+            for ( msg_offset = 0; msg_offset < messages; msg_offset++ )
+            {
+                if ( rdwr_data->msgs[msg_offset].flags != 0 )
+                {
+                    // copy out data
+                    uint32_t tmplength = ((msgMax*(byteidx+1)) < bytes) ? msgMax*8 : length - (msgMax*byteidx*8);
+                    o_data.insert(rdwr_data->msgs[msg_offset].buf, (byteidx*msgMax*8), tmplength);
+
+                    rc += tmplength % 8 ? (tmplength / 8) + 1 : tmplength / 8;
+                    byteidx++;
+                }
+            }
             rc = bytes;
         }
         else
@@ -686,7 +709,8 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
 
         // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
         // value is in 10ms units, only set timeout to something larger than 100.
-        int timeout = (length / 81) * 1.5;
+        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
+        int timeout = (length / timeoutFactor) * 1.5;
 
         errno = 0;
         int rc = 0;

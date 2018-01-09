@@ -107,6 +107,11 @@ std::string InstructionTapToString(uint32_t i_tap);
 /*  These are the Instruction Flag Defines                            */
 /* ------------------------------------------------------------------ */
 #define INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS   0x80000000
+#define INSTRUCTION_I2C_FLAG_MASK               0xFF000000
+#define INSTRUCTION_I2C_FLAG_RETRY_MASK         0x00FFA000  // specifies number of bytes written per jiffy, a jiffy is 10ms            
+#define INSTRUCTION_I2C_FLAG_RETRY_SHIFT        14
+#define INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK      0x00003FFF  // max value of 8192 accepted
+#define INSTRUCITON_I2C_FLAG_MSG_SIZE_SHIFT     0
 
 /**
  @brief function to create string from instruction I2C flag
