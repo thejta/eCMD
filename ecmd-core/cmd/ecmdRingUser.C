@@ -3255,6 +3255,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t rc = ECMD_SUCCESS;
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
+  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scandef and scandefhash files
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
   uint32_t i_ringkey32;
@@ -3284,194 +3285,202 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t ringBeginOffset = 0;
   uint32_t numRings =0;
 
-  while(1) {
-    /* Find the ring offset from the scandefhash file */
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile, l_version);
-    if (rc) {
-        break;
-    }
-
-    if ( scandefHashFile.rfind("hash.64") != std::string::npos )
-    {
-      l_scandefHash64 = true;
-    }
-
-    insh.open(scandefHashFile.c_str());
-    if (insh.fail()) {
-      break;
-    }
-
-    if (l_scandefHash64)
-    {
-        //need to do the 64 bit stuff here
-        uint64_t curRingKey64;
-        insh.read((char *)& numRings, 4);
-        numRings = htonl(numRings);
-
-        //Seek to the ring area in the hashfile
-        insh.seekg ( 8 );
-
-        while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
-            insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
-            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-            curRingKey64 = htonll(curRingKey64);
-            ringBeginOffset = htonl(ringBeginOffset);
-
-            if (i_ringkey64 == curRingKey64) {
-                foundRing = true;
-                break;
-            }
-            insh.seekg (12, std::ios::cur); //Skip the ringKey-end offset pair
-
-        }
-    }
-    else
-    {
-        uint32_t curRingKey32;
-        insh.read((char *)& numRings, 4);
-        numRings = htonl(numRings);
-
-        //Seek to the ring area in the hashfile
-        insh.seekg ( 8 );
-
-        while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-            insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
-            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-            curRingKey32 = htonl(curRingKey32);
-            ringBeginOffset = htonl(ringBeginOffset);
-
-            if (i_ringkey32 == curRingKey32) {
-                foundRing = true;
-                break;
-            }
-            insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
-
-        }
-    }
-      
-    if (foundRing) {
-      ringOffsetFound = true;
-    }
-    insh.close();
-      
-    break;
-  }
-  rc = 0;
-  /* find scandef file */
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile, l_version);
-  if (rc) {
-    printed = "readScandefFile - Error occured locating scandef file: " + scandefFile + "\n";
-    ecmdOutputError(printed.c_str());
-    return rc;
+  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+  if (rc)
+  {
+      printed = "readScandefFile - Error occured locating scandef file\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
   }
 
-  std::ifstream ins(scandefFile.c_str());
-  if (ins.fail()) {
-    rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-    printed = "readScandefFile - Error occured opening scandef file: " + scandefFile + "\n";
-    ecmdOutputError(printed.c_str());        //break;
-    return rc;
-  }
-      
-  std::string curLine;
-  bool done = false;
-  size_t  leftParen;
-  size_t  colon;
-      
-  foundRing = false;
-      
-  //Seek to the beginning of the ring
-  if (ringOffsetFound == true) ins.seekg((long)(size_t)ringBeginOffset);
+  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
+  while (l_filePair != l_filePairs.end())
+  {
+      while(1) {
+          scandefHashFile = l_filePair->second;
 
-  while (getline(ins, curLine) && !done) {
+          if ( scandefHashFile.rfind("hash.64") != std::string::npos )
+          {
+              l_scandefHash64 = true;
+          }
+
+          insh.open(scandefHashFile.c_str());
+          if (insh.fail()) {
+              break;
+          }
+          
+          if (l_scandefHash64)
+          {
+              //need to do the 64 bit stuff here
+              uint64_t curRingKey64;
+              insh.read((char *)& numRings, 4);
+              numRings = htonl(numRings);
+
+              //Seek to the ring area in the hashfile
+              insh.seekg ( 8 );
+
+              while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
+                  insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                  curRingKey64 = htonll(curRingKey64);
+                  ringBeginOffset = htonl(ringBeginOffset);
+
+                  if (i_ringkey64 == curRingKey64) {
+                      foundRing = true;
+                      break;
+                  }
+                  insh.seekg (12, std::ios::cur); //Skip the ringKey-end offset pair
+
+              }
+          }
+          else
+          {
+              uint32_t curRingKey32;
+              insh.read((char *)& numRings, 4);
+              numRings = htonl(numRings);
+              
+              //Seek to the ring area in the hashfile
+              insh.seekg ( 8 );
+              
+              while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+                  insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                  curRingKey32 = htonl(curRingKey32);
+                  ringBeginOffset = htonl(ringBeginOffset);
+                  
+                  if (i_ringkey32 == curRingKey32) {
+                      foundRing = true;
+                      break;
+                  }
+                  insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
+
+              }
+          }
+      
+          if (foundRing) {
+              ringOffsetFound = true;
+          }
+          insh.close();
+      
+          break;
+      }
+      rc = 0;
+ 
+      /* find scandef file */
+      scandefFile = l_filePair->first;
+      
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+          rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+          printed = "readScandefFile - Error occured opening scandef file: " + scandefFile + "\n";
+          ecmdOutputError(printed.c_str());        //break;
+          return rc;
+      }
+      
+      std::string curLine;
+      bool done = false;
+      size_t  leftParen;
+      size_t  colon;
+      
+      foundRing = false;
+      
+      //Seek to the beginning of the ring
+      if (ringOffsetFound == true) ins.seekg((long)(size_t)ringBeginOffset);
+      
+      while (getline(ins, curLine) && !done) {
   
-    //let's go hunting in the scandef for latches for this ring
-    ecmdLatchDataEntry curLatch;
+          //let's go hunting in the scandef for latches for this ring
+          ecmdLatchDataEntry curLatch;
 
-    std::vector<std::string> splitArgs;
-    char outstr[1000];
-    std::vector<std::string> curArgs(4);
-    std::string temp;
+          std::vector<std::string> splitArgs;
+          char outstr[1000];
+          std::vector<std::string> curArgs(4);
+          std::string temp;
 
-    if (foundRing) {
+          if (foundRing) {
 
-      if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-	if (i_ringName != NULL) done = true;
-	continue;
-      }
-      else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
-	/* Let's do a length check */
-	ecmdParseTokens(curLine, " \t\n=", splitArgs);
-	if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != (uint32_t) atoi(splitArgs[1].c_str())) {
-	  sprintf(outstr, "readScandefFile - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),i_ringName);
-	  ecmdOutputWarning(outstr);
-	}
-	continue;
-      }
-      else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
-	//do nothing
-	continue;
-      }
-      else if ((curLine[0] != ' ') && (curLine[0] != '\t')) {
-	// do nothing
-	continue;
-      }
-      else  {
-
-	ecmdParseTokens(curLine, " \t\n", curArgs);
-	if (curArgs.size() >= 5) {
-	  curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
-	  curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());
-	  curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str());
-	  curLatch.latchName = curArgs[4];
-	} else /* Not enought tokens for a valid latch line */
-	  continue;
-      }
+              if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
+                  if (i_ringName != NULL) done = true;
+                  continue;
+              }
+              else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
+                  /* Let's do a length check */
+                  ecmdParseTokens(curLine, " \t\n=", splitArgs);
+                  if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != (uint32_t) atoi(splitArgs[1].c_str())) {
+                      sprintf(outstr, "readScandefFile - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),i_ringName);
+                      ecmdOutputWarning(outstr);
+                  }
+                  continue;
+              }
+              else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+                  //do nothing
+                  continue;
+              }
+              else if ((curLine[0] != ' ') && (curLine[0] != '\t')) {
+                  // do nothing
+                  continue;
+              }
+              else  {
+                  
+                  ecmdParseTokens(curLine, " \t\n", curArgs);
+                  if (curArgs.size() >= 5) {
+                      curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
+                      curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());
+                      curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str());
+                      curLatch.latchName = curArgs[4];
+                  } else /* Not enought tokens for a valid latch line */
+                      continue;
+              }
           
-
-      /* Let's parse out the start/end bit if they exist */
-      leftParen = curLatch.latchName.rfind('(');
-      if (leftParen == std::string::npos) {
-	/* This latch doesn't have any parens */
-	curLatch.latchStartBit = curLatch.latchEndBit = 0;
-        curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
-      } else {
-	temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
-	curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
-
-	/* Is this a multibit or single bit */
-	if ((colon = temp.find(':')) != std::string::npos) {
-	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
-          curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
-	} else if ((colon = temp.find(',')) != std::string::npos) {
-	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
-          curLatch.latchType = ECMD_LATCHTYPE_ARRAY;
-	} else {
-	  curLatch.latchEndBit = curLatch.latchStartBit;
-          curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
-	}
-      }
-      curLatch.ringName = i_ring;
-      o_latchdata.push_back(curLatch);
-	  
-
-    }
-    /* The user specified a ring for us to look in */
-    else if ((i_ringName != NULL) &&
-	     ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
-      ecmdParseTokens(curLine, " \t\n=", curArgs);
-      /* Push the ring name to lower case */
-      transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int))tolower);
-      if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
-	foundRing = true;
-      }
-
+              
+              /* Let's parse out the start/end bit if they exist */
+              leftParen = curLatch.latchName.rfind('(');
+              if (leftParen == std::string::npos) {
+                  /* This latch doesn't have any parens */
+                  curLatch.latchStartBit = curLatch.latchEndBit = 0;
+                  curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
+              } else {
+                  temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
+                  curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
+                  
+                  /* Is this a multibit or single bit */
+                  if ((colon = temp.find(':')) != std::string::npos) {
+                      curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+                      curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
+                  } else if ((colon = temp.find(',')) != std::string::npos) {
+                      curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+                      curLatch.latchType = ECMD_LATCHTYPE_ARRAY;
+                  } else {
+                      curLatch.latchEndBit = curLatch.latchStartBit;
+                      curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
+                  }
+              }
+              curLatch.ringName = i_ring;
+              o_latchdata.push_back(curLatch);
+              
+          }
+          /* The user specified a ring for us to look in */
+          else if ((i_ringName != NULL) &&
+                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
+              ecmdParseTokens(curLine, " \t\n=", curArgs);
+              /* Push the ring name to lower case */
+              transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int))tolower);
+              if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
+                  foundRing = true;
+              }
+              
           
-    }     
+          }     
+      }
+
+      ins.close();
+      l_filePair++;
+      // We found it already, so don't look in any other scandef pairs
+      if (foundRing)
+      {
+          break;
+      }
   }
-
-  ins.close();
-      
   if (!foundRing) {
     rc = ECMD_INVALID_RING;
     printed = "readScandefFile - Could not find ring name " + i_ring + "\n";

@@ -776,7 +776,7 @@ uint32_t ecmdDisplayDllInfo() {
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
-  std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
+  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
   bool verboseFlag = false;
@@ -795,37 +795,53 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr, l_version);
+  rc = ecmdQueryFileLocationHidden(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
   if (rc) {
-    printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+    printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
     return rc;
+  }
+  std::ifstream scomdefFile;
+  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
+  while (l_filePair != l_filePairs.end())
+  {
+      rc = ECMD_SUCCESS;
+      scomdefFile.open(l_filePair->first.c_str());
+      if(scomdefFile.fail()) {
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          ecmdOutputWarning(printed.c_str());
+          rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
+          return rc;
+      }
+      rc = readScomDefFile(i_scomData.address, scomdefFile);
+      if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
+          uint64_t modifiedScomAddress = 0;
+          rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
+          if (rc) {
+              ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
+              return rc;
+          }
+          scomdefFile.clear();
+          scomdefFile.seekg(0, std::ios::beg);
+          rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+      }
+      if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+          scomdefFile.close();
+          l_filePair++;
+      }
+      // Found the address, don't need to look in any other scomdefs
+      else
+      {
+          break;
+      }
+  }
+  // One more check outside of the loop to make sure we found something
+  if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+      ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
+      ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
+      return rc;
   }
 
-  std::ifstream scomdefFile(scomdefFileStr.c_str());
-  if(scomdefFile.fail()) {
-    printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
-    return rc;
-  }
-  rc = readScomDefFile(i_scomData.address, scomdefFile);
-  if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
-      uint64_t modifiedScomAddress = 0;
-      rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
-      if (rc) {
-	ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
-	return rc;
-      }
-      scomdefFile.clear();
-      scomdefFile.seekg(0, std::ios::beg);
-      rc = readScomDefFile(modifiedScomAddress, scomdefFile);
-  }
-  if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-    ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
-    return rc;
-  }
   sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
 
   std::list< std::string >::iterator descIt;
@@ -926,6 +942,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
 }
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
+  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
@@ -945,37 +962,54 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr, l_version);
+  rc = ecmdQueryFileLocationHidden(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
   if (rc) {
-    printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+    printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
     return rc;
   }
 
-  std::ifstream scomdefFile(scomdefFileStr.c_str());
-  if(scomdefFile.fail()) {
-    printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
-    return rc;
-  }
-  rc = readScomDefFile(i_scomData.address, scomdefFile);
-  if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
-      uint64_t modifiedScomAddress = 0;
-      rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
-      if (rc) {
-	ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
-	return rc;
+  std::ifstream scomdefFile;
+  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
+  while (l_filePair != l_filePairs.end())
+  {
+      rc = ECMD_SUCCESS;
+      scomdefFile.open(l_filePair->first.c_str());
+      if(scomdefFile.fail()) {
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          ecmdOutputWarning(printed.c_str());
+          rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
+          return rc;
       }
-      scomdefFile.clear();
-      scomdefFile.seekg(0, std::ios::beg);
-      rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+      rc = readScomDefFile(i_scomData.address, scomdefFile);
+      if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
+          uint64_t modifiedScomAddress = 0;
+          rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
+          if (rc) {
+              ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
+              return rc;
+          }
+          scomdefFile.clear();
+          scomdefFile.seekg(0, std::ios::beg);
+          rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+      }
+      if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+          scomdefFile.close();
+          l_filePair++;
+      }
+      // Found the address, don't need to look in any other scomdefs
+      else
+      {
+          break;
+      }
   }
+  // One more check outside of the loop to make sure we found something
   if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-    ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
-    return rc;
+      ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
+      ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
+      return rc;
   }
+
   sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
 
   std::list< std::string >::iterator descIt;
