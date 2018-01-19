@@ -38,9 +38,12 @@ endif
 ifeq (${CREATE_PY3API},yes)
   PY3API_BUILD := ecmdpy3api
 endif
+ifeq (${CREATE_PYECMD},yes)
+  PYECMD_BUILD := pyecmd
+endif
 
 # Now create our build targets
-BUILD_TARGETS := ecmdcapi ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD}
+BUILD_TARGETS := ecmdcapi ecmdcmd ${CMD_EXT_BUILD} dllstub ${PERLAPI_BUILD} ${PYAPI_BUILD} ${PY3API_BUILD} ${PYECMD_BUILD}
 
 # *****************************************************************************
 # The Main Targets
@@ -124,6 +127,11 @@ ecmdpyapi: ecmdcmd ${EXT_PYAPI_TARGETS}
 ecmdpy3api: ecmdcmd ${EXT_PYAPI_TARGETS}
 	@echo "eCMD Python3 Module ${TARGET_ARCH} ..."
 	@${MAKE} -C ${ECMD_CORE}/py3api ${MAKECMDGOALS} ${MAKEFLAGS}
+	@echo " "
+
+pyecmd: ecmdpyapi
+	@echo "pyeCMD Module ${TARGET_ARCH} ..."
+	@${MAKE} -C ${ECMD_CORE}/pyecmd ${MAKECMDGOALS} ${MAKEFLAGS}
 	@echo " "
 
 ########################

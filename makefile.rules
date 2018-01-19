@@ -18,6 +18,7 @@ dir:
 	@if [ ! -d ${OUTPERL} ]; then mkdir -p ${OUTPERL}; echo mkdir -p ${OUTPERL}; fi
 	@if [ ! -d ${OUTPY} ]; then mkdir -p ${OUTPY}; echo mkdir -p ${OUTPY}; fi
 	@if [ ! -d ${OUTPY3} ]; then mkdir -p ${OUTPY3}; echo mkdir -p ${OUTPY3}; fi
+	@if [ ! -d ${OUTPYECMD} ]; then mkdir -p ${OUTPYECMD}; echo mkdir -p ${OUTPYECMD}; fi
 
 # Runs the objclean rule in addition to removing generated source and binaries
 clean: objclean
