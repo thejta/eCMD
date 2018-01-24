@@ -5165,6 +5165,27 @@ uint32_t getMemPbaHidden (ecmdChipTarget & i_target, uint64_t i_address, uint32_
 uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
 //@}
 
+/** @name Query Functions  */
+//@{
+/**
+ @brief Query the location of a specific type of files for the selected target
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
+ @param o_fileLocations Return string pair list with full path and filename to location 
+ @param io_version Specify version number of file; set to version number by plugin
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_UNKNOWN_FILE if unable to find requested file
+ @retval nonzero if unsuccessful
+
+ NOTE : This function does not affect ring caching<br>
+ First file in pair is text file, second file is hash file if applicable.<br>
+ TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
+//@}
+
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif
