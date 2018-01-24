@@ -27,6 +27,7 @@
 //#include <linux/i2c-dev.h>
 //#include <linux/i2c.h>
 // copied from i2c-dev.h
+#define I2C_TIMEOUT     0x0702  /* set timeout in units of 10 ms */
 #define I2C_SLAVE	0x0703	/* Use this slave address */
 #define I2C_TENBIT	0x0704	/* 0 for 7 bit addrs, != 0 for 10 bit */
 #define I2C_FUNCS	0x0705	/* Get the adapter functionality mask */
@@ -459,6 +460,7 @@ uint32_t ServerI2CInstruction::iic_config_device_offset(Handle * i_handle, Instr
 
 ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
+    char errstr[200];
 #ifdef SERVER_PRINT_PERF
     struct timeval start_time;
     struct timeval end_time;
@@ -522,12 +524,42 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
         system_iic * handle = (system_iic *) i_handle;
         uint32_t bytes = length % 8 ? (length / 8) + 1 : length / 8;
 
-        uint32_t messages = 1;
+        // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
+        // value is in 10ms units, only set timeout to something larger than 100.
+        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
+        int timeout = (length / timeoutFactor) * 1.5;
+
+        errno = 0;
+        int rc = 0;
+        if ( timeout > 100 )
+        {
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_TIMEOUT, %d)\n", timeout);
+                o_status.errorMessage.append(errstr);
+            }
+#ifdef TESTING
+            TESTPRINT("rc = ioctl(handle->fd, I2C_TIMEOUT, %d);\n", timeout);
+#else
+            rc = ioctl( handle->fd, I2C_TIMEOUT, timeout );
+#endif
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
+            }
+            if ( rc ) return rc;
+        }
+
+        uint32_t messages = 0;
         // check if we need to write address to the bus before the write
         if (handle->offset_width > 0)
         {
-            messages = 2;
+            messages = 1;
         }
+        
+        const uint32_t msgMax = (i2cFlags & INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK) == 0 ? 8192 : ((i2cFlags & INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK) >> INSTRUCITON_I2C_FLAG_MSG_SIZE_SHIFT);
+        messages += (bytes / (msgMax)) + ((bytes % msgMax) > 0 ? 1 : 0);
 
         i2c_rdwr_ioctl_data * rdwr_data = new i2c_rdwr_ioctl_data;
         rdwr_data->msgs = new i2c_msg[messages];
@@ -553,24 +585,57 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
         }
 
         // set up read message
-        rdwr_data->msgs[msg_offset].addr = handle->slave_address;
-        rdwr_data->msgs[msg_offset].flags = I2C_M_RD;
-        rdwr_data->msgs[msg_offset].len = bytes;
-        rdwr_data->msgs[msg_offset].buf = new uint8_t[bytes];
+        for( uint32_t idx=0; (msgMax*idx) < bytes && msg_offset < messages; idx++ )
+        {
+            // set up read message
+            rdwr_data->msgs[msg_offset].addr = handle->slave_address;
+            rdwr_data->msgs[msg_offset].flags = I2C_M_RD;
+            uint32_t tmpbytes = ((msgMax*(idx+1)) > bytes) ? bytes - (msgMax*idx) : msgMax;
+            rdwr_data->msgs[msg_offset].len = tmpbytes;
+            rdwr_data->msgs[msg_offset].buf = new uint8_t[tmpbytes];
 
-        errno = 0;
-        int rc = 0;
+            msg_offset++;
+        }
+
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_RDWR, rdwr_data)\n");
+            o_status.errorMessage.append(errstr);
+            for( uint32_t msgidx=0; msgidx < messages; msgidx++)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rdwr_data[%d] - addr(0x%X) flag(%X) bytes(%d) buf...\n", msgidx, rdwr_data->msgs[msgidx].addr, rdwr_data->msgs[msgidx].flags, rdwr_data->msgs[msgidx].len);
+                o_status.errorMessage.append(errstr);
+            }
+        }
 #ifdef TESTING
         TESTPRINT("rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);\n");
 #else
         rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);
 #endif
 
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
+            o_status.errorMessage.append(errstr);
+        }
+
         if (rc >= 0)
         {
-           // copy out data
-           o_data.insert(rdwr_data->msgs[msg_offset].buf, 0, length);
-           rc = bytes;
+            rc = 0;
+            uint32_t byteidx = 0;
+            for ( msg_offset = 0; msg_offset < messages; msg_offset++ )
+            {
+                if ( rdwr_data->msgs[msg_offset].flags != 0 )
+                {
+                    // copy out data
+                    uint32_t tmplength = ((msgMax*(byteidx+1)) < bytes) ? msgMax*8 : length - (msgMax*byteidx*8);
+                    o_data.insert(rdwr_data->msgs[msg_offset].buf, (byteidx*msgMax*8), tmplength);
+
+                    rc += tmplength % 8 ? (tmplength / 8) + 1 : tmplength / 8;
+                    byteidx++;
+                }
+            }
+            rc = bytes;
         }
         else
         {
@@ -590,6 +655,7 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
 
 ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o_status)
 {
+    char errstr[200];
 #ifdef SERVER_PRINT_PERF
     struct timeval start_time;
     struct timeval end_time;
@@ -641,6 +707,33 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
         system_iic * handle = (system_iic *) i_handle;
         uint32_t bytes = length % 8 ? (length / 8) + 1 : length / 8;
 
+        // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
+        // value is in 10ms units, only set timeout to something larger than 100.
+        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
+        int timeout = (length / timeoutFactor) * 1.5;
+
+        errno = 0;
+        int rc = 0;
+        if ( timeout > 100 )
+        {
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_TIMEOUT, %d)\n", timeout);
+                o_status.errorMessage.append(errstr);
+            }
+#ifdef TESTING
+            TESTPRINT("rc = ioctl(handle->fd, I2C_TIMEOUT, %d);\n", timeout);
+#else
+            rc = ioctl( handle->fd, I2C_TIMEOUT, timeout );
+#endif
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
+            }
+            if ( rc ) return rc;
+        }
+
         uint32_t messages = 1;
 
         i2c_rdwr_ioctl_data * rdwr_data = new i2c_rdwr_ioctl_data;
@@ -663,12 +756,28 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
         // copy in message data
         data.extract(rdwr_data->msgs[msg_offset].buf + handle->offset_width, 0, length);
 
-        int rc = 0;
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_RDWR, rdwr_data)\n");
+            o_status.errorMessage.append(errstr);
+            for( uint32_t idx=0; idx < messages; idx++)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : rdwr_data[%d] - addr(0x%X) flag(%X) bytes(%d) buf...\n", idx, rdwr_data->msgs[idx].addr, rdwr_data->msgs[idx].flags, rdwr_data->msgs[idx].len);
+                o_status.errorMessage.append(errstr);
+            }
+        }
+
 #ifdef TESTING
         TESTPRINT("rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);\n");
 #else
         rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);
 #endif
+
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
+            o_status.errorMessage.append(errstr);
+        }
 
         if (rc >= 0)
         {

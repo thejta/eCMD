@@ -61,7 +61,7 @@ address(0)
     i_data->shareBuffer(&data);
   }
   /* use version one protocol if i2cFlags is zero */
-  if (version == 0x2 && i2cFlags == 0x0) {
+  if (version == 0x2 && ((i2cFlags & INSTRUCTION_I2C_FLAG_MASK) == 0x0)) {
     version = 0x1;
   }
 }
@@ -88,7 +88,7 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   }
   version = 0x2;
   /* use version one protocol if i2cFlags is zero */
-  if (version == 0x2 && i2cFlags == 0x0) {
+  if (version == 0x2 && ((i2cFlags & INSTRUCTION_I2C_FLAG_MASK) == 0x0)) {
     version = 0x1;
   }
   return 0;

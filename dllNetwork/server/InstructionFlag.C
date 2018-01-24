@@ -134,6 +134,10 @@ std::string InstructionI2CFlagToString(uint32_t i_i2cFlag) {
   std::string returnString = "";
   if (INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS & i_i2cFlag)
     returnString += "INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS, ";
+  if (INSTRUCTION_I2C_FLAG_RETRY_MASK & i_i2cFlag)
+    returnString += "INSTRUCTION_I2C_FLAG_RETRY_MASK, ";
+  if (INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK & i_i2cFlag)
+    returnString += "INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK, ";
   return returnString;
 }
 
