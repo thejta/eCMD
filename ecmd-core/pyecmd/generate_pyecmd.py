@@ -68,6 +68,7 @@ non_exported_names = (
 # aren't being converted correctly - FIXME
 "parseTokens",
 "queryHostMemInfoRanges",
+"queryFileLocationHidden",
 # not necessary because there are Pythonic replacements
 "queryErrorState",
 "hexToUInt32",
