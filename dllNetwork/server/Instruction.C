@@ -75,6 +75,8 @@ std::string InstructionTypeToString(Instruction::InstructionType i_type) {
       return "FSIMEMPROC";
     case Instruction::PNOR:
       return "PNOR";
+    case Instruction::D2C:
+      return "D2C";
   }
   return "";
 }
@@ -259,6 +261,10 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "QUERYSP";
     case Instruction::ADJUST_PROC_VOLTAGES:
       return "ADJUST_PROC_VOLTAGES";
+    case Instruction::PSI_CMU_REG_READ:
+      return "PSI_CMU_REG_READ";
+    case Instruction::PSI_CMU_REG_WRITE:
+      return "PSI_CMU_REG_WRITE";
   }
   return "";
 }
