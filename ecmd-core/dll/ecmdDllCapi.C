@@ -5603,25 +5603,28 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
         ins.close();
 
         //Check if latch present in multiple rings
-        std::string outerRing;
-        std::string outerLatch;
-
-        for (entryIt = o_latchdata.entry.begin(); entryIt != o_latchdata.entry.end(); entryIt++)
+        if ((i_mode != ECMD_LATCHMODE_PARTIAL_NO_RING_CHECK) && (ringName == ""))
         {
-            if (entryIt != o_latchdata.entry.begin())
+            std::string outerRing;
+            std::string outerLatch;
+
+            for (entryIt = o_latchdata.entry.begin(); entryIt != o_latchdata.entry.end(); entryIt++)
             {
-                for (entryIt1 = o_latchdata.entry.begin(); entryIt1 != o_latchdata.entry.end(); entryIt1++)
+                if (entryIt != o_latchdata.entry.begin())
                 {
-                    if ( (entryIt1->latchName.substr(0,entryIt1->latchName.find_last_of("(")) == outerLatch) && (entryIt1->ringName != outerRing) )
+                    for (entryIt1 = o_latchdata.entry.begin(); entryIt1 != o_latchdata.entry.end(); entryIt1++)
                     {
-                        rc = ECMD_SCANDEFHASH_MULT_RINGS;
-                        dllRegisterErrorMsg(rc, "readScandef", ("Same latchname : '" + latchName + "' found in multiple rings in the scandef\nPlease specify a ringname\n").c_str());
-                        return rc;
+                        if ( (entryIt1->latchName.substr(0,entryIt1->latchName.find_last_of("(")) == outerLatch) && (entryIt1->ringName != outerRing) )
+                        {
+                            rc = ECMD_SCANDEFHASH_MULT_RINGS;
+                            dllRegisterErrorMsg(rc, "readScandef", ("Same latchname : '" + latchName + "' found in multiple rings in the scandef\nPlease specify a ringname\n").c_str());
+                            return rc;
+                        }
                     }
                 }
+                outerRing = entryIt->ringName;
+                outerLatch = entryIt->latchName.substr(0,entryIt->latchName.find_last_of("("));
             }
-            outerRing = entryIt->ringName;
-            outerLatch = entryIt->latchName.substr(0,entryIt->latchName.find_last_of("("));
         }
 
         if (ringName != "")

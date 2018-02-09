@@ -399,9 +399,10 @@ typedef enum {
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
 */
 typedef enum {
-  ECMD_LATCHMODE_UNKNOWN,       ///< Default for not initialized
-  ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
-  ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
+  ECMD_LATCHMODE_UNKNOWN,               ///< Default for not initialized
+  ECMD_LATCHMODE_FULL,                  ///< Latch must match exactly
+  ECMD_LATCHMODE_PARTIAL,               ///< Latch can be a partial match
+  ECMD_LATCHMODE_PARTIAL_NO_RING_CHECK  ///< Latch can be a partial match - bypasses check for latches within multiple rings
 } ecmdLatchMode_t;
 
 /**
