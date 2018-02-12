@@ -42,6 +42,18 @@ else
   endef
 endif
 
+# Only do the catch build test if enabled
+ifeq (${CATCH_TEST_BUILD},yes)
+  define run-all-catch-test
+	@echo ""
+	@echo "==== Catch Testing Build ===="
+	${VERBOSE}${MAKE} catch_test ${MAKEFLAGS} --no-print-directory
+  endef
+else
+  define run-all-catch-test
+  endef
+endif
+
 define run-all
 	${VERBOSE}${MAKE} dir ${MAKEFLAGS} --no-print-directory
 	@echo ""

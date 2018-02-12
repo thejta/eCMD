@@ -125,6 +125,10 @@ optgroup.add_argument("--python3", help="The python3 executable to use\n"
 optgroup.add_argument("--python3inc", help="The python3 include path to use\n"
                                            "PY3INC from the environment")
 
+# --catchinc
+optgroup.add_argument("--catchinc", help="The catch include path to use for testing\n"
+                                         "CATCHINC from the environment")
+
 # --doxygen
 optgroup.add_argument("--doxygen", help="The doxygen executable to use\n"
                                         "DOXYGENBIN from the environment")
@@ -763,6 +767,23 @@ else:
 if (args.build_disable_test):
     TEST_BUILD = "no"
 buildvars["TEST_BUILD"] = TEST_BUILD
+
+# Enable Catch-based testcases if TEST_BUILD enabled and catch include path is set
+CATCH_TEST_BUILD = "no"
+CATCHINC = None
+if (TEST_BUILD == "yes"):
+    if (args.catchinc is not None):
+        CATCHINC = args.catchinc
+    elif ("CATCHINC" in os.environ):
+        CATCHINC = os.environ["CATCHINC"]
+if (CATCHINC is not None):
+    if (CATCHINC == ""):
+        print("ERROR: Unable to determine path to Catch includes")
+        print("ERROR: Please install the catch includes, specify the path via --catchinc")
+        sys.exit(1)
+    buildvars["CATCHINC"] = CATCHINC
+    CATCH_TEST_BUILD = "yes"
+buildvars["CATCH_TEST_BUILD"] = CATCH_TEST_BUILD
 
 # Enable verbose build option
 # By default, we want it quiet which is @
