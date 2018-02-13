@@ -111,7 +111,7 @@ namespace fapi2plat
     {
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget);
-	    uint32_t l_version = 1;
+	    uint32_t l_version = 2;
 #if 0
 ///
 /// version 1 of MCS VPDInfo
@@ -136,6 +136,33 @@ class VPDInfo<TARGET_TYPE_MCS>
         uint64_t iv_rank_count_dimm_0;
         uint64_t iv_rank_count_dimm_1;
         uint64_t iv_dimm_drop_per_port;
+};
+///
+/// version 2 of MCS VPDInfo
+///
+template<>
+class VPDInfo<TARGET_TYPE_MCS>
+{
+    public:
+        // @brief VPDInfo constructor
+        VPDInfo( const fapi2::MemVpdData& i_vpd_type)
+            : iv_vpd_type(i_vpd_type),
+              iv_size(VPD_INFO_INVALID),
+              iv_freq_mhz(VPD_INFO_INVALID),
+              iv_rank_count_dimm_0(VPD_INFO_INVALID),
+              iv_rank_count_dimm_1(VPD_INFO_INVALID),
+              iv_is_config_ffdc_enabled(true)
+        {};
+        // type of vpd field to return
+        fapi2::MemVpdData_t iv_vpd_type;
+
+        // size of the vpd data
+        size_t   iv_size;
+        uint64_t iv_freq_mhz;
+        uint64_t iv_rank_count_dimm_0;
+        uint64_t iv_rank_count_dimm_1;
+        bool     iv_is_config_ffdc_enabled;
+
 };
 #endif
         return fapi2plat::getVPD(ecmdTarget, l_version, static_cast<void *>(&io_vpd_info), o_blob);
