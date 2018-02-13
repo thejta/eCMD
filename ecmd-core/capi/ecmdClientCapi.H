@@ -5185,6 +5185,35 @@ uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i
 uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
 //@}
 
+/** @name Scan Functions  */
+//@{
+#ifndef ECMD_REMOVE_RING_FUNCTIONS
+/**
+ @brief Performs sparse scan of the ring from the selected chip into the data buffer.
+ A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mask DataBuffer object that holds mask value of bits to read from the ring
+ @param i_traceMask DataBuffer object that holds bit positions of interest to be ANDed with i_mask and displayed in DFT MASKOUT traces
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see putRingSparse
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingSparseWithTraceMask(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_traceMask, uint32_t i_mode = 0);
+#endif //ECMD_REMOVE_RING_FUNCTIONS
+//@}
 
 #ifndef DOCUMENTATION
 }  //extern "C"
