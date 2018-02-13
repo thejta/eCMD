@@ -49,7 +49,8 @@ class VPDInfo<TARGET_TYPE_MCS>
               iv_size(VPD_INFO_INVALID),
               iv_freq_mhz(VPD_INFO_INVALID),
               iv_rank_count_dimm_0(VPD_INFO_INVALID),
-              iv_rank_count_dimm_1(VPD_INFO_INVALID)
+              iv_rank_count_dimm_1(VPD_INFO_INVALID),
+              iv_is_config_ffdc_enabled(true)
         {};
         // type of vpd field to return
         fapi2::MemVpdData_t iv_vpd_type;
@@ -59,6 +60,7 @@ class VPDInfo<TARGET_TYPE_MCS>
         uint64_t iv_freq_mhz;
         uint64_t iv_rank_count_dimm_0;
         uint64_t iv_rank_count_dimm_1;
+        bool     iv_is_config_ffdc_enabled;
 
 };
 
