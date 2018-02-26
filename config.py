@@ -827,11 +827,11 @@ else:
     INSTALL_BIN_PATH = os.path.join(INSTALL_PATH, "bin")
 buildvars["INSTALL_BIN_PATH"] = INSTALL_BIN_PATH
 
-# If DOXYGEN_PATH wasn't given, use INSTALL_PATH
+# If DOXYGEN_PATH wasn't given, use OUTPATH
 if ("DOXYGEN_PATH" in os.environ):
     DOXYGEN_PATH = os.environ["DOXYGEN_PATH"]
 else:
-    DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
+    DOXYGEN_PATH = os.path.join(OUTPATH, "doxygen")
 
 # Setup our capi/perl/python paths based on DOXYGEN_PATH
 DOXYGEN_CAPI_PATH = os.path.join(DOXYGEN_PATH, "Capi")
