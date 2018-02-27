@@ -20,7 +20,7 @@ all:
 	${run-all}
 
 doxygen:
-	${VERBOSE}${MAKE} -C ../.. doxygen ${MAKEFLAGS} --no-print-directory
+	${VERBOSE}${MAKE} -C ../.. doxygen-create ${MAKEFLAGS} --no-print-directory
 
 generate: doxygen ${GENERATED_PY} ${CONSTANTS_PY}
 

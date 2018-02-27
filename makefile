@@ -65,7 +65,10 @@ build: ${BUILD_TARGETS}
 
 test: ${BUILD_TARGETS}
 
-doxygen: dir
+doxygen: doxygen-create
+	${VERBOSE}cp -r ${DOXYGEN_PATH} ${INSTALL_PATH}
+
+doxygen-create: dir
 	@mkdir -p ${DOXYGEN_CAPI_PATH}
 	${VERBOSE}${MAKE} doxygen-capi ${MAKEFLAGS} --no-print-directory
 	@mkdir -p ${DOXYGEN_PERLAPI_PATH}
