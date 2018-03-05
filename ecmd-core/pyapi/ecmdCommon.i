@@ -47,3 +47,26 @@
   // All done copying our data from the C array into python, free the malloc from in typemap
   free($1);
 }
+
+// typemaps to support ecmdDataBuffer::readFile() and readFileMultiple use of std::string *
+// value from std::string * argument will be returned as part of the tuple
+%typemap(in, numinputs=0) std::string * o_property (std::string temp) { $1 = &temp; }
+%typemap(argout) std::string * o_property {
+  PyObject *o, *o2, *o3;
+  o = PyString_FromString($1->c_str());
+  if ((!$result) || ($result == Py_None)) {
+    $result = o;
+  } else {
+    if (!PyTuple_Check($result)) {
+      PyObject *o2 = $result;
+      $result = PyTuple_New(1);
+      PyTuple_SetItem($result, 0, o2);
+    }
+    o3 = PyTuple_New(1);
+    PyTuple_SetItem(o3, 0, o);
+    o2 = $result;
+    $result = PySequence_Concat(o2, o3);
+    Py_DECREF(o2);
+    Py_DECREF(o3);
+  }
+}

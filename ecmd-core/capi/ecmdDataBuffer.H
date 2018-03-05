@@ -1543,7 +1543,11 @@ public:
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
    * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
+#ifdef ECMD_PYAPI
+  uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_property); /* Reads in the buffer (in the specified format) into the databuffer */
+#else
   uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_property = NULL); /* Reads in the buffer (in the specified format) into the databuffer */
+#endif
 
   /**
    * @brief Read data from the file into the buffer  
@@ -1558,7 +1562,12 @@ public:
    * @retval ECMD_DBUF_DATANUMBER_NOT_FOUND If requested i_dataNumber is not available in file
    * ECMD_SAVE_FORMAT_BINARY_DATA not accepted when i_dataNumber != 0
    */
+#ifdef ECMD_PYAPI
+  uint32_t readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber, std::string *o_property);
+  uint32_t readFileMultiple(const char * i_filename, ecmdFormatType_t i_format) { return readFileMultiple(i_filename, i_format, 0, NULL); }
+#else
   uint32_t readFileMultiple(const char * i_filename, ecmdFormatType_t i_format, uint32_t i_dataNumber=0, std::string *o_property = NULL); /* Reads out the buffer (in the  specified format) from the file */
+#endif
 
   /**
    * @brief Read data from the file into the buffer
