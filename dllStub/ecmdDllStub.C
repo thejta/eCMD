@@ -216,6 +216,10 @@ uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileTy
   return ECMD_SUCCESS;
 } 
 
+uint32_t dllQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
+  return ECMD_SUCCESS;
+} 
+
 uint32_t dllFlushSys () {
   return ECMD_SUCCESS;
 } 
