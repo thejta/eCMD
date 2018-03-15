@@ -24,6 +24,8 @@
 #ifndef FAPI2_FFDC_H_
 #define FAPI2_FFDC_H_
 
+#if !defined (FAPI2_NO_FFDC) && !defined (MINIMUM_FFDC)
+
 #include <memory>
 #include <hwp_return_codes.H>
 #include <return_code_defs.H>
@@ -171,7 +173,7 @@ class FirstFailureData
         ///
         inline void addErrorInfo(std::vector<std::shared_ptr<ErrorInfoFfdc>>& i_errorInfo)
         {
-            for( auto p : i_errorInfo )
+            for( auto& p : i_errorInfo )
             {
                 iv_info->iv_ffdcs.push_back(p);
             }
@@ -229,4 +231,5 @@ class FirstFailureData
 };
 
 }
+#endif // !defined (FAPI2_NO_FFDC) && !defined (MINIMUM_FFDC)
 #endif // FAPI2_FFDC_H_
