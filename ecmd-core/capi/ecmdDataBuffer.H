@@ -1533,6 +1533,18 @@ public:
   uint32_t writeFileStream(std::ostream & o_filestream); /* Writes out the buffer (in ECMD_SAVE_FORMAT_BINARY_DATA format) into the file */
 #endif
 
+#ifdef ECMD_PYAPI
+  /**
+   * @brief Read data from the file into the buffer  
+   * @param i_filename to read from
+   * @param i_format data format to expect in the file
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_FILE_FORMAT_MISMATCH specified format not found in the file
+   * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
+   * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
+   */
+  uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format); // o_property can be obtained under python with readFileMultiple()
+#else
   /**
    * @brief Read data from the file into the buffer  
    * @param i_filename to read from
@@ -1543,9 +1555,6 @@ public:
    * @retval ECMD_DBUF_FOPEN_FAIL Unable to open the file for read
    * @retval ECMD_DBUF_XSTATE_ERROR If XState format is requested when XState is not defined for the configuration
    */
-#ifdef ECMD_PYAPI
-  uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format); // o_property can be obtained under python with readFileMultiple()
-#else
   uint32_t readFile(const char * i_filename, ecmdFormatType_t i_format, std::string *o_property = NULL); /* Reads in the buffer (in the specified format) into the databuffer */
 #endif
 
