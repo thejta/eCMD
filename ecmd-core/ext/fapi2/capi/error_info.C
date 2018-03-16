@@ -27,6 +27,11 @@
 #include <error_info.H>
 #include <buffer.H>
 
+//explicitly declare for space as these templates are used everywhere
+//eCMD: commenting out as there are issues with symbols not available when compiling unoptimized code
+//template class std::shared_ptr<fapi2::ErrorInfo>;
+//template class std::shared_ptr<fapi2::ErrorInfoFfdc>;
+
 namespace fapi2
 {
 ///

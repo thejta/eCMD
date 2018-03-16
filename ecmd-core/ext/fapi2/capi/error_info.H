@@ -26,7 +26,9 @@
 #define FAPI2_ERRORINFO_H_
 
 #include <stdint.h>
-#include <memory>
+#ifndef __PPE__
+    #include <memory>
+#endif
 #include <vector>
 #include <target.H>
 #include <error_info_defs.H>
@@ -677,4 +679,12 @@ struct ErrorInfoEntry
 };
 #endif //  !defined(FAPI2_NO_FFDC) && !defined(MINIMUM_FFDC)
 }
+
+#if !defined(FAPI2_NO_FFDC) && !defined(MINIMUM_FFDC)
+    //explicitly declare for space as these templates are used everywhere
+    //eCMD: commenting out as there are issues with symbols not available when compiling unoptimized code
+    //extern template class std::shared_ptr<fapi2::ErrorInfo>;
+    //extern template class std::shared_ptr<fapi2::ErrorInfoFfdc>;
+#endif
+
 #endif // FAPI2_ERRORINFO_H_

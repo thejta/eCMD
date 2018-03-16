@@ -701,7 +701,7 @@ class buffer
             // Extraction is just an insert into o_out
 
             buffer<OT> out(o_out);
-            out.insert<TS, L, SS>(iv_data);
+            out.template insert<TS, L, SS>(iv_data);
             o_out = out;
             return *this;
         }
@@ -721,7 +721,7 @@ class buffer
             // Extraction is just an insert into o_out
 
             buffer<OT> out(o_out);
-            out.insert<TS, L, SS>(iv_data);
+            out.template insert<TS, L, SS>(iv_data);
             o_out = out;
             return *this;
         }
