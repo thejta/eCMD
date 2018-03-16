@@ -73,7 +73,7 @@
 
 // typemaps to support ecmdDataBuffer::extract() and extractToRight() use of uint32_t *
 // value from uint32_t * argument will be returned as part of the tuple
-%typemap(in, numinputs=0) uint32_t * o_data (uint32_t temp) { $1 = &temp; }
+%typemap(in, numinputs=0) uint32_t * o_data (uint32_t temp) { temp = 0; $1 = &temp; }
 %typemap(argout) uint32_t * o_data {
   PyObject *o, *o2, *o3;
   o = PyInt_FromLong(*$1);
