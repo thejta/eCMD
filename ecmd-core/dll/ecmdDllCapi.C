@@ -5639,13 +5639,6 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
         o_latchdata.latchNameHashKey = latchHashKey64;
         o_latchdata.entry.sort();
 
-        /* Now insert it in proper order */
-        ecmdLatchCacheEntry searchCache;
-        searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
-        latchCache.push_front(searchCache);
-        searchCacheIter = latchCache.begin(); 
-        searchCacheIter->latches[latchHashKey64] = o_latchdata;
-
         l_filePair++;
         // We found the ring already, so bail 
         // Assumption is that each ring only shows up in a single scandef
@@ -5668,6 +5661,15 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
         rc = ECMD_INVALID_LATCHNAME;
         dllRegisterErrorMsg(rc, "readScandef", ("no registers found that matched " + latchName + "\n").c_str());
         //break;
+    }
+    // Add to cache in proper order
+    else
+    {
+        ecmdLatchCacheEntry searchCache;
+        searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
+        latchCache.push_front(searchCache);
+        searchCacheIter = latchCache.begin(); 
+        searchCacheIter->latches[latchHashKey64] = o_latchdata;
     }
 
     return rc;
