@@ -77,33 +77,36 @@ doxygen-create: dir
 	${VERBOSE}${MAKE} doxygen-pyapi ${MAKEFLAGS} --no-print-directory
 
 doxygen-capi: ecmdcapi ${EXT_CAPI_TARGETS}
+	@echo "Creating C API doxygen ..."
 	${VERBOSE}${ECMD_ROOT}/mkscripts/makeext.py doxygen capi ${DOXYGEN_CAPI_PATH}
 	${VERBOSE}mkdir -p ${DOXYGEN_CAPI_PATH}/examples
 	${VERBOSE}cp ${ECMD_ROOT}/docs/examples/ecmdclient.C ${DOXYGEN_CAPI_PATH}/examples/.
 	${VERBOSE}cp ${ECMD_ROOT}/docs/examples/makefile ${DOXYGEN_CAPI_PATH}/examples/.
 	${VERBOSE}$(shell sed "s!DOXYGEN_ECMD_VERSION!${DOXYGEN_ECMD_VERSION}!g" ${ECMD_ROOT}/docs/ecmdDoxygen.config | sed "s!INPUTOUTPUT_PATH!${DOXYGEN_CAPI_PATH}!g" > ${DOXYGEN_CAPI_PATH}/ecmdDoxygen.config)
 	${VERBOSE}$(shell sed -i "s!ECMDEXTDEFINES!$(foreach ext,${EXT_CAPI},ECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)!g" ${DOXYGEN_CAPI_PATH}/ecmdDoxygen.config)
-	${VERBOSE}cd ${DOXYGEN_CAPI_PATH}; ${DOXYGENBIN} ecmdDoxygen.config
+	${VERBOSE}cd ${DOXYGEN_CAPI_PATH}; ${DOXYGENBIN} ecmdDoxygen.config > /dev/null
 #	${VERBOSE}cd ${DOXYGEN_CAPI_PATH}/latex; make; mv refman.pdf ecmdClientCapi.pdf
 
 doxygen-perlapi: ecmdcapi ${EXT_PERLAPI_TARGETS} ecmdperlapi
+	@echo "Creating Perl API doxygen ..."
 	${VERBOSE}${ECMD_ROOT}/mkscripts/makeext.py doxygen perlapi ${DOXYGEN_PERLAPI_PATH}
 	${VERBOSE}mkdir -p ${DOXYGEN_PERLAPI_PATH}/examples
 	${VERBOSE}cp ${ECMD_ROOT}/docs/examples/example.pl ${DOXYGEN_PERLAPI_PATH}/examples/.
 	${VERBOSE}$(shell sed "s!DOXYGEN_ECMD_VERSION!${DOXYGEN_ECMD_VERSION}!g" ${ECMD_ROOT}/docs/ecmdDoxygenPm.config | sed "s!INPUTOUTPUT_PATH!${DOXYGEN_PERLAPI_PATH}!g" > ${DOXYGEN_PERLAPI_PATH}/ecmdDoxygenPm.config)
 	${VERBOSE}$(shell sed -i "s!ECMDEXTDEFINES!$(foreach ext,${EXT_PERLAPI},ECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)!g" ${DOXYGEN_PERLAPI_PATH}/ecmdDoxygenPm.config)
 	${VERBOSE}${ECMD_ROOT}/docs/perlizeDocs.pl
-	${VERBOSE}cd ${DOXYGEN_PERLAPI_PATH}; ${DOXYGENBIN} ecmdDoxygenPm.config
+	${VERBOSE}cd ${DOXYGEN_PERLAPI_PATH}; ${DOXYGENBIN} ecmdDoxygenPm.config > /dev/null
 #	${VERBOSE}cd ${DOXYGEN_PERLAPI_PATH}/latex; make; mv refman.pdf ecmdClientPerlapi.pdf
 
 doxygen-pyapi: ecmdcapi ${EXT_PYAPI_TARGETS} ecmdpyapi
+	@echo "Creating Python API doxygen ..."
 	${VERBOSE}${ECMD_ROOT}/mkscripts/makeext.py doxygen pyapi ${DOXYGEN_PYAPI_PATH}
 	${VERBOSE}mkdir -p ${DOXYGEN_PYAPI_PATH}/examples
 	${VERBOSE}cp ${ECMD_ROOT}/docs/examples/example.py ${DOXYGEN_PYAPI_PATH}/examples/.
 	${VERBOSE}$(shell sed "s!DOXYGEN_ECMD_VERSION!${DOXYGEN_ECMD_VERSION}!g" ${ECMD_ROOT}/docs/ecmdDoxygenPython.config | sed "s!INPUTOUTPUT_PATH!${DOXYGEN_PYAPI_PATH}!g" > ${DOXYGEN_PYAPI_PATH}/ecmdDoxygenPython.config)
 	${VERBOSE}$(shell sed -i "s!ECMDEXTDEFINES!$(foreach ext,${EXT_PYAPI},ECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)!g" ${DOXYGEN_PYAPI_PATH}/ecmdDoxygenPython.config)
 	${VERBOSE}${ECMD_ROOT}/docs/pythonizeDocs.pl
-	${VERBOSE}cd ${DOXYGEN_PYAPI_PATH}; ${DOXYGENBIN} ecmdDoxygenPython.config
+	${VERBOSE}cd ${DOXYGEN_PYAPI_PATH}; ${DOXYGENBIN} ecmdDoxygenPython.config > /dev/null
 #	${VERBOSE}cd ${DOXYGEN_PYAPI_PATH}/latex; make; mv refman.pdf ecmdClientPythonapi.pdf
 
 # The core eCMD pieces
