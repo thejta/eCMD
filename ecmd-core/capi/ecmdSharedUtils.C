@@ -224,20 +224,6 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
   return returnValue;
 }
 
-void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens) {
-
-  size_t curStart = 0, curEnd = 0;
-
-  tokens.clear();
-
-  while (1) {
-    curStart = line.find_first_not_of(seperators, curEnd);
-    if (curStart == std::string::npos) break;
-    curEnd = line.find_first_of(seperators,curStart);
-    tokens.push_back(line.substr(curStart, curEnd-curStart));
-  }
-}
-
 
 std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen) {
   std::string ret;
