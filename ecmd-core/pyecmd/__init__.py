@@ -123,7 +123,7 @@ class Target(_Target):
        * Use any other value for VALID
     """
 
-    _attrs_with_state = ("cage", "node", "slot", "chipType", "pos", "chipUnitType", "core", "chipUnitNum", "thread", "unitId")
+    _attrs_with_state = ("cage", "node", "slot", "chipType", "pos", "chipUnitType", "chipUnitNum", "thread", "unitId")
 
     def __setattr__(self, name, value):
         if name in Target._attrs_with_state:

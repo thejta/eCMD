@@ -52,7 +52,6 @@
 #define NODE_HDR_MAGIC   0xFFFFF3FF
 #define SLOT_HDR_MAGIC   0xFFFF4FFF
 #define CHIP_HDR_MAGIC   0xFFF5FFFF
-#define CORE_HDR_MAGIC   0xFF6FFFFF
 #define THREAD_HDR_MAGIC 0xF7FFFFFF
 #define CHIPUNIT_HDR_MAGIC 0x8FFFFFFF
 /**
@@ -715,16 +714,7 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    uint8_t   core;
-#endif
-    uint8_t   chipUnitNum;      ///< number of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  uint8_t     chipUnitNum;      ///< number of the chip unit to access
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
@@ -733,16 +723,7 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    ecmdChipTargetState_t coreState;
-#endif
-    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
 };
@@ -821,55 +802,6 @@ threadFlags(0x0)
 inline ecmdThreadData::~ecmdThreadData() { }
 #endif
 
-#if 0
-/**
- @brief Used for the ecmdQueryConfig function to return core data
-
- Operators Supported : <
-
-*/
-struct ecmdCoreData {
-
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdCoreData();
-
-  // Destructor
-  ~ecmdCoreData();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
-  bool operator<(const ecmdCoreData& rhs) const;  ///< Used to sort Core entries in an ecmdCoreData list.
-#ifndef ECMD_STRIP_DEBUG
-    void printStruct(void);
-#endif
-#endif
-
-  // Members
-  uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
-  uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
-  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
-  uint32_t                      coreFlags;      ///< (Detail: High) Various additional info about the core - bitmask of defines
-  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
-};
-
-#ifndef DOCUMENTATION
-// ecmdCoreData Constructor
-inline ecmdCoreData::ecmdCoreData():
-coreId(0),
-numProcThreads(0),
-unitId(0),
-coreFlags(0x0)
-{
-}
-
-// ecmdCoreData Destructor
-inline ecmdCoreData::~ecmdCoreData() { }
-#endif
-#endif
-
 /**
  @brief Used for the ecmdQueryConfig function to return chipUnit data
 
@@ -889,7 +821,7 @@ struct ecmdChipUnitData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
-  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Core entries in an ecmdChipUnitData list.
+  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Chip Unit entries in an ecmdChipUnitData list.
 #ifndef ECMD_STRIP_DEBUG
 
   void printStruct(void);
@@ -1189,7 +1121,7 @@ struct ecmdLooperData {
   std::list<ecmdNodeData>::iterator ecmdCurNode;                ///< Pointer to current Node
   std::list<ecmdSlotData>::iterator ecmdCurSlot;                ///< Pointer to current Slot
   std::list<ecmdChipData>::iterator ecmdCurChip;                ///< Pointer to current Chip
-  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current Core
+  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current ChipUnit
   std::list<ecmdThreadData>::iterator ecmdCurThread;            ///< Pointer to current Thread
   ecmdChipTarget prevTarget;                                    ///< Pointer to previous target
 

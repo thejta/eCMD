@@ -59,7 +59,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   print "---- starting getRing -----\n";
   $rc = getRing($target, "vital_func", $edb1);
@@ -105,7 +105,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   print "---- starting getscom -----\n";
   $rc = getScom($target, "0x5002C0", $edb1);
@@ -151,7 +151,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   my $data    = new ecmd::ecmdDataBuffer();
   my $address = new ecmd::ecmdDataBuffer();
@@ -192,7 +192,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   my $data = new ecmd::ecmdDataBuffer();
 
@@ -239,7 +239,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   my $matches =0;
   my $edb1 = new ecmd::ecmdDataBuffer();
@@ -301,7 +301,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   my $data = new ecmd::ecmdDataBuffer();
 
@@ -449,7 +449,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   print "---- starting putMemProc -----\n";
   $edb1->setBitLength(32); #default
@@ -488,7 +488,7 @@ if (0) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   print "---- starting getTraceArray -----\n";
   $rc = getTraceArray($target, $name, $edb1);
@@ -520,12 +520,12 @@ if (1) {
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos}  = 0;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
   $target->{cageState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{nodeState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{slotState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{posState}  = ECMD_TARGET_FIELD_WILDCARD;
-  $target->{coreState} = ECMD_TARGET_FIELD_WILDCARD;
+  $target->{chipUnitState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{threadState} = ECMD_TARGET_FIELD_UNUSED;
 
   $target->{chipTypeState} = ECMD_TARGET_FIELD_VALID;
