@@ -184,7 +184,7 @@ class Target(_Target):
     relatedTargets = related_targets
 
 class Ecmd(object):
-    def __init__(self, dll="", version="ver14", args=None, **kwargs):
+    def __init__(self, dll="", version="ver14,ver15", args=None, **kwargs):
         self.dll = dll
         self.version = version
         self.args = args
