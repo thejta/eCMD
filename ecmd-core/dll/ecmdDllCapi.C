@@ -2578,7 +2578,8 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
 {
     uint32_t rc = 0;
     ecmdLatchBufferEntry curEntry;
-    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    std::list< ecmdLatchEntry >::iterator curLatchInfo;   ///< Iterator for walking through latches
+    std::list< ecmdLatchEntry > latchInfo;                ///< Latch info from scandef to return 
     std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
     std::string curLatch = "";                            ///< current unique latchname
     std::string printed;
@@ -2601,208 +2602,6 @@ uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_que
         rc = ECMD_INVALID_ARGS;
         printed = "Input parameters Ringname and Latchname both cannot be null.\n";
         dllRegisterErrorMsg(rc, "dllQueryLatchInfo", printed.c_str() );
-        return rc;
-    }
-    if ((i_ringName != NULL) && (i_latchName == NULL)) {
-        rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
-        if (rc) return rc;
-    } else {
-        if( i_mode == ECMD_LATCHMODE_FULL) {
-            rc = readScandefHash(i_target, i_ringName, i_latchName, curEntry);
-            if( rc && (((rc != ECMD_UNKNOWN_FILE) &&(rc != ECMD_UNABLE_TO_OPEN_SCANDEFHASH)) && ((rc == ECMD_INVALID_LATCHNAME)||(rc == ECMD_INVALID_RING)||(rc == ECMD_SCANDEFHASH_MULT_RINGS)))) {
-                return rc;
-            }
-        }
-        if (rc || (i_mode != ECMD_LATCHMODE_FULL)) {
-            std::string errorParse;
-            if (rc)
-                {
-                    errorParse = dllGetErrorMsg(rc, false, true, true);
-                    errorParse = "WARNING: Latch is found in Scandef File but is missing in Hashfile \n" + errorParse;
-                    
-                }
-            
-            rc = readScandef(i_target, i_ringName, i_latchName, i_mode, curEntry);
-            if (rc) return rc;
-            
-            if (errorParse.length() > 0) {
-                
-                dllOutputWarning(errorParse.c_str());
-            }           
-        }
-    }
-
-    /* Single exit point */
-    while (1) {
-
-        uint32_t bitsToFetch = ECMD_UNSET;       // Grab all bits
-        uint32_t curLatchBit = ECMD_UNSET;       // This is the actual latch bit we are looking for next
-        uint32_t curBufferBit = 0;               // Current bit to insert into buffered register
-        uint32_t curBitsToFetch = bitsToFetch;   // This is the total number of bits left to fetch
-        uint32_t dataStartBit = ECMD_UNSET;      // Actual start bit of buffered register
-        uint32_t dataEndBit = ECMD_UNSET;        // Actual end bit of buffered register
-        std::string latchname = "";
-        uint32_t fsi_end = 0;
-        uint32_t jtag_end = 0;
-        
-        for (curLatchInfo = curEntry.entry.begin(); (curLatchInfo != curEntry.entry.end()) && (curBitsToFetch > 0); curLatchInfo++) {
-            
-            if (curLatch != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) {
-                //Assumption- should all be under one ring
-                if ( curLatchInfo == curEntry.entry.begin()) {
-                    rc = dllQueryRing(i_target, o_ringData, curLatchInfo->ringName.c_str(), i_detail);
-                    if (rc) {
-                        dllRegisterErrorMsg(rc, "dllQueryLatch", "Problems querying ring from chip\n");
-                        return rc;
-                    }
-                    if (!o_ringData.empty()) {
-                        if (i_detail == ECMD_QUERY_DETAIL_HIGH) {
-                            o_queryData.clockDomain = o_ringData.begin()->clockDomain;
-                            o_queryData.clockState = o_ringData.begin()->clockState;
-                        }
-                        o_queryData.isChipUnitRelated = o_ringData.begin()->isChipUnitRelated;
-                        o_queryData.relatedChipUnit = o_ringData.begin()->relatedChipUnit;
-                        o_queryData.relatedChipUnitShort = o_ringData.begin()->relatedChipUnitShort;
-                    }
-                }
-                
-                curLatch = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));  
-            }
-            
-            /* Do we have previous data here , or some missing bits in the scandef latchs ?*/
-            if (((dataStartBit != ECMD_UNSET) && (curLatchBit !=  curLatchInfo->latchStartBit) && (curLatchBit !=  curLatchInfo->latchEndBit)) ||
-                ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))))) {
-                /* I have some good data here */
-                if (latchname != "") {
-                    
-                    o_queryData.latchStartBit = (int)dataStartBit;
-                    o_queryData.latchEndBit = (int)dataEndBit;
-                    o_queryData.bitLength = dataEndBit - dataStartBit + 1;
-                    o_queryData.fsiEndRingOffset = fsi_end;
-                    o_queryData.jtagEndRingOffset = jtag_end;  
-                }
-            
-                /* If this is a fresh one we need to reset everything */
-                if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, latchname.length()))) {
-                    dataStartBit = dataEndBit = ECMD_UNSET;
-                    curBitsToFetch = ECMD_UNSET;
-                    curBufferBit = 0;
-                    latchname = curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('));
-                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
-                    o_queryData.latchName = latchname;
-                    o_queryData.ringName = curLatchInfo->ringName;
-                    o_queryData.fsiStartRingOffset = curLatchInfo->fsiRingOffset;
-                    o_queryData.jtagStartRingOffset = curLatchInfo->jtagRingOffset;
-                } else {
-                    /* This is the case where the scandef had holes in the register, so we will continue with this latch, but skip some bits */
-                    dataStartBit = dataEndBit = ECMD_UNSET;
-                    curBufferBit = 0;
-                    /* Decrement the bits to fetch by the hole in the latch */
-                    curBitsToFetch -= (curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit) - curLatchBit;
-                    curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchStartBit : curLatchInfo->latchEndBit;
-                }
-            }
-        
-            /* Do we want anything in here */
-            /* Check if the bits are ordered from:to (0:10) or just (1) */
-            if (((curLatchInfo->latchEndBit >= curLatchInfo->latchStartBit) && (curLatchBit <=  curLatchInfo->latchEndBit)) ||
-                /* Check if the bits are ordered to:from (10:0) */
-                ((curLatchInfo->latchStartBit > curLatchInfo->latchEndBit)  && (curLatchBit <=  curLatchInfo->latchStartBit))) {
-                
-                bitsToFetch = (curLatchInfo->length  < curBitsToFetch) ? curLatchInfo->length : curBitsToFetch;
-                
-                /* Setup the actual data bits displayed */
-                if (dataStartBit == ECMD_UNSET) {
-                    dataStartBit = curLatchBit;
-                    dataEndBit = dataStartBit - 1;
-                }
-                dataEndBit += bitsToFetch;
-            
-                /* ********* */
-                /* FSI Order */
-                /* ********* */
-                
-                if (bustype == ECMD_CHIPFLAG_FSI) {
-                    /* Extract bits if ordered from:to (0:10) */
-                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
-                        curLatchBit = curLatchInfo->latchEndBit + 1;
-                        /* Extract if bits are ordered to:from (10:0) or just (1) */
-                    } else {
-                        curLatchBit = curLatchInfo->latchStartBit + 1;
-                    }
-                    curBufferBit += bitsToFetch;
-                    
-                    /* ********* */
-                    /*JTAG Order */
-                    /* ********* */
-                } else {
-                    /* Extract bits if ordered from:to (0:10) */
-                    if (curLatchInfo->latchEndBit > curLatchInfo->latchStartBit) {
-                        curLatchBit = curLatchInfo->latchEndBit + 1;
-                    } else {
-                        /* Extract if bits are ordered to:from (10:0) or just (1) */
-                        curLatchBit = curLatchInfo->latchStartBit + 1;
-                    }
-                    curBufferBit += bitsToFetch;
-                    
-                }
-            
-                fsi_end = curLatchInfo->fsiRingOffset;
-                jtag_end = curLatchInfo->jtagRingOffset;
-                curBitsToFetch -= bitsToFetch;
-            } else {
-                /* Nothing was there that we needed, let's try the next entry */
-                curLatchBit = curLatchInfo->latchStartBit < curLatchInfo->latchEndBit ? curLatchInfo->latchEndBit + 1: curLatchInfo->latchStartBit + 1;             
-            }
-        
-        } /* end latchinfo for loop */
-        
-        /* We have good data here, let's push it */
-        if (latchname != "") {
-            
-            /* Display this if we aren't expecting or the expect failed */
-            o_queryData.latchStartBit = (int)dataStartBit;
-            o_queryData.latchEndBit = (int)dataEndBit;
-            o_queryData.bitLength = dataEndBit - dataStartBit + 1;
-            o_queryData.fsiEndRingOffset = fsi_end;
-            o_queryData.jtagEndRingOffset = jtag_end;               
-        }
-    
-        break;
-    } /* end while (exit point) */
-   
-  
-    return rc;
-}
-
-uint32_t dllQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
-{
-    uint32_t rc = 0;
-    ecmdLatchBufferEntry curEntry;
-    std::list< ecmdLatchEntry >::iterator curLatchInfo;   ///< Iterator for walking through latches
-    std::list< ecmdLatchEntry > latchInfo;                ///< Latch info from scandef to return 
-    std::list<ecmdRingData> o_ringData;                   ///< Data from QueryRing
-    std::string curLatch = "";                            ///< current unique latchname
-    std::string printed;
-    uint32_t bustype = 0;
-    
-    /* Let's find out if we are JTAG of FSI here */
-    rc = dllGetScandefOrder(i_target, bustype);
-    if (rc) {
-        printed = "Problems retrieving chip information on target\n";
-        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", printed.c_str() );
-        return rc;
-    }
-    /* Now make sure the plugin gave us some bus info */
-    if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
-        dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllQueryLatchInfoHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
-        return ECMD_DLL_INVALID;
-    }
-    
-    if ((i_ringName == NULL) && (i_latchName == NULL)) {
-        rc = ECMD_INVALID_ARGS;
-        printed = "Input parameters Ringname and Latchname both cannot be null.\n";
-        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", printed.c_str() );
         return rc;
     }
     if ((i_ringName != NULL) && (i_latchName == NULL)) {
@@ -2857,7 +2656,7 @@ uint32_t dllQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHi
                 if ( curLatchInfo == curEntry.entry.begin()) {
                     rc = dllQueryRing(i_target, o_ringData, curLatchInfo->ringName.c_str(), i_detail);
                     if (rc) {
-                        dllRegisterErrorMsg(rc, "dllQueryLatchInfoHidden", "Problems querying ring from chip\n");
+                        dllRegisterErrorMsg(rc, "dllQueryLatchInfo", "Problems querying ring from chip\n");
                         return rc;
                     }
                     if (!o_ringData.empty()) {
@@ -2989,15 +2788,7 @@ uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::
 }
 #endif
 
-uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) {
-    return dllGetLatchHidden(i_target, i_ringName, i_latchName, o_data, i_mode, 0);
-}
-
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode) {
-    return dllPutLatchHidden(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matches, i_mode, 0);    
-}
-
-uint32_t dllGetLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
+uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
@@ -3025,12 +2816,12 @@ uint32_t dllGetLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
   rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
     printed = "Problems retrieving chip information on target\n";
-    dllRegisterErrorMsg(rc, "dllGetLatchHidden", printed.c_str() );
+    dllRegisterErrorMsg(rc, "dllGetLatch", printed.c_str() );
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
   if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI) ) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatchHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllGetLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
   
@@ -3074,22 +2865,22 @@ uint32_t dllGetLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
               }
               rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, ECMD_UNSET, ECMD_UNSET);
               if (rc) {
-                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems creating sparse mask from latch\n");
+                  dllRegisterErrorMsg(rc, "dllGetLatch", "Problems creating sparse mask from latch\n");
                   return rc;
               }
               
               rc = dllGetRingSparse(i_target, curLatchInfo->ringName.c_str(), ringBuffer, l_mask, i_ring_mode);
               if (rc) {
-                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems reading ring from chip (sparse)\n");
+                  dllRegisterErrorMsg(rc, "dllGetLatch", "Problems reading ring from chip (sparse)\n");
                   return rc;
               }
 
           }
           else
           {
-              rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+              rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
               if (rc) {
-                  dllRegisterErrorMsg(rc, "dllGetLatchHidden", "Problems reading ring from chip\n");
+                  dllRegisterErrorMsg(rc, "dllGetLatch", "Problems reading ring from chip\n");
                   return rc;
               }
           }
@@ -3293,7 +3084,7 @@ uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i
           }
           else
           {
-              rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+              rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
               if (rc) {
                   dllRegisterErrorMsg(rc, "dllGetLatchOpt", "Problems reading ring from chip\n");
                   return rc;
@@ -3421,7 +3212,7 @@ uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i
   return rc;
 }
 
-uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
+uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
 
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
@@ -3450,23 +3241,23 @@ uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
   /* Do we have the right amount of data ? */
   if (i_data.getBitLength() > i_numBits) {
     rc = ECMD_DATA_OVERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is greater than numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is greater than numBits requested to write\n");
     return rc;
   } else if (i_data.getBitLength() < i_numBits) {
     rc = ECMD_DATA_UNDERFLOW;
-    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Data buffer length is less than numBits requested to write\n");
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Data buffer length is less than numBits requested to write\n");
     return rc;
   }
 
   /* Let's find out if we are JTAG of FSI here */
   rc = dllGetScandefOrder(i_target, bustype);
   if (rc) {
-    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems retrieving chip information on target\n");
+    dllRegisterErrorMsg(rc, "dllPutLatch", "Problems retrieving chip information on target\n");
     return rc;
   }
   /* Now make sure the plugin gave us some bus info */
   if ((bustype != ECMD_CHIPFLAG_JTAG) && (bustype != ECMD_CHIPFLAG_FSI)) {
-    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatchHidden", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
+    dllRegisterErrorMsg(ECMD_DLL_INVALID, "dllPutLatch", "eCMD plugin returned an invalid bustype in dllGetScandefOrder\n");
     return ECMD_DLL_INVALID;
   }
 
@@ -3518,14 +3309,14 @@ uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
             if (curRing.length() > 0) {
                 rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, i_startBit, i_numBits);
                 if (rc) {
-                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems creating sparse mask from latch\n");
+                    dllRegisterErrorMsg(rc, "dllPutLatch", "Problems creating sparse mask from latch\n");
                     break;
                 }
                               
 
                 rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
                 if (rc) {
-                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                    dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
                     break;
                 }
             }
@@ -3540,15 +3331,15 @@ uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
         else
         {
             if (curRing.length() > 0) {
-                rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+                rc = dllPutRing(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
                 if (rc) {
-                    dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                    dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
                     break;
                 }
             }
-            rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+            rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
             if (rc) {
-                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems reading ring from chip\n");
+                dllRegisterErrorMsg(rc, "dllPutLatch", "Problems reading ring from chip\n");
                 break;
             }
         }
@@ -3689,22 +3480,22 @@ uint32_t dllPutLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, co
             // FIXME set bit length for mask???
             rc = dllCreateSparseMaskFromLatchOpt(i_target, curEntry.entry, l_mask, i_startBit, i_numBits);
             if (rc) {
-                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems creating sparse mask from latch\n");
+                dllRegisterErrorMsg(rc, "dllPutLatch", "Problems creating sparse mask from latch\n");
                 break;
             }
 
             rc = dllPutRingSparse(i_target, curRing.c_str(), ringBuffer, l_mask, i_ring_mode);
             if (rc) {
-                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
                 break;
             }
 
         }
         else
         {
-            rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+            rc = dllPutRing(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
             if (rc) {
-                dllRegisterErrorMsg(rc, "dllPutLatchHidden", "Problems writing ring into chip\n");
+                dllRegisterErrorMsg(rc, "dllPutLatch", "Problems writing ring into chip\n");
                 break;
             }
         }
@@ -3814,13 +3605,13 @@ uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint
         else
         {
             if (curRing.length() > 0) {
-                rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+                rc = dllPutRing(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
                 if (rc) {
                     dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
                     break;
                 }
             }
-            rc = dllGetRingHidden(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
+            rc = dllGetRing(i_target, curLatchInfo->ringName.c_str(), ringBuffer, i_ring_mode);
             if (rc) {
                 dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems reading ring from chip\n");
                 break;
@@ -3976,7 +3767,7 @@ uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint
         }
         else
         {
-            rc = dllPutRingHidden(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
+            rc = dllPutRing(i_target, curRing.c_str(), ringBuffer, i_ring_mode);
             if (rc) {
                 dllRegisterErrorMsg(rc, "dllPutLatchOpt", "Problems writing ring into chip\n");
                 break;
@@ -5436,7 +5227,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
     std::string l_version = "default";
     /* Let's see if we have already looked up this info */
     /* find scandef file */
-    rc = dllQueryFileLocationHidden(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
     if (rc) {
       dllRegisterErrorMsg(rc, "readScandef", "Error occured locating scandef file.\n");
       return rc;
@@ -5874,7 +5665,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 
     /* Let's see if we have already looked up this info */
     /* find scandef file */
-    rc = dllQueryFileLocationHidden(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
     if (rc)
     {
         dllRegisterErrorMsg(rc, "readScandefHash", "Error occured locating scandef file.\n");
@@ -6295,18 +6086,13 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef REMOVE_SIM
-uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval)
-{
-    return dllSimPOLLFACHidden(i_facname, i_bitlength, i_expect, i_row, i_offset, i_maxcycles, i_pollinterval);
-}
-
-uint32_t dllSimPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
 
   while (curcycles < i_maxcycles) {
-    rc = dllSimGETFACHidden(i_facname,i_bitlength,actual_data,i_row,i_offset);
+    rc = dllSimGETFAC(i_facname,i_bitlength,actual_data,i_row,i_offset);
     if (rc) return rc;
 
     /* We found what we expected */
@@ -6322,19 +6108,13 @@ uint32_t dllSimPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDa
   return ECMD_POLLING_FAILURE;
 }
 
-
-uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval)
-{
-    return dllSimpolltcfac(i_tcfacname, i_expect, i_row, i_startbit, i_bitlength, i_maxcycles, i_pollinterval);
-}
-
-uint32_t dllSimpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
 
   while (curcycles < i_maxcycles) {
-    rc = dllSimgettcfacHidden(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
+    rc = dllSimgettcfac(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
     if (rc) return rc;
 
     /* We found what we expected */
@@ -6355,9 +6135,13 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   std::string ret = "";
 
   ecmdChipTarget dummy;
+  std::list<std::pair<std::string,  std::string> > paths;
   std::string filePath;
   std::string l_version = "default";
-  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, filePath, l_version); 
+  uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, paths, l_version); 
+
+  // Assume for now we only have one helptext path returned
+  filePath = paths.begin()->first;
 
   if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";

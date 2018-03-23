@@ -327,15 +327,18 @@ uint32_t ecmdPrintHelp(const char* i_command) {
 
   uint32_t rc = ECMD_SUCCESS;
   std::string file;
+  std::list<std::pair<std::string,  std::string> > paths;
   ecmdChipTarget target;
   std::ifstream ins;
   std::string curLine;
   std::string l_version = "default";
 
   /* Get the path to the help text files */
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_HELPTEXT, file, l_version);
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_HELPTEXT, paths, l_version);
   if (rc) return rc;
 
+  // Assume for now we only have one helptext path returned
+  file = paths.begin()->first;
   file += i_command; file += ".htxt";
 
   /* Let's go open this guy */

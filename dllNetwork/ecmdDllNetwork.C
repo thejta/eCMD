@@ -187,10 +187,6 @@ uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmd
     return rc;
 }
 
-uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
-uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
 uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
@@ -201,20 +197,15 @@ uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ec
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
 { 
     uint32_t rc = 0;
-/*
-    std::list<ecmdRingData> & queryData;
-    rc = dllQueryRing(i_target, queryData, i_ringName, ECMD_QUERY_DETAIL_LOW);
-*/
+
     if (rc) return rc;
-
-
     return rc;
 } 
 
-uint32_t dllPutRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
 { 
     return ECMD_SUCCESS; 
 } 
@@ -318,11 +309,11 @@ uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const
 
 uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version){ return ECMD_SUCCESS; } 
 
-uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail )
+uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail )
 {
   uint32_t rc = ECMD_SUCCESS;
   o_queryData.clear();
-  ecmdScomDataHidden ret;
+  ecmdScomData ret;
   o_queryData.push_back(ret);
   o_queryData.back().isChipUnitRelated = false;
   o_queryData.back().endianMode = ECMD_BIG_ENDIAN;

@@ -242,7 +242,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    rc = initChipFromFileHidden(target, file, name, mode, ringMode);
+    rc = initChipFromFile(target, file, name, mode, ringMode);
     if (rc) {
       printed = "initchipfromfile - Error occured performing initchipfromfile on ";
       printed += ecmdWriteTarget(target);

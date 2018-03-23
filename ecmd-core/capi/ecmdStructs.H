@@ -1385,8 +1385,8 @@ struct ecmdScomData {
   uint64_t         address;              ///< (Detail: Low)  Scom Address
   uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
   bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
+  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
   ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
   std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
   ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
@@ -1405,54 +1405,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 
 // ecmdScomData Destructor
 inline ecmdScomData::~ecmdScomData() { }
-#endif
-
-/**
- @brief Used for the ecmdQueryScomHidden function to return scom info
-*/
-struct ecmdScomDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdScomDataHidden();
-
-  // Destructor
-  ~ecmdScomDataHidden();
-
-  // Methods
-  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  //uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  //void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  uint64_t         address;              ///< (Detail: Low)  Scom Address
-  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
-  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
-  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
-  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the dataHidden
-  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
-  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
-};
-
-#ifndef DOCUMENTATION
-// ecmdScomDataHidden Constructor
-inline ecmdScomDataHidden::ecmdScomDataHidden():
-address(0),
-length(0),
-isChipUnitRelated(false),
-endianMode(ECMD_UNKNOWN_ENDIAN),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdScomDataHidden Destructor
-inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
 #endif
 
 /**
@@ -1818,20 +1770,21 @@ struct ecmdLatchQueryData {
   bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
   // Members
-  std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
-  std::string      latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
-  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
-  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
-  uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
-  uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
-  uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  std::string      clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t clockState;            ///< (Detail: High) Required clock state to access this latch
+  std::string               ringName;              ///< (Detail: Low)  Ring that latch came from
+  std::string               latchName;             ///< (Detail: Low)  Latch name of entry
+  uint32_t                  fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
+  uint32_t                  jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t                  fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
+  uint32_t                  jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
+  uint32_t                  latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
+  uint32_t                  latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
+  uint32_t                  bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
+  bool                      isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string               relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string               relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::list<ecmdLatchEntry> scandefLatchInfo;      ///< (Detail: Low)  Information about this latch from the scandef that can be used to pass into other latch functions to improve performance.  Many of the other elements of this structure are derived from this data as well.
+  std::string               clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t          clockState;            ///< (Detail: High) Required clock state to access this latch
 };
 
 #ifndef DOCUMENTATION
@@ -1851,65 +1804,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 
 // ecmdLatchQueryData Destructor
 inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
-#endif
-
-/**
- @brief Used by ecmdQueryLatchInfoHidden function to return data
-*/
-struct ecmdLatchQueryDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdLatchQueryDataHidden();
-
-  // Destructor
-  ~ecmdLatchQueryDataHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  std::string               ringName;              ///< (Detail: Low)  Ring that latch came from
-  std::string               latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t                  fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t                  jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
-  uint32_t                  fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
-  uint32_t                  jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
-  uint32_t                  latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
-  uint32_t                  latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
-  uint32_t                  bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool                      isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string               relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string               relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  std::list<ecmdLatchEntry> scandefLatchInfo;      ///< (Detail: Low)  Information about this latch from the scandef that can be used to pass into other latch functions to improve performance.  Many of the other elements of this structure are derived from this data as well.
-  std::string               clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t          clockState;            ///< (Detail: High) Required clock state to access this latch
-};
-
-#ifndef DOCUMENTATION
-// ecmdLatchQueryDataHidden Constructor
-inline ecmdLatchQueryDataHidden::ecmdLatchQueryDataHidden():
-fsiStartRingOffset(0),
-jtagStartRingOffset(0),
-fsiEndRingOffset(0),
-jtagEndRingOffset(0),
-latchStartBit(0),
-latchEndBit(0),
-bitLength(0),
-isChipUnitRelated(false),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdLatchQueryDataHidden Destructor
-inline ecmdLatchQueryDataHidden::~ecmdLatchQueryDataHidden() { }
 #endif
 
 /**

@@ -426,6 +426,8 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SCOM_FUNCTIONS
+/** @name Query Functions  */
+//@{
 /**
  @brief Query Scom information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -441,7 +443,6 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
 
 /**
  @brief Query Scomgroup information from the DLL
@@ -473,7 +474,8 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion);
+uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion); 
+//@}
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
@@ -494,21 +496,25 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
 uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
+/** @name Query Functions  */
+//@{
 /**
- @brief Query the location of a specific file type for the selected target
+ @brief Query the location of a specific type of files for the selected target
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param o_fileLocation Return string with full path and filename to location 
+ @param o_fileLocations Return string pair list with full path and filename to location 
  @param io_version Specify version number of file; set to version number by plugin
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
 
  NOTE : This function does not affect ring caching<br>
+ First file in pair is text file, second file is hash file if applicable.<br>
  TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version);
+uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
+//@}
 
 /**
  @brief Query if a particular target is configured in the system
@@ -583,99 +589,6 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
  * Please see documentation at ecmdSetConfiguration() for supported scanmodes. 
 */
 //@{
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
-/**
- @brief Scans the ring from the selected chip into the data buffer
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to read from
- @param o_data DataBuffer object that holds data read from ring
- @see putRing
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data); 
-
-/**
- @brief Scans ring from the data buffer into the selected chip in the selected ring
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to write to
- @param i_data DataBuffer object that holds data to write into ring
- @see getRing
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data); 
-#endif // ECMD_REMOVE_RING_FUNCTIONS
-
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-/**
- @brief Reads the selected latch into the data buffer
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful read
- @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_latchName Name of latch to read (can be a partial or full name based on i_mode)
- @param o_data list of Entries containing all latches found matching i_latchName
- @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
- @param i_mode LatchName search mode (full or partial names)
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode);
-
-/**
- @brief Writes the data buffer into the all latches matching i_latchName
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_UNABLE_TO_OPEN_SCANDEF eCMD was unable to open the scandef
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_latchName Name of latch to write (can be a partial or full name based on i_mode)
- @param i_data DataBuffer object that holds data to write into latch
- @param i_ringName Name of ring to search for latch if == NULL, entire scandef is searched
- @param i_mode LatchName search mode
- @param i_startBit Startbit in latchname to insert data
- @param i_numBits Number of bits to insert from startbit
- @param o_matches Number of latchs found that matched your name and data was inserted
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode);
-
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
@@ -937,91 +850,6 @@ uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecid
 //@{
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 /**
- @brief Reads the selected spy into the data buffer
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
- @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_data DataBuffer object that holds data read from spy
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data);
-
-/**
- @brief Reads the selected spy and returns it's assocaiated enum
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
- @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
- @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_enumValue Enum value read from the spy
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue);
-
-/**
- @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyEpCheckersName Name of spy to read from
- @param o_inLatchData Return the data for the input to the eccGroup
- @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
- @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
- @retval nonzero if unsuccessful
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask);
-
-/**
- @brief Reads the selected spy and load all the spy groups into provided list
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_groups List of structures containing the group data and deadbits mask
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups);
-
-/**
  @brief Reads the selected spy into the data buffer from provided ring image
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
@@ -1065,47 +893,6 @@ uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ec
 
 */
 uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue);
-
-/**
- @brief Writes the data buffer into the selected spy
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to write to
- @param i_data DataBuffer object that holds data to write into spy
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data);
-
-/**
- @brief Writes the enum into the selected spy
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
- @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to write to
- @param i_enumValue String enum value to load into the spy
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue);
 
 /**
  @brief Writes the data buffer into the selected spy within the provided ring image
@@ -1508,21 +1295,6 @@ uint32_t iStepsByNameMultiple(std::list< std::string > i_stepNames);
  NOTE - function returns on first failure and remaining steps are not run<br>
 */
 uint32_t iStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEnd);
-
-/**
- @brief Run chip initializations stored in a file
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_initFile The file containing the initialization data
- @param i_initId The id in the initialization file to use
- @param i_mode The mode to run the initialization file in
- 
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Must be Initialized<br>
-*/
-uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode);
 
 //@}
 #endif // ECMD_REMOVE_INIT_FUNCTIONS
@@ -2191,12 +1963,13 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
+ @param i_mode Future use
 
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
-
+uint32_t getMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
+  
 /**
  @brief Writes System Mainstore through the processor chip using PBA
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
@@ -3763,20 +3536,7 @@ uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Perform expect on facility using name
- @param i_facname Facility name
- @param i_expect Value to expect on facility
- @param i_bitlength Length of data to expect
- @param i_row Optional: Array Facility row
- @param i_offset Optional: Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simEXPECTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Perform expect on TCFAC facility
@@ -3788,19 +3548,7 @@ uint32_t simEXPECTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDat
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
-
-/**
- @brief Perform expect on TCFAC facility
- @param i_tcfacname Facility name
- @param i_expect Value to expect on facility
- @param i_bitlength Length of data to expect
- @param i_row Optional: Array Facility row
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simexpecttcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0);
+uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0);
 
 /**
  @brief Fetch current model cycle count
@@ -3822,20 +3570,7 @@ uint32_t simgetcurrentcycle(uint64_t & o_cyclecount);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Retrieve a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to read from facility
- @param o_data Data read from facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simGETFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simGETFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Retrieve a Facility using a name - preserving Xstate
@@ -3848,20 +3583,7 @@ uint32_t simGETFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBu
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Retrieve a Facility using a name - preserving Xstate
- @param i_facname Facility name
- @param i_bitlength Bit length to read from facility
- @param o_data Data read from facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simGETFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simGETFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Retrieve a TCFAC facility
@@ -3874,20 +3596,7 @@ uint32_t simGETFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataB
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
-
-/**
- @brief Retrieve a TCFAC facility
- @param i_tcfacname TCFAC name
- @param o_data Value read
- @param i_row Optional: Array Facility row
- @param i_startbit Optional: Startbit to read
- @param i_bitlength Optional: Length of data to read
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simgettcfacHidden(const char* i_tcfacname, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
+uint32_t simgettcfac(const char* i_tcfacname, ecmdDataBuffer & o_data, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0);
 
 /**
  @brief Initialize the simulation
@@ -3898,7 +3607,6 @@ uint32_t simgettcfacHidden(const char* i_tcfacname, ecmdDataBuffer & o_data, uin
 */
 uint32_t siminit(const char* i_checkpoint);
 
-
 /**
  @brief Poll a facility waiting for expected value
  @param i_facname Facility name
@@ -3913,23 +3621,7 @@ uint32_t siminit(const char* i_checkpoint);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
-
-/**
- @brief Poll a facility waiting for expected value
- @param i_facname Facility name
- @param i_bitlength Bit length to expect
- @param i_expect Data to expect in facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @param i_maxcycles Optional : Maximum number of cycles to run 
- @param i_pollinterval Option : Number of clock cycles to run between each poll
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 /**
  @brief Poll a TCFAC facility waiting for expected value
@@ -3945,25 +3637,7 @@ uint32_t simPOLLFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataB
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint32_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
-
-/**
- @brief Poll a TCFAC facility waiting for expected value
- @param i_tcfacname Facility name
- @param i_bitlength Bit length to expect
- @param i_expect Data to expect in facility
- @param i_row Optional: Array row
- @param i_startbit Optional : Facility startbit
- @param i_maxcycles Optional : Maximum number of cycles to run 
- @param i_pollinterval Option : Number of clock cycles to run between each poll
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_POLLING_FAILURE Polling completed without reaching expected value
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
-
-
+uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 /**
  @brief Write a Facility using a name
@@ -3976,20 +3650,7 @@ uint32_t simpolltcfacHidden(const char* i_tcfacname, ecmdDataBuffer & i_expect, 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Write a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to write to facility
- @param i_data Data to write
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPUTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Write a Facility using a name - preserving Xstate
@@ -4002,20 +3663,7 @@ uint32_t simPUTFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBu
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Write a Facility using a name - preserving Xstate
- @param i_facname Facility name
- @param i_bitlength Bit length to write to facility
- @param i_data Data to write
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simPUTFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Write a TCFAC facility
@@ -4028,20 +3676,7 @@ uint32_t simPUTFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataB
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
-
-/**
- @brief Write a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to write
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to write
- @param i_bitlength Bit length to write to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simputtcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
+uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Load a checkpoint into model
@@ -4063,20 +3698,7 @@ uint32_t simrestart(const char* i_checkpoint);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Stick a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to stick to facility
- @param i_data Data to stick
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simSTKFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Stick a Facility using a name - preserving Xstate
@@ -4089,20 +3711,7 @@ uint32_t simSTKFACHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBu
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Stick a Facility using a name - preserving Xstate
- @param i_facname Facility name
- @param i_bitlength Bit length to stick to facility
- @param i_data Data to stick
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simSTKFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Stick a TCFAC facility
@@ -4115,20 +3724,7 @@ uint32_t simSTKFACXHidden(const char* i_facname, uint32_t i_bitlength, ecmdDataB
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0);
-
-/**
- @brief Stick a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to stick
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to stick
- @param i_bitlength Bit length to write to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simstktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
+uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Run RTX SUBCMD
@@ -4158,19 +3754,7 @@ uint32_t simtckinterval(uint32_t i_tckinterval);
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval nonzero on failure
 */
-uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint32_t i_row = 0, uint32_t i_offset = 0);
-
-/**
- @brief Unstick a Facility using a name
- @param i_facname Facility name
- @param i_bitlength Bit length to unstick to facility
- @param i_row Optional: Array row
- @param i_offset Optional : Facility offset
- @retval ECMD_SUCCESS if successful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval nonzero on failure
-*/
-uint32_t simUNSTICKHidden(const char* i_facname, uint32_t i_bitlength, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Unstick a TCFAC facility
@@ -4183,20 +3767,7 @@ uint32_t simUNSTICKHidden(const char* i_facname, uint32_t i_bitlength, uint64_t 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint32_t i_row = 0, uint32_t i_numrows = 0); 
-
-/**
- @brief Unstick a TCFAC facility
- @param i_tcfacname TCFAC name
- @param i_data Value to unstick to 
- @param i_row Optional: Array Facility row
- @param i_numrows Optional: Number of rows to unstick
- @param i_bitlength Bit length to unstick to facility
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t simunsticktcfacHidden(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0); 
+uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0); 
 
 /**
  @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
@@ -4458,27 +4029,6 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 //@}
 #endif
 
-#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
-/** @name Query Functions  */
-//@{
-/**
- @brief Query Scom information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return data from query
- @param i_address if != 0xFFFFFFFF used to refine query to a single scom
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-//@}
-#endif // ECMD_REMOVE_SCOM_FUNCTIONS
-
 /** @name Scan Functions  */
 //@{
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
@@ -4494,14 +4044,14 @@ uint32_t ecmdQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHi
  @param i_ringName Name of ring to read from
  @param o_data DataBuffer object that holds data read from ring
  @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see putRingHidden
+ @see putRing
 
 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t getRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode = 0); 
+uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode = 0); 
 
 /**
  @brief Scans ring from the data buffer into the selected chip in the selected ring
@@ -4517,14 +4067,14 @@ uint32_t getRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  @param i_ringName Name of ring to write to
  @param i_data DataBuffer object that holds data to write into ring
  @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see getRingHidden
+ @see getRing
 
 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 
 */
-uint32_t putRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode = 0); 
+uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode = 0); 
 
 /**
  @brief Performs sparse scan of the ring from the selected chip into the data buffer.
@@ -4598,7 +4148,7 @@ uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
+uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName
@@ -4625,7 +4175,7 @@ uint32_t getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
+uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
 
 /**
  @brief Reads the selected latch from the input ring image into the data buffer
@@ -4724,7 +4274,7 @@ uint32_t createSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_ring
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
+uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum
@@ -4747,7 +4297,7 @@ uint32_t getSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags = 0);
+uint32_t getSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags = 0);
 
 /**
  @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
@@ -4770,7 +4320,7 @@ uint32_t getSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, std
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags = 0);
+uint32_t getSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags = 0);
 
 /**
  @brief Reads the selected spy and load all the spy groups into provided list
@@ -4791,7 +4341,7 @@ uint32_t getSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEpC
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags = 0);
+uint32_t getSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags = 0);
 
 /**
  @brief Writes the data buffer into the selected spy
@@ -4813,7 +4363,7 @@ uint32_t getSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, s
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags = 0);
+uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags = 0);
 
 /**
  @brief Writes the enum into the selected spy
@@ -4834,7 +4384,7 @@ uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyEnumHidden(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags = 0);
+uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags = 0);
 //@}
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
@@ -4901,28 +4451,6 @@ uint32_t ecmdPutPnor( ecmdChipTarget & i_target, std::string i_partitionName, ui
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-
-/**
- @brief Query Latch information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return structure from query
- @param i_ringName if != NULL used to refine query to a single ring
- @param i_latchName if != NULL used to refine query to a single latch
- @param i_mode LatchName search mode (full or partial names)
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_INVALID_RING if i_ringName is not valid for target
- @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryLatchInfoHidden(ecmdChipTarget & i_target, ecmdLatchQueryDataHidden & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 //@}
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
@@ -4953,7 +4481,7 @@ uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std:
  @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfo and using the ecmdLatchQueryData->scandefLatchInfo member of the structure.
  @param o_data list of Entries containing all latches found matching i_latchName
  @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
 
@@ -4976,7 +4504,7 @@ uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_sc
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_data DataBuffer object that holds data to write into latch
- @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfo and using the ecmdLatchQueryData->scandefLatchInfo member of the structure.
  @param i_ring_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
  @param i_startBit Startbit in latchname to insert data
  @param i_numBits Number of bits to insert from startbit
@@ -4999,7 +4527,7 @@ uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param o_data list of Entries containing all latches found matching i_latchName
- @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfo and using the ecmdLatchQueryData->scandefLatchInfo member of the structure.
  @param i_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
@@ -5024,7 +4552,7 @@ uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> &
  @param i_startBit Startbit in latchname to insert data
  @param i_numBits Number of bits to insert from startbit
  @param o_matches Number of latchs found that matched your name and data was inserted
- @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfo and using the ecmdLatchQueryData->scandefLatchInfo member of the structure.
  @param io_ringImage DataBuffer object that holds the ring image (Buffer must be of the correct length).
 
  NOTE : This function is ring cache enabled<br>
@@ -5043,7 +4571,7 @@ uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, ui
  @retval ECMD_INVALID_ARGS if only one of i_startBit and i_numBits are ECMD_UNSET
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfoHidden and using the ecmdLatchQueryDataHidden->scandefLatchInfo member of the structure.
+ @param i_scandefLatchInfo Latch information from scandef to avoid another scandef lookup.  Can be obtained by calling ecmdQueryLatchInfo and using the ecmdLatchQueryData->scandefLatchInfo member of the structure.
  @param io_mask bit mask of positions in the ring that are part of the input latch.  
  @param i_startBit Startbit in latchname to insert data - Default is ECMD_UNSET and causes i_startBit to be ignored.
  @param i_numBits Number of bits to insert from startbit - Default is ECMD_UNSET and causes i_numBits to be ignored.
@@ -5093,7 +4621,7 @@ uint32_t ecmdQueryRingIgnoreMask(ecmdChipTarget & i_target, const std::string i_
  TARGET DEPTH  : pos<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t initChipFromFileHidden(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode, uint32_t i_ringMode = 0);
+uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode, uint32_t i_ringMode = 0);
 
 //@}
 #endif // ECMD_REMOVE_INIT_FUNCTIONS
@@ -5119,33 +4647,6 @@ uint32_t ecmdQueryRingInversionMask(ecmdChipTarget & i_target, const std::string
 //@}
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
-/** @name Memory Functions */
-//@{
-#ifndef ECMD_REMOVE_MEMORY_FUNCTIONS
-/**
- @brief Reads System Mainstore through the processor chip using PBA
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information
- @param i_address Starting address to read from
- @param i_bytes Number of bytes to write
- @param o_data DataBuffer object that holds data read from memory
- @param i_mode Future use
-
- TARGET DEPTH  : Pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t getMemPbaHidden (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
-
-#endif // ECMD_REMOVE_MEMORY_FUNCTIONS
-//@}
-/* End Memory Functions */
-
 /** @name Query Functions  */
 //@{
 /**
@@ -5163,26 +4664,6 @@ uint32_t getMemPbaHidden (ecmdChipTarget & i_target, uint64_t i_address, uint32_
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
-//@}
-
-/** @name Query Functions  */
-//@{
-/**
- @brief Query the location of a specific type of files for the selected target
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param o_fileLocations Return string pair list with full path and filename to location 
- @param io_version Specify version number of file; set to version number by plugin
- @retval ECMD_SUCCESS if successful
- @retval ECMD_UNKNOWN_FILE if unable to find requested file
- @retval nonzero if unsuccessful
-
- NOTE : This function does not affect ring caching<br>
- First file in pair is text file, second file is hash file if applicable.<br>
- TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
 //@}
 
 /** @name Scan Functions  */

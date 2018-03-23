@@ -89,8 +89,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     uint64_t address =0xFFFFFFFFFFFFFFFFull;
     char addrStr[20];
 
-    std::list<ecmdScomDataHidden> scomdata;           ///< Scom data 
-    std::list<ecmdScomDataHidden>::iterator scomit;   ///< Scom data 
+    std::list<ecmdScomData> scomdata;           ///< Scom data 
+    std::list<ecmdScomData>::iterator scomit;   ///< Scom data 
 
     if (argc < 2) {
       ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
@@ -121,7 +121,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
     while (ecmdLooperNext(target, looperData)) {
 
-      rc = ecmdQueryScomHidden(target, scomdata, address);
+      rc = ecmdQueryScom(target, scomdata, address);
       if (rc) {
         printed = "ecmdquery - Error occured performing scom query on ";
         printed += ecmdWriteTarget(target);
@@ -1886,7 +1886,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutput(   "*******************************************************\n");
       printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
       if (queryData.isChipUnitRelated) {
-	          printed =     "Chip Unit        : " + queryData.relatedChipUnit + "\n"; ecmdOutput(printed.c_str());
+        printed = "Chip Unit        :";
+        std::list<std::string>::iterator relatedChipUnitIter;
+        for (relatedChipUnitIter = queryData.relatedChipUnit.begin(); relatedChipUnitIter != queryData.relatedChipUnit.end(); relatedChipUnitIter++) {
+          printed += " " + *relatedChipUnitIter;
+        }
+        printed += "\n"; ecmdOutput(printed.c_str());
       } else {
         printed =     "Chip Unit        : NONE\n"; ecmdOutput(printed.c_str());
       }
@@ -1906,7 +1911,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 
     ecmdChipData chipdata;
-    ecmdScomDataHidden queryData;
+    ecmdScomData queryData;
 
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
@@ -1930,12 +1935,13 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     while (ecmdLooperNext(target, looperData)) {
       std::string scomgroup_filename;
       std::list<scomGroupRecord_t> scomGroupRecord;
-      if (!use_version) {
-        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-      } else {
-        str_version = version;
-        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-      }
+      // This is coming out, comment out for now
+      //if (!use_version) {
+      //  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+      //} else {
+      //  str_version = version;
+      //  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+      //}
       rc = parse_groupscomdef_file(scomgroup_filename, scomGroupRecord); if (rc) return rc;
 
       char buf[200];

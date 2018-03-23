@@ -289,9 +289,9 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as getSpyHidden
+  This function specification is the same as defined in ecmdClientCapi.H as getSpy
 */
-uint32_t dllGetSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
+uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
   uint32_t rc = ECMD_SUCCESS;
 
   //Drop the flags and just call the standard getspy
@@ -317,9 +317,9 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnumHidden
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
 */
-uint32_t dllGetSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
+uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
   uint32_t rc = ECMD_SUCCESS;
 
   //Drop the flags and just call the standard getspyenum
@@ -339,7 +339,7 @@ uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std:
 
 }
 
-uint32_t dllGetSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
+uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
   uint32_t rc = ECMD_SUCCESS;
 
   //Drop the flags and just call the standard getspygroups
@@ -944,9 +944,9 @@ uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGro
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckersHidden
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckers
 */
-uint32_t dllGetSpyEpCheckersHidden(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
+uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
     uint32_t rc = ECMD_SUCCESS;
 
 
@@ -970,9 +970,9 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as putSpyHidden
+  This function specification is the same as defined in ecmdClientCapi.H as putSpy
 */
-uint32_t dllPutSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
+uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
 
     uint32_t rc = ECMD_SUCCESS;
     rc = dllPutSpy(i_target, i_spyName, i_data);
@@ -996,9 +996,9 @@ uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as putSpyEnumHidden
+  This function specification is the same as defined in ecmdClientCapi.H as putSpyEnum
 */
-uint32_t dllPutSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
+uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
 
     uint32_t rc = ECMD_SUCCESS;
     rc = dllPutSpy(i_target, i_spyName, i_enumValue);
@@ -1473,7 +1473,7 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   /* ----------------------------------------------------------------- */
   /*  Try to find the spy position from the hash file		     */
   /* ----------------------------------------------------------------- */
-  rc = dllQueryFileLocationHidden(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
+  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
 
   if (rc)
   {
@@ -1641,7 +1641,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   returnSpy.setName(spy_name);
   do {
       /* Let's get the path to the spydef */
-      rc = dllQueryFileLocationHidden(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
+      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
       if (rc) return rc;
 
       std::list<std::pair<std::string, std::string> >::iterator spyFilePair = spyFilePairs.begin();

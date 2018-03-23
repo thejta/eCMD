@@ -275,7 +275,7 @@ uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]) {
   }
 
   /* Ok, let's call GETFAC and do the comparison */
-  rc = simGETFACHidden(facname, bitLength, buffer, row, offset);
+  rc = simGETFAC(facname, bitLength, buffer, row, offset);
   if (rc) return rc;
 
   uint32_t mismatchedBit = ECMD_UNSET;
@@ -383,7 +383,7 @@ uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]) {
 
 
   /* Ok, let's call gettcfac and do the comparison */
-  rc = simgettcfacHidden(facname, buffer, row, startBit, bitLength);
+  rc = simgettcfac(facname, buffer, row, startBit, bitLength);
   if (rc) return rc;
 
   uint32_t mismatchedBit = ECMD_UNSET;
@@ -466,7 +466,7 @@ uint32_t ecmdSimGETFACUser(int argc, char * argv[]) {
 
   ecmdDataBuffer buffer;
 
-  rc = simGETFACHidden(facname, bitLength, buffer, row, offset);
+  rc = simGETFAC(facname, bitLength, buffer, row, offset);
 
   if (!rc) {
     std::string printed = ecmdWriteDataFormatted(buffer, format);
@@ -539,7 +539,7 @@ uint32_t ecmdSimGETFACXUser(int argc, char * argv[]) {
 
   ecmdDataBuffer buffer;
 
-  rc = simGETFACXHidden(facname, bitLength, buffer, row, offset);
+  rc = simGETFACX(facname, bitLength, buffer, row, offset);
 
   if (!rc) {
     std::string printed = ecmdWriteDataFormatted(buffer, format);
@@ -647,7 +647,7 @@ uint32_t ecmdSimgettcfacUser(int argc, char * argv[]) {
 
   ecmdDataBuffer buffer;
 
-  rc = simgettcfacHidden(facname, buffer, row, startBit, bitLength);
+  rc = simgettcfac(facname, buffer, row, startBit, bitLength);
 
   if (!rc) {
     std::string printed = ecmdWriteDataFormatted(buffer, format);
@@ -783,7 +783,7 @@ uint32_t ecmdSimPUTFACUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simPUTFACHidden(facname, bitLength, buffer, row, offset);
+  rc = simPUTFAC(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -859,7 +859,7 @@ uint32_t ecmdSimPUTFACXUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simPUTFACXHidden(facname, bitLength, buffer, row, offset);
+  rc = simPUTFACX(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -932,7 +932,7 @@ uint32_t ecmdSimputtcfacUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simputtcfacHidden(facname, buffer.getBitLength(), buffer, row, numRows);
+  rc = simputtcfac(facname, buffer.getBitLength(), buffer, row, numRows);
 
   return rc;
 
@@ -1033,7 +1033,7 @@ uint32_t ecmdSimSTKFACUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simSTKFACHidden(facname, bitLength, buffer, row, offset);
+  rc = simSTKFAC(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -1108,7 +1108,7 @@ uint32_t ecmdSimSTKFACXUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simSTKFACXHidden(facname, bitLength, buffer, row, offset);
+  rc = simSTKFACX(facname, bitLength, buffer, row, offset);
 
   return rc;
 
@@ -1181,7 +1181,7 @@ uint32_t ecmdSimstktcfacUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simstktcfacHidden(facname, bitLength, buffer, row, numRows);
+  rc = simstktcfac(facname, bitLength, buffer, row, numRows);
 
   return rc;
 
@@ -1362,7 +1362,7 @@ uint32_t ecmdSimUNSTICKUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
-  rc = simUNSTICKHidden(facname, bitLength, row, offset);
+  rc = simUNSTICK(facname, bitLength, row, offset);
 
   return rc;
 
@@ -1441,7 +1441,7 @@ uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]) {
     }
   }
 
-  rc = simunsticktcfacHidden(facname, bitLength, buffer, row, numRows);
+  rc = simunsticktcfac(facname, bitLength, buffer, row, numRows);
 
   return rc;
 
