@@ -23,6 +23,7 @@
 // Includes
 //--------------------------------------------------------------------
 #include <inttypes.h>
+#include <libgen.h>
 #include <stdio.h>
 
 #include <ecmdDllCapi.H>
@@ -316,7 +317,16 @@ uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_que
 
 uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version){ return ECMD_SUCCESS; } 
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version)
+{
+    if (i_fileType == ECMD_FILE_HELPTEXT) {
+        char directoryName[200];
+        sprintf(directoryName, "%s/../../help/", dirname(getenv("ECMD_EXE")));
+        o_fileLocation = directoryName;
+    }
+
+    return ECMD_SUCCESS;
+}
 
 uint32_t dllQueryScomHidden(ecmdChipTarget & i_target, std::list<ecmdScomDataHidden> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail )
 {
