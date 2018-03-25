@@ -33,6 +33,7 @@
 #include <ecmdSharedUtils.H>
 
 #include <FSIInstruction.H>
+#include <I2CInstruction.H>
 #include <OutputLite.H>
 #include <Controller.H>
 
@@ -51,12 +52,41 @@ uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ec
 //--------------------------------------------------------------------
 //  Function Definitions                                               
 //--------------------------------------------------------------------
-//
-//   These are just stubs, used for testing the out the DLL
+static uint32_t getBusSpeed(ecmdI2cBusSpeed_t i_busSpeed)
+{
+    uint32_t localBusSpeed = 0;
+    if (i_busSpeed == ECMD_I2C_BUSSPEED_50KHZ)
+    {
+        localBusSpeed = 50;
+    }
+    else if (i_busSpeed == ECMD_I2C_BUSSPEED_100KHZ)
+    {
+        localBusSpeed = 100;
+    }
+    else if (i_busSpeed == ECMD_I2C_BUSSPEED_400KHZ)
+    {
+        localBusSpeed = 400;
+    }
+    return localBusSpeed;
+}
+
+static std::string getDeviceString(const ecmdChipTarget & i_target)
+{
+    std::string retString = "0";
+    if (i_target.chipType == "pu" && i_target.pos == 0)
+        retString = "1";
+    else if (i_target.chipType == "pu" && i_target.pos == 1)
+        retString = "2";
+    return retString;
+}
 
 uint32_t dllInitDll() {
   // initialize controller
-  controller = new Controller("127.0.0.1");
+  char * ip = getenv("ECMD_NETWORK_IP");
+  if (ip == NULL)
+    controller = new Controller("127.0.0.1");
+  else
+    controller = new Controller(ip);
   uint32_t rc = controller->initialize();
   return rc;
 }
@@ -85,7 +115,7 @@ uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     uint32_t scomlen = 64;
     uint32_t flags = 0x0;
 
-    std::string deviceString = "1";
+    std::string deviceString = getDeviceString(i_target);
 
     scomoutInstruction->setup(Instruction::SCOMOUT, deviceString, i_address, scomlen, flags);
     InstructionStatus resultStatus;
@@ -121,7 +151,7 @@ uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     uint32_t scomlen = 64;
     uint32_t flags = 0x0;
 
-    std::string deviceString = "1";
+    std::string deviceString = getDeviceString(i_target);
 
     scominInstruction->setup(Instruction::SCOMIN, deviceString, i_address, scomlen, flags, &i_data);
     InstructionStatus resultStatus;
@@ -245,29 +275,38 @@ uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ec
   ecmdThreadData threadData;
 
   threadData.threadId = 0;
-
-  /* Let's return some dummy info , we will return a proc with cores and threads */
-  chipUnitData.chipUnitType = "core";
-  chipUnitData.chipUnitNum = 0;
-  chipUnitData.numThreads = 2;
-  chipUnitData.threadData.push_front(threadData);
-
-  chipData.chipUnitData.push_front(chipUnitData);
-  chipData.chipType = "pu";
-  chipData.pos = 0;
-  slotData.chipData.push_front(chipData);
-
-  ecmdChipData cd2;
-  cd2.chipUnitData.clear();
-  cd2.chipType = "pu";
-  cd2.pos = 1;
-  slotData.chipData.push_back(cd2);
-
-  cd2.pos = 2;
-  slotData.chipData.push_back(cd2);
-
-  cd2.pos = 3;
-  slotData.chipData.push_back(cd2);
+  bool allChips = false;
+  if (target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD)
+  {
+    allChips = true;
+  }
+  if (allChips ||
+      ((target.chipType == "sio") && (target.chipTypeState == ECMD_TARGET_FIELD_VALID) &&
+       (((target.posState == ECMD_TARGET_FIELD_VALID) && (target.pos == 0)) ||
+        (target.posState == ECMD_TARGET_FIELD_WILDCARD))))
+  {
+    chipData.chipType = "sio";
+    chipData.pos = 0;
+    slotData.chipData.push_back(chipData);
+  }
+  if (allChips ||
+      ((target.chipType == "pu") && (target.chipTypeState == ECMD_TARGET_FIELD_VALID) &&
+       (((target.posState == ECMD_TARGET_FIELD_VALID) && (target.pos == 0)) ||
+        (target.posState == ECMD_TARGET_FIELD_WILDCARD))))
+  {
+    chipData.chipType = "pu";
+    chipData.pos = 0;
+    slotData.chipData.push_back(chipData);
+  }
+  if (allChips ||
+      ((target.chipType == "pu") && (target.chipTypeState == ECMD_TARGET_FIELD_VALID) &&
+       (((target.posState == ECMD_TARGET_FIELD_VALID) && (target.pos == 1)) ||
+        (target.posState == ECMD_TARGET_FIELD_WILDCARD))))
+  {
+    chipData.chipType = "pu";
+    chipData.pos = 1;
+    slotData.chipData.push_back(chipData);
+  }
 
   slotData.slotId = 0;
 
@@ -373,6 +412,82 @@ bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) { return false; }
 uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
 
 uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
+
+uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data)
+{
+    return dllI2cReadOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_bytes, o_data);
+}
+
+uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
+{
+    uint32_t rc = ECMD_SUCCESS;
+    int32_t readBits = i_bytes * 8;
+    uint32_t flags = 0;
+    std::string deviceString = getDeviceString(i_target);
+    I2CInstruction * readInstruction = new I2CInstruction();
+    readInstruction->setup(Instruction::I2CREAD, deviceString, i_engineId, i_port, i_slaveAddress, getBusSpeed(i_busSpeed), i_offset, i_offsetFieldSize, readBits, 0x0 /* i2cFlags */, flags);
+    InstructionStatus resultStatus;
+
+    std::list<Instruction *> instructionList;
+    std::list<ecmdDataBuffer *> dataList;
+    std::list<InstructionStatus *> statusList;
+
+    statusList.push_back(&resultStatus);
+    dataList.push_back(&o_data);
+    instructionList.push_back(readInstruction);
+
+    /* --------------------------------------------------- */
+    /* Call the server interface with the Instruction and  */
+    /* result objects.                                     */
+    /* --------------------------------------------------- */
+    rc = controller->transfer_send(instructionList, dataList, statusList);
+    delete readInstruction;
+
+    if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
+        controller->extractError(resultStatus);
+        return out.error(resultStatus.rc, "dllI2cReadOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+    }
+
+    return rc;
+}
+
+uint32_t dllI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data)
+{
+    return dllI2cWriteOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_data);
+}
+
+uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
+{
+    uint32_t rc = ECMD_SUCCESS;
+    uint32_t flags = 0;
+    std::string deviceString = getDeviceString(i_target);
+    I2CInstruction * writeInstruction = new I2CInstruction();
+    writeInstruction->setup(Instruction::I2CWRITE, deviceString, i_engineId, i_port, i_slaveAddress, getBusSpeed(i_busSpeed), i_offset, i_offsetFieldSize, i_data.getBitLength(), 0x0 /* i2cFlags */, flags, &i_data);
+    InstructionStatus resultStatus;
+    ecmdDataBuffer data;
+
+    std::list<Instruction *> instructionList;
+    std::list<ecmdDataBuffer *> dataList;
+    std::list<InstructionStatus *> statusList;
+
+    statusList.push_back(&resultStatus);
+    dataList.push_back(&data);
+    instructionList.push_back(writeInstruction);
+
+    /* --------------------------------------------------- */
+    /* Call the server interface with the Instruction and  */
+    /* result objects.                                     */
+    /* --------------------------------------------------- */
+    rc = controller->transfer_send(instructionList, dataList, statusList);
+    delete writeInstruction;
+
+    if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
+        controller->extractError(resultStatus);
+        return out.error(resultStatus.rc, "dllI2cWriteOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+    }
+
+    return rc;
+}
 
 /* ################################################################# */
 /* Misc Functions - Misc Functions - Misc Functions - Misc Functions */
