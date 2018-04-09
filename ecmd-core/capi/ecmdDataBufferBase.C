@@ -513,6 +513,11 @@ uint32_t ecmdDataBufferBase::setWord(uint32_t i_wordOffset, uint32_t i_value) {
     uint32_t bitMask = 0xFFFFFFFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((32 * getWordLength()) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -536,6 +541,11 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
     uint8_t bitMask = 0xFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((8 * getByteLength()) - iv_NumBits);
+
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setByte: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -577,6 +587,11 @@ uint32_t ecmdDataBufferBase::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_v
     uint16_t bitMask = 0xFFFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((16 * ((getByteLength()+1)/2)) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setHalfWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -625,6 +640,11 @@ uint32_t ecmdDataBufferBase::setDoubleWord(uint32_t i_doublewordoffset, uint64_t
 #endif
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((64 * ((getWordLength()+1)/2)) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setDoubleWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
