@@ -138,6 +138,20 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
     argOffset = 1;
   }
 
+  // Check to see if invalid syntax was used and chip was input after subcommand
+  if ((!validChipFound) && (argc > 1))
+  {
+      ecmdChipTarget testTarget;
+      testTarget.chipUnitTypeState = validTarget.chipUnitNumState = validTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
+      bool wrongOrderChipFound = ecmdIsValidChip(argv[1], testTarget);
+      if (wrongOrderChipFound)
+      {
+          ecmdOutputError("cipinstruct - Chip type found in wrong order; chip must be before start/stop/etc commands.\n");
+          ecmdOutputError("cipinstruct - Type 'cipinstruct -h' for usage.\n");
+          return ECMD_INVALID_ARGS;
+      }
+  }
+
   if (argc < (1 + argOffset)) {
     ecmdOutputError("cipinstruct - Too few arguments specified; you need at least start/stop/step after chip.\n");
     ecmdOutputError("cipinstruct - Type 'cipinstruct -h' for usage.\n");

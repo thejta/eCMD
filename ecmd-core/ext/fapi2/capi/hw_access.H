@@ -656,6 +656,17 @@ inline ReturnCode putSpy(const Target<K, V>& i_target,
 
     return l_rc;
 }
+
+template<TargetType K, typename V >
+inline ReturnCode putSpyWithCare(const Target<K, V>& i_target,
+                                 const char* const i_spyId,
+                                 const variable_buffer& i_data,
+                                 const variable_buffer& i_care)
+{
+    // ignore i_care
+    return putSpy(i_target, i_spyId, i_data);
+}
+
 #endif
 /// @brief Writes spy data into a buffer holding ring data image
 ///        This API is used by L2/L3 repair to put column repair data

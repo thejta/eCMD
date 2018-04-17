@@ -221,7 +221,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		tmpTarget.node	  = htonl(node);
 		tmpTarget.slot	  = htonl(slot);
 		tmpTarget.pos	   = htonl(pos);
-		tmpTarget.chipUnitNum  = chipUnitNum; // union with core
+		tmpTarget.chipUnitNum  = chipUnitNum;
 		tmpTarget.thread	= thread;
 		tmpTarget.unitId	= htonl(unitId);
 		tmpTarget.cageState     = (ecmdChipTargetState_t) htonl((uint32_t)cageState);
@@ -229,7 +229,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		tmpTarget.slotState     = (ecmdChipTargetState_t) htonl((uint32_t)slotState);
 		tmpTarget.chipTypeState = (ecmdChipTargetState_t) htonl((uint32_t)chipTypeState);
 		tmpTarget.posState      = (ecmdChipTargetState_t) htonl((uint32_t)posState);
-		tmpTarget.chipUnitNumState = (ecmdChipTargetState_t) htonl((uint32_t)chipUnitNumState); // union with coreState
+		tmpTarget.chipUnitNumState = (ecmdChipTargetState_t) htonl((uint32_t)chipUnitNumState);
         tmpTarget.chipUnitTypeState     = (ecmdChipTargetState_t) htonl((uint32_t)chipUnitTypeState);
  		tmpTarget.threadState   = (ecmdChipTargetState_t) htonl((uint32_t)threadState);
 		tmpTarget.unitIdState   = (ecmdChipTargetState_t) htonl((uint32_t)unitIdState);
@@ -253,7 +253,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		l_ptr += sizeof(tmpTarget.pos);
 		l_len -= sizeof(tmpTarget.pos);
 
-		memcpy(l_ptr, &(tmpTarget.chipUnitNum), sizeof(tmpTarget.chipUnitNum));  // union with core
+		memcpy(l_ptr, &(tmpTarget.chipUnitNum), sizeof(tmpTarget.chipUnitNum));
 		l_ptr += sizeof(tmpTarget.chipUnitNum);
 		l_len -= sizeof(tmpTarget.chipUnitNum);
 
@@ -296,7 +296,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
 		l_len -= sizeof(tmpTarget.posState);
 
 		memcpy(l_ptr, 
-		       &(tmpTarget.chipUnitNumState), // union with coreState
+		       &(tmpTarget.chipUnitNumState),
 		       sizeof(tmpTarget.chipUnitNumState));
 		l_ptr += sizeof(tmpTarget.chipUnitNumState);
 		l_len -= sizeof(tmpTarget.chipUnitNumState);
@@ -348,7 +348,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 			      + sizeof(node)
 			      + sizeof(slot)
 			      + sizeof(pos)
-			      + sizeof(chipUnitNum) // union with core
+			      + sizeof(chipUnitNum)
 			      + sizeof(thread)
 			      + sizeof(unitId)
 			      + sizeof(cageState)
@@ -356,7 +356,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 			      + sizeof(slotState)
 			      + sizeof(chipTypeState)
 			      + sizeof(posState)
-			      + sizeof(chipUnitNumState) // union with coreState
+			      + sizeof(chipUnitNumState)
                   + sizeof(chipUnitTypeState)
  			      + sizeof(threadState)
 			      + sizeof(unitIdState);
@@ -401,7 +401,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 		l_ptr += sizeof(pos);
 		l_len -= sizeof(pos);
 
-		memcpy(&chipUnitNum, l_ptr, sizeof(chipUnitNum)); // union with core
+		memcpy(&chipUnitNum, l_ptr, sizeof(chipUnitNum));
 		l_ptr += sizeof(chipUnitNum);
 		l_len -= sizeof(chipUnitNum);
 
@@ -440,7 +440,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 		l_ptr += sizeof((uint32_t) posState);
 		l_len -= sizeof((uint32_t) posState);
 
-		memcpy(&chipUnitNumState, l_ptr, sizeof(chipUnitNumState));  // union with coreState
+		memcpy(&chipUnitNumState, l_ptr, sizeof(chipUnitNumState));
 		chipUnitNumState = (ecmdChipTargetState_t) ntohl((uint32_t) chipUnitNumState);
 		l_ptr += sizeof((uint32_t) chipUnitNumState);
 		l_len -= sizeof((uint32_t) chipUnitNumState);
@@ -492,7 +492,7 @@ uint32_t ecmdChipTarget::flattenSize() const {
 		+ sizeof(node)
 		+ sizeof(slot)
 		+ sizeof(pos)
-		+ sizeof(chipUnitNum) // union with core
+		+ sizeof(chipUnitNum)
 		+ sizeof(thread)
 		+ sizeof(unitId)
 		+ sizeof(cageState)
@@ -500,7 +500,7 @@ uint32_t ecmdChipTarget::flattenSize() const {
 		+ sizeof(slotState)
 		+ sizeof(chipTypeState)
 		+ sizeof(posState)
-		+ sizeof(chipUnitNumState) // union with coreState
+		+ sizeof(chipUnitNumState)
         + sizeof(chipUnitTypeState)
 		+ sizeof(threadState)
 		+ sizeof(unitIdState)
@@ -516,7 +516,7 @@ void ecmdChipTarget::printStruct() const {
 	printf("\tNode: %d\n", node);
 	printf("\tSlot: %d\n", slot);
 	printf("\tPosition: %d\n", pos);
-	printf("\tChipUnitNum (core): %d\n", chipUnitNum);
+	printf("\tChipUnitNum: %d\n", chipUnitNum);
 	printf("\tThread: %d\n", thread);
 	printf("\tUnitId: %d\n", unitId);
 	printf("\tCage state: 0x%08x\n", (uint32_t) cageState);
@@ -524,7 +524,7 @@ void ecmdChipTarget::printStruct() const {
 	printf("\tSlot state: 0x%08x\n", (uint32_t) slotState);
 	printf("\tChip Type state: 0x%08x\n", (uint32_t) chipTypeState);
 	printf("\tPosition state: 0x%08x\n", (uint32_t) posState);
-	printf("\tChipUnitNum (core) state: 0x%08x\n", (uint32_t) chipUnitNumState);
+	printf("\tChipUnitNum state: 0x%08x\n", (uint32_t) chipUnitNumState);
     printf("\tChipUnitType state: 0x%08x\n", (uint32_t) chipUnitTypeState);
 	printf("\tThread state: 0x%08x\n", (uint32_t) threadState);
 	printf("\tUnit ID state: 0x%08x\n", (uint32_t) unitIdState);
@@ -935,10 +935,10 @@ uint32_t ecmdChipUnitData::flattenSize() {
          * required to put into the buffer a 32bit value describing the
          * number of structures in its list.  So...
          * 
-         * Add one for the coreData list counter.
+         * Add one for the chipUnitData list counter.
          */
         flatSize += sizeof(uint32_t);
-        // If the coreData list does not contain any structs break out.
+        // If the chipUnitData list does not contain any structs break out.
 
         if (0 == threadData.size()) {
             break;
@@ -1277,7 +1277,7 @@ uint32_t ecmdChipData::flattenSize() {
 		 */
 		flatSize += sizeof(uint32_t);
 
-        // If the coreData list does not contain any structs break out.
+        // If the chipUnitData list does not contain any structs break out.
         if (0 == chipUnitData.size()) {
             break;
         }
@@ -4428,23 +4428,10 @@ void  ecmdFastArrayData::printStruct() {
 
 // @05 start
 /*
- * The following methods for the ecmdScomData struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
-  /* If either matches, return true */
-  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
-    return true;
-  }
-
-  return false;
-}
-
-/*
  * The following method will check if the chipUnitType matches with the list of relatedChipUnit's and relatedChipUnitShort's
  *
  */
-bool ecmdScomDataHidden::isChipUnitMatch(std::string &i_chipUnitType) {
+bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
 
   /* If either matches, return true */
   // walk through the list to see if it matches with relatedChipUnit
@@ -4466,6 +4453,7 @@ bool ecmdScomDataHidden::isChipUnitMatch(std::string &i_chipUnitType) {
 
 uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
+        uint32_t listSize  = 0;
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
         uint32_t l_rc = ECMD_SUCCESS;
@@ -4513,16 +4501,36 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
             l_ptr8 += sizeof(tmpData32);
             l_len -= sizeof(tmpData32);
 
+            // Figure out how many relatedChipUnit strings are in the list for future unflattening
+            listSize = relatedChipUnit.size();
+            tmpData32 = htonl(listSize);
+            memcpy(l_ptr8, &tmpData32, sizeof(tmpData32));
+            l_ptr8 += sizeof(listSize);
+            i_len -= sizeof(listSize);
+
             //relatedChipUnit
-            memcpy(l_ptr8, relatedChipUnit.c_str(), relatedChipUnit.size() + 1);
-            l_ptr8 += relatedChipUnit.size() + 1;
-            l_len -= relatedChipUnit.size() + 1;
+            std::list<std::string>::iterator relatedChipUnitIter;
+            for (relatedChipUnitIter = relatedChipUnit.begin(); relatedChipUnitIter != relatedChipUnit.end(); relatedChipUnitIter++) {
+              memcpy(l_ptr8, relatedChipUnitIter->c_str(), relatedChipUnitIter->size() + 1);
+              l_ptr8 += relatedChipUnitIter->size() + 1;
+              l_len -= relatedChipUnitIter->size() + 1;
+            }
+
+            // Figure out how many relatedChipUnitShort strings are in the list for future unflattening
+            listSize = relatedChipUnitShort.size();
+            tmpData32 = htonl(listSize);
+            memcpy(l_ptr8, &tmpData32, sizeof(tmpData32));
+            l_ptr8 += sizeof(listSize);
+            i_len -= sizeof(listSize);
 
             //relatedChipUnitShort
-            memcpy(l_ptr8, relatedChipUnitShort.c_str(), relatedChipUnitShort.size() + 1);
-            l_ptr8 += relatedChipUnitShort.size() + 1;
-            l_len -= relatedChipUnitShort.size() + 1;
-
+            std::list<std::string>::iterator relatedChipUnitShortIter;
+            for (relatedChipUnitShortIter = relatedChipUnitShort.begin(); relatedChipUnitShortIter != relatedChipUnitShort.end(); relatedChipUnitShortIter++) {
+              memcpy(l_ptr8, relatedChipUnitShortIter->c_str(), relatedChipUnitShortIter->size() + 1);
+              l_ptr8 += relatedChipUnitShortIter->size() + 1;
+              l_len -= relatedChipUnitShortIter->size() + 1;
+            }
+            
             // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
             tmpData32 = htonl( (uint32_t)endianMode );
             memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
@@ -4573,6 +4581,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 {
         uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t listSize  = 0;
         uint32_t tmpData32 = 0;
 
 	int l_len = (int)i_len;         // use a local copy to decrement
@@ -4610,18 +4619,34 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += sizeof(tmpData32);
             l_len -= sizeof(tmpData32);
 
+            // Get the size of the list to create
+            memcpy(&listSize, l_ptr8, sizeof(listSize));
+            listSize = ntohl(listSize);
+            l_ptr8 += sizeof(listSize);
+            i_len -= sizeof(listSize);
+        
             //relatedChipUnit
-            std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
-            relatedChipUnit = l_relatedChipUnit;
-            l_ptr8 += l_relatedChipUnit.size() + 1;
-            l_len -= l_relatedChipUnit.size() + 1;
+            while (relatedChipUnit.size() < listSize) {
+              std::string l_relatedChipUnit = (const char *) l_ptr8;  //maybe this can be 1 line?
+              relatedChipUnit.push_back(l_relatedChipUnit);
+              l_ptr8 += l_relatedChipUnit.size() + 1;
+              l_len -= l_relatedChipUnit.size() + 1;
+            }
 
+            // Get the size of the list to create
+            memcpy(&listSize, l_ptr8, sizeof(listSize));
+            listSize = ntohl(listSize);
+            l_ptr8 += sizeof(listSize);
+            i_len -= sizeof(listSize);
+        
             //relatedChipUnitShort
-            std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
-            relatedChipUnitShort = l_relatedChipUnitShort;
-            l_ptr8 += l_relatedChipUnitShort.size() + 1;
-            l_len -= l_relatedChipUnitShort.size() + 1;
-
+            while (relatedChipUnitShort.size() < listSize) {
+              std::string l_relatedChipUnitShort = (const char *) l_ptr8; 
+              relatedChipUnitShort.push_back(l_relatedChipUnitShort);
+              l_ptr8 += l_relatedChipUnitShort.size() + 1;
+              l_len -= l_relatedChipUnitShort.size() + 1;
+            }
+            
             // "endianMode" (ecmdEndianMode_t, stored as uint32_t)
             memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
             endianMode = (ecmdEndianMode_t) ntohl( tmpData32 );
@@ -4700,8 +4725,18 @@ void  ecmdScomData::printStruct()
 #endif
         printf("\tLength: %d\n", length );
         printf("\tisChipUnitRelated: 0x%08x\n", (uint32_t) isChipUnitRelated);
-        printf("\trelatedChipUnit:  %s\n", relatedChipUnit.c_str());
-        printf("\trelatedChipUnitShort:  %s\n", relatedChipUnitShort.c_str());
+        printf("\trelatedChipUnit:");
+        std::list<std::string>::iterator relatedChipUnitIter;
+        for (relatedChipUnitIter = relatedChipUnit.begin(); relatedChipUnitIter != relatedChipUnit.end(); relatedChipUnitIter++) {
+          printf(" %s", relatedChipUnitIter->c_str());
+        }
+        printf("\n");
+        printf("\trelatedChipUnitShort:");
+        std::list<std::string>::iterator relatedChipUnitShortIter;
+        for (relatedChipUnitShortIter = relatedChipUnitShort.begin(); relatedChipUnitShortIter != relatedChipUnitShort.end(); relatedChipUnitShortIter++) {
+          printf(" %s", relatedChipUnitShortIter->c_str());
+        }
+        printf("\n");
         printf("\tEndian Mode: 0x%x\n", (uint32_t)endianMode );
         printf("\tClock Domain: %s\n", clockDomain.c_str() );
         printf("\tClock State: 0x%x\n", (uint32_t)clockState );
@@ -5604,43 +5639,6 @@ uint32_t ecmdLatchQueryData::flattenSize() {
 
 #ifndef ECMD_STRIP_DEBUG
 void  ecmdLatchQueryData::printStruct() {
-
-        printf("\n\t--- Latch Entry Structure ---\n");
-
-        // Print non-list data.
-
-}
-#endif  // end of ECMD_STRIP_DEBUG
-
-/*
- * The following methods for the ecmdLatchQueryDataHidden struct will flatten, unflatten &
- * get the flattened size of the struct.
- */
-
-bool ecmdLatchQueryDataHidden::isChipUnitMatch(std::string &i_chipUnitType) {
-  /* If either matches, return true */
-  if (i_chipUnitType == relatedChipUnit || i_chipUnitType == relatedChipUnitShort) {
-    return true;
-  }
-
-  return false;
-}
-
-uint32_t ecmdLatchQueryDataHidden::flatten(uint8_t *o_buf, uint32_t i_len) {
-
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdLatchQueryDataHidden::unflatten(const uint8_t *i_buf, uint32_t i_len) {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-uint32_t ecmdLatchQueryDataHidden::flattenSize() {
-        return ECMD_FUNCTION_NOT_SUPPORTED;
-}
-
-#ifndef ECMD_STRIP_DEBUG
-void  ecmdLatchQueryDataHidden::printStruct() {
 
         printf("\n\t--- Latch Entry Structure ---\n");
 

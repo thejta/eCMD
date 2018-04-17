@@ -619,9 +619,10 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   std::string scomgroupHash_filename;
   ecmdChipTarget target = i_target;
   std::string str_version = io_scomGroupFileVersion;
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+  // GROUPSCOM is coming out, so commenting this out for now instead of fixing the code
+  //rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
   //if str_version was default, then it should have been changed here but the groupscomdef and hash should have the exact same number
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
+  //rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
 
   if ( io_scomGroupFileVersion == "default") {
     io_scomGroupFileVersion = str_version;
@@ -706,8 +707,8 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
       o_queryData.isChipUnitRelated = false;
     } else {
       o_queryData.isChipUnitRelated = true;
-      o_queryData.relatedChipUnit = scomGroupIter->scomGroup_chipUnit;
-      o_queryData.relatedChipUnitShort = scomGroupIter->scomGroup_chipUnit;
+      o_queryData.relatedChipUnit.push_back(scomGroupIter->scomGroup_chipUnit);
+      o_queryData.relatedChipUnitShort.push_back(scomGroupIter->scomGroup_chipUnit);
     }
     for (uint32_t i = 0; i < scomGroupIter->scomGroup_listOfAddrs.size(); i++) {
       //printf("addr = 0x%016llX index in group:%X\n", scomGroupIter->scomGroup_listOfAddrs[i], scomGroupIter->scomGroup_indexOfAddr[i]);
@@ -754,7 +755,8 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
       printed = "getScomGroup - Provided chipUnit \"";
       printed += target.chipUnitType;
       printed += "\" doesn't match chipUnit returned by queryScomgroup \"";
-      printed += queryData.relatedChipUnit + "\"\n";
+      // This is coming out, comment out for now
+      //printed += queryData.relatedChipUnit + "\"\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }

@@ -86,6 +86,25 @@ enum
 	ADAL_IIC_FLAG_SPECIAL_RD = IIC_SPECIAL_RD,
 };
 
+enum IIC_REGS
+{
+    ADAL_IIC_REG_FIFO        = 0,
+    ADAL_IIC_REG_COMMAND     = 1,
+    ADAL_IIC_REG_MODE        = 2,
+    ADAL_IIC_REG_WATERMARK   = 3,
+    ADAL_IIC_REG_INTMASK     = 4,
+    ADAL_IIC_REG_INTERRUPT   = 6,
+    ADAL_IIC_REG_STATUS      = 7,
+    ADAL_IIC_REG_RESET       = 7,
+    ADAL_IIC_REG_RESET_ERRORS= 8,
+    ADAL_IIC_REG_SET_SCL     = 9,
+    ADAL_IIC_REG_BUSY        = 10,
+    ADAL_IIC_REG_RESET_SCL   = 11,
+    ADAL_IIC_REG_SET_SDA     = 12,
+    ADAL_IIC_REG_RESET_SDA   = 13,
+    ADAL_IIC_REG_FIFO4       = 14,
+};
+
 typedef iic_opts_t adal_iic_opts_t;
 typedef iic_xfr_opts_t adal_iic_xfr_opts_t;
 typedef iic_rec_pol_t adal_iic_rec_pol_t;

@@ -94,6 +94,7 @@ class Instruction{
         GSD2PIB,
         FSIMEMPROC,
         PNOR,
+        D2C,
     } InstructionType;
 
     /**
@@ -210,6 +211,14 @@ class Instruction{
         PNORPUT,
 
         QUERYSP,
+
+        ADJUST_PROC_VOLTAGES,
+
+        I2CRESETLIGHT,
+        I2CRESETFULL,
+
+        PSI_CMU_REG_READ,
+        PSI_CMU_REG_WRITE,
     } InstructionCommand;
 
     /** @name Instruction Constructor */

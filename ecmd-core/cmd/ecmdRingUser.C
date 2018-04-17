@@ -307,7 +307,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-        rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+        rc = getRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
         if (rc) {
           printed = "getringdump - Error occurred performing getring on ";
           printed += ecmdWriteTarget(cuTarget);
@@ -541,7 +541,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  ecmdLatchQueryDataHidden queryLatchData;      ///< Latch data 
+  ecmdLatchQueryData queryLatchData;      ///< Latch data 
   std::string printed;
   std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
@@ -748,12 +748,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
     /* Now we need to find out if this is a chipUnit latch or not */
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
     else 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
   
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "getlatch - Error occurred performing queryLatchInfoHidden on ";
+      printed = "getlatch - Error occurred performing queryLatchInfo on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
@@ -856,7 +856,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
 	/* Does the user want too much data? */
 	if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+        {
 	  curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+          char warnstring[120];
+          sprintf(warnstring, "getlatch - Data requested beyond length of latch - discarding extra data - reading %d bits.\n", curNumBits);
+          ecmdOutputWarning(warnstring);
+        }
 
 	/* was the startbit before this latch ? */
 	if (curStartBit < (uint32_t) latchit->latchStartBit) {
@@ -1257,7 +1262,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       }
       else
       {
-          rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+          rc = getRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
           if (rc) {
               printed = "getbits - Error occurred performing getring on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1625,7 +1630,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         } 
         else 
         {
-            rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_read_mode);
+            rc = getRing(cuTarget, ringName.c_str(), ringBuffer, l_read_mode);
             if (rc) {
                 printed = "putbits - Error occurred performing getring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1655,7 +1660,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         }
         else
         {
-            rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+            rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
             if (rc) {
                 printed = "putbits - Error occurred performing putring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1706,7 +1711,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   std::string dataModifier = "insert";      ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                    ///< Current target being operated on
   ecmdChipTarget cuTarget;                  ///< Current target being operated on for the chipUnit
-  ecmdLatchQueryDataHidden queryLatchData;  ///< Latch data 
+  ecmdLatchQueryData queryLatchData;  ///< Latch data 
   bool validPosFound = false;               ///< Did the looper find anything ?
   bool validLatchFound = false;             ///< Did we find a valid latch
   std::string printed;
@@ -1901,11 +1906,11 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "putlatch - Error occurred performing queryLatchInfoHidden on ";
+      printed = "putlatch - Error occurred performing queryLatchInfo on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
@@ -1936,7 +1941,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryLatchInfoHidden \"";
+        printed += "\" doesn't match chipUnit returned by queryLatchInfo \"";
         printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
@@ -2025,7 +2030,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
               
               /* Does the user want too much data? */
               if ((curStartBit + curNumBits - 1) > (uint32_t) latchit->latchEndBit)
+              {
                   curNumBits = (uint32_t) latchit->latchEndBit - curStartBit + 1;
+                  char warnstring[120];
+                  sprintf(warnstring, "putlatch - Data input beyond length of latch - discarding extra data - writing %d bits.\n", curNumBits);
+                  ecmdOutputWarning(warnstring);
+              }
               
               /* was the startbit before this latch ? */
               if (curStartBit < (uint32_t) latchit->latchStartBit) {
@@ -2091,7 +2101,12 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
             
           /* Does the user want too much data? */
           if ((curStartBit + curNumBits - 1) > (uint32_t) queryLatchData.latchEndBit)
+          {
               curNumBits = (uint32_t) queryLatchData.latchEndBit - curStartBit + 1;
+              char warnstring[120];
+              sprintf(warnstring, "putlatch - Data input beyond length of latch - discarding extra data - writing %d bits.\n", curNumBits);
+              ecmdOutputWarning(warnstring);
+          }
           
           /* was the startbit before this latch ? */
           if (curStartBit < (uint32_t) queryLatchData.latchStartBit) {
@@ -2189,6 +2204,100 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
+int readInversionFile(std::string i_filename, ecmdDataBuffer & o_inv_mask, std::list<std::string> ringnames, int i_ringlen) {
+
+  int rc = 0;
+  std::ifstream ins;
+  char charring[150];
+  int idx = 0,idx2 = 0, done = 0;
+  int len, exp;
+  char ringmatch[50];
+  std::string printed;
+
+  std::list<std::string>::iterator strit;
+
+  ins.open(i_filename.c_str());
+  if (ins.fail()) {
+    printed = "readInversionFile : Unable to open inversion mask file : " + i_filename + "\n";
+    ecmdOutputError( printed.c_str() );
+    return ECMD_INVALID_ARGS;
+  }
+
+  /* File is there, let's read it in */
+
+  /* ----------------------------------------------------------------- */
+  /*  Find and parse the inversionmask                                 */
+  /* ----------------------------------------------------------------- */
+
+  /* First off, read the first line and see if it's the format I expect */
+  ins.getline(charring,400,'\n');
+  if (strcmp(charring,"#FORMAT 2")) {
+    printed = "readInversionFile : Your inversion file is in the wrong format! filename = " + i_filename + "\n";
+    ecmdOutputError( printed.c_str() );
+    return ECMD_INVALID_ARGS;
+  }
+
+  // Now continue on
+  while (!done) {
+    ins.getline(charring,400,'\n');
+    if (!ins.good()) { break; }
+    if (charring[0] == '{') {
+      for (strit = ringnames.begin(); strit != ringnames.end() && !done; strit++) {
+        sprintf(ringmatch,"{%s}",strit->c_str());        
+        if (!strcasecmp(ringmatch,charring))
+          done = 1;
+      }     
+    }
+  }
+
+  if (!done) {
+#if 0
+    printed = "readInversionFile : ring " + ringnames.front() + " not found in inversion mask file " + i_filename + "\n";
+    ecmdOutputWarning( printed.c_str() );
+#endif
+    ins.close();
+    return ECMD_INVALID_ARGS;
+  }
+
+  o_inv_mask.setBitLength(i_ringlen);
+  uint32_t * data_ptr = ecmdDataBufferImplementationHelper::getDataPtr((void*)(&o_inv_mask));
+
+  /* Now read in the inversion mask */
+  while (!idx2) {                   /* Scan all Data into scanring */
+    ins.getline(charring,150,'\n');
+    if (!ins.good() || (charring[0] == '{') || (strlen(charring) < 4)) break;
+    if ((idx * 32) > i_ringlen) {
+      printed = "readInversionFile : Parse Error reading inversion mask file " + i_filename + " for ring " + ringnames.front() + " : MASK TO LONG\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_INVALID_ARGS;
+    }
+    if (strlen(charring) < 10) {
+      len = sscanf(charring,"%x",&data_ptr[idx+0]);
+      exp = 1;
+    } else if (strlen(charring) < 19) {
+      len = sscanf(charring,"%x %x",&data_ptr[idx+0], &data_ptr[idx+1]);
+      exp = 2;
+    } else if (strlen(charring) < 28) {
+      len = sscanf(charring,"%x %x %x",&data_ptr[idx+0], &data_ptr[idx+1], &data_ptr[idx+2]);
+      exp = 3;
+    } else {
+      len = sscanf(charring,"%x %x %x %x",&data_ptr[idx+0], &data_ptr[idx+1], &data_ptr[idx+2], &data_ptr[idx+3]);
+      exp = 4;
+    }
+
+    /* Let's make sure we were able to parse that line */
+    if (len != exp) {
+      printed = "readInversionFile : Parse Error reading inversion mask file " + i_filename + " for ring " + ringnames.front() + " : INVALID DATA FORMAT\n";
+      ecmdOutputError( printed.c_str() );
+      return ECMD_INVALID_ARGS;
+    }
+    idx += 4;
+      
+  } /* End While */
+
+  ins.close();
+  return rc;
+}
 uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   uint32_t ret_rc = ECMD_SUCCESS;
@@ -2253,6 +2362,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   l_cond = ecmdParseOption(&argc, &argv, "-set_pulse_cond");
 
   l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
+
+  char * ignore_mask_filename = ecmdParseOptionWithArgs(&argc, &argv, "-ignoremask");
 
   if ((l_cond) && (l_cond_all))
   {
@@ -2480,7 +2591,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Saving the ring state before performing pattern testing.\n";
           ecmdOutput(printed.c_str());   
-          rc = getRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
+          rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2593,7 +2704,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
            }
 
           // Write in my data and get it back out.
-          rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+          rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2642,7 +2753,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
           }
           ecmdOutput(printed.c_str());
-          rc = getRingHidden(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
+          rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2683,6 +2794,28 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             }
           }
 
+          ecmdDataBuffer ignore_mask_data;
+          if(ignore_mask_filename != NULL) {
+            rc = readInversionFile(ignore_mask_filename, ignore_mask_data, curRingData->ringNames, curRingData->bitLength);
+          } else {
+            rc = ecmdQueryRingIgnoreMask(cuTarget, ringName, ignore_mask_data);
+          }
+          if((rc == 0) && (ignore_mask_data.getBitLength() > 0)) {
+            uint32_t ecmd_rc = readRingBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+            ecmd_rc |= ringBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+            if (ecmd_rc) {
+              sprintf(outstr, "checkrings - ecmdDataBuffer::setOr(ignore_mask) failed for ring %s", ringName.c_str());
+              ecmdOutputWarning( outstr );
+            } else {
+              std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
+              uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
+              uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
+              std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
+              sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+              ecmdOutput( outstr );
+            }
+          }
+
           if (readRingBuffer != ringBuffer) {
             sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %s's\n", ringName.c_str(),
                     repPattern.c_str());
@@ -2716,7 +2849,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         if (saveRestore) {
           printed = "Restoring the ring state.\n\n";
           ecmdOutput( printed.c_str() );
-          rc = putRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode);
+          rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode);
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2964,7 +3097,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         curOffset += numBitsToInsert;
       }
 
-      rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+      rc = putRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
       if (rc) {
         printed = "putpattern - Error occurred performing putring on ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -3122,6 +3255,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t rc = ECMD_SUCCESS;
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
+  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scandef and scandefhash files
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
   uint32_t i_ringkey32;
@@ -3151,194 +3285,202 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t ringBeginOffset = 0;
   uint32_t numRings =0;
 
-  while(1) {
-    /* Find the ring offset from the scandefhash file */
-    rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEFHASH, scandefHashFile, l_version);
-    if (rc) {
-        break;
-    }
-
-    if ( scandefHashFile.rfind("hash.64") != std::string::npos )
-    {
-      l_scandefHash64 = true;
-    }
-
-    insh.open(scandefHashFile.c_str());
-    if (insh.fail()) {
-      break;
-    }
-
-    if (l_scandefHash64)
-    {
-        //need to do the 64 bit stuff here
-        uint64_t curRingKey64;
-        insh.read((char *)& numRings, 4);
-        numRings = htonl(numRings);
-
-        //Seek to the ring area in the hashfile
-        insh.seekg ( 8 );
-
-        while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
-            insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
-            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-            curRingKey64 = htonll(curRingKey64);
-            ringBeginOffset = htonl(ringBeginOffset);
-
-            if (i_ringkey64 == curRingKey64) {
-                foundRing = true;
-                break;
-            }
-            insh.seekg (12, std::ios::cur); //Skip the ringKey-end offset pair
-
-        }
-    }
-    else
-    {
-        uint32_t curRingKey32;
-        insh.read((char *)& numRings, 4);
-        numRings = htonl(numRings);
-
-        //Seek to the ring area in the hashfile
-        insh.seekg ( 8 );
-
-        while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
-            insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
-            insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
-            curRingKey32 = htonl(curRingKey32);
-            ringBeginOffset = htonl(ringBeginOffset);
-
-            if (i_ringkey32 == curRingKey32) {
-                foundRing = true;
-                break;
-            }
-            insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
-
-        }
-    }
-      
-    if (foundRing) {
-      ringOffsetFound = true;
-    }
-    insh.close();
-      
-    break;
-  }
-  rc = 0;
-  /* find scandef file */
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, scandefFile, l_version);
-  if (rc) {
-    printed = "readScandefFile - Error occured locating scandef file: " + scandefFile + "\n";
-    ecmdOutputError(printed.c_str());
-    return rc;
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+  if (rc)
+  {
+      printed = "readScandefFile - Error occured locating scandef file\n";
+      ecmdOutputError(printed.c_str());
+      return rc;
   }
 
-  std::ifstream ins(scandefFile.c_str());
-  if (ins.fail()) {
-    rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
-    printed = "readScandefFile - Error occured opening scandef file: " + scandefFile + "\n";
-    ecmdOutputError(printed.c_str());        //break;
-    return rc;
-  }
-      
-  std::string curLine;
-  bool done = false;
-  size_t  leftParen;
-  size_t  colon;
-      
-  foundRing = false;
-      
-  //Seek to the beginning of the ring
-  if (ringOffsetFound == true) ins.seekg((long)(size_t)ringBeginOffset);
+  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
+  while (l_filePair != l_filePairs.end())
+  {
+      while(1) {
+          scandefHashFile = l_filePair->second;
 
-  while (getline(ins, curLine) && !done) {
+          if ( scandefHashFile.rfind("hash.64") != std::string::npos )
+          {
+              l_scandefHash64 = true;
+          }
+
+          insh.open(scandefHashFile.c_str());
+          if (insh.fail()) {
+              break;
+          }
+          
+          if (l_scandefHash64)
+          {
+              //need to do the 64 bit stuff here
+              uint64_t curRingKey64;
+              insh.read((char *)& numRings, 4);
+              numRings = htonl(numRings);
+
+              //Seek to the ring area in the hashfile
+              insh.seekg ( 8 );
+
+              while ( (uint32_t)insh.tellg() != (((numRings * 12) * 2) + 8) ) {//Loop until end of ring area
+                  insh.read( (char *)& curRingKey64, 8 ); //Read the ringKey
+                  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                  curRingKey64 = htonll(curRingKey64);
+                  ringBeginOffset = htonl(ringBeginOffset);
+
+                  if (i_ringkey64 == curRingKey64) {
+                      foundRing = true;
+                      break;
+                  }
+                  insh.seekg (12, std::ios::cur); //Skip the ringKey-end offset pair
+
+              }
+          }
+          else
+          {
+              uint32_t curRingKey32;
+              insh.read((char *)& numRings, 4);
+              numRings = htonl(numRings);
+              
+              //Seek to the ring area in the hashfile
+              insh.seekg ( 8 );
+              
+              while ( (uint32_t)insh.tellg() != (((numRings * 8) * 2) + 8) ) {//Loop until end of ring area
+                  insh.read( (char *)& curRingKey32, 4 ); //Read the ringKey
+                  insh.read( (char *)& ringBeginOffset, 4 ); //Read the begin offset
+                  curRingKey32 = htonl(curRingKey32);
+                  ringBeginOffset = htonl(ringBeginOffset);
+                  
+                  if (i_ringkey32 == curRingKey32) {
+                      foundRing = true;
+                      break;
+                  }
+                  insh.seekg (8, std::ios::cur); //Skip the ringKey-end offset pair
+
+              }
+          }
+      
+          if (foundRing) {
+              ringOffsetFound = true;
+          }
+          insh.close();
+      
+          break;
+      }
+      rc = 0;
+ 
+      /* find scandef file */
+      scandefFile = l_filePair->first;
+      
+      std::ifstream ins(scandefFile.c_str());
+      if (ins.fail()) {
+          rc = ECMD_UNABLE_TO_OPEN_SCANDEF; 
+          printed = "readScandefFile - Error occured opening scandef file: " + scandefFile + "\n";
+          ecmdOutputError(printed.c_str());        //break;
+          return rc;
+      }
+      
+      std::string curLine;
+      bool done = false;
+      size_t  leftParen;
+      size_t  colon;
+      
+      foundRing = false;
+      
+      //Seek to the beginning of the ring
+      if (ringOffsetFound == true) ins.seekg((long)(size_t)ringBeginOffset);
+      
+      while (getline(ins, curLine) && !done) {
   
-    //let's go hunting in the scandef for latches for this ring
-    ecmdLatchDataEntry curLatch;
+          //let's go hunting in the scandef for latches for this ring
+          ecmdLatchDataEntry curLatch;
 
-    std::vector<std::string> splitArgs;
-    char outstr[1000];
-    std::vector<std::string> curArgs(4);
-    std::string temp;
+          std::vector<std::string> splitArgs;
+          char outstr[1000];
+          std::vector<std::string> curArgs(4);
+          std::string temp;
 
-    if (foundRing) {
+          if (foundRing) {
 
-      if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
-	if (i_ringName != NULL) done = true;
-	continue;
-      }
-      else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
-	/* Let's do a length check */
-	ecmdParseTokens(curLine, " \t\n=", splitArgs);
-	if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != (uint32_t) atoi(splitArgs[1].c_str())) {
-	  sprintf(outstr, "readScandefFile - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),i_ringName);
-	  ecmdOutputWarning(outstr);
-	}
-	continue;
-      }
-      else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
-	//do nothing
-	continue;
-      }
-      else if ((curLine[0] != ' ') && (curLine[0] != '\t')) {
-	// do nothing
-	continue;
-      }
-      else  {
-
-	ecmdParseTokens(curLine, " \t\n", curArgs);
-	if (curArgs.size() >= 5) {
-	  curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
-	  curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());
-	  curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str());
-	  curLatch.latchName = curArgs[4];
-	} else /* Not enought tokens for a valid latch line */
-	  continue;
-      }
+              if (curLine[0] == 'E' && curLine.find("END") != std::string::npos) {
+                  if (i_ringName != NULL) done = true;
+                  continue;
+              }
+              else if ((curLine[0] == 'L') && curLine.find("Length") != std::string::npos) {
+                  /* Let's do a length check */
+                  ecmdParseTokens(curLine, " \t\n=", splitArgs);
+                  if ((splitArgs.size() >= 2) && ringBuffer.getBitLength() != (uint32_t) atoi(splitArgs[1].c_str())) {
+                      sprintf(outstr, "readScandefFile - Warning : Length mismatch between ring fetched and scandef : fetched(%d) scandef(%d) on ring (%s)\n", ringBuffer.getBitLength(),atoi(splitArgs[1].c_str()),i_ringName);
+                      ecmdOutputWarning(outstr);
+                  }
+                  continue;
+              }
+              else if (curLine.length() == 0 || curLine[0] == '\0' || curLine[0] == '*' || curLine[0] == '#') {
+                  //do nothing
+                  continue;
+              }
+              else if ((curLine[0] != ' ') && (curLine[0] != '\t')) {
+                  // do nothing
+                  continue;
+              }
+              else  {
+                  
+                  ecmdParseTokens(curLine, " \t\n", curArgs);
+                  if (curArgs.size() >= 5) {
+                      curLatch.length = (uint32_t)atoi(curArgs[0].c_str());
+                      curLatch.fsiRingOffset = (uint32_t)atoi(curArgs[1].c_str());
+                      curLatch.jtagRingOffset = (uint32_t)atoi(curArgs[2].c_str());
+                      curLatch.latchName = curArgs[4];
+                  } else /* Not enought tokens for a valid latch line */
+                      continue;
+              }
           
-
-      /* Let's parse out the start/end bit if they exist */
-      leftParen = curLatch.latchName.rfind('(');
-      if (leftParen == std::string::npos) {
-	/* This latch doesn't have any parens */
-	curLatch.latchStartBit = curLatch.latchEndBit = 0;
-        curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
-      } else {
-	temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
-	curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
-
-	/* Is this a multibit or single bit */
-	if ((colon = temp.find(':')) != std::string::npos) {
-	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
-          curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
-	} else if ((colon = temp.find(',')) != std::string::npos) {
-	  curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
-          curLatch.latchType = ECMD_LATCHTYPE_ARRAY;
-	} else {
-	  curLatch.latchEndBit = curLatch.latchStartBit;
-          curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
-	}
-      }
-      curLatch.ringName = i_ring;
-      o_latchdata.push_back(curLatch);
-	  
-
-    }
-    /* The user specified a ring for us to look in */
-    else if ((i_ringName != NULL) &&
-	     ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
-      ecmdParseTokens(curLine, " \t\n=", curArgs);
-      /* Push the ring name to lower case */
-      transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int))tolower);
-      if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
-	foundRing = true;
-      }
-
+              
+              /* Let's parse out the start/end bit if they exist */
+              leftParen = curLatch.latchName.rfind('(');
+              if (leftParen == std::string::npos) {
+                  /* This latch doesn't have any parens */
+                  curLatch.latchStartBit = curLatch.latchEndBit = 0;
+                  curLatch.latchType = ECMD_LATCHTYPE_NOBIT;
+              } else {
+                  temp = curLatch.latchName.substr(leftParen+1, curLatch.latchName.length() - leftParen - 1);
+                  curLatch.latchStartBit = (uint32_t)atoi(temp.c_str());
+                  
+                  /* Is this a multibit or single bit */
+                  if ((colon = temp.find(':')) != std::string::npos) {
+                      curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+                      curLatch.latchType = ECMD_LATCHTYPE_MULTIBIT;
+                  } else if ((colon = temp.find(',')) != std::string::npos) {
+                      curLatch.latchEndBit = (uint32_t)atoi(temp.substr(colon+1, temp.length()).c_str());
+                      curLatch.latchType = ECMD_LATCHTYPE_ARRAY;
+                  } else {
+                      curLatch.latchEndBit = curLatch.latchStartBit;
+                      curLatch.latchType = ECMD_LATCHTYPE_SINGLEBIT;
+                  }
+              }
+              curLatch.ringName = i_ring;
+              o_latchdata.push_back(curLatch);
+              
+          }
+          /* The user specified a ring for us to look in */
+          else if ((i_ringName != NULL) &&
+                   ((curLine[0] == 'N') && (curLine.find("Name") != std::string::npos))) {
+              ecmdParseTokens(curLine, " \t\n=", curArgs);
+              /* Push the ring name to lower case */
+              transform(curArgs[1].begin(), curArgs[1].end(), curArgs[1].begin(), (int(*)(int))tolower);
+              if ((curArgs.size() >= 2) && curArgs[1] == i_ring) {
+                  foundRing = true;
+              }
+              
           
-    }     
+          }     
+      }
+
+      ins.close();
+      l_filePair++;
+      // We found it already, so don't look in any other scandef pairs
+      if (foundRing)
+      {
+          break;
+      }
   }
-
-  ins.close();
-      
   if (!foundRing) {
     rc = ECMD_INVALID_RING;
     printed = "readScandefFile - Could not find ring name " + i_ring + "\n";

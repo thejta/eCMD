@@ -224,20 +224,6 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
   return returnValue;
 }
 
-void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens) {
-
-  size_t curStart = 0, curEnd = 0;
-
-  tokens.clear();
-
-  while (1) {
-    curStart = line.find_first_not_of(seperators, curEnd);
-    if (curStart == std::string::npos) break;
-    curEnd = line.find_first_of(seperators,curStart);
-    tokens.push_back(line.substr(curStart, curEnd-curStart));
-  }
-}
-
 
 std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen) {
   std::string ret;
@@ -872,11 +858,6 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
 
 void ecmdSetTargetDisplayMode(ecmdTargetDisplayMode_t i_displayMode) {
   pluginDisplayMode = i_displayMode;
-}
-
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode)
-{
-    return ecmdWriteTarget((const ecmdChipTarget &) i_target, i_displayMode);
 }
 
 std::string ecmdWriteTarget(const ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {

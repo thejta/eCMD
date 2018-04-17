@@ -1,5 +1,5 @@
 
-Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn | -ds | -dp | -dc]
+Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-hostboot] [-o<format>] [-dk | -dn | -ds | -dp | -dc]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           FAPI2 Extension
@@ -15,6 +15,8 @@ Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn
 
         AttributeName   Name of attribute to fetch
 
+        -hostboot [opt] Attempt to get requested attribute value from hostboot.
+
         -o<format>[opt] Output Format : default 'x'. Only valid with numeric data
                         Run 'ecmdquery formats' to view available formats
 
@@ -28,7 +30,7 @@ Syntax: fapi2getattr [<Chip[.ChipUnit]>] <AttributeName> [-o<format>] [-dk | -dn
         -dp  [optional] Specify pos depth to loop on. When Chip specified
                         -dp is default
 
-        -dc  [optional] Specify core/chipUnit depth to loop on.
+        -dc  [optional] Specify chipUnit depth to loop on.
  
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions

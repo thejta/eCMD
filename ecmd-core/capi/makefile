@@ -13,7 +13,7 @@ INT_INCLUDES  := ecmdDllCapi.H
 
 ### Source
 CAPI_SOURCE := ecmdClientCapi.C ecmdUtils.C ecmdClientCapiFunc.C
-SLIB_SOURCE := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C ecmdChipTargetCompare.C
+SLIB_SOURCE := ecmdDataBufferBase.C ecmdDataBuffer.C ecmdStructs.C ecmdSharedUtils.C ecmdParseTokens.C ecmdChipTargetCompare.C
 
 ### Generated source by makedll.pl
 GENERATED_INCLUDES := ecmdDllCapi.H ecmdClientEnums.H

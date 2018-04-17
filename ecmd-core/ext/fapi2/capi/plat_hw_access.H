@@ -36,6 +36,9 @@
 namespace fapi2plat
 {
 const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+#ifdef FAPI_2_Z
+        fapi2::TARGET_TYPE_SC_CHIP |
+#endif
         fapi2::TARGET_TYPE_MEMBUF_CHIP |
         fapi2::TARGET_TYPE_EX |
         fapi2::TARGET_TYPE_MBA |
@@ -50,19 +53,26 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_MI |
         fapi2::TARGET_TYPE_DMI |
         fapi2::TARGET_TYPE_OBUS |
-        fapi2::TARGET_TYPE_NV |
+        fapi2::TARGET_TYPE_OBUS_BRICK |
         fapi2::TARGET_TYPE_SBE |
         fapi2::TARGET_TYPE_PPE |
         fapi2::TARGET_TYPE_PERV |
         fapi2::TARGET_TYPE_PEC |
         fapi2::TARGET_TYPE_PHB |
         fapi2::TARGET_TYPE_CAPP |
-        fapi2::TARGET_TYPE_MC;
+        fapi2::TARGET_TYPE_MC |
+        fapi2::TARGET_TYPE_OMI;
 
 const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+#ifdef FAPI_2_Z
+        fapi2::TARGET_TYPE_SC_CHIP |
+#endif
         fapi2::TARGET_TYPE_MEMBUF_CHIP;
 
 const fapi2::TargetType TARGET_TYPE_SCAN_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
+#ifdef FAPI_2_Z
+        fapi2::TARGET_TYPE_SC_CHIP |
+#endif
         fapi2::TARGET_TYPE_MEMBUF_CHIP |
         fapi2::TARGET_TYPE_CORE |
         fapi2::TARGET_TYPE_EQ |

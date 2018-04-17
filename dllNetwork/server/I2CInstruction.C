@@ -61,7 +61,7 @@ address(0)
     i_data->shareBuffer(&data);
   }
   /* use version one protocol if i2cFlags is zero */
-  if (version == 0x2 && i2cFlags == 0x0) {
+  if (version == 0x2 && ((i2cFlags & INSTRUCTION_I2C_FLAG_MASK) == 0x0)) {
     version = 0x1;
   }
 }
@@ -88,7 +88,7 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   }
   version = 0x2;
   /* use version one protocol if i2cFlags is zero */
-  if (version == 0x2 && i2cFlags == 0x0) {
+  if (version == 0x2 && ((i2cFlags & INSTRUCTION_I2C_FLAG_MASK) == 0x0)) {
     version = 0x1;
   }
   return 0;
@@ -118,13 +118,12 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   return 0;
 }
 
-uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data) {
+uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data) {
   deviceString = i_deviceString;
   engineId = i_engineId;
   port = i_port;
   slaveAddress = i_slaveAddress;
   busSpeed = i_busSpeed;
-  offset = i_offset;
   offsetFieldSize = i_offsetFieldSize;
   length = i_length;
   i2cFlags = i_i2cFlags;
@@ -134,7 +133,24 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_devi
   if(i_data != NULL) {
     i_data->shareBuffer(&data);
   }
-  version = 0x4;
+  if ( i_command == I2CRESETLIGHT || i_command == I2CRESETFULL )
+  {
+    version = 0x5;
+  }
+  else
+  {
+    version = 0x4;
+  }
+
+  if ((i_offsetFieldSize & 0x0FFFFFFF) <= 4)
+  {
+    offset = (uint32_t) i_offset;
+  }
+  else
+  {
+    address = i_offset;
+    version = 0x6;
+  }
   return 0;
 }
 
@@ -153,6 +169,8 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
   switch(command) {
     case I2CREAD:
     case I2CWRITE:
+    case I2CRESETLIGHT:
+    case I2CRESETFULL:
       {
           char errstr[200];
 
@@ -258,7 +276,82 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           // TODO implement policy
         }
 
-        if (command == I2CREAD) {
+        if (command == I2CRESETLIGHT){
+          int rcReset = 0;
+          errno = 0;
+
+          rcReset = iic_reset(*io_handle, IIC_RESET_LIGHT);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            std::string words;
+            genWords(o_data, words);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETLIGHT errno=%d, rc = %zu)\n", errno, rcReset);
+            o_status.errorMessage.append(errstr);
+          }
+         
+          if ( rcReset < -1 )
+          {
+            // in this case the errno value is set
+            snprintf( errstr, 200, "I2CInstruction::execute light reset problem errno=%d rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_LIGHT_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == -1 )
+          {
+            snprintf( errstr, 200, "I2CInstruction::execute Failure to release stuck data line errno=%d, rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_LIGHT_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == 1 )
+          {
+            // set status here to RESET SUCCESS indicating to the caller that 
+            // the stuck bus has been recovered
+            rc = o_status.rc = SERVER_I2C_RESET_SUCCESS;
+            break;
+          } 
+        } else if (command == I2CRESETFULL){
+          int rcReset = 0;
+          errno = 0;
+
+          rcReset = iic_reset(*io_handle, IIC_RESET_FULL);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            std::string words;
+            genWords(o_data, words);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETFULL errno=%d, rc = %zu)\n", errno, rcReset);
+            o_status.errorMessage.append(errstr);
+          }
+         
+          if ( rcReset < -1 )
+          {
+            // in this case the errno value is set
+            snprintf( errstr, 200, "I2CInstruction::execute full reset problem errno=%d rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_FULL_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == -1 )
+          {
+            snprintf( errstr, 200, "I2CInstruction::execute Failure to release stuck data line errno=%d, rc=%d\n", errno, rcReset );
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_RESET_FULL_FAIL;
+            iic_ffdc( io_handle, o_status );
+            break;
+          }
+          else if ( rcReset == 1 )
+          {
+            // set status here to RESET SUCCESS indicating to the caller that 
+            // the stuck bus has been recovered
+            rc = o_status.rc = SERVER_I2C_RESET_SUCCESS;
+            break;
+          } 
+        
+        } else if (command == I2CREAD) {
           /* Perform the read */
           o_data.setBitLength(length);
           ssize_t bytelen = length % 8 ? (length / 8) + 1 : length / 8;
@@ -353,22 +446,28 @@ uint32_t I2CInstruction::flatten(uint8_t * o_data, uint32_t i_len) const {
       o_ptr[8] = htonl(offsetFieldSize);
       o_ptr[9] = htonl(length);
       o_ptr[10] = htonl(i2cFlags);
-      uint32_t offset = 0;
+      uint32_t l_offset = 0;
       uint32_t deviceStringSize = deviceString.size() + 1;
       if (deviceStringSize % sizeof(uint32_t)) {
         deviceStringSize += (sizeof(uint32_t) - (deviceStringSize % sizeof(uint32_t)));
       }
       o_ptr[11] = htonl(deviceStringSize);
-      if (command == I2CREAD) {
+      if ((offsetFieldSize & 0x0FFFFFFF) > 4)
+      {
+        o_ptr[12] = htonl((uint32_t) (address >> 32));
+        o_ptr[13] = htonl((uint32_t) (address & 0xFFFFFFFF));
+        l_offset += 2;
+      }
+      if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to flatten
       } else {
         uint32_t dataSize = data.flattenSize();
-        o_ptr[12] = htonl(dataSize);
-        data.flatten((uint8_t *) (o_ptr + 13 + (deviceStringSize / sizeof(uint32_t))), dataSize);
-        offset++;
+        o_ptr[12 + l_offset] = htonl(dataSize);
+        data.flatten((uint8_t *) (o_ptr + 13 + l_offset + (deviceStringSize / sizeof(uint32_t))), dataSize);
+        l_offset++;
       }
       if (deviceString.size() > 0) {
-        strcpy(((char *)(o_ptr + 12 + offset)), deviceString.c_str());
+        strcpy(((char *)(o_ptr + 12 + l_offset)), deviceString.c_str());
       }
     } else {
       o_ptr[3] = htonl(cfamid);
@@ -414,7 +513,7 @@ uint32_t I2CInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
   uint32_t * i_ptr = (uint32_t *) i_data;
 
   version = ntohl(i_ptr[0]);
-  if(version == 0x1 || version == 0x2 || version == 0x3 || version == 0x4) {
+  if((version >= 0x1) && (version <= 0x6)) {
     command = (InstructionCommand) ntohl(i_ptr[1]);
     flags = ntohl(i_ptr[2]);
     if ((version >= 0x4) && (flags & INSTRUCTION_FLAG_DEVSTR)) {
@@ -426,17 +525,22 @@ uint32_t I2CInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
       offsetFieldSize = ntohl(i_ptr[8]);
       length = ntohl(i_ptr[9]);
       i2cFlags = ntohl(i_ptr[10]);
-      uint32_t offset = 0;
+      uint32_t l_offset = 0;
       uint32_t deviceStringSize = ntohl(i_ptr[11]);
-      if (command == I2CREAD) {
+      if ((offsetFieldSize & 0x0FFFFFFF) > 4) {
+        address = ((uint64_t) ntohl(i_ptr[12])) << 32;
+        address |= ((uint64_t) ntohl(i_ptr[13]));
+        l_offset += 2;
+      }
+      if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to unflatten
       } else {
-        uint32_t dataSize = ntohl(i_ptr[12]);
-        rc = data.unflatten((uint8_t *) (i_ptr + 13 + (deviceStringSize / sizeof(uint32_t))), dataSize);
-        offset++;
+        uint32_t dataSize = ntohl(i_ptr[12 + l_offset]);
+        rc = data.unflatten((uint8_t *) (i_ptr + 13 + l_offset + (deviceStringSize / sizeof(uint32_t))), dataSize);
+        l_offset++;
       }
       if (deviceStringSize > 0) {
-        deviceString = ((char *)(i_ptr + 12 + offset));
+        deviceString = ((char *)(i_ptr + 12 + l_offset));
       }
     } else {
       cfamid = ntohl(i_ptr[3]);
@@ -493,6 +597,9 @@ uint32_t I2CInstruction::flattenSize(void) const {
       size += sizeof(uint32_t); // dataSize
       size += data.flattenSize(); // data
     }
+    if ((offsetFieldSize & 0x0FFFFFFF) > 4) {
+      size += sizeof(uint32_t) * 2; // address
+    }
   } else if(version == 0x1) {
     size = (13 * sizeof(uint32_t)) + data.flattenSize();
   } else if(version >= 0x2) {
@@ -527,7 +634,11 @@ std::string I2CInstruction::dumpInstruction(void) const {
   if (command == SCOMIN || command == SCOMOUT || command == SCOMIN_MASK || command == LONGIN || command == LONGOUT) {
     oss << "address       : " << std::hex << std::setw(16) << std::setfill('0') << address << std::dec << std::endl;
   } else {
-    oss << "offset        : " << std::hex << std::setw(8) << std::setfill('0') << offset << std::dec << std::endl;
+    if ((offsetFieldSize & 0x0FFFFFFF) > 4) {
+      oss << "address       : " << std::hex << std::setw(16) << std::setfill('0') << address << std::dec << std::endl;
+    } else {
+      oss << "offset        : " << std::hex << std::setw(8) << std::setfill('0') << offset << std::dec << std::endl;
+    }
     oss << "offsetFieldSize : " << std::hex << std::setw(8) << std::setfill('0') << offsetFieldSize << std::dec << std::endl;
   }
   oss << "length        : " << std::dec << length << std::endl;

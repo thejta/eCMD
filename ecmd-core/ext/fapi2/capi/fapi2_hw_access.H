@@ -144,7 +144,7 @@ inline ReturnCode modifyCfamRegister(const Target<K, V>& i_target,
                                      const buffer<uint32_t> i_data,
                                      const ChipOpModifyMode i_modifyMode);
 
-// @brief Writes a ring to a chip.
+/// @brief Writes a ring to a chip.
 /// @tparam K template parameter, passed in target.
 /// @param[in] i_target   Target to operate on.
 /// @param[in] i_ringID   Ring ID that will identify the Ring in the image.
@@ -240,6 +240,12 @@ template< TargetType K, typename V >
 inline ReturnCode getSpy(const Target<K, V>& i_target,
                          const spyId_t i_spyId,
                          variable_buffer& o_data);
+
+template< TargetType K >
+inline ReturnCode getSpy(const Target<K>& i_target,
+                         const spyId_t i_spyId,
+                         variable_buffer& o_data,
+                         const RingMode i_ringMode);
 #endif
 
 #if defined(FAPI_SUPPORT_SPY_AS_STRING) || defined(DOXYGEN)
@@ -250,6 +256,12 @@ template< TargetType K, typename V >
 inline ReturnCode getSpy(const Target<K, V>& i_target,
                          const char* const i_spyId,
                          variable_buffer& o_data);
+
+template< TargetType K >
+inline ReturnCode getSpy(const Target<K>& i_target,
+                         const char* const i_spyId,
+                         variable_buffer& o_data,
+                         const RingMode i_ringMode);
 #endif
 
 /// @brief Writes a spy on a chip.
@@ -309,6 +321,17 @@ template< TargetType K, typename V >
 inline ReturnCode putSpy(const Target<K, V>& i_target,
                          const char* const i_spyId,
                          const variable_buffer& i_data);
+
+template<TargetType K, typename V >
+inline ReturnCode putSpyWithCare(const Target<K, V>& i_target,
+                                 const char* const i_spyId,
+                                 const variable_buffer& i_data,
+                                 const variable_buffer& i_care);
+
+template< TargetType K, typename V >
+inline ReturnCode putSpy(const Target<K, V>& i_target,
+                         const char* const i_spyId,
+                         const char* i_enum);
 #endif
 
 /// @brief Writes spy data into a buffer holding ring data image

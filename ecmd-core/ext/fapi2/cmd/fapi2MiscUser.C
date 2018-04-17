@@ -79,6 +79,7 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   ecmdDataBuffer numData;       ///< Initialise data buffer with the numeric value
   std::string printed;          ///< Print Buffer
   ecmdLooperData looperData;    ///< Store internal Looper data
+  bool l_from_hostboot = false; ///< Set flag indicating attribute should be requested from hostboot
 
   int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
   int depth = 0;                 ///< depth found from Command line parms
@@ -97,6 +98,10 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   else if (ecmdParseOption(&argc, &argv, "-ds"))        depth = SLOT;
   else if (ecmdParseOption(&argc, &argv, "-dp"))        depth = POS;
   else if (ecmdParseOption(&argc, &argv, "-dc"))        depth = CHIPUNIT;
+
+  if (ecmdParseOption(&argc, &argv, "-hostboot")) {
+      l_from_hostboot = true;
+  }
 
   /************************************************************************/
   /* Parse Common Cmdline Args                                            */
@@ -187,6 +192,11 @@ uint32_t fapi2GetAttributeUser(int argc, char * argv[]) {
   fapi2::AttributeData attributeData;
   attributeData.faValidMask = attributeType;
   attributeData.faEnumUsed = attributeEnum;
+
+  if (l_from_hostboot)
+  {
+      attributeData.faMode = FAPI_ATTRIBUTE_MODE_HOSTBOOT;
+  }
 
   if (attributeType == FAPI_ATTRIBUTE_TYPE_UINT8ARY)
   {

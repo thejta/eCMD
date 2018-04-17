@@ -101,42 +101,22 @@ uint64_t ECMDPERLAPI::simFusionRand64(uint64_t i_min , uint64_t i_max , const ch
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* This is overwritten to handle passing in NULL for ringName */
-uint32_t ECMDPERLAPI::getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode) { 
+uint32_t ECMDPERLAPI::getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) { 
   uint32_t rc = ECMD_SUCCESS;
   if (strlen(i_ringName) == 0)
-    rc = ::getLatch(i_target, NULL, i_latchName, o_data, i_mode);
+    rc = ::getLatch(i_target, NULL, i_latchName, o_data, i_mode, i_ring_mode);
   else
-    rc = ::getLatch(i_target, i_ringName, i_latchName, o_data, i_mode);
+    rc = ::getLatch(i_target, i_ringName, i_latchName, o_data, i_mode, i_ring_mode);
   return rc;
 }
 
 /* This is overwritten to handle passing in NULL for ringName */
-uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode) { 
+uint32_t ECMDPERLAPI::putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) { 
   uint32_t rc = ECMD_SUCCESS;
   if (strlen(i_ringName) == 0)
-    rc = ::putLatch(i_target, NULL, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode);
+    rc = ::putLatch(i_target, NULL, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode, i_ring_mode);
   else
-    rc = ::putLatch(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode);
-  return rc;
-}
-
-/* This is overwritten to handle passing in NULL for ringName */
-uint32_t ECMDPERLAPI::getLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) { 
-  uint32_t rc = ECMD_SUCCESS;
-  if (strlen(i_ringName) == 0)
-    rc = ::getLatchHidden(i_target, NULL, i_latchName, o_data, i_mode, i_ring_mode);
-  else
-    rc = ::getLatchHidden(i_target, i_ringName, i_latchName, o_data, i_mode, i_ring_mode);
-  return rc;
-}
-
-/* This is overwritten to handle passing in NULL for ringName */
-uint32_t ECMDPERLAPI::putLatchHidden(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matchs, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) { 
-  uint32_t rc = ECMD_SUCCESS;
-  if (strlen(i_ringName) == 0)
-    rc = ::putLatchHidden(i_target, NULL, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode, i_ring_mode);
-  else
-    rc = ::putLatchHidden(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode, i_ring_mode);
+    rc = ::putLatch(i_target, i_ringName, i_latchName, i_data, i_startBit, i_numBits, o_matchs, i_mode, i_ring_mode);
   return rc;
 }
 

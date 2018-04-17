@@ -7,7 +7,7 @@ include ${ECMD_ROOT}/makefile.base
 
 EXTENSION_NAME   := fapi2
 DISABLE_AUTOGEN := @
-DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_2
+DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_2 -DFAPI_2_Z
 #DEFINES := ${DEFINES}  -DFAPIARCHIVE -DFAPI_SUPPORT_SPY_AS_STRING -DFAPI_SUPPORT_MULTI_SCOM -DFAPI_2
 
 SCRIPTS := scripts/fapi2CreateAttrGetSetMacros.pl
@@ -19,6 +19,7 @@ CAPI_SOURCE := plat_utils.C
 CAPI_SOURCE += plat_hw_access.C
 CAPI_SOURCE += plat_vpd_access.C
 CAPI_SOURCE += plat_spd_access.C
+CAPI_SOURCE += plat_mbvpd_access.C
 CAPI_SOURCE += hwp_executor.C
 CAPI_SOURCE += fapi2PlatSystemConfig.C
 CAPI_SPECIAL_SOURCE = tls_storage.C
@@ -75,10 +76,10 @@ CAPI_INCLUDES += fapi2_spd_access.H
 CAPI_INCLUDES += plat_spd_access.H
 CAPI_INCLUDES += fapi2_subroutine_executor.H
 CAPI_INCLUDES += subroutine_executor.H
-# remove the following when mbvpd_access.H is in use
-CAPI_INCLUDES += mbvpdAccess.H
+CAPI_INCLUDES += fapi2_mbvpd_access.H
+CAPI_INCLUDES += fapi2_mbvpd_access_defs.H
+CAPI_INCLUDES += plat_mbvpd_access.H
 
-# fapiMBvpdAccess.H fapiMvpdAccess.H
 # fapiMultiScom.H
 
 # These files are needed by the client code

@@ -75,6 +75,8 @@ std::string InstructionTypeToString(Instruction::InstructionType i_type) {
       return "FSIMEMPROC";
     case Instruction::PNOR:
       return "PNOR";
+    case Instruction::D2C:
+      return "D2C";
   }
   return "";
 }
@@ -147,6 +149,10 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "I2CWRITE";
     case Instruction::I2CREAD:
       return "I2CREAD";
+    case Instruction::I2CRESETLIGHT:
+      return "I2CRESETLIGHT";
+    case Instruction::I2CRESETFULL:
+      return "I2CRESETFULL";
     case Instruction::GPIO_CONFIGPIN:
       return "GPIO_CONFIGPIN";
     case Instruction::GPIO_READPIN:
@@ -253,6 +259,12 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "PNORPUT";
     case Instruction::QUERYSP:
       return "QUERYSP";
+    case Instruction::ADJUST_PROC_VOLTAGES:
+      return "ADJUST_PROC_VOLTAGES";
+    case Instruction::PSI_CMU_REG_READ:
+      return "PSI_CMU_REG_READ";
+    case Instruction::PSI_CMU_REG_WRITE:
+      return "PSI_CMU_REG_WRITE";
   }
   return "";
 }

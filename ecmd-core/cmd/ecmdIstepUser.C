@@ -242,7 +242,7 @@ uint32_t ecmdInitChipFromFileUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
-    rc = initChipFromFileHidden(target, file, name, mode, ringMode);
+    rc = initChipFromFile(target, file, name, mode, ringMode);
     if (rc) {
       printed = "initchipfromfile - Error occured performing initchipfromfile on ";
       printed += ecmdWriteTarget(target);
@@ -416,6 +416,13 @@ uint32_t ecmdStopClocksUser(int argc, char * argv[]) {
   bool skipIovalid = ecmdParseOption(&argc, &argv, "-skip_iovalid");
   if (skipIovalid) {
     mode |= ECMD_STOP_CLOCK_MODE_SKIP_IOVALID;
+  }
+
+  //Check async option
+  bool async = ecmdParseOption(&argc, &argv, "-async");
+  bool async_stopclocks = ecmdParseOption(&argc, &argv, "-async_stopclocks");
+  if (async || async_stopclocks) {
+    mode |= ECMD_STOP_CLOCK_MODE_ASYNC;
   }
 
   strcpy(clockDomain, "ALL");

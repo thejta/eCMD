@@ -125,6 +125,10 @@ optgroup.add_argument("--python3", help="The python3 executable to use\n"
 optgroup.add_argument("--python3inc", help="The python3 include path to use\n"
                                            "PY3INC from the environment")
 
+# --catchinc
+optgroup.add_argument("--catchinc", help="The catch include path to use for testing\n"
+                                         "CATCHINC from the environment")
+
 # --doxygen
 optgroup.add_argument("--doxygen", help="The doxygen executable to use\n"
                                         "DOXYGENBIN from the environment")
@@ -156,6 +160,10 @@ optgroup.add_argument("--without-python", action='store_true', help="Disable pyt
 # --without-python3
 optgroup.add_argument("--without-python3", action='store_true', help="Disable python3 module build\n"
                                                                      "CREATE_PY3API from the environment")
+
+# --without-pyecmd
+optgroup.add_argument("--without-pyecmd", action='store_true', help="Disable pyecmd module build\n"
+                                                                    "CREATE_PYECMD from the environment")
 
 # --build-disable-test
 optgroup.add_argument("--build-disable-test", action='store_true', help="Disable any build tests.  Useful for cross compiling")
@@ -457,6 +465,7 @@ buildvars["OUTLIB"] = os.path.join(OUTPATH, "lib")
 buildvars["OUTPERL"] = os.path.join(OUTPATH, "perl")
 buildvars["OUTPY"] = os.path.join(OUTPATH, "pyapi")
 buildvars["OUTPY3"] = os.path.join(OUTPATH, "py3api")
+buildvars["OUTPYECMD"] = os.path.join(OUTPATH, "pyecmd")
 
 ##################################################
 # Default things we need setup for every compile #
@@ -616,6 +625,14 @@ else:
     CREATE_PY3API = "yes"
 buildvars["CREATE_PY3API"] = CREATE_PY3API
 
+if (args.without_swig or (args.without_python and args.without_python3) or args.without_pyecmd):
+    CREATE_PYECMD = "no"
+elif ("CREATE_PYECMD" in os.environ):
+    CREATE_PYECMD = os.environ["CREATE_PYECMD"]
+else:
+    CREATE_PYECMD = "yes"
+buildvars["CREATE_PYECMD"] = CREATE_PYECMD
+
 # The swig executable to use
 if (not args.without_swig):
     SWIG = ""
@@ -691,6 +708,9 @@ if (CREATE_PY3API == "yes"):
 if ((PERLINC == "") or (PYINC == "") or (PY3INC == "")):
     print("Finding swig include files..")
     for root, dirs, files in os.walk(os.path.join(args.sysroot, 'usr'), topdown=True):
+        # exit if we found everything before the dir walk is over
+        if PERLINC and PYINC and PY3INC:
+            break
         for file in files:
             # Same include for python 2/3, so figure that out after finding the file
             if (file == "Python.h"):
@@ -748,6 +768,23 @@ if (args.build_disable_test):
     TEST_BUILD = "no"
 buildvars["TEST_BUILD"] = TEST_BUILD
 
+# Enable Catch-based testcases if TEST_BUILD enabled and catch include path is set
+CATCH_TEST_BUILD = "no"
+CATCHINC = None
+if (TEST_BUILD == "yes"):
+    if (args.catchinc is not None):
+        CATCHINC = args.catchinc
+    elif ("CATCHINC" in os.environ):
+        CATCHINC = os.environ["CATCHINC"]
+if (CATCHINC is not None):
+    if (CATCHINC == ""):
+        print("ERROR: Unable to determine path to Catch includes")
+        print("ERROR: Please install the catch includes, specify the path via --catchinc")
+        sys.exit(1)
+    buildvars["CATCHINC"] = CATCHINC
+    CATCH_TEST_BUILD = "yes"
+buildvars["CATCH_TEST_BUILD"] = CATCH_TEST_BUILD
+
 # Enable verbose build option
 # By default, we want it quiet which is @
 VERBOSE = "@"
@@ -790,11 +827,11 @@ else:
     INSTALL_BIN_PATH = os.path.join(INSTALL_PATH, "bin")
 buildvars["INSTALL_BIN_PATH"] = INSTALL_BIN_PATH
 
-# If DOXYGEN_PATH wasn't given, use INSTALL_PATH
+# If DOXYGEN_PATH wasn't given, use OUTPATH
 if ("DOXYGEN_PATH" in os.environ):
     DOXYGEN_PATH = os.environ["DOXYGEN_PATH"]
 else:
-    DOXYGEN_PATH = os.path.join(INSTALL_PATH, "doxygen")
+    DOXYGEN_PATH = os.path.join(OUTPATH, "doxygen")
 
 # Setup our capi/perl/python paths based on DOXYGEN_PATH
 DOXYGEN_CAPI_PATH = os.path.join(DOXYGEN_PATH, "Capi")
@@ -832,6 +869,13 @@ print("Testing program versions..")
 # The minimum required version of SWIG for eCMD to build
 # properly is version 2.0.11.  Check that version.
 if (not args.without_swig):
+    # Ensure the file we are going to check exists
+    if (not os.path.isfile(SWIG)):
+        print("ERROR: The swig executable \"%s\" doesn't exist!" % SWIG)
+        print("ERROR: Please run again after resolving the issue")
+        sys.exit(1)
+    
+    # It does exist, check it
     cmdout = subprocess.Popen([SWIG, "-version"],
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
@@ -850,7 +894,7 @@ if (not args.without_swig):
             verNoFloat = (int(versplit[0]) * 1000000) + (int(versplit[1]) * 1000) + int(versplit[2])
             if (verNoFloat < 2000011):
                 print("ERROR: Your swig version %s is less than the minimum version of 2.0.11" % version)
-                print("ERROR: Please run again and specify a differen swig executable or disable swig with --no-swig")
+                print("ERROR: Please run again and specify a different swig (--swig) or disable swig (--without-swig)")
                 sys.exit(1)
 
 ##################################################
@@ -891,7 +935,7 @@ if (DISTRO_OVERRIDE != ""):
 # Write our optional extension makefile.config includes
 # This allows you to add values to variables defined above
 config.write("# Optionally include any extension specific makefile.config overrides\n")
-for ext in sorted(EXTENSIONS.split(" ")):
+for ext in sorted(EXTENSIONS.split()):
     config.write("-include %s\n" % os.path.join(buildvars["EXT_" + ext + "_PATH"], "makefile.config")) 
 
 config.close()

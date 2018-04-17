@@ -88,13 +88,14 @@ my $shortcut = 0;
 my $singleInstall = 1;  # Assume it's a single install and then disprove it by looking at the path
 my $copyLocal = 0;  # Does the user want ECMD_EXE and ECMD_DLL_FILE copied to /tmp and run from there?
 my $cleanup = 0;  # Call only cleanup on the plugins to remove anything they might have put out there.
+my $noret = 0; # Don't insert a return statement into output string
 
 #####################################################
 # Call the main function, then add the rc from that to the output
 #
 $rc = main();
 # Yet again, csh sucks and doesn't have a return value.  They will have to go without
-if ($shell eq "ksh") {
+if ($shell eq "ksh" && !$noret) {
   printf("return $rc;");
 }
 exit($rc);
@@ -208,6 +209,9 @@ sub main {
     } elsif ($ARGV[$x] eq "quiet") {
 	$ecmdsetup::quiet = 1;
 	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
+    } elsif ($ARGV[$x] eq "noret") {
+	$noret = 1;
+	splice(@ARGV,$x,1);  # Remove so plugin doesn't see it
     } else {
       # We have to walk the array here because the splice shortens up the array
       $x++;
@@ -227,6 +231,15 @@ sub main {
       }
       elsif ($bits eq "64") {
         $arch = "aix64";
+      }
+      else {
+        ecmd_print("'$bits' is not a valid bit value!", 1);
+        return 1;
+      }
+      # PPC64LE
+    } elsif (`uname -a|grep ppc64le` ne "") {
+      if ($bits eq "64") {
+        $arch = "ppc64le";
       }
       else {
         ecmd_print("'$bits' is not a valid bit value!", 1);
@@ -279,6 +292,25 @@ sub main {
   $ENV{"PATH"} =~ s/:$//g;
   # Now mark the path modifed
   $modified{"PATH"} = 1;
+
+  ##########################################################################
+  # Cleanup any old dirs that might be in the python path
+  #
+  # Pull out any of the matching cases
+  if ($singleInstall) {
+    $ENV{"PYTHONPATH"} =~ s!$installPath/$arch/python!:!g;
+  } else {
+    # This expression matches anything after a : up to /<something>/ecmd/<ver>/bin and then a : or end of line
+    $ENV{"PYTHONPATH"} =~ s!([^:]*?)/ecmd/([^\/]*?)/$arch/python(:|$)!:!g;
+  }
+  # Any multiple : cases, reduce to one
+  $ENV{"PYTHONPATH"} =~ s/(:+)/:/g;
+  # We might have left a : on the front, remove it
+  $ENV{"PYTHONPATH"} =~ s/^://g;
+  # Same with the back, might have left a :
+  $ENV{"PYTHONPATH"} =~ s/:$//g;
+  # Now mark the path modifed
+  $modified{"PYTHONPATH"} = 1;
 
   ##########################################################################
   # Call cleanup on plugins
@@ -414,6 +446,22 @@ sub main {
   }
 
   ##########################################################################
+  # Add python directory to PYTHONPATH
+  #
+  if (!$cleanup) {
+    $ENV{"PYTHONPATH"} = $releasePath . "/" . $arch . "/python:" . $ENV{"PYTHONPATH"};
+    
+    # Any multiple : cases, reduce to one
+    $ENV{"PYTHONPATH"} =~ s/(:+)/:/g;
+    # We might have left a : on the front, remove it
+    $ENV{"PYTHONPATH"} =~ s/^://g;
+    # Same with the back, might have left a :
+    $ENV{"PYTHONPATH"} =~ s/:$//g;
+
+    $modified{"PYTHONPATH"} = 1;
+  }
+
+  ##########################################################################
   # Updates setup scripts if release changed
   # All we need to do is resource the setup scripts
   #
@@ -460,6 +508,7 @@ sub help {
   ecmd_print("[copylocal] - Copy the \$ECMD_EXE and \$ECMD_DLL_FILE to /tmp/\$ECMD_TARGET/");
   ecmd_print("[cleanup] - Remove all eCMD and Plugin settings from environment");
   ecmd_print("[quiet] - Disables status output");
+  ecmd_print("[noret] - Removes return code from variable set string");
   ecmd_print("<plugin options> - anything else passed into the script is passed onto the plugin");
   ecmd_print("-h - this help text");
 }

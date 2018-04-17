@@ -1,6 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2017 IBM International Business Machines Corp.
+ * Copyright 2003,2018 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,19 @@
  * limitations under the License.
  */
 //IBM_PROLOG_END_TAG
+#include <ecmdSharedUtils.H>
 
-// remove this file after mbvpd_access.H is in use
+void ecmdParseTokens (std::string line, const char* seperators, std::vector<std::string> & tokens) {
+
+  size_t curStart = 0, curEnd = 0;
+
+  tokens.clear();
+
+  while (1) {
+    curStart = line.find_first_not_of(seperators, curEnd);
+    if (curStart == std::string::npos) break;
+    curEnd = line.find_first_of(seperators,curStart);
+    tokens.push_back(line.substr(curStart, curEnd-curStart));
+  }
+}
+

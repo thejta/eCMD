@@ -64,10 +64,6 @@ std::string dllSpecificParseReturnCode(uint32_t i_returnCode) {
   return ""; 
 }
 
-uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
 uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
@@ -78,19 +74,15 @@ uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ec
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
 { 
     return ECMD_SUCCESS; 
 } 
-
-uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
 
 uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
   return ECMD_SUCCESS;
@@ -212,7 +204,7 @@ uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version) {
+uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
   return ECMD_SUCCESS;
 } 
 
@@ -330,4 +322,14 @@ uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_nu
 uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
+}
+
+uint32_t dllQueryClockState(ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
+  uint32_t rc = ECMD_SUCCESS;
+  return rc;
+}
+
+uint32_t dllRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP) {
+  o_relatedTargets.push_back(i_target);
+  return ECMD_SUCCESS;
 }

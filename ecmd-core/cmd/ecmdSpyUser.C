@@ -382,9 +382,9 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
 
 
       if (outputformat == "enum") {              // FW524017  HJH
-        rc = getSpyEnumHidden(cuTarget, spyName.c_str(), enumValue, spy_flags);
+        rc = getSpyEnum(cuTarget, spyName.c_str(), enumValue, spy_flags);
         if ( rc == ECMD_SPY_INVALID_READ_OPER) {
-              rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
+              rc = getSpy(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
               if (rc == 0){   // .. printout warning informing that no enum could be found 
                   
                   printed = "getspy - Info: No enum found for Spy \"";
@@ -397,7 +397,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         }    
       }
       else {     // outputformat = x
-        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
+        rc = getSpy(cuTarget, spyName.c_str(), spyBuffer, spy_flags);
       }
 
 
@@ -412,7 +412,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         int flag = 0;
         printed = "getspy - epcheckers \"";
         while (epcheckersIter != spyData->epCheckers.end()) {
-          rc = getSpyEpCheckersHidden(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
+          rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
           if (errorMask.getNumBitsSet(0,errorMask.getBitLength())) {
             if (flag) 
               printed += ", ";
@@ -552,7 +552,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
       if (verbose) {
         /* Get Spy Groups */
         bool l_has_groups = false; 
-        getSpyGroupsHidden(cuTarget, spyName.c_str(), spygroups, spy_flags);
+        getSpyGroups(cuTarget, spyName.c_str(), spygroups, spy_flags);
         if (rc && rc != ECMD_SPY_GROUP_MISMATCH && rc != ECMD_SPY_FAILED_ECC_CHECK) {
           coeRc = rc;
           continue;
@@ -581,7 +581,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         printed = spyName + ": =====\n";
         ecmdOutput(printed.c_str());
         while (epcheckersIter != spyData->epCheckers.end()) {
-          rc = getSpyEpCheckersHidden(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
+          rc = getSpyEpCheckers(cuTarget, epcheckersIter->c_str(), inLatches, outLatches, errorMask, spy_flags);
           if (rc && rc != ECMD_SPY_FAILED_ECC_CHECK && rc != ECMD_SPY_GROUP_MISMATCH) {
             coeRc = rc;
             continue;
@@ -943,7 +943,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
 
       if ((inputformat != "enum") && ((dataModifier != "insert") || (startBit != ECMD_UNSET))) {
 
-        rc = getSpyHidden(cuTarget, spyName.c_str(), spyBuffer, l_read_spy_flags);
+        rc = getSpy(cuTarget, spyName.c_str(), spyBuffer, l_read_spy_flags);
 
         if ((rc == ECMD_SPY_GROUP_MISMATCH) && (numBits == spyData->bitLength)) {
           /* We will go on if the user was going to write the whole spy anyway */
@@ -976,7 +976,7 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
           continue;
         }
 
-        rc = putSpyHidden(cuTarget, spyName.c_str(), spyBuffer, l_write_spy_flags);
+        rc = putSpy(cuTarget, spyName.c_str(), spyBuffer, l_write_spy_flags);
         if (rc) {
           printed = "putspy - Error occured performing putspy on ";
           printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -987,9 +987,9 @@ uint32_t ecmdPutSpyUser(int argc, char * argv[]) {
       } else {
 
         if (inputformat == "enum") {
-          rc = putSpyEnumHidden(cuTarget, spyName.c_str(), argv[argc-1], l_write_spy_flags);
+          rc = putSpyEnum(cuTarget, spyName.c_str(), argv[argc-1], l_write_spy_flags);
         } else {
-          rc = putSpyHidden(cuTarget, spyName.c_str(), buffer, l_write_spy_flags);
+          rc = putSpy(cuTarget, spyName.c_str(), buffer, l_write_spy_flags);
         }
 
         if (rc) {

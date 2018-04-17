@@ -48,7 +48,11 @@ namespace fapi2plat
 #ifdef __linux__
 #ifdef _LP64
 #ifdef __powerpc__
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        std::string tmp = (i_libName + "_ppc64le.so");
+#else
         std::string tmp = (i_libName + "_ppc64.so");
+#endif
 #else
         std::string tmp = (i_libName + "_x86_64.so");
 #endif // end _LP64

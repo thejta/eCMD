@@ -62,18 +62,25 @@ enum TargetType
     TARGET_TYPE_CAPP          = 0x00008000, ///< CAPP target
     TARGET_TYPE_DMI           = 0x00010000, ///< DMI type
     TARGET_TYPE_OBUS          = 0x00020000, ///< OBUS type
-    TARGET_TYPE_NV            = 0x00040000, ///< NV bus type
+    TARGET_TYPE_OBUS_BRICK    = 0x00040000, ///< OBUS BRICK type
     TARGET_TYPE_SBE           = 0x00080000, ///< SBE type
     TARGET_TYPE_PPE           = 0x00100000, ///< PPE type
     TARGET_TYPE_PERV          = 0x00200000, ///< Pervasive type
     TARGET_TYPE_PEC           = 0x00400000, ///< PEC type
     TARGET_TYPE_PHB           = 0x00800000, ///< PHB type
     TARGET_TYPE_MC            = 0x01000000, ///< MC type
+    TARGET_TYPE_OMI           = 0x02000000, ///< OMI type
+#ifdef FAPI_2_Z
+    TARGET_TYPE_SC_CHIP       = 0x80000000, ///< Z SC type
+#endif
 
     TARGET_TYPE_ALL           = 0xFFFFFFFF, ///< Any/All types
 
     // Compound target types
     TARGET_TYPE_CHIPS         = TARGET_TYPE_PROC_CHIP |
+#ifdef FAPI_2_Z
+                                TARGET_TYPE_SC_CHIP |
+#endif
                                 TARGET_TYPE_MEMBUF_CHIP,
 
     TARGET_TYPE_CHIPLETS      = TARGET_TYPE_EX     |
@@ -89,13 +96,14 @@ enum TargetType
                                 TARGET_TYPE_MI     |
                                 TARGET_TYPE_DMI    |
                                 TARGET_TYPE_OBUS   |
-                                TARGET_TYPE_NV     |
+                                TARGET_TYPE_OBUS_BRICK     |
                                 TARGET_TYPE_SBE    |
                                 TARGET_TYPE_PPE    |
                                 TARGET_TYPE_PERV   |
                                 TARGET_TYPE_PEC    |
                                 TARGET_TYPE_PHB    |
-                                TARGET_TYPE_MC,
+                                TARGET_TYPE_MC     |
+                                TARGET_TYPE_OMI,
 
     // Mappings to target types found in the error xml files
     TARGET_TYPE_EX_CHIPLET    = TARGET_TYPE_EX,
@@ -103,6 +111,15 @@ enum TargetType
     TARGET_TYPE_MCS_CHIPLET   = TARGET_TYPE_MCS,
     TARGET_TYPE_XBUS_ENDPOINT = TARGET_TYPE_XBUS,
     TARGET_TYPE_ABUS_ENDPOINT = TARGET_TYPE_ABUS,
+#ifdef FAPI_2_Z
+    // Z mappings
+    TARGET_TYPE_EP_CHIP       = TARGET_TYPE_PROC_CHIP,
+    TARGET_TYPE_XBUS0         = TARGET_TYPE_XBUS,
+    TARGET_TYPE_XBUS1         = TARGET_TYPE_OBUS,
+    TARGET_TYPE_NEST          = TARGET_TYPE_CAPP,
+    TARGET_TYPE_PCIE          = TARGET_TYPE_PEC,
+    TARGET_TYPE_GXA           = TARGET_TYPE_PHB,
+#endif
 };
 
 ///
@@ -245,12 +262,15 @@ enum TargetFilter : uint64_t
 };
 
 
+// attributeOverride tool requires x86.nfp compile
+#ifndef CONTEXT_x86_nfp
 /// @cond
 constexpr TargetType operator|(TargetType x, TargetType y)
 {
     return static_cast<TargetType>(static_cast<int>(x) |
                                    static_cast<int>(y));
 }
+#endif
 
 template<uint64_t V>
 class bitCount

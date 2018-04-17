@@ -44,7 +44,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "14.6"          ///< eCMD API Version
+#define ECMD_CAPI_VERSION "15.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -52,7 +52,6 @@
 #define NODE_HDR_MAGIC   0xFFFFF3FF
 #define SLOT_HDR_MAGIC   0xFFFF4FFF
 #define CHIP_HDR_MAGIC   0xFFF5FFFF
-#define CORE_HDR_MAGIC   0xFF6FFFFF
 #define THREAD_HDR_MAGIC 0xF7FFFFFF
 #define CHIPUNIT_HDR_MAGIC 0x8FFFFFFF
 /**
@@ -285,39 +284,6 @@ typedef enum {
 } ecmdDllEnv_t;
 
 /**
- @brief This is used by ecmdQueryDllInfo to return what product the dll supports
-*/
-typedef enum {
-  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
-  ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
-  ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
-  ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
-  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
-  ECMD_DLL_PRODUCT_P8S1,        ///< P8/S1 Project
-  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
-  ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
-  ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
-  ECMD_DLL_PRODUCT_P9,          ///< P9 Project
-} ecmdDllProduct_t;
-
-/**
- @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
-*/
-typedef enum {
-  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
-  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
-  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
-  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
-  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
-  ECMD_DLL_SCAND,               ///< Running against the ScanD plugin
-  ECMD_DLL_BML,                 ///< Running against the BML plugin
-  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
-  ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
-  ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
-  ECMD_DLL_PDBG,                ///< Running against the pdbg plugin
-} ecmdDllType_t;
-
-/**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */
 typedef enum {
@@ -399,9 +365,10 @@ typedef enum {
  @brief Used by get/putLatch functions to specify what mode should be used to find latches in the scandef
 */
 typedef enum {
-  ECMD_LATCHMODE_UNKNOWN,       ///< Default for not initialized
-  ECMD_LATCHMODE_FULL,          ///< Latch must match exactly
-  ECMD_LATCHMODE_PARTIAL        ///< Latch can be a partial match
+  ECMD_LATCHMODE_UNKNOWN,               ///< Default for not initialized
+  ECMD_LATCHMODE_FULL,                  ///< Latch must match exactly
+  ECMD_LATCHMODE_PARTIAL,               ///< Latch can be a partial match
+  ECMD_LATCHMODE_PARTIAL_NO_RING_CHECK  ///< Latch can be a partial match - bypasses check for latches within multiple rings
 } ecmdLatchMode_t;
 
 /**
@@ -668,8 +635,8 @@ struct addrHashEntry {
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 struct ecmdDllInfo {
-  ecmdDllType_t         dllType;        ///< Dll instance type running
-  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllType;        ///< Dll instance type running
+  std::string           dllProduct;     ///< Dll product supported
   std::string           dllProductType; ///< Dll product type currently configured
   ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
@@ -714,16 +681,7 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    uint8_t   core;
-#endif
-    uint8_t   chipUnitNum;      ///< number of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  uint8_t     chipUnitNum;      ///< number of the chip unit to access
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
@@ -732,16 +690,7 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    ecmdChipTargetState_t coreState;
-#endif
-    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
 };
@@ -820,55 +769,6 @@ threadFlags(0x0)
 inline ecmdThreadData::~ecmdThreadData() { }
 #endif
 
-#if 0
-/**
- @brief Used for the ecmdQueryConfig function to return core data
-
- Operators Supported : <
-
-*/
-struct ecmdCoreData {
-
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdCoreData();
-
-  // Destructor
-  ~ecmdCoreData();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
-  bool operator<(const ecmdCoreData& rhs) const;  ///< Used to sort Core entries in an ecmdCoreData list.
-#ifndef ECMD_STRIP_DEBUG
-    void printStruct(void);
-#endif
-#endif
-
-  // Members
-  uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
-  uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
-  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
-  uint32_t                      coreFlags;      ///< (Detail: High) Various additional info about the core - bitmask of defines
-  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
-};
-
-#ifndef DOCUMENTATION
-// ecmdCoreData Constructor
-inline ecmdCoreData::ecmdCoreData():
-coreId(0),
-numProcThreads(0),
-unitId(0),
-coreFlags(0x0)
-{
-}
-
-// ecmdCoreData Destructor
-inline ecmdCoreData::~ecmdCoreData() { }
-#endif
-#endif
-
 /**
  @brief Used for the ecmdQueryConfig function to return chipUnit data
 
@@ -888,7 +788,7 @@ struct ecmdChipUnitData {
   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
   uint32_t flattenSize(void);
-  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Core entries in an ecmdChipUnitData list.
+  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Chip Unit entries in an ecmdChipUnitData list.
 #ifndef ECMD_STRIP_DEBUG
 
   void printStruct(void);
@@ -1188,7 +1088,7 @@ struct ecmdLooperData {
   std::list<ecmdNodeData>::iterator ecmdCurNode;                ///< Pointer to current Node
   std::list<ecmdSlotData>::iterator ecmdCurSlot;                ///< Pointer to current Slot
   std::list<ecmdChipData>::iterator ecmdCurChip;                ///< Pointer to current Chip
-  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current Core
+  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current ChipUnit
   std::list<ecmdThreadData>::iterator ecmdCurThread;            ///< Pointer to current Thread
   ecmdChipTarget prevTarget;                                    ///< Pointer to previous target
 
@@ -1452,8 +1352,8 @@ struct ecmdScomData {
   uint64_t         address;              ///< (Detail: Low)  Scom Address
   uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
   bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
+  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
   ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
   std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
   ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
@@ -1472,54 +1372,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 
 // ecmdScomData Destructor
 inline ecmdScomData::~ecmdScomData() { }
-#endif
-
-/**
- @brief Used for the ecmdQueryScomHidden function to return scom info
-*/
-struct ecmdScomDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdScomDataHidden();
-
-  // Destructor
-  ~ecmdScomDataHidden();
-
-  // Methods
-  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  //uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  //void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  uint64_t         address;              ///< (Detail: Low)  Scom Address
-  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
-  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
-  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
-  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the dataHidden
-  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
-  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
-};
-
-#ifndef DOCUMENTATION
-// ecmdScomDataHidden Constructor
-inline ecmdScomDataHidden::ecmdScomDataHidden():
-address(0),
-length(0),
-isChipUnitRelated(false),
-endianMode(ECMD_UNKNOWN_ENDIAN),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdScomDataHidden Destructor
-inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
 #endif
 
 /**
@@ -1885,20 +1737,21 @@ struct ecmdLatchQueryData {
   bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
 
   // Members
-  std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
-  std::string      latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
-  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
-  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
-  uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
-  uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
-  uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  std::string      clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t clockState;            ///< (Detail: High) Required clock state to access this latch
+  std::string               ringName;              ///< (Detail: Low)  Ring that latch came from
+  std::string               latchName;             ///< (Detail: Low)  Latch name of entry
+  uint32_t                  fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
+  uint32_t                  jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
+  uint32_t                  fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
+  uint32_t                  jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
+  uint32_t                  latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
+  uint32_t                  latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
+  uint32_t                  bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
+  bool                      isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
+  std::string               relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
+  std::string               relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::list<ecmdLatchEntry> scandefLatchInfo;      ///< (Detail: Low)  Information about this latch from the scandef that can be used to pass into other latch functions to improve performance.  Many of the other elements of this structure are derived from this data as well.
+  std::string               clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
+  ecmdClockState_t          clockState;            ///< (Detail: High) Required clock state to access this latch
 };
 
 #ifndef DOCUMENTATION
@@ -1918,65 +1771,6 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 
 // ecmdLatchQueryData Destructor
 inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
-#endif
-
-/**
- @brief Used by ecmdQueryLatchInfoHidden function to return data
-*/
-struct ecmdLatchQueryDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdLatchQueryDataHidden();
-
-  // Destructor
-  ~ecmdLatchQueryDataHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  std::string               ringName;              ///< (Detail: Low)  Ring that latch came from
-  std::string               latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t                  fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t                  jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
-  uint32_t                  fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
-  uint32_t                  jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
-  uint32_t                  latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
-  uint32_t                  latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
-  uint32_t                  bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool                      isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string               relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string               relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  std::list<ecmdLatchEntry> scandefLatchInfo;      ///< (Detail: Low)  Information about this latch from the scandef that can be used to pass into other latch functions to improve performance.  Many of the other elements of this structure are derived from this data as well.
-  std::string               clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t          clockState;            ///< (Detail: High) Required clock state to access this latch
-};
-
-#ifndef DOCUMENTATION
-// ecmdLatchQueryDataHidden Constructor
-inline ecmdLatchQueryDataHidden::ecmdLatchQueryDataHidden():
-fsiStartRingOffset(0),
-jtagStartRingOffset(0),
-fsiEndRingOffset(0),
-jtagEndRingOffset(0),
-latchStartBit(0),
-latchEndBit(0),
-bitLength(0),
-isChipUnitRelated(false),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdLatchQueryDataHidden Destructor
-inline ecmdLatchQueryDataHidden::~ecmdLatchQueryDataHidden() { }
 #endif
 
 /**
@@ -2320,6 +2114,7 @@ std::string ecmdGetSharedLibVersion();
  Defines for stopClocks
 */
 #define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
+#define ECMD_STOP_CLOCK_MODE_ASYNC          0x00000002
 
 /**
 @brief Used in ecmdReadDigitalThermalSensor function to get the dts readings for an ex target

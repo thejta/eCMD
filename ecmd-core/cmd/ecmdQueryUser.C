@@ -89,8 +89,8 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     uint64_t address =0xFFFFFFFFFFFFFFFFull;
     char addrStr[20];
 
-    std::list<ecmdScomDataHidden> scomdata;           ///< Scom data 
-    std::list<ecmdScomDataHidden>::iterator scomit;   ///< Scom data 
+    std::list<ecmdScomData> scomdata;           ///< Scom data 
+    std::list<ecmdScomData>::iterator scomit;   ///< Scom data 
 
     if (argc < 2) {
       ecmdOutputError("ecmdquery - Too few arguments specified for scoms; you need at least a query scoms <chipname>.\n");
@@ -121,7 +121,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
     while (ecmdLooperNext(target, looperData)) {
 
-      rc = ecmdQueryScomHidden(target, scomdata, address);
+      rc = ecmdQueryScom(target, scomdata, address);
       if (rc) {
         printed = "ecmdquery - Error occured performing scom query on ";
         printed += ecmdWriteTarget(target);
@@ -1886,7 +1886,12 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutput(   "*******************************************************\n");
       printed =     "Target           : " + ecmdWriteTarget(target) + "\n"; ecmdOutput(printed.c_str());
       if (queryData.isChipUnitRelated) {
-	          printed =     "Chip Unit        : " + queryData.relatedChipUnit + "\n"; ecmdOutput(printed.c_str());
+        printed = "Chip Unit        :";
+        std::list<std::string>::iterator relatedChipUnitIter;
+        for (relatedChipUnitIter = queryData.relatedChipUnit.begin(); relatedChipUnitIter != queryData.relatedChipUnit.end(); relatedChipUnitIter++) {
+          printed += " " + *relatedChipUnitIter;
+        }
+        printed += "\n"; ecmdOutput(printed.c_str());
       } else {
         printed =     "Chip Unit        : NONE\n"; ecmdOutput(printed.c_str());
       }
@@ -1906,7 +1911,7 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     }
 
     ecmdChipData chipdata;
-    ecmdScomDataHidden queryData;
+    ecmdScomData queryData;
 
     //Setup the target that will be used to query the system config 
     ecmdChipTarget target;
@@ -1930,12 +1935,13 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
     while (ecmdLooperNext(target, looperData)) {
       std::string scomgroup_filename;
       std::list<scomGroupRecord_t> scomGroupRecord;
-      if (!use_version) {
-        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-      } else {
-        str_version = version;
-        rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-      }
+      // This is coming out, comment out for now
+      //if (!use_version) {
+      //  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+      //} else {
+      //  str_version = version;
+      //  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
+      //}
       rc = parse_groupscomdef_file(scomgroup_filename, scomGroupRecord); if (rc) return rc;
 
       char buf[200];
@@ -2062,6 +2068,79 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       output += coreChipUnit;
       output += "\n";
       ecmdOutput(output.c_str());
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }
+    /* ---------- */
+    /* related    */
+    /* ---------- */
+  } else if (!strcmp(argv[0],"related")) {
+    /* query the relationship */
+
+    std::string chipType, chipUnitType;
+    std::string relatedType;
+
+    if (argc < 3) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for connections; you need at least query related <chipname> <type>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    ecmdParseChipField(argv[1], chipType, chipUnitType);
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+
+    /* Check for a chip unit */
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    }
+
+    // Get the related type
+    relatedType = argv[2]; 
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    while (ecmdLooperNext(target, looperData)) {
+
+      std::list<ecmdChipTarget> targets;
+      rc = ecmdRelatedTargets(target, relatedType, targets);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing ecmdRelatedTargets on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      } else {
+        validPosFound = true;     
+      }
+
+      printed = ecmdWriteTarget(target) + "\n";
+      if (targets.empty()) {
+        printed += "    no relationships found\n";
+      } else {
+        std::list<ecmdChipTarget>::iterator targetsIter = targets.begin();
+        while (targetsIter != targets.end()) {
+          printed += "    ";
+          printed += ecmdWriteTarget(*targetsIter) + "\n";
+          targetsIter++;
+        }
+      }
+
+      ecmdOutput(printed.c_str());
     }
 
     if (!validPosFound) {

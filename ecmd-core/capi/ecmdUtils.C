@@ -704,53 +704,10 @@ uint32_t ecmdDisplayDllInfo() {
     return rc;
   }
   ecmdOutput("================================================\n");
-  printed = "Dll Type         : ";
-  if (info.dllType == ECMD_DLL_STUB)
-    printed += "Stub\n";
-  else if (info.dllType == ECMD_DLL_STUB)
-    printed += "Stub\n";
-  else if (info.dllType == ECMD_DLL_CRONUS)
-    printed += "Cronus\n";
-  else if (info.dllType == ECMD_DLL_IPSERIES)
-    printed += "IP-Series\n";
-  else if (info.dllType == ECMD_DLL_ZSERIES)
-    printed += "Z-Series\n";
-  else if (info.dllType == ECMD_DLL_SCAND)
-    printed += "ScanD\n";
-  else if (info.dllType == ECMD_DLL_BML)
-    printed += "BML\n";
-  else if (info.dllType == ECMD_DLL_MAMBO)
-    printed += "MAMBO\n";
-  else if (info.dllType == ECMD_DLL_RISCWATCH)
-    printed += "RiscWatch\n";
-  else if (info.dllType == ECMD_DLL_LINUXHOSTTOOL)
-    printed += "Linux Host Tool\n";
-  else if (info.dllType == ECMD_DLL_PDBG)
-    printed += "pdbg\n";
-  else 
-    printed += "Unknown\n";
+  printed = "Dll Type         : " + info.dllType + "\n";
   ecmdOutput(printed.c_str());
 
-  printed = "Dll Product      : ";
-  if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ) {
-    printed += "Eclipz\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_APOLLO) {
-    printed += "Apollo\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHON) {
-    printed += "Gryphon\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P8S1) {
-    printed += "P8/S1\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHONP) {
-    printed += "Artemis (zGr+)\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_STRADALE) {
-    printed += "Stradale\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_OPENPOWER) {
-    printed += "OpenPower\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P9) {
-    printed += "P9\n";
-  } else {
-    printed += "Unknown\n";
-  }
+  printed = "Dll Product      : " + info.dllProduct + "\n";
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product Type : ";
@@ -776,6 +733,7 @@ uint32_t ecmdDisplayDllInfo() {
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
+  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
@@ -795,187 +753,54 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr, l_version);
+  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
   if (rc) {
-    printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
+    printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
     return rc;
   }
 
-  std::ifstream scomdefFile(scomdefFileStr.c_str());
-  if(scomdefFile.fail()) {
-    printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
-    return rc;
-  }
-  rc = readScomDefFile(i_scomData.address, scomdefFile);
-  if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
-      uint64_t modifiedScomAddress = 0;
-      rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
-      if (rc) {
-	ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
-	return rc;
+  std::ifstream scomdefFile;
+  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
+  while (l_filePair != l_filePairs.end())
+  {
+      rc = ECMD_SUCCESS;
+      scomdefFile.open(l_filePair->first.c_str());
+      if(scomdefFile.fail()) {
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          ecmdOutputWarning(printed.c_str());
+          rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
+          return rc;
       }
-      scomdefFile.clear();
-      scomdefFile.seekg(0, std::ios::beg);
-      rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+      rc = readScomDefFile(i_scomData.address, scomdefFile);
+      if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
+          uint64_t modifiedScomAddress = 0;
+          rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
+          if (rc) {
+              ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
+              return rc;
+          }
+          scomdefFile.clear();
+          scomdefFile.seekg(0, std::ios::beg);
+          rc = readScomDefFile(modifiedScomAddress, scomdefFile);
+      }
+      if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
+          scomdefFile.close();
+          l_filePair++;
+      }
+      // Found the address, don't need to look in any other scomdefs
+      else
+      {
+          break;
+      }
   }
+  // One more check outside of the loop to make sure we found something
   if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-    ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
-    return rc;
-  }
-  sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
-
-  std::list< std::string >::iterator descIt;
-  std::list<sedcScomdefDefLine>::iterator definIt;
-  std::list< std::string >::iterator bitDetIt;
-  char bitDesc[1000];
-
-  sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
-  ecmdOutput(bitDesc);
-  if (o_strData != NULL) {
-    *o_strData += bitDesc;
+      ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
+      ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
+      return rc;
   }
 
-  for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
-    ecmdOutput(descIt->c_str());
-    if (o_strData != NULL) {
-      *o_strData += *descIt;
-    }
-  }
-
-  printed = "\n";
-  ecmdOutput(printed.c_str());
-  if (o_strData != NULL) {
-    *o_strData += printed;
-  }
-
-  // We need these variable below to abstract some stuff for LE support
-  uint32_t beStart, length;
-
-  //Print Bits description
-  for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
-    // Set our pivots for LE converstion in the BE buffer
-    if (i_scomData.endianMode == ECMD_LITTLE_ENDIAN) {
-      // minus 1 because you don't want the length, you want the last bit position and then flip
-      beStart = (i_scomData.length - 1) - definIt->lhsNum;
-      /* If we have rhs, the length is negative so flip it */
-      if (definIt->rhsNum != -1) {
-        length = definIt->length * -1;
-        // We also have to add two to the length because it's messed up by the EDC parser which doesn't do little endian
-        // example
-        // 31-4 = 27 + 1 = 28, to get the real length.  EDC does this on little endian data
-        // 4-31 = -27 + 1 = -26
-        // The mult * -1 above gave us 26, but we are still missing 2.
-        length += 2;
-      } else {
-        length = definIt->length;
-      }
-    } else { // Big Endian
-      beStart = definIt->lhsNum;
-      length = definIt->length;
-    }
-    if (verboseFlag || (verboseBitsSetFlag && i_data.getNumBitsSet(beStart, length)) ||
-        (verboseBitsClearFlag && (!i_data.getNumBitsSet(beStart, length)))) {
-
-      if(definIt->rhsNum == -1) {
-        sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
-      }
-      else {
-        sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
-      }
-      sprintf(bitDesc, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc);
-      if (o_strData != NULL) {
-        *o_strData += bitDesc;
-      }
-
-      if (length <= 8) {
-        std::string binstr = i_data.genBinStr(beStart, length);
-        sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
-      }
-      else {
-        std::string hexLeftStr = i_data.genHexLeftStr(beStart, length);
-        sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
-      }
-      ecmdOutput(bitDesc);
-      if (o_strData != NULL) {
-        *o_strData += bitDesc;
-      }
-      std::string bitDescStr;
-      for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-        sprintf(bitDesc, "%32s ", " ");
-        //Would print the entire string no matter how long it is
-        bitDescStr = (std::string)bitDesc + *bitDetIt;
-        ecmdOutput(bitDescStr.c_str());
-        if (o_strData != NULL) {
-          *o_strData += bitDescStr;
-        }
-        bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
-        ecmdOutput(bitDescStr.c_str());
-        if (o_strData != NULL) {
-          *o_strData += bitDescStr;
-        }       
-
-      }//end for
-    }//end if 
-  }// end for
-  return rc;
-}
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
-  uint32_t rc = ECMD_SUCCESS;
-  std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
-  sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
-  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
-  bool verboseFlag = false;
-  bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
-  bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
-  std::string printed;                          ///< Output data
-  std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
-  std::string l_version = "default";
-
-  if ((std::string)i_format == "-v") {
-    verboseFlag = true;
-  }
-  if ((std::string)i_format == "-vs0") {
-    verboseBitsClearFlag = true;
-  }
-  if ((std::string)i_format == "-vs1") {
-    verboseBitsSetFlag = true;
-  }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, scomdefFileStr, l_version);
-  if (rc) {
-    printed = "ecmdDisplayScomData - Error occured locating scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    return rc;
-  }
-
-  std::ifstream scomdefFile(scomdefFileStr.c_str());
-  if(scomdefFile.fail()) {
-    printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + scomdefFileStr + "\nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
-    return rc;
-  }
-  rc = readScomDefFile(i_scomData.address, scomdefFile);
-  if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
-      uint64_t modifiedScomAddress = 0;
-      rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
-      if (rc) {
-	ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
-	return rc;
-      }
-      scomdefFile.clear();
-      scomdefFile.seekg(0, std::ios::beg);
-      rc = readScomDefFile(modifiedScomAddress, scomdefFile);
-  }
-  if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-    ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-    ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
-    return rc;
-  }
   sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
 
   std::list< std::string >::iterator descIt;
@@ -1619,7 +1444,13 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
+        sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
+        std::list<std::string>::iterator relatedChipUnitIter;
+        for (relatedChipUnitIter = entit->relatedChipUnit.begin(); relatedChipUnitIter != entit->relatedChipUnit.end(); relatedChipUnitIter++) {
+          sprintf(tempIntStr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
+        }
+        sprintf(tempIntStr, "%s\n", tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
         debugFunctionOuput(tempIntStr);
@@ -2158,7 +1989,6 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       ecmdDllInfo* dummy = (ecmdDllInfo*)(args[looper]);
 
-
       printed = frontFPPTxt;
       printed += "\t type : ";
       printed += variableType;
@@ -2166,35 +1996,12 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += variableName[0];
       printed += "\n";
       printed += frontFPPTxt;
-      printed += "\t \t value : ecmdDllType_t         dllType = ";
-
-      if (dummy->dllType == ECMD_DLL_STUB)
-        printed += "Stub\n";
-      else if (dummy->dllType == ECMD_DLL_CRONUS)
-        printed += "Cronus\n";
-      else if (dummy->dllType == ECMD_DLL_IPSERIES)
-        printed += "IP-Series\n";
-      else if (dummy->dllType == ECMD_DLL_ZSERIES)
-        printed += "Z-Series\n";
-      else if (dummy->dllType == ECMD_DLL_SCAND)
-        printed += "ScanD\n";
-      else if (dummy->dllType == ECMD_DLL_LINUXHOSTTOOL)
-        printed += "Linux Host Tool\n";
-      else 
-        printed += "Unknown\n";
-
+      printed += "\t \t value : ecmdDllType_t         dllType = " + dummy->dllType + "\n";
       debugFunctionOuput(printed.c_str());
-
 
       printed = frontFPPTxt;
-      printed += "\t \t value : ecmdDllProduct_t      dllProduct = ";
-
-      if (dummy->dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
-        printed += "Eclipz\n";
-      else
-        printed += "Unknown\n";
+      printed += "\t \t value : ecmdDllProduct_t      dllProduct = " + dummy->dllProduct + "\n";
       debugFunctionOuput(printed.c_str());
-
 
       printed = frontFPPTxt;
       printed += "\t \t value : ecmdDllEnv_t          dllEnv = ";

@@ -60,7 +60,7 @@ uint32_t ServerSBEFIFOInstruction::sbefifo_open(Handle ** handle, InstructionSta
 
     if (*handle == NULL)
     {
-        snprintf(errstr, 200, "SBEFIFOInstruction::sbefifo_open Problem opening SBEFIFO device %s : errno %d\n", device, errno);
+        snprintf(errstr, 200, "ServerSBEFIFOInstruction::sbefifo_open Problem opening SBEFIFO device %s : errno %d\n", device, errno);
         o_status.errorMessage.append(errstr);
         return SERVER_INVALID_SBEFIFO_DEVICE;
     }
@@ -70,12 +70,27 @@ uint32_t ServerSBEFIFOInstruction::sbefifo_open(Handle ** handle, InstructionSta
 
 void ServerSBEFIFOInstruction::sbefifo_ffdc_and_reset(Handle ** handle, InstructionStatus & o_status)
 {
+    uint32_t rc = 0;
     // system_sbefifo_ffdc_extract
     //  append to o_status.errorMessage
     // system_sbefifo ffdc_unlock
-    // system_sbefifo_reset
 
-    uint32_t rc = sbefifo_close(*handle);
+    if (flags & INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE) {
+        errno = 0;
+#ifdef TESTING
+        TEST_PRINT("adal_sbefifo_request_reset(*handle);\n");
+#else
+        rc = adal_sbefifo_request_reset((adal_t *) *handle);
+#endif
+        if (rc) {
+            char errstr[200];
+            snprintf(errstr, 200, "ServerSBEFIFOInstruction::sbefifo_ffdc_and_reset Reset of adal failed!\n");
+            o_status.errorMessage.append(errstr);
+            o_status.rc = SERVER_SBEFIFO_ADAL_RESET_FAIL;
+        }
+    }
+
+    rc = sbefifo_close(*handle);
     *handle = NULL;
     if (rc) o_status.rc = SERVER_SBEFIFO_CLOSE_FAIL;
 }
@@ -115,7 +130,7 @@ ssize_t ServerSBEFIFOInstruction::sbefifo_submit(Handle * i_handle, ecmdDataBuff
             if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
             {
                 char errstr[200];
-                snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_submit() rc = %u\n", rc);
+                snprintf(errstr, 200, "SERVER_DEBUG : adal_sbefifo_submit() rc = %u\n", (uint32_t) rc);
                 o_status.errorMessage.append(errstr);
                 snprintf(errstr, 200, "SERVER_DEBUG : l_request.status = %08X\n", (uint32_t) l_request.status);
                 o_status.errorMessage.append(errstr);

@@ -12,11 +12,13 @@
 %include stdint.i
 %include ecmdCommon.i
 %include ecmdConst.i
-%apply uint32_t &OUTPUT { uint32_t & };
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/
 // These are used to map C types that swig doesn't understand to types swig does understand
+#if defined(APPLY_OUTARGS)
+%include ecmdApplyOutArgs.i
+#endif
 /*********** End Applies ***********/
 
 /*********** Start Insert Code ***********/

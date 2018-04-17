@@ -32,7 +32,7 @@
 
 namespace fapi2
 {
-
+#ifndef __PPE__
 ///
 /// @brief Enable/Disable special wakeup on processor chip core(s)
 ///
@@ -122,6 +122,25 @@ void createPlatLog(
     fapi2::ReturnCode& io_rc,
     fapi2::errlSeverity_t i_sev = fapi2::FAPI2_ERRL_SEV_UNRECOVERABLE
 );
+
+///
+/// @brief Associate an error to PRD PLID
+///
+/// @param[in] i_target Reference to target
+/// @param[in,out] io_rc Reference to ReturnCode
+/// @param[in] i_sev Fapi error log severity defaulted to unrecoverable
+/// @param[in] i_unitTestError - flag to log error which does not cause a unit
+///                              test to fail.
+///
+/// @note Implemented by platform code
+///
+void log_related_error(
+    const Target<TARGET_TYPE_ALL>& i_target,
+    fapi2::ReturnCode& io_rc,
+    const fapi2::errlSeverity_t i_sev = fapi2::FAPI2_ERRL_SEV_UNRECOVERABLE,
+    const bool i_unitTestError = false );
+
+#endif // __PPE__
 
 ///
 /// @brief Delay this thread. Hostboot will use the nanoseconds parameter

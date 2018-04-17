@@ -46,9 +46,9 @@ typedef struct adal_sbefifo_op adal_sbefifo_reply;
 /* ioctl commands */
 #define IOCTL_SUBMIT		0x1
 #define IOCTL_REQUEST_RESET	0x2
-#define IOCTL_READREG		0x3
-#define IOCTL_WRITEREG		0x4
-#define IOCTL_RESET		0x5
+#define IOCTL_WRITEREG          0x0005
+#define IOCTL_READREG           0x0006
+#define IOCTL_RESET             0x0007
 
 
 /* the registers of the SBEFIFO Engine */

@@ -56,6 +56,9 @@
 #define INSTRUCTION_FLAG_CFAM_MAILBOX           0x00002000
 
 #define INSTRUCTION_FLAG_CACHE_INHIBITED        0x00001000
+#define INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE   0x00000800
+#define INSTRUCTION_FLAG_POWR_DDR4              0x00000400
+#define INSTRUCTION_FLAG_NO_PIB_RESET           0x00000200
 
 /**
  @brief function to create string from instruction flag
@@ -104,6 +107,11 @@ std::string InstructionTapToString(uint32_t i_tap);
 /*  These are the Instruction Flag Defines                            */
 /* ------------------------------------------------------------------ */
 #define INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS   0x80000000
+#define INSTRUCTION_I2C_FLAG_MASK               0xFF000000
+#define INSTRUCTION_I2C_FLAG_RETRY_MASK         0x00FFA000  // specifies number of bytes written per jiffy, a jiffy is 10ms            
+#define INSTRUCTION_I2C_FLAG_RETRY_SHIFT        14
+#define INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK      0x00003FFF  // max value of 8192 accepted
+#define INSTRUCITON_I2C_FLAG_MSG_SIZE_SHIFT     0
 
 /**
  @brief function to create string from instruction I2C flag

@@ -48,10 +48,6 @@
 //  Constants
 //----------------------------------------------------------------------
 #define EDB_RANDNUM 0x12345678
-#define EDB_ADMIN_HEADER_SIZE 1
-#define EDB_ADMIN_FOOTER_SIZE 1
-// This define is the sum of EDB_ADMIN_HEADER_SIZE + EDB_ADMIN_FOOTER_SIZE
-#define EDB_ADMIN_TOTAL_SIZE 2
 #define EDB_RETURN_CODE 0
 
 // New Constants for improved performance
@@ -405,7 +401,7 @@ uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
     return rc;
   } else if (i_newNumBits < iv_NumBits) {
     /* You can't grow smaller, use shrink */
-    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempted to grow to a smaller size then current buffer size.");
+    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempted to grow to a smaller size than current buffer size.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
 
@@ -2801,6 +2797,11 @@ uint32_t* ecmdDataBufferBaseImplementationHelper::getDataPtr( void* i_buffer ) {
   ecmdDataBufferBase* buff = (ecmdDataBufferBase*)i_buffer;
   return buff->iv_Data;
 };
+
+const uint32_t * ecmdDataBufferBaseImplementationHelper::getConstDataPtr( const ecmdDataBufferBase * i_buffer ) {
+  if (i_buffer == NULL) return NULL;
+  return i_buffer->iv_Data;
+}
 
 
 /********************************************************************************

@@ -61,6 +61,12 @@ std::string InstructionFlagToString(uint32_t i_flag) {
     returnString += "INSTRUCTION_FLAG_CFAM_MAILBOX, ";
   if (INSTRUCTION_FLAG_CACHE_INHIBITED & i_flag)
     returnString += "INSTRUCTION_FLAG_CACHE_INHIBITED, ";
+  if (INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE & i_flag)
+    returnString += "INSTRUCTION_FLAG_SBEFIFO_RESET_ENABLE, ";
+  if (INSTRUCTION_FLAG_POWR_DDR4 & i_flag)
+    returnString += "INSTRUCTION_FLAG_POWR_DDR4, ";
+  if (INSTRUCTION_FLAG_NO_PIB_RESET & i_flag)
+    returnString += "INSTRUCTION_FLAG_NO_PIB_RESET, ";
   return returnString;
 }
 
@@ -128,6 +134,10 @@ std::string InstructionI2CFlagToString(uint32_t i_i2cFlag) {
   std::string returnString = "";
   if (INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS & i_i2cFlag)
     returnString += "INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS, ";
+  if (INSTRUCTION_I2C_FLAG_RETRY_MASK & i_i2cFlag)
+    returnString += "INSTRUCTION_I2C_FLAG_RETRY_MASK, ";
+  if (INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK & i_i2cFlag)
+    returnString += "INSTRUCTION_I2C_FLAG_MSG_SIZE_MASK, ";
   return returnString;
 }
 

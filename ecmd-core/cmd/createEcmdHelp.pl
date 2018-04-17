@@ -26,9 +26,6 @@ chomp($pwd = `cd $pwd;pwd`);  # Get to where this script resides
 my @extensions;
 if ($ENV{"EXTENSIONS"} ne "") {
   @extensions = sort split(/\s+/, $ENV{"EXTENSIONS"})
-} else {
-  # Error
-  die "EXTENSIONS not set";
 }
 
 # Add the common command onto the front

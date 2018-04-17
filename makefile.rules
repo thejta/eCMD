@@ -18,6 +18,7 @@ dir:
 	@if [ ! -d ${OUTPERL} ]; then mkdir -p ${OUTPERL}; echo mkdir -p ${OUTPERL}; fi
 	@if [ ! -d ${OUTPY} ]; then mkdir -p ${OUTPY}; echo mkdir -p ${OUTPY}; fi
 	@if [ ! -d ${OUTPY3} ]; then mkdir -p ${OUTPY3}; echo mkdir -p ${OUTPY3}; fi
+	@if [ ! -d ${OUTPYECMD} ]; then mkdir -p ${OUTPYECMD}; echo mkdir -p ${OUTPYECMD}; fi
 
 # Runs the objclean rule in addition to removing generated source and binaries
 clean: objclean
@@ -38,6 +39,18 @@ ifeq (${TEST_BUILD},yes)
   endef
 else
   define run-all-test
+  endef
+endif
+
+# Only do the catch build test if enabled
+ifeq (${CATCH_TEST_BUILD},yes)
+  define run-all-catch-test
+	@echo ""
+	@echo "==== Catch Testing Build ===="
+	${VERBOSE}${MAKE} catch_test ${MAKEFLAGS} --no-print-directory
+  endef
+else
+  define run-all-catch-test
   endef
 endif
 
