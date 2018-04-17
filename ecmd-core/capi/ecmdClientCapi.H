@@ -444,37 +444,6 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
 */
 uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
-/**
- @brief Query Scomgroup information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_scomGroupName Name of the scomgroup to look up in the hash
- @param o_queryData Return data from query
- @param o_entries list of scomsEntrys within the groupscomname
- @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If set to "default" the latest version of the
-                                file will be read and io_scomGroupFileVersion will be set to the version number.
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData & o_queryData, std::list<ecmdScomEntry> & o_entries, std::string & io_scomGroupFileVersion);
-
-/**
- @brief Does the query and the doScomMultiple in one function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_scomGroupName Name of the scomgroup to look up in the hash
- @param io_groupScomEntries this will be populated and returned
- @param io_scomGroupFileVersion specifies which version of the groupscomdef file to query. If set to "default" the latest version of the
-                                file will be read and io_scomGroupFileVersion will be set to the version number.
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion); 
 //@}
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
