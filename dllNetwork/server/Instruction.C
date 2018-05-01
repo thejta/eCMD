@@ -265,6 +265,8 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "PSI_CMU_REG_READ";
     case Instruction::PSI_CMU_REG_WRITE:
       return "PSI_CMU_REG_WRITE";
+    case Instruction::GETFILE:
+      return "GETFILE";
   }
   return "";
 }
