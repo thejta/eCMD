@@ -52,7 +52,7 @@ ${CONSTANTS_PY}: ${OUTPY}/ecmd.py
 	@echo "Generating $@ ..."
 	@{ \
 	    echo -n "from ecmd import "; \
-	    grep -E "([A-Z0-9_]+)\s+=\s+_ecmd\.\1" $< | cut -d' ' -f1 | tr '\n' ',' | sed 's/,$$//'; \
+	    grep -E "([[:upper:][:digit:]_]+)\s+=\s+_ecmd\.\1" $< | cut -d' ' -f1 | tr '\n' ',' | sed 's/,$$//'; \
 	 } > $@
 
 # *****************************************************************************
