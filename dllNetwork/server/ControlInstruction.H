@@ -260,7 +260,7 @@ class ControlInstruction : public Instruction {
     //@}
 
   protected:
-    // RUN_CMD, CHICDOIPL
+    // RUN_CMD, CHICDOIPL, GETFILE
     std::string commandToRun;
     // AUTH, ADDAUTH, CLEARAUTH
     uint32_t key;
