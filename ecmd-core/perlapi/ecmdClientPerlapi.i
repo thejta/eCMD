@@ -83,6 +83,11 @@
 %template(vectorString)              std::vector<std::string>;
 /*********** End Templates ***********/
 
+/*********** Start Copy Constructors ***********/
+%copyctor ecmdChipTarget;
+%copyctor ecmdLooperData;
+/*********** End Copy Constructors ***********/
+
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
 %include "ecmdClientPerlapi.H"

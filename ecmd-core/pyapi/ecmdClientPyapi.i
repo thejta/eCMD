@@ -73,6 +73,11 @@
 %template(uint32_tList)              std::list<uint32_t>;
 /*********** End Templates ***********/
 
+/*********** Start Copy Constructors ***********/
+%copyctor ecmdChipTarget;
+%copyctor ecmdLooperData;
+/*********** End Copy Constructors ***********/
+
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
 %include "ecmdStructs.H"
