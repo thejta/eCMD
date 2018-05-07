@@ -85,6 +85,37 @@
 
 /*********** Start Copy Constructors ***********/
 %copyctor ecmdChipTarget;
+%copyctor ecmdThreadData;
+%copyctor ecmdChipUnitData;
+%copyctor ecmdChipData;
+%copyctor ecmdSlotData;
+%copyctor ecmdNodeData;
+%copyctor ecmdCageData;
+%copyctor ecmdQueryData;
+%copyctor ecmdRingData;
+%copyctor ecmdArrayData;
+%copyctor ecmdTraceArrayData;
+%copyctor ecmdFastArrayData;
+%copyctor ecmdScomData;
+%copyctor ecmdScomDataHidden;
+%copyctor ecmdLataData;
+%copyctor ecmdScomEntry;
+%copyctor ecmdArrayEntry;
+%copyctor ecmdNameEntry;
+%copyctor ecmdNameVectorEntry;
+%copyctor ecmdIndexVectorEntry;
+%copyctor ecmdIndexEntry;
+%copyctor ecmdLatchEntry;
+%copyctor ecmdLatchQueryData;
+%copyctor ecmdLatchQueryDataHidden;
+%copyctor ecmdProcRegisterInfo;
+%copyctor ecmdCacheData;
+%copyctor ecmdSpyData;
+%copyctor ecmdI2CCmdEntry;
+%copyctor ecmdSimModelInfo;
+%copyctor ecmdConnectionData;
+%copyctor ecmdPnorListEntryData;
+%copyctor ecmdPnorListData;
 %copyctor ecmdLooperData;
 /*********** End Copy Constructors ***********/
 
