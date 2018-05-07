@@ -37,8 +37,14 @@
 //--------------------------------------------------------------------
 //  Function Definitions                                               
 //--------------------------------------------------------------------
-/* For use by dllQueryConfig and dllQueryExist */
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
+// For use by dllQueryConfig and dllQueryExist
+uint32_t queryConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
 
 //--------------------------------------------------------------------
 //  Function Definitions                                               
@@ -111,69 +117,205 @@ uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, e
   return queryConfigExist(i_target, o_queryData, i_detail, true);
 }
 
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
+uint32_t queryConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
 
-  // queryConfig is a central function of any eCMD plugin.  The data from this function drives
-  // the eCMD chip loopers in the cmdline or any other eCMD program.
-  // This creates a complex set of nested structures that represents all the available targets in a system
-  // It can be filted down by the state variables of the target passed in
+  // Need to clear out the queryConfig data before pushing stuff in
+  // This is in case there is stale data in there
+  o_queryData.cageData.clear();
 
-  // This version for the stub just creates a small set of fake data
+  // From here, we will recursively work our way through all levels of hierarchy in the target
+  if (i_target.cageState == ECMD_TARGET_FIELD_VALID || i_target.cageState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistCages(i_target, o_queryData.cageData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // The stack of target data variables
-  ecmdThreadData threadData;
-  ecmdChipUnitData chipUnitData;
-  ecmdChipData chipData;
-  ecmdNodeData nodeData;
-  ecmdSlotData slotData;
+  return rc;
+}
+
+uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
   ecmdCageData cageData;
 
-  /* Let's return some dummy info, we will return a proc with cores and threads */
+  // We only have 1 cage for this example, create that data
+  // Then walk down through our nodes
+  cageData.cageId = 0;
 
-  // Setup the threadData
-  threadData.threadId = 0;
+  // If the node states are set, see what nodes are in this cage
+  if (i_target.nodeState == ECMD_TARGET_FIELD_VALID || i_target.nodeState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistNodes(i_target, cageData.nodeData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Setup the chipUnitData
-  chipUnitData.chipUnitType = "core";
-  chipUnitData.chipUnitNum = 0;
-  chipUnitData.numThreads = 2;
-  chipUnitData.threadData.push_front(threadData);
+  // Save what we got from recursing down, or just being happy at this level
+  o_cageData.push_back(cageData);
 
-  // Setup the chipData
-  chipData.chipUnitData.push_front(chipUnitData);
-  chipData.chipType = "pu";
-  chipData.pos = 0;
-  slotData.chipData.push_front(chipData);
+  return rc;
+}
 
-  // Create positions 1-3 without any chipunit data
-  ecmdChipData cdReplicate;
-  cdReplicate.chipUnitData.clear();
-  cdReplicate.chipType = "pu";
-  cdReplicate.pos = 1;
-  slotData.chipData.push_back(cdReplicate);
+uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdNodeData nodeData;
 
-  cdReplicate.pos = 2;
-  slotData.chipData.push_back(cdReplicate);
+  // We only have 1 node for example, create that data
+  // Then walk down through our slots
+  nodeData.nodeId = 0;
 
-  cdReplicate.pos = 3;
-  slotData.chipData.push_back(cdReplicate);
+  // If the slot states are set, see what slots are in this node
+  if (i_target.slotState == ECMD_TARGET_FIELD_VALID || i_target.slotState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistSlots(i_target, nodeData.slotData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Define slot 0
+  // Save what we got from recursing down, or just being happy at this level
+  o_nodeData.push_back(nodeData);
+
+  return rc;
+}
+
+uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdSlotData slotData;
+
+  // We only have 1 slot for example, create that data
+  // Then walk down through our chips
   slotData.slotId = 0;
 
-  // Setup the node
-  nodeData.nodeId = 0;
-  nodeData.slotData.push_front(slotData);
+  // If the chipType states are set, see what chipTypes are in this slot
+  if (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID || i_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistChips(i_target, slotData.chipData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Setup the cage
-  cageData.cageId = 0;
-  cageData.nodeData.push_front(nodeData);
+  // Save what we got from recursing down, or just being happy at this level
+  o_slotData.push_back(slotData);
 
-  // Add it all to the return structs
-  queryData.cageData.push_front(cageData);
+  return rc;
+}
+
+uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipData chipData;
+
+  // Create a sample with 4 positions
+  for (uint32_t pos = 0; pos < 4; pos++) {
+
+    // If posState is set to VALID, check that our values match
+    // If posState is set to WILDCARD, we don't care
+    if ((i_target.posState == ECMD_TARGET_FIELD_VALID) && (pos != i_target.pos))
+      continue;
+
+    // We passed our checks, load up our data
+    chipData.chipUnitData.clear();
+    chipData.chipType = "pu";
+    chipData.pos = pos;
+
+    // If the chipUnitType states are set, see what chipUnitTypes are in this chipType
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID ||
+        i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+
+      // Look for chipunits
+      rc = queryConfigExistChipUnits(i_target, pos, chipData.chipUnitData, i_detail, i_allowDisabled);
+      if (rc) return rc;
+    }
+
+    // Save what we got from recursing down, or just being happy at this level
+    o_chipData.push_back(chipData);
+  }
+
+  return rc;
+}
+
+uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipUnitData chipUnitData;
+
+  // Positions 2 and 3 in our example won't have chip units, so bail
+  if (i_pos == 2 || i_pos == 3) {
+    return 0;
+  }
+
+  // Dummy up data for pos 0 and 1
+  // This code would normally be much cleaner in a full featured plugin as you would be
+  // generically querying the backend to find out what was and wasn't available
+  // It would look very much like the levels up, instead we dummy up data here
+  if (i_pos == 0 || i_pos == 1) {
+    // Properly check if the ex chipunit was asked for and then create it
+    bool addExUnit = false;
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+      addExUnit = true;
+    }
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID &&
+        i_target.chipUnitType == "ex") {
+      addExUnit = true;
+    }
+
+    if (addExUnit) {
+      if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_WILDCARD ||
+          i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+        for (uint32_t exNum = 0; exNum < 24; exNum++) {
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID &&
+              i_target.chipUnitNum != exNum) {
+            // Not the requested chipunitnum, skip
+            continue;
+          }
+          chipUnitData.threadData.clear();
+          chipUnitData.chipUnitType = "ex";
+          chipUnitData.chipUnitNum = exNum;
+          chipUnitData.numThreads = 4;
+
+          // If the thread states are set, see what thread are in this chipUnit
+          if (i_target.threadState == ECMD_TARGET_FIELD_VALID ||
+              i_target.threadState == ECMD_TARGET_FIELD_WILDCARD) {
+            // Look for threads
+            rc = queryConfigExistThreads(i_target, chipUnitData.threadData, i_detail, i_allowDisabled);
+            if (rc) return rc;
+          }
+
+          o_chipUnitData.push_back(chipUnitData);
+        }
+      }
+    }
+
+    // Add a second non thread level chipunit, just on p0
+    if (i_pos == 0) {
+      if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD ||
+          (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID &&
+           i_target.chipUnitType == "pcie")) {
+
+        for (uint32_t pcieNum = 0; pcieNum < 5; pcieNum++) {
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID &&
+              i_target.chipUnitNum != pcieNum) {
+            // Not the requested chipunitnum, skip
+            continue;
+          }
+          chipUnitData.threadData.clear();
+          chipUnitData.chipUnitType = "pcie";
+          chipUnitData.chipUnitNum = pcieNum;
+          chipUnitData.numThreads = 0;
+
+          // No threads here, just add it
+          o_chipUnitData.push_back(chipUnitData);
+        }
+      }
+    }
+  }
   
-  return ECMD_SUCCESS;
-} 
+  return rc;
+}
+
+uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdThreadData threadData;
+
+  for (uint32_t thread = 0; thread < 4; thread++) {
+    threadData.threadId = thread;
+
+    o_threadData.push_back(threadData);
+  }
+
+  return rc;
+}
 
 uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
 
