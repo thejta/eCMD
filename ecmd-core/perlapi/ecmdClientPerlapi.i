@@ -97,7 +97,6 @@
 %copyctor ecmdTraceArrayData;
 %copyctor ecmdFastArrayData;
 %copyctor ecmdScomData;
-%copyctor ecmdScomDataHidden;
 %copyctor ecmdLataData;
 %copyctor ecmdScomEntry;
 %copyctor ecmdArrayEntry;
@@ -107,7 +106,6 @@
 %copyctor ecmdIndexEntry;
 %copyctor ecmdLatchEntry;
 %copyctor ecmdLatchQueryData;
-%copyctor ecmdLatchQueryDataHidden;
 %copyctor ecmdProcRegisterInfo;
 %copyctor ecmdCacheData;
 %copyctor ecmdSpyData;
