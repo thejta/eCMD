@@ -124,6 +124,12 @@ class ControlInstruction : public Instruction {
     ControlInstruction(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun = NULL);
 
     /**
+     * @brief Constructor with all variables passed in
+     * @post Instruction() is called, command, and flags are set, version is set to 0x1, and type is set to CONTROL, if i_commandToRun is not NULL it is copied to commandToRun, fileStart and fileChunkSize are set in bytes
+     */
+    ControlInstruction(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun, uint32_t i_fileStart = 0, uint32_t i_fileChunkSize = 0);
+
+    /**
      * @brief Server-side constructor with all variables passed in
      * @post Instruction() is called, version is set to 0x1, and type is set to CONTROL, controls is also set
      */
@@ -145,6 +151,14 @@ class ControlInstruction : public Instruction {
      * @post command and flags are set, if i_commandToRun is not NULL it is copied to commandToRun
      */
     uint32_t setup(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun = NULL);
+
+    /**
+     * @brief Used as alternate way to set variables normally set on construction
+     * @retval ECMD_SUCCESS on success
+     * @retval nonzero on failure
+     * @post command and flags are set, if i_commandToRun is not NULL it is copied to commandToRun
+     */
+    uint32_t setup(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun, uint32_t i_fileStart, uint32_t i_fileChunkSize);
 
     /**
      * @brief Used for authorization settings
@@ -262,6 +276,9 @@ class ControlInstruction : public Instruction {
   protected:
     // RUN_CMD, CHICDOIPL, GETFILE
     std::string commandToRun;
+    // GETFILE
+    uint32_t fileStart;
+    uint32_t fileChunkSize;
     // AUTH, ADDAUTH, CLEARAUTH
     uint32_t key;
     std::string contactInfo;

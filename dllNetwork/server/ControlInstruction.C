@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
 
@@ -52,6 +53,22 @@ controls(NULL)
   minorIstepNum = 0;
   timeout = 0;
 }
+ControlInstruction::ControlInstruction(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun, uint32_t i_fileStart, uint32_t i_fileChunkSize) : Instruction(),
+controls(NULL)
+{
+  version = 0x1;
+  type = CONTROL;
+  command = i_command;
+  flags = i_flags;
+  fileStart = i_fileStart;
+  fileChunkSize = i_fileChunkSize;
+  if(i_commandToRun != NULL) {
+    commandToRun = i_commandToRun;
+  }
+  if (command == QUERYSP) {
+    version = 0x4;
+  }
+}  
 
 ControlInstruction::ControlInstruction(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun) : Instruction(),
 controls(NULL)
@@ -87,6 +104,18 @@ uint32_t ControlInstruction::setup(InstructionCommand i_command, uint32_t i_flag
   }
   if (command == QUERYSP) {
     version = 0x4;
+  }
+  return 0;
+}
+
+uint32_t ControlInstruction::setup(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun, uint32_t i_fileStart, uint32_t i_fileChunkSize) {
+  version = 0x1;
+  command = i_command;
+  flags = i_flags;
+  fileStart = i_fileStart;
+  fileChunkSize = i_fileChunkSize;
+  if(i_commandToRun != NULL) {
+    commandToRun = i_commandToRun;
   }
   return 0;
 }
@@ -318,6 +347,9 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
           rc = o_status.rc = SERVER_INVALID_COMMAND_BLOCK_FIELD_COMMAND;
           break;
         }
+
+        // test that commandToRun contains a valid file
+        // error out if the file does not exist
         struct stat buffer;
         if( stat(commandToRun.c_str(), &buffer) != 0 )
         {
@@ -327,7 +359,40 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
         }
         else
         {
-          rc = o_data.readFile( commandToRun.c_str(), ECMD_SAVE_FORMAT_BINARY_DATA, NULL );
+            std::ifstream l_file;
+            l_file.open( commandToRun.c_str() );
+
+            if ( l_file.fail() ) 
+            {
+                snprintf(errstr, 200, "ControlInstruction::execute(GETFILE) Error opening file (%d) %s\n", errno, commandToRun.c_str() );
+                o_status.errorMessage.append(errstr);
+                rc = o_status.rc = SERVER_CONTROL_OPEN_FILE_FAILURE;
+                break;
+            }
+
+            // seek to the end to determine file size
+            l_file.seekg(0, l_file.end);
+            uint32_t l_fileSize = l_file.tellg();
+
+            // seek to where the user wants us to start
+            if ( fileStart < l_fileSize )
+            {
+                l_file.seekg(fileStart);
+            }
+            else
+            {
+                snprintf(errstr, 200, "ControlInstruction::execute(GETFILE) fileStart(%d) starts beyond size of file (%d)\n", fileStart, l_fileSize);
+                o_status.errorMessage.append(errstr);
+                rc = o_status.rc = SERVER_CONTROL_READ_FILE_FAILURE;
+                break;
+            }
+
+            // set fileChunkSize to file size if the default of 0 is set
+            if ( fileChunkSize == 0 ) fileChunkSize = l_fileSize;
+
+            o_data.setByteLength(fileChunkSize);
+ 
+            rc = o_data.readFileStream( l_file, fileChunkSize*8 );
             
           if ( rc ) 
           {
@@ -335,10 +400,16 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
             o_status.errorMessage.append(errstr);
             rc = o_status.rc = SERVER_CONTROL_READ_FILE_FAILURE;
           }
+            else if ( (fileStart + fileChunkSize) < l_fileSize )
+            {
+                rc = o_status.rc = SERVER_CONTROL_MORE_DATA_AVAILABLE;
+            }
           else
           {
             rc = o_status.rc = SERVER_COMMAND_COMPLETE;
           }
+          
+          l_file.close();
         }
       }
       break;  
@@ -363,12 +434,16 @@ uint32_t ControlInstruction::flatten(uint8_t * o_data, uint32_t i_len) const {
     o_ptr[0] = htonl(version);
     o_ptr[1] = htonl(command);
     o_ptr[2] = htonl(flags);
-    if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
+    if (command == RUN_CMD || command == QUERYSP) {
       if (commandToRun.size() > 0) {
         strcpy(((char *)(o_ptr + 3)), commandToRun.c_str());
       } else {
         memset(((char *)(o_ptr + 3)), 0x0, 1);
       }
+    } else if (command == GETFILE) {
+      o_ptr[3] = htonl(fileStart);
+      o_ptr[4] = htonl(fileChunkSize);
+      strcpy(((char *)(o_ptr + 5)), commandToRun.c_str());
     } else if (command == AUTH) {
       o_ptr[3] = htonl(key);
     } else if (command == ADDAUTH) {
@@ -395,8 +470,12 @@ uint32_t ControlInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
   if(version == 0x1 || version == 0x2 || version == 0x3 || version == 0x4) {
     command = (InstructionCommand) ntohl(i_ptr[1]);
     flags = ntohl(i_ptr[2]);
-    if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
+    if (command == RUN_CMD || command == QUERYSP) {
       commandToRun = ((char *)(i_ptr + 3));
+    } else if (command == GETFILE) {
+      fileStart = ntohl(i_ptr[3]);
+      fileChunkSize = ntohl(i_ptr[4]);
+      commandToRun = ((char *)(i_ptr + 5));
     } else if (command == AUTH) {
       key = ntohl(i_ptr[3]);
     } else if (command == ADDAUTH) {
@@ -415,8 +494,10 @@ uint32_t ControlInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
 
 uint32_t ControlInstruction::flattenSize(void) const {
   uint32_t size = 0;
-  if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
+  if (command == RUN_CMD || command == QUERYSP) {
     size = (3 * sizeof(uint32_t)) + commandToRun.size() + 1;
+  } else if (command == GETFILE) {
+    size = (5 * sizeof(uint32_t)) + commandToRun.size() + 1;
   } else if (command == AUTH) {
     size = (4 * sizeof(uint32_t));
   } else if (command == ADDAUTH) {
@@ -438,6 +519,10 @@ std::string ControlInstruction::dumpInstruction(void) const {
   oss << "flags         : " << InstructionFlagToString(flags) << std::endl;
   if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
     oss << "commandToRun  : " << commandToRun << std::endl;
+    if ( command == GETFILE ) {
+      oss << "fileStart     : " << fileStart << std::endl;
+      oss << "fileChunkSize : " << fileChunkSize << std::endl;
+    }
   } else if (command == AUTH) {
     oss << "key           : " << std::hex << std::setw(8) << std::setfill('0') << key << std::dec << std::endl;
   } else if (command == ADDAUTH) {
@@ -457,6 +542,9 @@ std::string ControlInstruction::dumpInstructionShort(void) const {
 
   if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
     oss << commandToRun;
+    if ( command == GETFILE ) {
+      oss << ", " << fileStart << ", " << fileChunkSize;
+    }
   } else if (command == AUTH) {
     oss << std::hex << std::setw(8) << std::setfill('0') << key;
   } else if (command == ADDAUTH) {
@@ -496,6 +584,10 @@ std::string ControlInstruction::getInstructionVars(const InstructionStatus & i_s
   if (command == RUN_CMD || command == QUERYSP || command == GETFILE) {
     oss << "rc: " << std::setw(8) << i_status.rc;
     oss << " commandToRun: " << commandToRun;
+    if ( command == GETFILE ) {
+      oss << " fileStart: " << fileStart;
+      oss << " fileChunkSize: " << fileChunkSize;
+    }
   } else if (command == AUTH || command == ADDAUTH) {
     oss << "rc: " << std::setw(8) << i_status.rc;
     oss << " key: " << std::setw(8) << key;
