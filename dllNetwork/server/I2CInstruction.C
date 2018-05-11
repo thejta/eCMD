@@ -285,7 +285,7 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
             std::string words;
             genWords(o_data, words);
-            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETLIGHT errno=%d, rc = %zu)\n", errno, rcReset);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETLIGHT errno=%d, rc = %d)\n", errno, rcReset);
             o_status.errorMessage.append(errstr);
           }
          
@@ -322,7 +322,7 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
             std::string words;
             genWords(o_data, words);
-            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETFULL errno=%d, rc = %zu)\n", errno, rcReset);
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_reset() SERVER_I2CRESETFULL errno=%d, rc = %d)\n", errno, rcReset);
             o_status.errorMessage.append(errstr);
           }
          
