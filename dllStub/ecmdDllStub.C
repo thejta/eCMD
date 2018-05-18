@@ -281,17 +281,17 @@ uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, 
     if (i_pos == 0) {
       if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD ||
           (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID &&
-           i_target.chipUnitType == "pcie")) {
+           i_target.chipUnitType == "phb")) {
 
-        for (uint32_t pcieNum = 0; pcieNum < 5; pcieNum++) {
+        for (uint32_t phbNum = 0; phbNum < 5; phbNum++) {
           if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID &&
-              i_target.chipUnitNum != pcieNum) {
+              i_target.chipUnitNum != phbNum) {
             // Not the requested chipunitnum, skip
             continue;
           }
           chipUnitData.threadData.clear();
-          chipUnitData.chipUnitType = "pcie";
-          chipUnitData.chipUnitNum = pcieNum;
+          chipUnitData.chipUnitType = "phb";
+          chipUnitData.chipUnitNum = phbNum;
           chipUnitData.numThreads = 0;
 
           // No threads here, just add it
