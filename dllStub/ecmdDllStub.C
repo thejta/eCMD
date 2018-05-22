@@ -40,12 +40,12 @@
 
 // For use by dllQueryConfig and dllQueryExist
 uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
 
 //--------------------------------------------------------------------
 //  Function Definitions                                               
@@ -126,7 +126,7 @@ uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_que
   return rc;
 }
 
-uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdCageData cageData;
 
@@ -146,7 +146,7 @@ uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData
   return rc;
 }
 
-uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdNodeData nodeData;
 
@@ -166,7 +166,7 @@ uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData
   return rc;
 }
 
-uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdSlotData slotData;
 
@@ -186,7 +186,7 @@ uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData
   return rc;
 }
 
-uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;
 
@@ -219,7 +219,7 @@ uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData
   return rc;
 }
 
-uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipUnitData chipUnitData;
 
@@ -297,7 +297,7 @@ uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, 
   return rc;
 }
 
-uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdThreadData threadData;
 
