@@ -91,7 +91,7 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
  @param i_data Databuffer to print
  @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
 */
-void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
+void printEcmdDataBuffer(std::string variableType, std::string variableName, const ecmdDataBuffer & i_data, std::string i_tabStop);
 
 void debugFunctionOuput(const char* outbuf);
 #endif
@@ -203,13 +203,15 @@ uint32_t decToUInt32(const char *decstr) {
     return decdata;
 }
 
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
+std::string ecmdWriteDataFormatted(const ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
   bool compression = false;
+  const ecmdDataBuffer * l_pData = & i_data;
+  ecmdDataBuffer l_uncompressedData;
 
   // We have to check for the memory types before we fall into the looping below
   if (i_format.substr(0,3) == "mem") {
@@ -339,8 +341,17 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
 
   /* If compression was enabled on the buffer, and the user asked to view it, uncompress the data */
   if (compression) {
-    if (i_data.isBufferCompressed()) {
-      i_data.uncompressBuffer();
+    if (l_pData->isBufferCompressed()) {
+      // copy the data before decompressing
+      l_uncompressedData = *l_pData;
+      uint32_t l_rc = l_uncompressedData.uncompressBuffer();
+      if (l_rc) {
+        printed = "Compressed data failed to uncompress!\n";
+        ecmdOutputError(printed.c_str());
+        printed = "";
+        return printed;
+      }
+      l_pData = & l_uncompressedData;
     } else {
       printed = "Compressed data option was given on the cmdline, but data wasn't compressed!\n";
       ecmdOutputError(printed.c_str());
@@ -350,46 +361,46 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
   }
 
   if (curState == ECMD_FORMAT_X) {
-    printed = "0x" + i_data.genHexLeftStr();
+    printed = "0x" + l_pData->genHexLeftStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_XR) {
-    printed = "0xr" + i_data.genHexRightStr();
+    printed = "0xr" + l_pData->genHexRightStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_B) {
-    printed = "0b" + i_data.genBinStr();
+    printed = "0b" + l_pData->genBinStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_A) {
-    if (i_data.getByteLength()>0) {
-      printed =  i_data.genAsciiStr(0, i_data.getBitLength()).substr(0,i_data.getByteLength());
+    if (l_pData->getByteLength()>0) {
+      printed =  l_pData->genAsciiStr(0, l_pData->getBitLength()).substr(0,l_pData->getByteLength());
       printed += "\n";
     }
   }
   else if (curState == ECMD_FORMAT_D) {
-    if (i_data.getBitLength() > 32) {
+    if (l_pData->getBitLength() > 32) {
       ecmdOutputError("ecmdWriteDataFormatted - Unable to generate decimal numbers for buffers bigger than 32 bits\n");
       printed = "";
       return printed;
     }
     /* Short enough, let generate this number */
     char tempstr[100];
-    uint32_t decimalData = i_data.getWord(0);
+    uint32_t decimalData = l_pData->getWord(0);
     /* Right align it */
-    decimalData >>= (32 - i_data.getBitLength());
+    decimalData >>= (32 - l_pData->getBitLength());
     /* Print it */
     sprintf(tempstr, "%d\n", decimalData);
     printed = tempstr;
   }
 #ifndef REMOVE_SIM
   else if (curState == ECMD_FORMAT_BX) {
-    if (!i_data.isXstateEnabled()) {
+    if (!l_pData->isXstateEnabled()) {
       ecmdOutputError("ecmdWriteDataFormatted - Write of X-state data required but Xstate buffer not enabled\n");
       printed = "";
       return printed;
     }
-    printed = "0b" + i_data.genXstateStr();
+    printed = "0b" + l_pData->genXstateStr();
     printed += "\n";
   }
 #endif
@@ -403,43 +414,43 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     int i=0;
     
     //if not exact word multiple
-    if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
-      numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+    if ( (l_pData->getWordLength()*4) > (l_pData->getByteLength()) ) {
+      numLastBytes = 4 - ((l_pData->getWordLength()*4) - (l_pData->getByteLength()));
     }
     // Loop through the complete 4 word blocks
-    while ((i_data.getWordLength() - wordsDone) > 3) {
+    while ((l_pData->getWordLength() - wordsDone) > 3) {
       wordsDonePrev = wordsDone;
       //last word
-      if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-        lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
-        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
+      if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+        lastBytes = l_pData->genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %s", myAddr, l_pData->getWord(wordsDone), l_pData->getWord(wordsDone+1), l_pData->getWord(wordsDone+2), lastBytes.c_str());
         i=0;
         while (i < (4-numLastBytes)) {
           strcat(tempstr, "  "); i++;
         }
       }
       else {
-        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %08X", myAddr, l_pData->getWord(wordsDone), l_pData->getWord(wordsDone+1), l_pData->getWord(wordsDone+2), l_pData->getWord(wordsDone+3));
       }
       printed += tempstr;
       // Text printing additions
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-          if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+          if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
           }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-          if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+          if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, 128).c_str());
           }
         }
         printed += tempstr;
@@ -449,16 +460,16 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       wordsDone += 4;
     }
     // Done with all the 4 word blocks, see if we've got some straglers left
-    if ((i_data.getWordLength() - wordsDone) != 0) {
+    if ((l_pData->getWordLength() - wordsDone) != 0) {
       wordsDonePrev = wordsDone;
       // Print the address
       sprintf(tempstr,UINT64_HEX16_FORMAT ":", myAddr);
       printed += tempstr;
       // Now throw on the words
-      while ((uint32_t) wordsDone < i_data.getWordLength()) {
+      while ((uint32_t) wordsDone < l_pData->getWordLength()) {
         //last word
-        if ( (i_data.getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
-          lastBytes = i_data.genHexLeftStr((wordsDone*32), (numLastBytes*8));
+        if ( (l_pData->getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
+          lastBytes = l_pData->genHexLeftStr((wordsDone*32), (numLastBytes*8));
           sprintf(tempstr," %s", lastBytes.c_str());
           i=0;
           while (i < (4-numLastBytes)) {
@@ -467,7 +478,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
           wordsDone++;
         }
         else {
-          sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
+          sprintf(tempstr," %08X",l_pData->getWord(wordsDone++));
         }
         printed += tempstr;
       }
@@ -480,19 +491,19 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
           if (numLastBytes) {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
           }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
           if (numLastBytes) {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
           }
         }
         printed += tempstr;
@@ -510,38 +521,38 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     //if not exact word multiple-To be used for printing in the byte format
     /*int numLastBytes=0;
      std::string lastBytes;
-     if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
-     numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+     if ( (l_pData->getWordLength()*4) > (l_pData->getByteLength()) ) {
+     numLastBytes = 4 - ((l_pData->getWordLength()*4) - (l_pData->getByteLength()));
      }*/
 
     // Print out the data
-    for (uint32_t x = 0; x < (i_data.getWordLength() / 2); x++) {
+    for (uint32_t x = 0; x < (l_pData->getWordLength() / 2); x++) {
       //To be used for printing in the byte format
-      /*if ( ((i_data.getWordLength()) == y+2) && (numLastBytes != 0)) {
-       lastBytes = i_data.genHexLeftStr(((y+1)*32), (numLastBytes*8));
-       sprintf(tempstr,"D %016X %08X%s\n", myAddr, i_data.getWord(y), lastBytes.c_str());
+      /*if ( ((l_pData->getWordLength()) == y+2) && (numLastBytes != 0)) {
+       lastBytes = l_pData->genHexLeftStr(((y+1)*32), (numLastBytes*8));
+       sprintf(tempstr,"D %016X %08X%s\n", myAddr, l_pData->getWord(y), lastBytes.c_str());
        }
        else {
-       sprintf(tempstr,"D %016X %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
+       sprintf(tempstr,"D %016X %08X%08X\n", myAddr, l_pData->getWord(y), l_pData->getWord(y+1));
        }
        y += 2;
        */
-      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X%08X\n", myAddr, l_pData->getWord(y), l_pData->getWord(y+1));
       y += 2;
       printed += tempstr;
       myAddr += 8;
     }
 
-    if (i_data.getWordLength() % 2) {
+    if (l_pData->getWordLength() % 2) {
       //To be used for printing in the byte format
       /*if ( numLastBytes != 0) {
-       lastBytes = i_data.genHexLeftStr(((i_data.getWordLength() - 1)*32), (numLastBytes*8));
+       lastBytes = l_pData->genHexLeftStr(((l_pData->getWordLength() - 1)*32), (numLastBytes*8));
        sprintf(tempstr,"D %016X %s\n", myAddr, lastBytes.c_str());
        }
        else {
-       sprintf(tempstr,"D %016X %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+       sprintf(tempstr,"D %016X %08X00000000\n", myAddr, l_pData->getWord((l_pData->getWordLength() - 1)));
        }*/
-      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X00000000\n", myAddr, l_pData->getWord((l_pData->getWordLength() - 1)));
       printed += tempstr;
     }
   }
@@ -553,16 +564,16 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     int blockSize = 32;
     if ((curState == ECMD_FORMAT_BN) || (curState == ECMD_FORMAT_BXN))  blockSize = 4;
     int curOffset = 0;
-    int numBlocks = i_data.getBitLength() % blockSize ? i_data.getBitLength() / blockSize + 1: i_data.getBitLength() / blockSize;
-    int dataBitLength = i_data.getBitLength();
+    int numBlocks = l_pData->getBitLength() % blockSize ? l_pData->getBitLength() / blockSize + 1: l_pData->getBitLength() / blockSize;
+    int dataBitLength = l_pData->getBitLength();
     ecmdDataBuffer rightData;
 
     /* defect 16358, for -oxrw8 data we need to right shift the whole buffer and then display */
     if (curState == ECMD_FORMAT_XRW) {
-      if (i_data.getBitLength() % 4) {
-        rightData = i_data;
-        rightData.shiftRightAndResize(4 - (i_data.getBitLength() % 4));
-        dataBitLength += 4 - (i_data.getBitLength() % 4);
+      if (l_pData->getBitLength() % 4) {
+        rightData = *l_pData;
+        rightData.shiftRightAndResize(4 - (l_pData->getBitLength() % 4));
+        dataBitLength += 4 - (l_pData->getBitLength() % 4);
       } else {
         /* There are no odd bits, so to save us time just treat as left aligned */
         curState = ECMD_FORMAT_XW;
@@ -582,18 +593,18 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     for (int i = 0; i < numBlocks; i++) {
 
       if (curState == ECMD_FORMAT_XW) {
-        printed += i_data.genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed += l_pData->genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else if (curState == ECMD_FORMAT_XRW) {
         printed += rightData.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 #ifndef REMOVE_SIM
       else if ((curState == ECMD_FORMAT_BX) || (curState == ECMD_FORMAT_BXN) || (curState == ECMD_FORMAT_BXW))  {
-        printed +=  i_data.genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed +=  l_pData->genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 #endif
       else {
-        printed += i_data.genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed += l_pData->genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 
       colCount++;
@@ -731,7 +742,7 @@ uint32_t ecmdDisplayDllInfo() {
 }
 
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
+uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
@@ -2079,7 +2090,7 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t i_state) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
-void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string tabStop) {
+void printEcmdDataBuffer(std::string variableType, std::string variableName, const ecmdDataBuffer & i_data, std::string tabStop) {
   std::string printed;
   char tempIntStr[180];
   int dataLooper;

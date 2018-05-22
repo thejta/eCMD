@@ -1299,7 +1299,7 @@ public:
    * @brief Look to see if the compression header is at the start of the buffer 
    * @retval true if compressed, false if not
    */   
-  bool isBufferCompressed();
+  bool isBufferCompressed() const;
 
 
   /**

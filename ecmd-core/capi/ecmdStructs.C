@@ -4451,6 +4451,13 @@ bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
 
 }
 
+// @05 start
+/*
+ * The following methods for the ecmdScomData struct will flatten, unflatten &
+ * get the flattened size of the struct.
+ */
+//FIXME these are not implemented
+#if 0
 uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
 {
         uint32_t listSize  = 0;
@@ -4743,6 +4750,7 @@ void  ecmdScomData::printStruct()
         
 }
 #endif  // end of ECMD_STRIP_DEBUG
+#endif // end of #if 0
 // @05 end
 
 // @06 start

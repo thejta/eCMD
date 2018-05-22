@@ -51,7 +51,7 @@ int main (int argc, char *argv[])
   /* Let's setup our target */
   target.cage = target.node = target.slot = 0;
   target.chipType = "pu";
-  target.pos = target.chipUnitNum = 0;
+  target.pos = target.core = 0;
 
   /* Is this target configured ? */
   if (ecmdQueryTargetConfigured(target)) {
@@ -126,7 +126,7 @@ int main (int argc, char *argv[])
   // Setup the target we will use 
   target.chipType = "pu";
   target.chipTypeState = ECMD_TARGET_QUERY_FIELD_VALID;
-  target.cageState = target.nodeState = target.slotState = target.posState = target.chipUnitNumState = ECMD_TARGET_QUERY_WILDCARD;
+  target.cageState = target.nodeState = target.slotState = target.posState = target.coreState = ECMD_TARGET_QUERY_WILDCARD;
   // For the function we are doing we know that we don't care about threads 
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
 

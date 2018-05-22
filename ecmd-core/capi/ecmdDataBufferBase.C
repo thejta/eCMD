@@ -2742,7 +2742,7 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
   return rc;
 }
 
-bool ecmdDataBufferBase::isBufferCompressed() {
+bool ecmdDataBufferBase::isBufferCompressed() const {
   bool compressed = false;
 
   /* The first 5 nibbles are a fixed pattern when compressed.  If the user happens to have this pattern in
