@@ -195,7 +195,7 @@ bool isValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
 bool queryTargetConfigExist(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
-uint32_t queryConfigExistSelected(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
+uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
 /* @brief used by dllCommonCommandArgs when ":" found, sets ecmdUserArgs */
 uint32_t ecmdTargetExpansion(std::string arg_string , const char * input_target);

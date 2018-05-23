@@ -1721,7 +1721,7 @@ uint32_t putSpr (const ecmdChipTarget & i_target, const char * i_sprName, const 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdNameEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -1808,7 +1808,7 @@ uint32_t putGpr (const ecmdChipTarget & i_target, uint32_t i_gprNum, const ecmdD
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
  The return value of this function is set to the first non-zero return code found when
@@ -1895,7 +1895,7 @@ uint32_t putFpr (const ecmdChipTarget & i_target, uint32_t i_fprNum, const ecmdD
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -1982,7 +1982,7 @@ uint32_t putSlb (const ecmdChipTarget & i_target, uint32_t i_slbNum, const ecmdD
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -4531,7 +4531,7 @@ uint32_t putLatchOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_d
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatchImageOpt(const ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, const ecmdDataBuffer & i_ringImage);
+uint32_t getLatchImageOpt(const ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, const ecmdDataBuffer & i_ringImage);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName within the provided ring image.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
