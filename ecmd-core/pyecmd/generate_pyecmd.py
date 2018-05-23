@@ -110,16 +110,24 @@ class FunctionArgument(object):
     """
     Wrapper class for a single function argument, takes care of all type transformations
     """
-    __slots__ = ("type", "name", "def_value")
+    __slots__ = ("_type", "name", "def_value")
 
     def __init__(self, argstr):
         parts = argstr.split()
-        self.type = " ".join(parts[:-1])
+        self._type = parts[:-1]
         if "=" in parts[-1]:
             self.name, self.def_value = parts[-1].split("=")
         else:
             self.name = parts[-1]
             self.def_value = ""
+
+    @property
+    def type(self):
+        return self._type[-1]
+
+    @property
+    def full_type(self):
+        return " ".join(self._type)
 
     @property
     def name_with_def_value(self):
