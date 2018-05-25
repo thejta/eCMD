@@ -602,7 +602,7 @@ uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type) {
 /* enableRingCache and disableRingCache removed after v8.0 because they can now be generated - JTA 10/17/06 */
 /* disableRingCache got moved back into here so we could add the common cache flush.  This is a snapshot
  of the generated code as of 9/4/2007 - JTA */
-uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
+uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target) {
 
   uint32_t rc;
 
@@ -622,7 +622,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
      args.push_back((void*) &i_target);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"ecmdDisableRingCache");
   }
 #endif
@@ -642,8 +642,8 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
       }
     }
 
-    uint32_t (*Function)(ecmdChipTarget &) = 
-      (uint32_t(*)(ecmdChipTarget &))DllFnTable[ECMD_FLUSHRINGCACHE];
+    uint32_t (*Function)(const ecmdChipTarget &) = 
+      (uint32_t(*)(const ecmdChipTarget &))DllFnTable[ECMD_FLUSHRINGCACHE];
     rc =    (*Function)(i_target);
 #endif
     if (rc) return rc;
@@ -664,8 +664,8 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &) = 
-      (uint32_t(*)(ecmdChipTarget &))DllFnTable[ECMD_DISABLERINGCACHE];
+  uint32_t (*Function)(const ecmdChipTarget &) = 
+      (uint32_t(*)(const ecmdChipTarget &))DllFnTable[ECMD_DISABLERINGCACHE];
 
   rc =    (*Function)(i_target);
 
@@ -675,7 +675,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"ecmdDisableRingCache");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target)",args);
    }
 #endif
 

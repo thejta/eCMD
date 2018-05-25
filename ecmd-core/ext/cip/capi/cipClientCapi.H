@@ -101,7 +101,7 @@ uint32_t cipInitExtension();
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStartInstructions (ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipStartInstructions (const ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
 
 /**
  @brief Start Instructions on all configured processors
@@ -131,7 +131,7 @@ uint32_t cipStartAllInstructions ();
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStartInstructionsSreset (ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipStartInstructionsSreset (const ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
 
 /**
  @brief Start Instructions on all configured processors using an S-Reset
@@ -161,7 +161,7 @@ uint32_t cipStartAllInstructionsSreset ();
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStopInstructions (ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipStopInstructions (const ecmdChipTarget & i_target, uint32_t i_thread = 0xFFFFFFFF);
 
 /**
  @brief Stop All Instructions
@@ -192,7 +192,7 @@ uint32_t cipStopAllInstructions ();
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipStepInstructions (const ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_thread = 0xFFFFFFFF);
 
 /**
  @brief Call Special Wakeup
@@ -209,7 +209,7 @@ uint32_t cipStepInstructions (ecmdChipTarget & i_target, uint32_t i_steps, uint3
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipSpecialWakeup (ecmdChipTarget & i_target, bool i_enable, uint32_t i_mode = 0x0);
+uint32_t cipSpecialWakeup (const ecmdChipTarget & i_target, bool i_enable, uint32_t i_mode = 0x0);
 #endif // CIP_REMOVE_INSTRUCTION_FUNCTIONS
 #ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 /**
@@ -230,7 +230,7 @@ uint32_t cipSpecialWakeup (ecmdChipTarget & i_target, bool i_enable, uint32_t i_
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipSetBreakpoint (const ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t i_type, uint32_t i_thread = 0xFFFFFFFF);
 
 /**
  @brief Clear a hardware breakpoint from Processor using a real address
@@ -250,7 +250,7 @@ uint32_t cipSetBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBr
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t & i_type, uint32_t i_thread = 0xFFFFFFFF);
+uint32_t cipClearBreakpoint (const ecmdChipTarget & i_target, uint64_t i_address, ecmdBreakpointType_t i_type, uint32_t i_thread = 0xFFFFFFFF);
 #endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
 #ifndef CIP_REMOVE_VR_FUNCTIONS
 /**
@@ -269,7 +269,7 @@ uint32_t cipClearBreakpoint (ecmdChipTarget & i_target, uint64_t i_address, ecmd
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
+uint32_t cipGetVr (const ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected VMX Register (VR) into the data buffers
@@ -291,7 +291,7 @@ uint32_t cipGetVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t cipGetVrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
@@ -312,7 +312,7 @@ uint32_t cipGetVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer & i_data);
+uint32_t cipPutVr (const ecmdChipTarget & i_target, uint32_t i_vrNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected VMX Register (VR)
@@ -335,7 +335,7 @@ uint32_t cipPutVr (ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBuffer &
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t cipPutVrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 #endif // CIP_REMOVE_VR_FUNCTIONS
 
 
@@ -368,7 +368,7 @@ uint32_t cipPutVrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> 
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError);
+uint32_t cipGetMemProc (const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError);
 
 
 /**
@@ -392,7 +392,7 @@ uint32_t cipGetMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryErrorInject);
+uint32_t cipPutMemProc (const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_memoryData, const ecmdDataBuffer & i_memoryTags, const ecmdDataBuffer & i_memoryErrorInject);
 
 /**
  @brief Reads System Mainstore through the memory controller using a real address
@@ -417,7 +417,7 @@ uint32_t cipPutMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t 
  TARGET DEPTH  : Cage<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_memorySpareBits);
+uint32_t cipGetMemMemCtrl (const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_memorySpareBits);
 
 
 /**
@@ -446,48 +446,7 @@ uint32_t cipGetMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPutMemMemCtrl (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & i_memoryTags, ecmdDataBuffer & i_memoryEcc, ecmdDataBuffer & i_memorySpareBits, ecmdDataBuffer & i_memoryErrorInject);
-
-/**
- @brief Reads System Mainstore through the processor chip using PBA
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information
- @param i_address Starting address to read from
- @param i_bytes Number of bytes to write
- @param o_data DataBuffer object that holds data read from memory
-
- TARGET DEPTH  : Pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t cipGetMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
-
-/**
- @brief Writes System Mainstore through the processor chip using PBA
- @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_INVALID_MEMORY_ADDRESS Memory Address was not on a 8-byte boundary
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @param i_target Struct that contains chip and cage/node/slot/position information 
- @param i_address Starting address to write to
- @param i_bytes Number of bytes to write
- @param i_data DataBuffer object that holds data to write into memory
- @param i_mode CIP_PBA_MODE_LCO or CIP_PBA_MODE_INJECT
-
- NOTE : When CIP_PBA_MODE_LCO mode is used, i_target must have ex chipunit<br>
-
- TARGET DEPTH  : Pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t cipPutMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
+uint32_t cipPutMemMemCtrl (const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_memoryData, const ecmdDataBuffer & i_memoryTags, const ecmdDataBuffer & i_memoryEcc, const ecmdDataBuffer & i_memorySpareBits, const ecmdDataBuffer & i_memoryErrorInject);
 #endif // CIP_REMOVE_MEMORY_FUNCTIONS
 
 #ifndef CIP_REMOVE_VSR_FUNCTIONS
@@ -507,7 +466,7 @@ uint32_t cipPutMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer & o_data);
+uint32_t cipGetVsr (const ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected VSX Register (VSR) into the data buffers
@@ -529,7 +488,7 @@ uint32_t cipGetVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t cipGetVsrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
@@ -550,7 +509,7 @@ uint32_t cipGetVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer & i_data);
+uint32_t cipPutVsr (const ecmdChipTarget & i_target, uint32_t i_vsrNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected VSX Register (VSR)
@@ -573,7 +532,7 @@ uint32_t cipPutVsr (ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdDataBuffer
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t cipPutVsrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 #endif // CIP_REMOVE_VSR_FUNCTIONS
 //@}
 /* End Memory Functions */
@@ -605,7 +564,7 @@ uint32_t cipPutVsrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry>
 
 
 */
-uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, uint32_t i_type);
+uint32_t cipPorePutScom(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data, uint32_t i_type);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -628,7 +587,7 @@ uint32_t cipPorePutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataB
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_type);
+uint32_t cipPorePutScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask, uint32_t i_type);
  
 /**
  @brief Writes the data buffer into the selected spy
@@ -650,7 +609,7 @@ uint32_t cipPorePutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, 
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_type);
+uint32_t cipPorePutSpy(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_data, uint32_t i_type);
 
 /**
  @brief Writes the enum into the selected spy
@@ -671,7 +630,7 @@ uint32_t cipPorePutSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDa
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_type);
+uint32_t cipPorePutSpyEnum(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_type);
  
 
 
@@ -695,7 +654,7 @@ uint32_t cipPorePutSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, co
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data, uint32_t i_type);
+uint32_t cipPorePutSpr (const ecmdChipTarget & i_target, const char * i_sprName, const ecmdDataBuffer & i_data, uint32_t i_type);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
@@ -719,7 +678,7 @@ uint32_t cipPorePutSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdD
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipPorePutSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries, uint32_t i_type);
+uint32_t cipPorePutSprMultiple (const ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries, uint32_t i_type);
 
 /**
  @brief Query PORE image information from the DLL
@@ -733,7 +692,7 @@ uint32_t cipPorePutSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEnt
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPoreQueryImage(ecmdChipTarget & i_target, cipPoreImageInfo & o_poreImageInfo, const char * i_imageName = NULL);
+uint32_t cipPoreQueryImage(const ecmdChipTarget & i_target, cipPoreImageInfo & o_poreImageInfo, const char * i_imageName = NULL);
 
 /**
  @brief Load the PORE image into mainstore
@@ -747,7 +706,7 @@ uint32_t cipPoreQueryImage(ecmdChipTarget & i_target, cipPoreImageInfo & o_poreI
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint64_t & i_baseAddress, const char * i_imageName = NULL);
+uint32_t cipPoreLoadImage(const ecmdChipTarget & i_target, uint64_t i_baseAddress, const char * i_imageName = NULL);
 
 /**
  @brief Fill specified section of Pore image with return instructions
@@ -761,7 +720,7 @@ uint32_t cipPoreLoadImage(ecmdChipTarget & i_target, uint64_t & i_baseAddress, c
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
+uint32_t cipPoreFillReturn(const ecmdChipTarget & i_target, uint32_t i_section);
 
 #endif // CIP_REMOVE_PORE_FUNCTIONS
 //@}
@@ -784,7 +743,7 @@ uint32_t cipPoreFillReturn(ecmdChipTarget & i_target, uint32_t i_section);
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipRWReadCache(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWCacheRec> & o_records, uint32_t i_mode);
+uint32_t cipRWReadCache(const ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWCacheRec> & o_records, uint32_t i_mode);
 
 /**
  @brief Read entries from TLB via RISCWatch
@@ -798,7 +757,7 @@ uint32_t cipRWReadCache(ecmdChipTarget & i_target, uint32_t i_startline, uint32_
  @retval ECMD_SUCCESS if successful
 
 */
-uint32_t cipRWReadTLB(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWTLBRec> & o_records);
+uint32_t cipRWReadTLB(const ecmdChipTarget & i_target, uint32_t i_startline, uint32_t i_count, std::list<cipRWTLBRec> & o_records);
 
 /**
  @brief Reads memory associated with chip via RISCWatch or HW Procedure
@@ -814,7 +773,7 @@ uint32_t cipRWReadTLB(ecmdChipTarget & i_target, uint32_t i_startline, uint32_t 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipRWReadMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 2);
+uint32_t cipRWReadMem(const ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 2);
 
 /**
  @brief Writes memory associated with chip via RISCWatch or HW Procedure
@@ -830,7 +789,7 @@ uint32_t cipRWReadMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 2);
+uint32_t cipRWWriteMem(const ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data, uint32_t i_mode = 2);
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
@@ -849,7 +808,7 @@ uint32_t cipRWWriteMem(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipRWGetDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuffer & o_data);
+uint32_t cipRWGetDcr (const ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
@@ -872,7 +831,7 @@ uint32_t cipRWGetDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipRWGetDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t cipRWGetDcrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
@@ -894,7 +853,7 @@ uint32_t cipRWGetDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntr
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipRWPutDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuffer & i_data);
+uint32_t cipRWPutDcr (const ecmdChipTarget & i_target, uint32_t i_dcrNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
@@ -918,7 +877,7 @@ uint32_t cipRWPutDcr (ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipRWPutDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t cipRWPutDcrMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
 
 /**
  @brief Checks the processor status
@@ -936,7 +895,7 @@ uint32_t cipRWPutDcrMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntr
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipRWProcStatus (ecmdChipTarget & i_target, cipRWProcStatus_t & o_status);
+uint32_t cipRWProcStatus (const ecmdChipTarget & i_target, cipRWProcStatus_t & o_status);
 
 #endif // CIP_REMOVE_RW_FUNCTIONS
 //@}
@@ -952,7 +911,7 @@ uint32_t cipRWProcStatus (ecmdChipTarget & i_target, cipRWProcStatus_t & o_statu
  @param i_msg_type The message type to send
 
 */
-uint32_t cipSendMboxMsg(ecmdChipTarget & i_target, mbox_message_t i_msg_type = CIP_MBOX_MSG_UNKNOWN);
+uint32_t cipSendMboxMsg(const ecmdChipTarget & i_target, mbox_message_t i_msg_type = CIP_MBOX_MSG_UNKNOWN);
 #endif // CIP_REMOVE_MBOX_FUNCTIONS
 //@}
 
@@ -973,7 +932,7 @@ uint32_t cipSendMboxMsg(ecmdChipTarget & i_target, mbox_message_t i_msg_type = C
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t & o_vdd, uint32_t i_vcs_mode, int32_t & o_vcs);
+uint32_t cipGetPmcVoltage(const ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t & o_vdd, uint32_t i_vcs_mode, int32_t & o_vcs);
 
 /**
  @brief Writes voltage values to processor
@@ -991,7 +950,7 @@ uint32_t cipGetPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutPmcVoltage(ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t i_vdd, uint32_t i_vcs_mode, int32_t i_vcs, uint8_t i_step_size = 0);
+uint32_t cipPutPmcVoltage(const ecmdChipTarget & i_target, uint32_t i_vdd_mode, uint32_t i_vdd, uint32_t i_vcs_mode, int32_t i_vcs, uint8_t i_step_size = 0);
 #endif // CIP_REMOVE_PMC_VOLTAGE_FUNCTIONS
 //@}
 
@@ -1030,7 +989,7 @@ uint32_t cipGetSysInfo(cipSysInfo_t & o_sysInfo);
  TARGET DEPTH  : Thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipGetMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_realAddress);
+uint32_t cipGetMemProcVariousAddrType(const ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, ecmdDataBuffer & o_memoryData, ecmdDataBuffer & o_memoryTags, ecmdDataBuffer & o_memoryEcc, ecmdDataBuffer & o_memoryEccError, ecmdDataBuffer & o_realAddress);
 
 /**
  @brief Writes System Mainstore through the processor chip using an effective address
@@ -1054,7 +1013,7 @@ uint32_t cipGetMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer 
  TARGET DEPTH  : Thread<br>
  TARGET STATES : Unused<br>
 */
-uint32_t cipPutMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, ecmdDataBuffer & i_memoryData, ecmdDataBuffer & io_memoryTags, ecmdDataBuffer & o_realAddress);
+uint32_t cipPutMemProcVariousAddrType(const ecmdChipTarget & i_target, ecmdDataBuffer i_address, uint32_t i_bytes, cipXlateVariables i_xlateVars, const ecmdDataBuffer & i_memoryData, ecmdDataBuffer & io_memoryTags, ecmdDataBuffer & o_realAddress);
 #endif // CIP_REMOVE_MEMORY_FUNCTIONS
 //@}
 /* End Memory Functions */

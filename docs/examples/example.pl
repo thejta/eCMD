@@ -525,7 +525,7 @@ if (1) {
   $target->{nodeState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{slotState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{posState}  = ECMD_TARGET_FIELD_WILDCARD;
-  $target->{chipUnitState} = ECMD_TARGET_FIELD_WILDCARD;
+  $target->{chipUnitNumState} = ECMD_TARGET_FIELD_WILDCARD;
   $target->{threadState} = ECMD_TARGET_FIELD_UNUSED;
 
   $target->{chipTypeState} = ECMD_TARGET_FIELD_VALID;

@@ -116,7 +116,7 @@ uint32_t decToUInt32(const char *i_decstr);
  @param i_address A base address value that can be used in formating certain data- i.e., data from memory
  @param i_endianMode The endianness with which to print the data
  */
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
+std::string ecmdWriteDataFormatted(const ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Print the bits header used in the output formats
@@ -146,7 +146,7 @@ uint32_t ecmdDisplayDllInfo();
  @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
  @param o_strData If passed in, then we load o_strData with what is printed to the screen
  */
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
+uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
 #endif
 
 //@}

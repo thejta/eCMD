@@ -47,7 +47,7 @@ Controller * controller = NULL;
 //  Function Definitions                                               
 //--------------------------------------------------------------------
 /* For use by dllQueryConfig and dllQueryExist */
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
+uint32_t queryConfigExist(const ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
 
 //--------------------------------------------------------------------
 //  Function Definitions                                               
@@ -108,7 +108,7 @@ uint32_t dllSpecificCommandArgs(int* argc, char** argv[]) {
 /* Dll Specific Return Codes */
 std::string dllSpecificParseReturnCode(uint32_t i_returnCode) { return ""; }
 
-uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)
+uint32_t dllGetScom(const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)
 {
     uint32_t rc = 0;
     FSIInstruction * scomoutInstruction = new FSIInstruction();
@@ -144,7 +144,7 @@ uint32_t dllGetScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     return rc;
 }
 
-uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data)
+uint32_t dllPutScom(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data)
 {
     uint32_t rc = 0;
     FSIInstruction * scominInstruction = new FSIInstruction();
@@ -153,7 +153,8 @@ uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
 
     std::string deviceString = getDeviceString(i_target);
 
-    scominInstruction->setup(Instruction::SCOMIN, deviceString, i_address, scomlen, flags, &i_data);
+    ecmdDataBuffer copy_data = i_data;
+    scominInstruction->setup(Instruction::SCOMIN, deviceString, i_address, scomlen, flags, &copy_data);
     InstructionStatus resultStatus;
     ecmdDataBuffer data;
 
@@ -181,7 +182,7 @@ uint32_t dllPutScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffe
     return rc;
 }
 
-uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask)
+uint32_t dllPutScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask)
 {
     uint32_t rc = 0;
     FSIInstruction * scominInstruction = new FSIInstruction();
@@ -190,7 +191,9 @@ uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmd
 
     std::string deviceString = "1";
 
-    scominInstruction->setup(Instruction::SCOMIN_MASK, deviceString, i_address, scomlen, flags, &i_data, &i_mask);
+    ecmdDataBuffer copy_data = i_data;
+    ecmdDataBuffer copy_mask = i_mask;
+    scominInstruction->setup(Instruction::SCOMIN_MASK, deviceString, i_address, scomlen, flags, &copy_data, &copy_mask);
     InstructionStatus resultStatus;
     ecmdDataBuffer data;
 
@@ -218,17 +221,17 @@ uint32_t dllPutScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmd
     return rc;
 }
 
-uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllGetRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllPutRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+uint32_t dllGetRing(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
 { 
     uint32_t rc = 0;
 
@@ -236,28 +239,23 @@ uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdData
     return rc;
 } 
 
-uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+uint32_t dllPutRing(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, uint32_t i_mode) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-
-uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
-uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) { return ECMD_SUCCESS; }
-
 /* ##################################################################### */
 /* Query Functions - Query Functions - Query Functions - Query Functions */
 /* ##################################################################### */
-uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+uint32_t dllQueryConfig(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
   return queryConfigExist(i_target, o_queryData, i_detail, false);
 }
 
-uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
+uint32_t dllQueryExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail ) {
   return queryConfigExist(i_target, o_queryData, i_detail, true);
 }
 
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
+uint32_t queryConfigExist(const ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
   ecmdChipUnitData chipUnitData;
   ecmdChipData chipData;
   ecmdNodeData nodeData;
@@ -313,7 +311,7 @@ uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ec
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryRing(const ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
 
   ecmdRingData ringData;
 
@@ -345,9 +343,9 @@ uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_que
   return ECMD_SUCCESS;
 }
 
-uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
+uint32_t dllQueryArray(const ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version)
+uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version)
 {
     if (i_fileType == ECMD_FILE_HELPTEXT) {
         char directoryName[200];
@@ -358,7 +356,7 @@ uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileTy
     return ECMD_SUCCESS;
 }
 
-uint32_t dllQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail )
+uint32_t dllQueryScom(const ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address, ecmdQueryDetail_t i_detail )
 {
   uint32_t rc = ECMD_SUCCESS;
   o_queryData.clear();
@@ -390,26 +388,26 @@ void dllOutput(const char* message) {
   printf("%s", message);
 }
 
-uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) { return ECMD_SUCCESS; }
+uint32_t dllGetChipData(const ecmdChipTarget & i_target, ecmdChipData & o_data) { return ECMD_SUCCESS; }
 
-uint32_t dllEnableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllEnableRingCache(const ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
 
-uint32_t dllDisableRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllDisableRingCache(const ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
 
-uint32_t dllFlushRingCache(ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
+uint32_t dllFlushRingCache(const ecmdChipTarget & i_target) { return ECMD_SUCCESS; }
 
-bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) { return false; }
+bool dllIsRingCacheEnabled(const ecmdChipTarget & i_target) { return false; }
 
-uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) { return ECMD_SUCCESS; }
+uint32_t dllGetArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width) { return ECMD_SUCCESS; }
 
-uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
+uint32_t dllPutArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, const ecmdDataBuffer & i_data) { return ECMD_SUCCESS; }
 
-uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data)
+uint32_t dllI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data)
 {
     return dllI2cReadOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_bytes, o_data);
 }
 
-uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
+uint32_t dllI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     int32_t readBits = i_bytes * 8;
@@ -442,12 +440,12 @@ uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
     return rc;
 }
 
-uint32_t dllI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data)
+uint32_t dllI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data)
 {
     return dllI2cWriteOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_data);
 }
 
-uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
+uint32_t dllI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     uint32_t flags = 0;
@@ -483,7 +481,7 @@ uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 /* ################################################################# */
 /* Misc Functions - Misc Functions - Misc Functions - Misc Functions */
 /* ################################################################# */
-uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode) {
+uint32_t dllGetScandefOrder(const ecmdChipTarget & i_target, uint32_t & o_mode) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;
 
@@ -502,11 +500,6 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable) {
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type) {
   return false;
-}
-
-uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread) {
-  uint32_t rc = ECMD_SUCCESS;
-  return rc;
 }
 
 /* ######################################################################### */
@@ -537,7 +530,7 @@ uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_targ
   return rc;
 }
 
-uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
+uint32_t dllTargetToSequenceId(const ecmdChipTarget & i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }

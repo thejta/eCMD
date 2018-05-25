@@ -106,7 +106,7 @@ void ecmdParseTokens(std::string line, const char* seperators, std::vector<std::
  * @param start Bit to start at
  * @param bitLen Number of bits
 */
-std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen);
+std::string ecmdGenEbcdic(const ecmdDataBuffer &i_data, int start, int bitLen);
 
 
 /**

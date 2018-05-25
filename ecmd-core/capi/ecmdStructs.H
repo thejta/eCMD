@@ -1301,11 +1301,11 @@ struct ecmdScomData {
   ~ecmdScomData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  //uint32_t flattenSize(void);
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  //void printStruct(void);
 #endif
 #endif
 

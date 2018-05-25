@@ -37,14 +37,15 @@
 //--------------------------------------------------------------------
 //  Function Definitions                                               
 //--------------------------------------------------------------------
+
 // For use by dllQueryConfig and dllQueryExist
-uint32_t queryConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
-uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
 
 //--------------------------------------------------------------------
 //  Function Definitions                                               
@@ -70,54 +71,46 @@ std::string dllSpecificParseReturnCode(uint32_t i_returnCode) {
   return ""; 
 }
 
-uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllGetRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllPutRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+uint32_t dllGetRing(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+uint32_t dllPutRing(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, uint32_t i_mode) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
+uint32_t dllGetScom (const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllPutScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
+uint32_t dllPutScom (const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data) {
   return ECMD_SUCCESS;
 }
 
 /* ##################################################################### */
 /* Query Functions - Query Functions - Query Functions - Query Functions */
 /* ##################################################################### */
-uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryConfig(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, false);
 }
 
-uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, true);
 }
 
-uint32_t queryConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
   uint32_t rc = ECMD_SUCCESS;
 
   // Need to clear out the queryConfig data before pushing stuff in
@@ -133,7 +126,7 @@ uint32_t queryConfigExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData
   return rc;
 }
 
-uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdCageData cageData;
 
@@ -153,7 +146,7 @@ uint32_t queryConfigExistCages(ecmdChipTarget & i_target, std::list<ecmdCageData
   return rc;
 }
 
-uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdNodeData nodeData;
 
@@ -173,7 +166,7 @@ uint32_t queryConfigExistNodes(ecmdChipTarget & i_target, std::list<ecmdNodeData
   return rc;
 }
 
-uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdSlotData slotData;
 
@@ -193,7 +186,7 @@ uint32_t queryConfigExistSlots(ecmdChipTarget & i_target, std::list<ecmdSlotData
   return rc;
 }
 
-uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;
 
@@ -226,7 +219,7 @@ uint32_t queryConfigExistChips(ecmdChipTarget & i_target, std::list<ecmdChipData
   return rc;
 }
 
-uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipUnitData chipUnitData;
 
@@ -304,7 +297,7 @@ uint32_t queryConfigExistChipUnits(ecmdChipTarget & i_target, uint32_t & i_pos, 
   return rc;
 }
 
-uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdThreadData threadData;
 
@@ -317,7 +310,7 @@ uint32_t queryConfigExistThreads(ecmdChipTarget & i_target, std::list<ecmdThread
   return rc;
 }
 
-uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryRing(const ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
 
   ecmdRingData ringData;
 
@@ -342,11 +335,11 @@ uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_que
   return ECMD_SUCCESS;
 }
 
-uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName) {
+uint32_t dllQueryArray(const ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName) {
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
+uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
   return ECMD_SUCCESS;
 } 
 
@@ -370,38 +363,38 @@ void dllOutput(const char* message) {
   printf("%s", message);
 }
 
-uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) {
+uint32_t dllGetChipData(const ecmdChipTarget & i_target, ecmdChipData & o_data) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllEnableRingCache(ecmdChipTarget & i_target) {
+uint32_t dllEnableRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllDisableRingCache(ecmdChipTarget & i_target) {
+uint32_t dllDisableRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllFlushRingCache(ecmdChipTarget & i_target) {
+uint32_t dllFlushRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) {
+bool dllIsRingCacheEnabled(const ecmdChipTarget & i_target) {
   return false;
 }
 
-uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) {
+uint32_t dllGetArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) {
+uint32_t dllPutArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, const ecmdDataBuffer & i_data) {
   return ECMD_SUCCESS;
 }
 
 /* ################################################################# */
 /* Misc Functions - Misc Functions - Misc Functions - Misc Functions */
 /* ################################################################# */
-uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode) {
+uint32_t dllGetScandefOrder(const ecmdChipTarget & i_target, uint32_t & o_mode) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;
 
@@ -420,11 +413,6 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable) {
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type) {
   return false;
-}
-
-uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread) {
-  uint32_t rc = ECMD_SUCCESS;
-  return rc;
 }
 
 /* ######################################################################### */
@@ -456,7 +444,7 @@ uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_targ
   return rc;
 }
 
-uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
+uint32_t dllTargetToSequenceId(const ecmdChipTarget & i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }
@@ -466,7 +454,7 @@ uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
   return rc;
 }
 
-uint32_t dllQueryClockState(ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
+uint32_t dllQueryClockState(const ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }

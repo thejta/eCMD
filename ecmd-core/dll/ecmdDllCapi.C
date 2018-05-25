@@ -183,9 +183,9 @@ std::list<ecmdUserInfo> ecmdArgsStack;
 //----------------------------------------------------------------------
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* @brief Parse out the scandef for the specified latch name */
-uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
+uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata);
 /* @brief Look up the provided latch name in the scandef hash */
-uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
+uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName,const char* i_latchName, ecmdLatchBufferEntry & o_latchdata) ;
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 /* @brief Returns true if curPos is not in userArgs */
@@ -193,7 +193,7 @@ uint8_t removeCurrentElement(int curPos, std::string userArgs);
 /* @brief Returns true if all chars of str are decimal numbers */
 bool isValidTargetString(std::string &str);
 /* @brief used by TargetConfigured/TargetExist functions */
-bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery);
+bool queryTargetConfigExist(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData, bool i_existQuery);
 /* @brief used by QuerySelected/QuerySelectedExist functions */
 uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype, bool i_existMode);
 
@@ -1023,12 +1023,12 @@ uint32_t dllGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o_
   return rc;
 }
 
-uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & o_errorTarget) {
+uint32_t dllRegisterErrorTarget(uint32_t i_returnCode, const ecmdChipTarget & i_errorTarget) {
   uint32_t rc = ECMD_SUCCESS;
 
   ecmdErrorTarget curError;
   curError.returnCode = i_returnCode;
-  curError.target = o_errorTarget;
+  curError.target = i_errorTarget;
 
   pthread_mutex_lock(&ecmdErrorTargetListMutex);
   ecmdErrorTargetList.push_back(curError);
@@ -2490,7 +2490,7 @@ uint32_t dllSetGlobalVar(ecmdGlobalVarType_t i_type, uint32_t i_value) {
 }
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName,
+uint32_t dllQueryLatch(const ecmdChipTarget & target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName,
 		       const char * i_ringName, ecmdQueryDetail_t i_detail) {
   uint32_t rc = 0;
 
@@ -2574,7 +2574,7 @@ uint32_t dllQueryLatch(ecmdChipTarget & target, std::list<ecmdLatchData> & o_que
   return rc;
 }
 
-uint32_t dllQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
+uint32_t dllQueryLatchInfo(const ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName, ecmdQueryDetail_t i_detail)
 {
     uint32_t rc = 0;
     ecmdLatchBufferEntry curEntry;
@@ -2788,7 +2788,7 @@ uint32_t dllGetRingDump(ecmdChipTarget & i_target, const char* i_ringName, std::
 }
 #endif
 
-uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
+uint32_t dllGetLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
   uint32_t rc = 0;
 
   ecmdLatchBufferEntry curEntry;
@@ -3006,10 +3006,10 @@ uint32_t dllGetLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   return rc;
 }
 
-uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode) {
+uint32_t dllGetLatchOpt(const ecmdChipTarget & i_target, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode) {
   uint32_t rc = 0;
 
-  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::list< ecmdLatchEntry >::const_iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
   ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
   ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
@@ -3212,7 +3212,7 @@ uint32_t dllGetLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i
   return rc;
 }
 
-uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
+uint32_t dllPutLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) {
 
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
@@ -3511,10 +3511,10 @@ uint32_t dllPutLatch(ecmdChipTarget & i_target, const char* i_ringName, const ch
   return rc;
 }
 
-uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode) {
+uint32_t dllPutLatchOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode) {
 
   uint32_t rc = 0;
-  std::list< ecmdLatchEntry >::iterator curLatchInfo;
+  std::list< ecmdLatchEntry >::const_iterator curLatchInfo;
   ecmdDataBuffer ringBuffer;            ///< Buffer to store entire ring
   ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
   ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
@@ -3785,7 +3785,7 @@ uint32_t dllPutLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint
   return rc;
 }
 
-uint32_t dllGetLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, ecmdDataBuffer & i_ringImage)
+uint32_t dllGetLatchImage(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, const ecmdDataBuffer & i_ringImage)
 {
   uint32_t rc = 0;
 
@@ -3973,7 +3973,7 @@ uint32_t dllGetLatchImage(ecmdChipTarget & i_target, const char* i_ringName, con
   return rc;
 }
 
-uint32_t dllPutLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage)
+uint32_t dllPutLatchImage(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage)
 {
   uint32_t rc = 0;
   ecmdLatchBufferEntry curEntry;
@@ -4194,11 +4194,11 @@ uint32_t dllPutLatchImage(ecmdChipTarget & i_target, const char* i_ringName, con
   return rc;
 }
 
-uint32_t dllGetLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage)
+uint32_t dllGetLatchImageOpt(const ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, const ecmdDataBuffer & i_ringImage)
 {
   uint32_t rc = 0;
 
-  std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+  std::list< ecmdLatchEntry >::const_iterator curLatchInfo;    ///< Iterator for walking through latches
   ecmdDataBuffer ringBuffer = i_ringImage;               ///< Buffer to store entire ring
   ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
   ecmdDataBuffer buffertemp(5000 /* bits */);    ///< Temp space for extracted latch data
@@ -4369,10 +4369,10 @@ uint32_t dllGetLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry
   return rc;
 }
 
-uint32_t dllPutLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage)
+uint32_t dllPutLatchImageOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage)
 {
   uint32_t rc = 0;
-  std::list< ecmdLatchEntry >::iterator curLatchInfo;
+  std::list< ecmdLatchEntry >::const_iterator curLatchInfo;
   ecmdDataBuffer bufferCopy;            ///< Copy of data to be inserted
   ecmdDataBuffer buffertemp;            ///< Temp buffer to allow reversing in JTAG mode
   std::string curRing;                  ///< Current ring being operated on
@@ -4568,7 +4568,7 @@ uint32_t dllPutLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data,
   return rc;
 }
 
-uint32_t dllCreateSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & o_mask, ecmdLatchMode_t i_mode, uint32_t i_startBit, uint32_t i_numBits)
+uint32_t dllCreateSparseMaskFromLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & o_mask, ecmdLatchMode_t i_mode, uint32_t i_startBit, uint32_t i_numBits)
 {
     uint32_t rc = ECMD_SUCCESS;
     ecmdLatchBufferEntry curEntry;
@@ -4859,10 +4859,10 @@ uint32_t dllCreateSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_r
     return rc;
 }
 
-uint32_t dllCreateSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit, uint32_t i_numBits)
+uint32_t dllCreateSparseMaskFromLatchOpt(const ecmdChipTarget & i_target, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit, uint32_t i_numBits)
 {
     uint32_t rc = ECMD_SUCCESS;
-    std::list< ecmdLatchEntry >::iterator curLatchInfo;    ///< Iterator for walking through latches
+    std::list< ecmdLatchEntry >::const_iterator curLatchInfo;    ///< Iterator for walking through latches
     ecmdDataBuffer ringBuffer;                    ///< Buffer to store entire ring
     ecmdDataBuffer buffer(5000 /* bits */);        ///< Space for extracted latch data
     std::string curRing;                          ///< Current ring being operated on
@@ -5206,7 +5206,7 @@ bool findLatchInCache(const std::list<std::pair<std::string, std::string> > & i_
    @param i_mode Mode to search with, full or partial name matchs
    @param o_latchdata Return latch data read from scandef
 */
-uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata)
+uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, const char* i_latchName, ecmdLatchMode_t i_mode, ecmdLatchBufferEntry & o_latchdata)
 {
     uint32_t rc = ECMD_SUCCESS;
     std::list<ecmdLatchEntry>::iterator entryIt;
@@ -5632,7 +5632,7 @@ bool findRing(T i_ringKey, uint32_t i_numRings, std::ifstream & i_hashFile, std:
     return l_foundRing;
 }
 
-uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const char*  i_latchName, ecmdLatchBufferEntry & o_latchdata)
+uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, const char*  i_latchName, ecmdLatchBufferEntry & o_latchdata)
 {
     uint32_t rc = ECMD_SUCCESS;
     std::list<ecmdLatchBufferEntry>::iterator bufferit;
@@ -6086,7 +6086,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef REMOVE_SIM
-uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
@@ -6108,7 +6108,7 @@ uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuff
   return ECMD_POLLING_FAILURE;
 }
 
-uint32_t dllSimpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
+uint32_t dllSimpolltcfac(const char* i_tcfacname, const ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
 
   uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
   ecmdDataBuffer actual_data;
@@ -6229,33 +6229,33 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
 
 /* TargetConfiged and TargetExist are the same function, except for having to call a different interface */
 /* Wrapping them this way, to call the internal queryTargetConfiguredExist is the most efficient way */
-bool dllQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData) {
+bool dllQueryTargetConfigured(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData) {
   return queryTargetConfigExist(i_target, i_queryData, false);
 }
 
-bool dllQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData) {
+bool dllQueryTargetExist(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData) {
   return queryTargetConfigExist(i_target, i_queryData, true);
 }
 
-bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData, bool i_existQuery) {
+bool queryTargetConfigExist(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData, bool i_existQuery) {
   uint32_t rc = ECMD_SUCCESS;
   bool ret = false;
-  bool myQuery = false;
   ecmdChipTarget queryTarget;
+  const ecmdQueryData * l_queryData = i_queryData;
+  ecmdQueryData * l_myQueryData = NULL;
 
-  std::list<ecmdCageData>::iterator ecmdCurCage;
-  std::list<ecmdNodeData>::iterator ecmdCurNode;
-  std::list<ecmdSlotData>::iterator ecmdCurSlot;
-  std::list<ecmdChipData>::iterator ecmdCurChip;
-  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;
-  std::list<ecmdThreadData>::iterator ecmdCurThread;
+  std::list<ecmdCageData>::const_iterator ecmdCurCage;
+  std::list<ecmdNodeData>::const_iterator ecmdCurNode;
+  std::list<ecmdSlotData>::const_iterator ecmdCurSlot;
+  std::list<ecmdChipData>::const_iterator ecmdCurChip;
+  std::list<ecmdChipUnitData>::const_iterator ecmdCurChipUnit;
+  std::list<ecmdThreadData>::const_iterator ecmdCurThread;
 
 
   /* Do we need to do our own query ? */
-  if (i_queryData == NULL) {
-    i_queryData = new ecmdQueryData;
+  if (l_queryData == NULL) {
+    l_myQueryData = new ecmdQueryData;
     queryTarget = i_target;
-    myQuery = true;
 
     /* Force the states to be right, if not set properly */
     if (queryTarget.cageState != ECMD_TARGET_FIELD_UNUSED) 
@@ -6276,19 +6276,20 @@ bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryDa
       queryTarget.threadState = ECMD_TARGET_FIELD_VALID;
 
     if (i_existQuery) {
-      rc = dllQueryExist(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+      rc = dllQueryExist(queryTarget, *l_myQueryData, ECMD_QUERY_DETAIL_LOW);
     } else {
-      rc = dllQueryConfig(queryTarget, *i_queryData, ECMD_QUERY_DETAIL_LOW);
+      rc = dllQueryConfig(queryTarget, *l_myQueryData, ECMD_QUERY_DETAIL_LOW);
     }
     if (rc) {
-      delete i_queryData;
+      delete l_myQueryData;
       return ret;
     }
+    l_queryData = l_myQueryData;
   }
 
 
   /* Now we have our data, let's start walking the data we have */
-  for (ecmdCurCage = i_queryData->cageData.begin(); ecmdCurCage != i_queryData->cageData.end(); ecmdCurCage ++) {
+  for (ecmdCurCage = l_queryData->cageData.begin(); ecmdCurCage != l_queryData->cageData.end(); ecmdCurCage ++) {
     if (ecmdCurCage->cageId == i_target.cage) {
       if (i_target.nodeState == ECMD_TARGET_FIELD_UNUSED) {
         ret = true;
@@ -6353,12 +6354,10 @@ bool queryTargetConfigExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryDa
   } /* for ecmdCurCage */
 
 
-  if (myQuery) {
-    delete i_queryData;
-    i_queryData = NULL;
+  if (l_myQueryData) {
+    delete l_myQueryData;
   }
 
-  /*lint -e429 i_queryData is deallocated above based on myQuery bool */
   return ret;
 }
 

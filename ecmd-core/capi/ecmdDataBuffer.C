@@ -3001,7 +3001,7 @@ uint32_t ecmdDataBuffer::insertFromRight(uint16_t i_datain, uint32_t i_start, ui
   return ecmdDataBufferBase::insertFromRight(i_datain, i_start, i_len);
 }
 
-bool ecmdDataBuffer::isBufferCompressed()
+bool ecmdDataBuffer::isBufferCompressed() const
 {
   return ecmdDataBufferBase::isBufferCompressed();
 }

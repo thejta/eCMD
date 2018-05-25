@@ -286,7 +286,7 @@ bool ecmdQueryVersionGreater(const char* version);
  TARGET STATES : Must be Initialized<br>
 */
    
-uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryConfig(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query existing target information from the DLL
@@ -300,7 +300,7 @@ uint32_t ecmdQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData,
  NOTE: If a target is existing, but not configured, it cannot be operated on by most functions
 */
    
-uint32_t ecmdQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 /**
  @brief Query User Selected Targeting information from the DLL, i.e (-p#,-c#,-t#) for all configured chips
@@ -344,6 +344,22 @@ uint32_t ecmdQueryConfigSelected(ecmdChipTarget & io_target, ecmdQueryData & o_q
 */
 uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_queryData, ecmdLoopType_t i_looptype = ECMD_SELECTED_TARGETS_LOOP);
 
+/**
+ @brief Query related targets
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_relatedType String (format of chip[.unit]) that specifies the desired relationship of the output targets to the input
+ @param o_relatedTargets List of targets that fulfill the relatedType relationship to the input target
+ @param i_mode Select existing or configured targets through the ecmdLoopMode_t
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
+
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
 /**
  @brief Query Ring information from the DLL
@@ -360,7 +376,38 @@ uint32_t ecmdQueryExistSelected(ecmdChipTarget & io_target, ecmdQueryData & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryRing(const ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+/**
+ @brief Query Ring Inversion Mask from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName used to refine query to a single ring
+ @param o_inversionMask inversion mask data for the ring if it exists
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryRingInversionMask(const ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_inversionMask);
+/**
+ @brief Query Ring Ignore Mask from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName used to refine query to a single ring
+ @param o_ignoreMask ignore mask data for the ring if it exists
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryRingIgnoreMask(const ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_ignoreMask);
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
@@ -384,7 +431,29 @@ uint32_t ecmdQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryLatch(const ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+/**
+ @brief Query Latch information from the DLL
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param o_queryData Return structure from query
+ @param i_ringName if != NULL used to refine query to a single ring
+ @param i_latchName if != NULL used to refine query to a single latch
+ @param i_mode LatchName search mode (full or partial names)
+ @param i_detail Specify the level of detail that should be returned with the query
+ @retval ECMD_INVALID_RING if i_ringName is not valid for target
+ @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero on failure
+
+ NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryLatchInfo(const ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
 #ifndef ECMD_REMOVE_ARRAY_FUNCTIONS
@@ -403,7 +472,7 @@ uint32_t ecmdQueryLatch(ecmdChipTarget & i_target, std::list<ecmdLatchData> & o_
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryArray(const ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_queryData, const char * i_arrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
@@ -422,7 +491,7 @@ uint32_t ecmdQueryArray(ecmdChipTarget & i_target, std::list<ecmdArrayData> & o_
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SCOM_FUNCTIONS
@@ -442,7 +511,7 @@ uint32_t ecmdQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_quer
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryScom(const ecmdChipTarget & i_target, std::list<ecmdScomData> & o_queryData, uint64_t i_address = 0xFFFFFFFFFFFFFFFFull, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 
 //@}
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
@@ -462,16 +531,16 @@ uint32_t ecmdQueryScom(ecmdChipTarget & i_target, std::list<ecmdScomData> & o_qu
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+uint32_t ecmdQueryTraceArray(const ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
 /** @name Query Functions  */
 //@{
 /**
- @brief Query the location of a specific type of files for the selected target
+ @brief Query the location of a specific file type for the selected target
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param o_fileLocations Return string pair list with full path and filename to location 
+ @param o_fileLocations Return string pair list with full path and filename to location. 
  @param io_version Specify version number of file; set to version number by plugin
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
@@ -482,7 +551,7 @@ uint32_t ecmdQueryTraceArray(ecmdChipTarget & i_target, std::list<ecmdTraceArray
  TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
+uint32_t ecmdQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
 //@}
 
 /**
@@ -499,7 +568,7 @@ uint32_t ecmdQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileT
  *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
  * then the function checks whether the specified node is configured independent on the other state settings.
 */
-bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
+bool ecmdQueryTargetConfigured(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData = NULL);
 
 /**
  @brief Query if a particular target exists in the system
@@ -515,7 +584,7 @@ bool ecmdQueryTargetConfigured(ecmdChipTarget & i_target, ecmdQueryData * i_quer
  *For example if slotState is set to ECMD_TARGET_FIELD_UNUSED, but cageState and nodeState are set to ECMD_TARGET_FIELD_VALID
  * then the function checks whether the specified node exists independent on the other state settings.
 */
-bool ecmdQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData = NULL);
+bool ecmdQueryTargetExist(const ecmdChipTarget & i_target, const ecmdQueryData * i_queryData = NULL);
 
 /**
  @brief Query what connections a particular target has to other targets in the system
@@ -537,7 +606,7 @@ bool ecmdQueryTargetExist(ecmdChipTarget & i_target, ecmdQueryData * i_queryData
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQueryConnectedTargets(ecmdChipTarget & i_target, const char * i_connectionType, std::list<ecmdConnectionData> & o_connections); 
+uint32_t ecmdQueryConnectedTargets(const ecmdChipTarget & i_target, const char * i_connectionType, std::list<ecmdConnectionData> & o_connections); 
 
 /**
  @brief Fetch the detailed chip data structure for the selected target
@@ -548,7 +617,20 @@ uint32_t ecmdQueryConnectedTargets(ecmdChipTarget & i_target, const char * i_con
  TARGET DEPTH  : Pos
  TARGET STATES : Unused
  */
-uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
+uint32_t ecmdGetChipData(const ecmdChipTarget & i_target, ecmdChipData & o_data);
+
+/**
+ @brief Make a query of the processor to determine the mode in which the core is operating.
+ @param i_target processor to query
+ @param o_coreMode core mode of the processor
+ @param o_coreChipUnit name of the chipunit by which to reference the operating core.
+
+ TARGET DEPTH : pos<br>
+ TARGET STATES : Unused
+
+*/
+
+uint32_t ecmdQueryMode(const ecmdChipTarget & i_target, std::string & o_coreMode, std::string & o_coreChipUnit);
 //@}
 
 
@@ -560,6 +642,125 @@ uint32_t ecmdGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data);
 //@{
 
 #ifndef ECMD_REMOVE_RING_FUNCTIONS
+/**
+ @brief Scans the ring from the selected chip into the data buffer
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see putRing
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRing(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode = 0); 
+
+/**
+ @brief Scans ring from the data buffer into the selected chip in the selected ring
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to write to
+ @param i_data DataBuffer object that holds data to write into ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see getRing
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putRing(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, uint32_t i_mode = 0); 
+
+/**
+ @brief Performs sparse scan of the ring from the selected chip into the data buffer.
+ A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mask DataBuffer object that holds mask value of bits to read from the ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see putRingSparse
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, const ecmdDataBuffer & i_mask, uint32_t i_mode = 0); 
+
+/**
+ @brief Performs sparse scan of ring from the data buffer into the selected chip in the selected ring.
+ A sparse scan uses the chip's scom interface to only write the bits in the ring that are set in the mask value.
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to write to
+ @param i_data DataBuffer object that holds data to write into ring
+ @param i_mask DataBuffer object that holds mask value of bits to write to the ring
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see getRingSparse
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask, uint32_t i_mode = 0);
+
+/**
+ @brief Performs sparse scan of the ring from the selected chip into the data buffer.
+ A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
+ @retval ECMD_INVALID_RING if ringname is not valid for target
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_ringName Name of ring to read from
+ @param o_data DataBuffer object that holds data read from ring
+ @param i_mask DataBuffer object that holds mask value of bits to read from the ring
+ @param i_traceMask DataBuffer object that holds bit positions of interest to be ANDed with i_mask and displayed in DFT MASKOUT traces
+ @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ @see putRingSparse
+
+
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getRingSparseWithTraceMask(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, const ecmdDataBuffer & i_mask, const ecmdDataBuffer & i_traceMask, uint32_t i_mode = 0);
+ 
 /**
  @brief Scans the specified number of bits from the selected chip and ring address into the data buffer.
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -581,7 +782,7 @@ s
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
+uint32_t getRingWithModifier(const ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & o_data); 
 
 /**
  @brief Scans the specified number of bits from the data buffer into the selected chip in the selected ring address
@@ -606,7 +807,7 @@ uint32_t getRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, ecmdDataBuffer & i_data); 
+uint32_t putRingWithModifier(const ecmdChipTarget & i_target, uint32_t i_address, uint32_t i_bitLength, const ecmdDataBuffer & i_data); 
 #endif // ECMD_REMOVE_RING_FUNCTIONS
 
 
@@ -635,7 +836,7 @@ uint32_t putRingWithModifier(ecmdChipTarget & i_target, uint32_t i_address, uint
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data);
+uint32_t getScom(const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Scoms bits from the data buffer into the selected address
@@ -656,7 +857,7 @@ uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data);
+uint32_t putScom(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data);
 
 /**
  @brief Perform a read/modify/write scom operation using the mask and data
@@ -678,7 +879,7 @@ uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer &
  TARGET STATES : Unused<br>
 
 */
-uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask);
+uint32_t putScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask);
 
 /**
  @brief Do a sequence of reads and writes in one operation
@@ -703,7 +904,7 @@ uint32_t putScomUnderMask(ecmdChipTarget & i_target, uint64_t i_address, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t doScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
+uint32_t doScomMultiple(const ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
 
 //@}
 /* End Scom Functions */
@@ -731,7 +932,7 @@ uint32_t doScomMultiple(ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t sendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
+uint32_t sendCmd(const ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_modifier, ecmdDataBuffer & o_status);
 
 //@}
 /* End Jtag Functions */
@@ -758,7 +959,7 @@ uint32_t sendCmd(ecmdChipTarget & i_target, uint32_t i_instruction, uint32_t i_m
  TARGET STATES : Unused<br>
 
 */
-uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
+uint32_t getCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data);
 
 /**
  @brief Write data into the selected CFAM register address 
@@ -777,7 +978,7 @@ uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdData
  TARGET STATES : Unused<br>
 
 */
-uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data);
+uint32_t putCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, const ecmdDataBuffer & i_data);
 
 /**
  @brief Calls HWP to read ecid from the targeted chip
@@ -819,6 +1020,138 @@ uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecid
 //@{
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 /**
+ @brief Reads the selected spy into the data buffer
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_data DataBuffer object that holds data read from spy
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpy(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
+
+/**
+ @brief Reads the selected spy and returns it's assocaiated enum
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_enumValue Enum value read from the spy
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyEnum(const ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags = 0);
+
+/**
+ @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyEpCheckersName Name of spy to read from
+ @param o_inLatchData Return the data for the input to the eccGroup
+ @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
+ @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+ @retval nonzero if unsuccessful
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags = 0);
+
+/**
+ @brief Reads the selected spy and load all the spy groups into provided list
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param o_groups List of structures containing the group data and deadbits mask
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyGroups(const ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags = 0);
+
+/**
+ @brief Writes the data buffer into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_data DataBuffer object that holds data to write into spy
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpy(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_data, uint32_t i_flags = 0);
+
+/**
+ @brief Writes the enum into the selected spy
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
+ @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_enumValue String enum value to load into the spy
+ @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
+
+ NOTE : This function is ring cache enabled<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpyEnum(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags = 0);
+
+/**
  @brief Reads the selected spy into the data buffer from provided ring image
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
@@ -838,7 +1171,7 @@ uint32_t getEcidVerbose(const ecmdChipTarget & i_target, ecmdDataBuffer & o_ecid
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, ecmdDataBuffer & o_data);
+uint32_t getSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum from provided ring image
@@ -861,7 +1194,7 @@ uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, const ec
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue);
+uint32_t getSpyEnumImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue);
 
 /**
  @brief Writes the data buffer into the selected spy within the provided ring image
@@ -883,7 +1216,7 @@ uint32_t getSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, cons
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, ecmdDataBuffer & io_ringImage);
+uint32_t putSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_data, ecmdDataBuffer & io_ringImage);
 
 /**
  @brief Writes the enum into the selected spy within the provided ring image
@@ -904,7 +1237,7 @@ uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdData
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage);
+uint32_t putSpyEnumImage(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage);
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}
@@ -932,7 +1265,7 @@ uint32_t putSpyEnumImage(ecmdChipTarget & i_target, const char * i_spyName, cons
  TARGET STATES : Must be initialized<br>
 
 */
-uint32_t ecmdEnableRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdEnableRingCache(const ecmdChipTarget & i_target);
 
 /**
  @brief Disable internal caching of reads/writes of scan rings
@@ -945,7 +1278,7 @@ uint32_t ecmdEnableRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target);
 
 /**
  @brief Flush all modified data from the internal cache to the hardware, then remove all rings from cache
@@ -956,7 +1289,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-uint32_t ecmdFlushRingCache(ecmdChipTarget & i_target);
+uint32_t ecmdFlushRingCache(const ecmdChipTarget & i_target);
 
 /**
  @brief Returns true/false to signify if caching is currently enabled
@@ -967,7 +1300,7 @@ uint32_t ecmdFlushRingCache(ecmdChipTarget & i_target);
  TARGET DEPTH  : cage, node, slot, pos<br>
  TARGET STATES : Must be initialized<br>
 */
-bool ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
+bool ecmdIsRingCacheEnabled(const ecmdChipTarget & i_target);
 
 //@}
 
@@ -1000,7 +1333,7 @@ bool ecmdIsRingCacheEnabled(ecmdChipTarget & i_target);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width = 0);
+uint32_t getArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width = 0);
 
 /**
  @brief Reads bits from multiple array addresses/elements into the list of data buffers
@@ -1033,7 +1366,7 @@ uint32_t getArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
  TARGET STATES : Unused<br>
 
 */
-uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries,  uint32_t i_width = 0);
+uint32_t getArrayMultiple(const ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & io_entries,  uint32_t i_width = 0);
 
 /**
  @brief Writes bits from the data buffer into the selected array
@@ -1056,7 +1389,7 @@ uint32_t getArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, s
  TARGET STATES : Unused<br>
 
 */
-uint32_t putArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data);
+uint32_t putArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes bits from the list of entries into the selected array
@@ -1083,7 +1416,7 @@ uint32_t putArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataB
  TARGET STATES : Unused<br>
 
 */
-uint32_t putArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
+uint32_t putArrayMultiple(const ecmdChipTarget & i_target, const char * i_arrayName, std::list<ecmdArrayEntry> & i_entries);
 #endif // ECMD_REMOVE_ARRAY_FUNCTIONS
 //@}
 
@@ -1106,7 +1439,7 @@ uint32_t putArrayMultiple(ecmdChipTarget & i_target, const char * i_arrayName, s
 
 */
 
-uint32_t ecmdQueryClockState(ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
+uint32_t ecmdQueryClockState(const ecmdChipTarget & i_target, const char * i_clockDomain, ecmdClockState_t & o_clockState);
 
 
 /**
@@ -1129,7 +1462,7 @@ uint32_t ecmdQueryClockState(ecmdChipTarget & i_target, const char * i_clockDoma
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
+uint32_t startClocks(const ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false);
 
 /**
  @brief Stop the clocks in the domain specified
@@ -1151,7 +1484,7 @@ uint32_t startClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false, uint32_t i_mode = 0x0);
+uint32_t stopClocks(const ecmdChipTarget & i_target, const char * i_clockDomain, bool i_forceState = false, uint32_t i_mode = 0x0);
 #endif // ECMD_REMOVE_CLOCK_FUNCTIONS
 #ifndef ECMD_REMOVE_REFCLOCK_FUNCTIONS
 /**
@@ -1169,7 +1502,7 @@ uint32_t stopClocks(ecmdChipTarget & i_target, const char * i_clockDomain, bool 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed,ecmdClockFreqMode_t & o_freqMode, uint32_t & o_freqmin, uint32_t & o_freqmax);
+uint32_t ecmdGetClockSpeed(const ecmdChipTarget & i_target, ecmdClockType_t i_type, ecmdClockSpeedType_t i_speedType, uint32_t & o_speed, ecmdClockFreqMode_t & o_freqMode, uint32_t & o_freqmin, uint32_t & o_freqmax);
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
@@ -1188,7 +1521,7 @@ uint32_t ecmdGetClockSpeed( ecmdChipTarget & i_target, ecmdClockType_t i_type, e
  TARGET DEPTH  : cage, pos, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode,  ecmdClockRange_t i_range,ecmdClockFreqMode_t i_freqMode = ECMD_CLOCK_SINGLE_FREQ_MODE,uint32_t i_freqMinMhz = 0,uint32_t i_freqMaxMhz = 0);
+uint32_t ecmdSetClockSpeed(const ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_speed, ecmdClockSpeedType_t i_speedType, ecmdClockSetMode_t i_mode, ecmdClockRange_t i_range, ecmdClockFreqMode_t i_freqMode = ECMD_CLOCK_SINGLE_FREQ_MODE, uint32_t i_freqMinMhz = 0, uint32_t i_freqMaxMhz = 0);
 
 /**
  @brief Change a system clock speed without adjusting system initialization settings using speed value
@@ -1203,7 +1536,7 @@ uint32_t ecmdSetClockSpeed(ecmdChipTarget & i_target, ecmdClockType_t i_type, ui
  TARGET DEPTH  : cage, chipUnit<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
+uint32_t ecmdSetClockMultDiv(const ecmdChipTarget & i_target, ecmdClockType_t i_type, uint32_t i_multiplier, uint32_t i_divider);
 
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
 //@}
@@ -1224,7 +1557,7 @@ uint32_t ecmdSetClockMultDiv(ecmdChipTarget & i_target, ecmdClockType_t i_type, 
 
  NOTE - function returns on first failure and remaining steps are not run<br>
 */
-uint32_t iStepsByNumber(ecmdDataBuffer & i_steps);
+uint32_t iStepsByNumber(const ecmdDataBuffer & i_steps);
 
 /**
  @brief Run a single iStep by name
@@ -1265,6 +1598,22 @@ uint32_t iStepsByNameMultiple(std::list< std::string > i_stepNames);
 */
 uint32_t iStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEnd);
 
+/**
+ @brief Run chip initializations stored in a file
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_initFile The file containing the initialization data
+ @param i_initId The id in the initialization file to use
+ @param i_mode The mode to run the initialization file in
+ @param i_ringMode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
+ 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Must be Initialized<br>
+*/
+uint32_t initChipFromFile(const ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode, uint32_t i_ringMode = 0);
+
 //@}
 #endif // ECMD_REMOVE_INIT_FUNCTIONS
 
@@ -1288,7 +1637,7 @@ uint32_t iStepsByNameRange(std::string i_stepNameBegin, std::string i_stepNameEn
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
+uint32_t ecmdQueryProcRegisterInfo(const ecmdChipTarget & i_target, const char* i_name, ecmdProcRegisterInfo & o_data);
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
@@ -1307,7 +1656,7 @@ uint32_t ecmdQueryProcRegisterInfo(ecmdChipTarget & i_target, const char* i_name
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data);
+uint32_t getSpr (const ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected Special Purpose Register (SPR) into the data buffer
@@ -1336,7 +1685,7 @@ uint32_t getSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
+uint32_t getSprMultiple (const ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
 
 
 /**
@@ -1358,7 +1707,7 @@ uint32_t getSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuffer & i_data);
+uint32_t putSpr (const ecmdChipTarget & i_target, const char * i_sprName, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Special Purpose Register (SPR)
@@ -1372,7 +1721,7 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdNameEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdNameEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -1381,7 +1730,7 @@ uint32_t putSpr (ecmdChipTarget & i_target, const char * i_sprName, ecmdDataBuff
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i_entries);
+uint32_t putSprMultiple (const ecmdChipTarget & i_target, std::list<ecmdNameEntry> & io_entries);
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
@@ -1400,7 +1749,7 @@ uint32_t putSprMultiple (ecmdChipTarget & i_target, std::list<ecmdNameEntry> & i
  TARGET STATES : Unused<br>
 
 */
-uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & o_data);
+uint32_t getGpr (const ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected General Purpose Register (GPR) into the data buffer
@@ -1423,7 +1772,7 @@ uint32_t getGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t getGprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
@@ -1445,7 +1794,7 @@ uint32_t getGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & i_data);
+uint32_t putGpr (const ecmdChipTarget & i_target, uint32_t i_gprNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected General Purpose Register (GPR)
@@ -1459,7 +1808,7 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
 
  The return value of this function is set to the first non-zero return code found when
@@ -1469,7 +1818,7 @@ uint32_t putGpr (ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t putGprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 /**
  @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
@@ -1488,7 +1837,7 @@ uint32_t putGprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & o_data);
+uint32_t getFpr (const ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor Architected Floating Point Register (FPR) into the data buffer
@@ -1511,7 +1860,7 @@ uint32_t getFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t getFprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
@@ -1532,7 +1881,7 @@ uint32_t getFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & i_data);
+uint32_t putFpr (const ecmdChipTarget & i_target, uint32_t i_fprNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor Architected Floating Point Register (FPR)
@@ -1546,7 +1895,7 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -1555,7 +1904,7 @@ uint32_t putFpr (ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t putFprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 
 /**
@@ -1575,7 +1924,7 @@ uint32_t putFprMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & o_data);
+uint32_t getSlb (const ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected Processor SLB Entry into the data buffer
@@ -1598,7 +1947,7 @@ uint32_t getSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
+uint32_t getSlbMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 
 /**
  @brief Writes the data buffer into the selected Processor SLB Entry
@@ -1619,7 +1968,7 @@ uint32_t getSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & i_data);
+uint32_t putSlb (const ecmdChipTarget & i_target, uint32_t i_slbNum, const ecmdDataBuffer & i_data);
 
 /**
  @brief Writes the data buffer into the selected Processor SLB Entry
@@ -1633,7 +1982,7 @@ uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
+ @param io_entries List of entries to write all ecmdIndexEntry fields must be filled in with slb number
 
  The return value of this function is set to the first non-zero return code found when
   writing multiple entries.  The function will NOT continue through all subsequent entries.<br>
@@ -1642,7 +1991,7 @@ uint32_t putSlb (ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuffer & 
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSlbMultiple (ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & i_entries);
+uint32_t putSlbMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEntry> & io_entries);
 #endif // ECMD_REMOVE_PROCESSOR_FUNCTIONS
 
 //@}
@@ -1704,7 +2053,7 @@ uint32_t mpiplForceWinkle(const ecmdChipTarget & i_target);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntry & o_data);
+uint32_t getTraceArray(const ecmdChipTarget & i_target, const char* i_name, uint32_t i_doTraceStopStart, ecmdNameVectorEntry & o_data);
 
 /**
  @brief Dump all entries of specified trace array
@@ -1724,7 +2073,7 @@ uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, uint32_t i
  TARGET STATES : Unused<br>
 
 */
-uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
+uint32_t getTraceArrayMultiple(const ecmdChipTarget & i_target, uint32_t i_doTraceStopStart, std::list <ecmdNameVectorEntry> & o_data);
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 //@}
 
@@ -1751,7 +2100,7 @@ uint32_t getTraceArrayMultiple(ecmdChipTarget & i_target, uint32_t i_doTraceStop
  TARGET STATES : Unused<br>
 
 */
-uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
+uint32_t getMemProc(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Writes System Mainstore through the processor chip using a real address
@@ -1771,7 +2120,7 @@ uint32_t getMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  TARGET STATES : Unused<br>
 
 */
-uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode = 0x0);
+uint32_t putMemProc(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data, uint32_t i_mode = 0x0);
 
 /**
  @brief Reads System Mainstore through the PSI or DMA interface (whichever is avialable) using a real address
@@ -1789,7 +2138,7 @@ uint32_t putMemProc(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_by
  TARGET STATES : Unused<br>
 
 */
-uint32_t getMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getMemDma(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
 /**
@@ -1808,7 +2157,7 @@ uint32_t getMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_byt
  TARGET STATES : Unused<br>
 
 */
-uint32_t putMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+uint32_t putMemDma(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data);
 
 /**
  @brief Reads System Mainstore through the memory controller using a real address
@@ -1828,7 +2177,7 @@ uint32_t putMemDma(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_byt
  TARGET STATES : Unused<br>
 
 */
-uint32_t getMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getMemMemCtrl(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
 /**
@@ -1849,7 +2198,7 @@ uint32_t getMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
  TARGET STATES : Unused<br>
 
 */
-uint32_t putMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+uint32_t putMemMemCtrl(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data);
 
 /**
  @brief Reads SRAM through the processor chip using a real address
@@ -1869,7 +2218,7 @@ uint32_t putMemMemCtrl(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
 /**
@@ -1890,7 +2239,7 @@ uint32_t getSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_addre
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data);
+uint32_t putSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data);
 
 /**
  @brief Query information about the cache levels
@@ -1904,7 +2253,7 @@ uint32_t putSram(ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_addre
  TARGET DEPTH  : pos<br>
  TARGET STATES : Must be Initialized<br>
 */
-uint32_t ecmdQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, ecmdCacheData & o_data);
+uint32_t ecmdQueryCache(const ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, ecmdCacheData & o_data);
 
 /**
  @brief Cache Flush
@@ -1917,7 +2266,7 @@ uint32_t ecmdQueryCache(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType, 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
+uint32_t ecmdCacheFlush(const ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
 
 /**
  @brief Reads System Mainstore through the processor chip using PBA
@@ -1937,7 +2286,7 @@ uint32_t ecmdCacheFlush(ecmdChipTarget & i_target, ecmdCacheType_t i_cacheType);
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
+uint32_t getMemPba(const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_mode = 0x0);
   
 /**
  @brief Writes System Mainstore through the processor chip using PBA
@@ -1959,7 +2308,7 @@ uint32_t getMemPba(ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_byt
  TARGET DEPTH  : Pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putMemPba (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & i_data, uint32_t i_mode);
+uint32_t putMemPba (const ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data, uint32_t i_mode);
 
 /**
  @brief Query the memory information of the Host processor
@@ -2056,7 +2405,7 @@ uint32_t ecmdGetErrorTarget(uint32_t i_returnCode, std::list<ecmdChipTarget> & o
  @retval ECMD_SUCCESS if successful
  @retval non-zero if unsuccessful
 */
-uint32_t ecmdRegisterErrorTarget(uint32_t i_returnCode, ecmdChipTarget & i_errorTarget);
+uint32_t ecmdRegisterErrorTarget(uint32_t i_returnCode, const ecmdChipTarget & i_errorTarget);
 
 /**
  @brief Flush registered error targets for a specific error code
@@ -2152,7 +2501,7 @@ void ecmdOutput(const char* i_message);
  TARGET STATES : Unused<br>
 
 */
-uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
+uint32_t getGpRegister(const ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & o_data); 
 
 /**
  @brief Writes a GP Register in CFAM/Access from the data buffer into the selected chip in the selected GP Register
@@ -2172,7 +2521,7 @@ uint32_t getGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data); 
+uint32_t putGpRegister(const ecmdChipTarget & i_target, uint32_t i_gpRegister, const ecmdDataBuffer & i_data); 
 
 /**
  @brief Perform a read/modify/write GP Register operation using the mask and data
@@ -2192,7 +2541,7 @@ uint32_t putGpRegister(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t putGpRegisterUnderMask(ecmdChipTarget & i_target, uint32_t i_gpRegister, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask); 
+uint32_t putGpRegisterUnderMask(const ecmdChipTarget & i_target, uint32_t i_gpRegister, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask); 
 #endif // ECMD_REMOVE_FSI_FUNCTIONS
 
 /**
@@ -2246,7 +2595,7 @@ uint32_t ecmdDelay(uint32_t i_simCycles, uint32_t i_msDelay);
  TARGET STATES : Unused
 
 */
-uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
+uint32_t ecmdQuerySP(const ecmdChipTarget & i_target, std::string i_commandStr, std::string & o_result);
 
 /**
  @brief Make a system call on the targetted Service Processor or Service Element
@@ -2258,7 +2607,7 @@ uint32_t ecmdQuerySP(ecmdChipTarget & i_target, std::string i_commandStr, std::s
  TARGET STATES : Unused
 
 */
-uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
+uint32_t makeSPSystemCall(const ecmdChipTarget & i_target, const std::string & i_command, std::string & o_stdout);
 #endif // ECMD_REMOVE_SP_FUNCTIONS
   
 /**
@@ -2271,7 +2620,7 @@ uint32_t makeSPSystemCall(ecmdChipTarget & i_target, const std::string & i_comma
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t syncPluginState(ecmdChipTarget & i_target);
+uint32_t syncPluginState(const ecmdChipTarget & i_target);
 
 #ifndef ECMD_REMOVE_INIT_FUNCTIONS
 /**
@@ -2296,7 +2645,7 @@ uint32_t syncIplMode(int i_unused);
  TARGET STATES : Unused<br>
 
 */
-uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
+uint32_t ecmdChipCleanup(const ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
 
 /**
    @brief  Converts zero chip unit address into chip unit address that is being passed
@@ -2307,7 +2656,7 @@ uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_
    @param  i_address conains zero chip unit address
    @param  o_address contains the corresponding address of the chip unit
 */
-uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
+uint32_t ecmdCreateChipUnitScomAddress(const ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
 
 
 //@}
@@ -2331,7 +2680,7 @@ uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_add
  TARGET STATES : Unused<br>
 */
 
-uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric);
+uint32_t ecmdGetConfiguration(const ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t & o_validOutput, std::string & o_valueAlpha, uint32_t & o_valueNumeric);
 
 /**
  @brief Retrieve the value of a Configuration Setting
@@ -2345,7 +2694,7 @@ uint32_t ecmdGetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData);
+uint32_t ecmdGetConfigurationComplex(const ecmdChipTarget & i_target, std::string i_name, ecmdConfigData & o_configData);
 
 /**
  @brief Set the value of a supported Configuration Setting like for example scanmode
@@ -2365,7 +2714,7 @@ uint32_t ecmdGetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
+uint32_t ecmdSetConfiguration(const ecmdChipTarget & i_target, std::string i_name, ecmdConfigValid_t i_validInput, std::string i_valueAlpha, uint32_t i_valueNumeric);
 
 /**
  @brief Set the value of a supported Configuration Setting like for example scanmode
@@ -2379,7 +2728,7 @@ uint32_t ecmdSetConfiguration(ecmdChipTarget & i_target, std::string i_name, ecm
  TARGET DEPTH  : cage, node, slot, pos, chipUnit, thread (depending on i_name)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_name, ecmdConfigData i_configData);
+uint32_t ecmdSetConfigurationComplex(const ecmdChipTarget & i_target, std::string i_name, ecmdConfigData i_configData);
 
 
 /**
@@ -2399,7 +2748,7 @@ uint32_t ecmdSetConfigurationComplex(ecmdChipTarget & i_target, std::string i_na
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
+uint32_t ecmdDeconfigureTarget(const ecmdChipTarget & i_target);
 
 /**
  @brief Configure a target in the system - must be previously known to the system
@@ -2418,7 +2767,7 @@ uint32_t ecmdDeconfigureTarget(ecmdChipTarget & i_target);
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdConfigureTarget(ecmdChipTarget & i_target);
+uint32_t ecmdConfigureTarget(const ecmdChipTarget & i_target);
 
 #ifndef ECMD_REMOVE_UNITID_FUNCTIONS
 /**
@@ -2512,7 +2861,7 @@ uint32_t ecmdSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_tar
  TARGET STATES : Must be Initialized <br>
 
 */
-uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num);
+uint32_t ecmdTargetToSequenceId(const ecmdChipTarget & i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num);
 #endif // ECMD_REMOVE_UNITID_FUNCTIONS
 //@}
 
@@ -2538,7 +2887,7 @@ uint32_t ecmdTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_n
  TARGET STATES : Unused <br>
 
 */
-uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getModuleVpdKeyword(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write Module VPD Keyword Interface
@@ -2555,7 +2904,7 @@ uint32_t getModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  TARGET STATES : Unused <br>
 
 */
-uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data);
+uint32_t putModuleVpdKeyword(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, const ecmdDataBuffer & i_data);
 
 /**
  @brief Read Module VPD Image Interface
@@ -2572,7 +2921,7 @@ uint32_t putModuleVpdKeyword(ecmdChipTarget & i_target, const char * i_record_na
  TARGET STATES : Unused <br>
 
 */
-uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getModuleVpdImage(const ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write Module VPD Image Interface
@@ -2589,7 +2938,7 @@ uint32_t getModuleVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdData
  TARGET STATES : Unused <br>
 
 */
-uint32_t putModuleVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
+uint32_t putModuleVpdImage(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data);
 
 /**
  @brief Get Module VPD Keyword From Image Interface
@@ -2611,7 +2960,7 @@ NOTE : The HW is not accessed in this operation. Instead, the keyword data is pu
  TARGET STATES : Unused <br>
 
 */
-uint32_t getModuleVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
+uint32_t getModuleVpdKeywordFromImage(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, const ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
 
 /**
  @brief Put Module VPD Keyword To An Image Interface
@@ -2633,7 +2982,7 @@ NOTE : The HW is not accessed in this operation. Instead, the keyword data in i_
  TARGET STATES : Unused <br>
 
 */
-uint32_t putModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data);
+uint32_t putModuleVpdKeywordToImage(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, const ecmdDataBuffer & i_keyword_data);
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 //@}
 
@@ -2657,7 +3006,7 @@ uint32_t putModuleVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_re
  TARGET STATES : Unused <br>
 
 */
-uint32_t getFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getFruVpdKeyword(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Read Fru VPD Keyword Interface
@@ -2690,7 +3039,7 @@ uint32_t getFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, con
  TARGET STATES : Unused <br>
 
 */
-uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data);
+uint32_t putFruVpdKeyword(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, const ecmdDataBuffer & i_data);
 
 /**
  @brief Write Fru VPD Keyword Interface
@@ -2704,7 +3053,7 @@ uint32_t putFruVpdKeyword(ecmdChipTarget & i_target, const char * i_record_name,
  @retval non-zero if unsuccessful
 
 */
-uint32_t putFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & i_data);
+uint32_t putFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, const char * i_keyword, const ecmdDataBuffer & i_data);
 
 /**
  @brief Read Fru VPD Image Interface
@@ -2721,7 +3070,7 @@ uint32_t putFruVpdKeywordWithRid(uint32_t i_rid, const char * i_record_name, con
  TARGET STATES : Unused <br>
 
 */
-uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getFruVpdImage(const ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write Fru VPD Image Interface
@@ -2738,7 +3087,7 @@ uint32_t getFruVpdImage(ecmdChipTarget & i_target, uint32_t i_bytes, ecmdDataBuf
  TARGET STATES : Unused <br>
 
 */
-uint32_t putFruVpdImage(ecmdChipTarget & i_target, ecmdDataBuffer & i_data);
+uint32_t putFruVpdImage(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data);
 
 /**
  @brief Get FRU VPD Keyword From Image Interface
@@ -2760,7 +3109,7 @@ NOTE : The HW is not accessed in this operation. Instead, the keyword data is pu
  TARGET STATES : Unused <br>
 
 */
-uint32_t getFruVpdKeywordFromImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
+uint32_t getFruVpdKeywordFromImage(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, uint32_t i_bytes, const ecmdDataBuffer & i_image_data, ecmdDataBuffer & o_keyword_data);
 
 /**
  @brief Put FRU VPD Keyword To An Image Interface
@@ -2782,7 +3131,7 @@ NOTE : The HW is not accessed in this operation. Instead, the keyword data in i_
  TARGET STATES : Unused <br>
 
 */
-uint32_t putFruVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, ecmdDataBuffer & i_keyword_data);
+uint32_t putFruVpdKeywordToImage(const ecmdChipTarget & i_target, const char * i_record_name, const char * i_keyword, ecmdDataBuffer & io_image_data, const ecmdDataBuffer & i_keyword_data);
 #endif // ECMD_REMOVE_VPD_FUNCTIONS
 //@}
 
@@ -2806,7 +3155,7 @@ uint32_t putFruVpdKeywordToImage(ecmdChipTarget & i_target, const char * i_recor
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port);
+uint32_t ecmdI2cReset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port);
 
 
 /**
@@ -2827,7 +3176,7 @@ uint32_t ecmdI2cReset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Read data from an I2C device at the given offset
@@ -2849,7 +3198,7 @@ uint32_t ecmdI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write the provided data into the I2C device
@@ -2868,7 +3217,7 @@ uint32_t ecmdI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data);
 
 /**
  @brief Write the provided data into the I2C device at the given offset
@@ -2889,7 +3238,7 @@ uint32_t ecmdI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data);
 
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration
@@ -2907,7 +3256,7 @@ uint32_t ecmdI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries);
+uint32_t ecmdI2CMultipleCmds(const ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntry> & io_cmdsEntries);
 #endif /* ifndef ECMD_REMOVE_I2C_FUNCTIONS (this comment has to be here for makedll.pl to work */
 //@}
 
@@ -2932,7 +3281,7 @@ uint32_t ecmdI2CMultipleCmds(ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntr
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode);
+uint32_t ecmdGpioConfigPin(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode);
 
 /**
  @brief Read the state of the specified pin (0/1)
@@ -2950,7 +3299,7 @@ uint32_t ecmdGpioConfigPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, uint32_t & o_state);
+uint32_t ecmdGpioReadPin(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, uint32_t & o_state);
 
 /**
  @brief Read the state of the latch
@@ -2969,7 +3318,7 @@ uint32_t ecmdGpioReadPin(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t & o_state);
+uint32_t ecmdGpioReadLatch(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t & o_state);
 
 /**
  @brief Write value to the specified pin
@@ -2988,7 +3337,7 @@ uint32_t ecmdGpioReadLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t i_state);
+uint32_t ecmdGpioWriteLatch(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_pin, ecmdDioMode_t i_mode, uint32_t i_state);
 
 /**
  @brief Read the GPIO input register and AND with i_mask 
@@ -3006,7 +3355,7 @@ uint32_t ecmdGpioWriteLatch(ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_mask, uint32_t & o_value);
+uint32_t ecmdGpioReadPins(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_mask, uint32_t & o_value);
 
 /**
  @brief Write several pins specified by i_mask
@@ -3025,7 +3374,7 @@ uint32_t ecmdGpioReadPins(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value);
+uint32_t ecmdGpioWriteLatches(const ecmdChipTarget & i_target, uint32_t i_engineId, ecmdDioMode_t i_mode, uint32_t i_mask, uint32_t i_value);
 
 /**
  @brief Provides read accesses to the GPIO/DIO configuration registers
@@ -3043,7 +3392,7 @@ uint32_t ecmdGpioWriteLatches(ecmdChipTarget & i_target, uint32_t i_engineId, ec
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, uint32_t i_configReg, uint32_t & o_value);
+uint32_t ecmdGpioReadConfigRegister(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_configReg, uint32_t & o_value);
 
 /**
  @brief Provides write accesses to the GPIO/DIO configuration registers
@@ -3062,7 +3411,7 @@ uint32_t ecmdGpioReadConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engi
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdGpioWriteConfigRegister(ecmdChipTarget & i_target, uint32_t & i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value);
+uint32_t ecmdGpioWriteConfigRegister(const ecmdChipTarget & i_target, uint32_t i_engineId, ecmdGpioWriteMode_t i_mode, uint32_t i_configReg, uint32_t i_value);
 #endif // ECMD_REMOVE_GPIO_FUNCTIONS
 //@}
 
@@ -3107,7 +3456,7 @@ uint32_t ecmdQuerySystemPower(ecmdPowerState_t & o_state);
  TARGET DEPTH  : slot, pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdFruPowerOn(ecmdChipTarget & i_target, bool i_smart = false);
+uint32_t ecmdFruPowerOn(const ecmdChipTarget & i_target, bool i_smart = false);
 
 /**
  @brief Turns power off to the given fru
@@ -3119,7 +3468,7 @@ uint32_t ecmdFruPowerOn(ecmdChipTarget & i_target, bool i_smart = false);
  TARGET DEPTH  : slot, pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
+uint32_t ecmdFruPowerOff(const ecmdChipTarget & i_target, bool i_smart = false);
 
 /**
  @brief Queries for the current Fru Power State
@@ -3129,7 +3478,7 @@ uint32_t ecmdFruPowerOff(ecmdChipTarget & i_target, bool i_smart = false);
  @retval non-zero if unsuccessful
 
 */
-uint32_t ecmdQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state);
+uint32_t ecmdQueryFruPower(const ecmdChipTarget & i_target, ecmdPowerState_t & o_state);
 
 
 /**
@@ -3140,7 +3489,7 @@ uint32_t ecmdQueryFruPower(ecmdChipTarget & i_target, ecmdPowerState_t & o_state
  @retval non-zero if unsuccessful
 
 */
-uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t i_powerMode);   
+uint32_t ecmdSetPowerMode(const ecmdChipTarget & i_target, ecmdPowerMode_t i_powerMode);   
 
 
 /**
@@ -3151,7 +3500,7 @@ uint32_t ecmdSetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t i_powerMode
  @retval non-zero if unsuccessful
 
 */
-uint32_t ecmdGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t & o_powerMode);
+uint32_t ecmdGetPowerMode(const ecmdChipTarget & i_target, ecmdPowerMode_t & o_powerMode);
 
 /**
  @brief Provides the ability to bias a voltage on a per target basis.
@@ -3169,7 +3518,7 @@ uint32_t ecmdGetPowerMode(ecmdChipTarget & i_target, ecmdPowerMode_t & o_powerMo
  TARGET DEPTH  : cage,node<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait = true);
+uint32_t ecmdBiasVoltage(const ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecmdVoltageType_t i_direction, uint32_t i_biasValue, bool i_wait = true);
 
 /**
  @brief Provides the ability to query the bias state to see if the operation is complete or any are pending.
@@ -3187,7 +3536,7 @@ uint32_t ecmdBiasVoltage(ecmdChipTarget & i_target, uint32_t i_voltageLevel, ecm
  TARGET DEPTH  : cage,node<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue);
+uint32_t ecmdQueryBiasState(const ecmdChipTarget & i_target, uint32_t i_voltageLevel, uint32_t & o_currentVoltage, uint32_t & o_targetVoltage, uint32_t & o_timeValue);
 #endif // ECMD_REMOVE_POWER_FUNCTIONS
 //@}
 
@@ -3208,7 +3557,7 @@ uint32_t ecmdQueryBiasState(ecmdChipTarget & i_target, uint32_t i_voltageLevel, 
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
+uint32_t ecmdAdalPsiInit(const ecmdChipTarget & i_target, uint32_t i_psiPort);
 
 /**
  @brief Allow the user to call adal_psi_link_enable
@@ -3225,7 +3574,7 @@ uint32_t ecmdAdalPsiInit(ecmdChipTarget & i_target, uint32_t i_psiPort);
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
+uint32_t ecmdAdalPsiLinkEnable(const ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_enableState);
 
 /**
  @brief Allow the user to call adal_psi_link_verify
@@ -3247,7 +3596,7 @@ uint32_t ecmdAdalPsiLinkEnable(ecmdChipTarget & i_target, uint32_t i_psiPort, ui
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdAdalPsiLinkVerify(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t & o_enableState);
+uint32_t ecmdAdalPsiLinkVerify(const ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t & o_enableState);
 
 /**
  @brief Allow the user to call adal_psi_set_speed
@@ -3265,7 +3614,7 @@ uint32_t ecmdAdalPsiLinkVerify(ecmdChipTarget & i_target, uint32_t i_psiPort, ui
  TARGET STATES : Unused <br>
 
 */
-uint32_t ecmdAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_speed, uint32_t i_mode);
+uint32_t ecmdAdalPsiSetSpeed(const ecmdChipTarget & i_target, uint32_t i_psiPort, uint32_t i_speed, uint32_t i_mode);
 
 #endif // ECMD_REMOVE_ADAL_FUNCTIONS
 //@}
@@ -3288,7 +3637,7 @@ uint32_t ecmdAdalPsiSetSpeed(ecmdChipTarget & i_target, uint32_t i_psiPort, uint
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdThermalSensorId, uint32_t & o_temperature, ecmdThermalUnit_t i_thermalUnit=ECMD_THERMAL_UNIT_C, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetThermalSensor(const ecmdChipTarget & i_target, const char * i_ecmdThermalSensorId, uint32_t & o_temperature, ecmdThermalUnit_t i_thermalUnit=ECMD_THERMAL_UNIT_C, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3305,7 +3654,7 @@ uint32_t ecmdGetThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdTher
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetClockSpeedSensor(ecmdChipTarget & i_target, const char * i_ecmdClockSpeedSensorId, uint32_t & o_clockSpeed, ecmdClockSpeedType_t & i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetClockSpeedSensor(const ecmdChipTarget & i_target, const char * i_ecmdClockSpeedSensorId, uint32_t & o_clockSpeed, ecmdClockSpeedType_t i_clockspeedUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3322,7 +3671,7 @@ uint32_t ecmdGetClockSpeedSensor(ecmdChipTarget & i_target, const char * i_ecmdC
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetVoltageSensor(ecmdChipTarget & i_target, const char * i_ecmdVoltageSensorId, uint32_t & o_voltage, ecmdVoltageUnit_t i_voltageUnit=ECMD_VOLTAGE_UNIT_V, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetVoltageSensor(const ecmdChipTarget & i_target, const char * i_ecmdVoltageSensorId, uint32_t & o_voltage, ecmdVoltageUnit_t i_voltageUnit=ECMD_VOLTAGE_UNIT_V, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3339,7 +3688,7 @@ uint32_t ecmdGetVoltageSensor(ecmdChipTarget & i_target, const char * i_ecmdVolt
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetCurrentSensor(ecmdChipTarget & i_target, const char * i_ecmdCurrentSensorId, uint32_t & o_current, ecmdCurrentUnit_t i_currentUnit=ECMD_CURRENT_UNIT_A, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetCurrentSensor(const ecmdChipTarget & i_target, const char * i_ecmdCurrentSensorId, uint32_t & o_current, ecmdCurrentUnit_t i_currentUnit=ECMD_CURRENT_UNIT_A, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 /**
  @brief Read Air Density Sensor Values
@@ -3355,7 +3704,7 @@ uint32_t ecmdGetCurrentSensor(ecmdChipTarget & i_target, const char * i_ecmdCurr
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetAirDensitySensor(ecmdChipTarget & i_target, const char * i_ecmdAirDensitySensorId, uint32_t & o_airDensity, ecmdAirDensityUnit_t i_airDensityUnit=ECMD_AIRDENSITY_UNIT_KG_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetAirDensitySensor(const ecmdChipTarget & i_target, const char * i_ecmdAirDensitySensorId, uint32_t & o_airDensity, ecmdAirDensityUnit_t i_airDensityUnit=ECMD_AIRDENSITY_UNIT_KG_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3372,7 +3721,7 @@ uint32_t ecmdGetAirDensitySensor(ecmdChipTarget & i_target, const char * i_ecmdA
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetHumiditySensor(ecmdChipTarget & i_target, const char * i_ecmdHumiditySensorId, uint32_t & o_humidity, ecmdHumidityUnit_t i_humidityUnit=ECMD_HUMIDITY_UNIT_G_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetHumiditySensor(const ecmdChipTarget & i_target, const char * i_ecmdHumiditySensorId, uint32_t & o_humidity, ecmdHumidityUnit_t i_humidityUnit=ECMD_HUMIDITY_UNIT_G_M3, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3389,7 +3738,7 @@ uint32_t ecmdGetHumiditySensor(ecmdChipTarget & i_target, const char * i_ecmdHum
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerSensorId, uint32_t & o_power, ecmdPowerUnit_t i_powerUnit=ECMD_POWER_UNIT_mW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetPowerSensor(const ecmdChipTarget & i_target, const char * i_ecmdPowerSensorId, uint32_t & o_power, ecmdPowerUnit_t i_powerUnit=ECMD_POWER_UNIT_mW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 
 /**
@@ -3406,7 +3755,7 @@ uint32_t ecmdGetPowerSensor(ecmdChipTarget & i_target, const char * i_ecmdPowerS
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit=ECMD_UTILIZATION_UNIT_P, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetUtilizationSensor(const ecmdChipTarget & i_target, const char * i_ecmdUtilizationSensorId, uint32_t & o_utilization, ecmdUtilizationUnit_t i_utilizationUnit=ECMD_UTILIZATION_UNIT_P, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 /**
  @brief Read FFDCBW Sensor Values
@@ -3422,7 +3771,7 @@ uint32_t ecmdGetUtilizationSensor(ecmdChipTarget & i_target, const char * i_ecmd
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit=ECMD_BW_UNIT_MRW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdGetBandwidthSensor(const ecmdChipTarget & i_target, const char * i_ecmdBandwidthSensorId, uint32_t & o_bandwidth, ecmdBandwidthUnit_t i_BandwidthUnit=ECMD_BW_UNIT_MRW, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 /**
  @brief Read DTS Sensor Values
@@ -3438,7 +3787,7 @@ uint32_t ecmdGetBandwidthSensor(ecmdChipTarget & i_target, const char * i_ecmdBa
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t ecmdReadDigitalThermalSensor(ecmdChipTarget & i_target, const char * i_ecmdDTSSensorId, ecmdDTSData & o_dtsReadings, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
+uint32_t ecmdReadDigitalThermalSensor(const ecmdChipTarget & i_target, const char * i_ecmdDTSSensorId, ecmdDTSData & o_dtsReadings, ecmdThermalUnit_t i_thermalUnit, ecmdSensorReadMode_t i_sensorReadMode=ECMD_SENSOR_READ_MODE_DEFAULT);
 
 #endif // ECMD_REMOVE_SENSOR_FUNCTIONS
 //@}
@@ -3505,7 +3854,7 @@ uint32_t simexit(uint32_t i_rc = 0, const char* i_message = NULL);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Perform expect on TCFAC facility
@@ -3517,7 +3866,7 @@ uint32_t simEXPECTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffe
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0);
+uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, const ecmdDataBuffer & i_expect, uint64_t i_row = 0);
 
 /**
  @brief Fetch current model cycle count
@@ -3590,7 +3939,7 @@ uint32_t siminit(const char* i_checkpoint);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_offset = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 /**
  @brief Poll a TCFAC facility waiting for expected value
@@ -3606,7 +3955,7 @@ uint32_t simPOLLFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
+uint32_t simpolltcfac(const char* i_tcfacname, const ecmdDataBuffer & i_expect, uint64_t i_row = 0, uint32_t i_startbit = 0, uint32_t i_bitlength = 0, uint32_t i_maxcycles = 1, uint32_t i_pollinterval = 1);
 
 /**
  @brief Write a Facility using a name
@@ -3619,7 +3968,7 @@ uint32_t simpolltcfac(const char* i_tcfacname, ecmdDataBuffer & i_expect, uint64
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Write a Facility using a name - preserving Xstate
@@ -3632,7 +3981,7 @@ uint32_t simPUTFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer &
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Write a TCFAC facility
@@ -3645,7 +3994,7 @@ uint32_t simPUTFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
+uint32_t simputtcfac(const char* i_tcfacname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Load a checkpoint into model
@@ -3667,7 +4016,7 @@ uint32_t simrestart(const char* i_checkpoint);
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Stick a Facility using a name - preserving Xstate
@@ -3680,7 +4029,7 @@ uint32_t simSTKFAC(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer &
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
+uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_offset = 0);
 
 /**
  @brief Stick a TCFAC facility
@@ -3693,7 +4042,7 @@ uint32_t simSTKFACX(const char* i_facname, uint32_t i_bitlength, ecmdDataBuffer 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
+uint32_t simstktcfac(const char* i_tcfacname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0);
 
 /**
  @brief Run RTX SUBCMD
@@ -3736,7 +4085,7 @@ uint32_t simUNSTICK(const char* i_facname, uint32_t i_bitlength, uint64_t i_row 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
 */
-uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0); 
+uint32_t simunsticktcfac(const char* i_tcfacname, uint32_t i_bitlength, const ecmdDataBuffer & i_data, uint64_t i_row = 0, uint32_t i_numrows = 0); 
 
 /**
  @brief Fetch the hierarchy for the specified chip target relative to the latch names in the scandef
@@ -3751,7 +4100,7 @@ NOTE - To retrieve the hierarchy of a processor chipUnit the chipUnit field must
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t simGetHierarchy(ecmdChipTarget & i_target, std::string & o_hierarchy);
+uint32_t simGetHierarchy(const ecmdChipTarget & i_target, std::string & o_hierarchy);
 
 /**
  @brief Fetch the full facility name for the specified chip target based on the i_facName passed in
@@ -3768,7 +4117,7 @@ NOTE - To retrieve the hierarchy of a processor chipUnit the chipUnit field must
  TARGET STATES : Must be Initialized<br>
 
 */
-uint32_t simGetFullFacName(ecmdChipTarget & i_target, std::string i_facName, std::string & o_fullFacName, bool i_hierarchyOnly = false);
+uint32_t simGetFullFacName(const ecmdChipTarget & i_target, std::string i_facName, std::string & o_fullFacName, bool i_hierarchyOnly = false);
 
 /**
  @brief Will retrieve the model timestamp from the simulation, in hardware mode "NA" is returned
@@ -3781,7 +4130,7 @@ uint32_t simGetFullFacName(ecmdChipTarget & i_target, std::string i_facName, std
  TARGET STATES : Unused<br>
 
 */
-uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+uint32_t ecmdQueryChipSimModelVersion(const ecmdChipTarget & i_target, std::string & o_timestamp);
 
 /**
  @brief Will retrieve the scandef timestamp from the scandef being used for the specified target
@@ -3794,7 +4143,7 @@ uint32_t ecmdQueryChipSimModelVersion(ecmdChipTarget & i_target, std::string & o
  TARGET STATES : Unused<br>
 
 */
-uint32_t ecmdQueryChipScandefVersion(ecmdChipTarget & i_target, std::string & o_timestamp);
+uint32_t ecmdQueryChipScandefVersion(const ecmdChipTarget & i_target, std::string & o_timestamp);
 
 /**
  @brief Run a command on another Fusion module
@@ -3979,7 +4328,7 @@ void ecmdPopCommandArgs();
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t ecmdGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode);
+uint32_t ecmdGetScandefOrder(const ecmdChipTarget & i_target, uint32_t & o_mode);
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
   
 /**
@@ -3997,104 +4346,6 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 
 //@}
 #endif
-
-/** @name Scan Functions  */
-//@{
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
-/**
- @brief Scans the ring from the selected chip into the data buffer
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to read from
- @param o_data DataBuffer object that holds data read from ring
- @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see putRing
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode = 0); 
-
-/**
- @brief Scans ring from the data buffer into the selected chip in the selected ring
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to write to
- @param i_data DataBuffer object that holds data to write into ring
- @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see getRing
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putRing(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode = 0); 
-
-/**
- @brief Performs sparse scan of the ring from the selected chip into the data buffer.
- A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to read from
- @param o_data DataBuffer object that holds data read from ring
- @param i_mask DataBuffer object that holds mask value of bits to read from the ring
- @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see putRingSparse
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_mode = 0); 
-
-/**
- @brief Performs sparse scan of ring from the data buffer into the selected chip in the selected ring.
- A sparse scan uses the chip's scom interface to only write the bits in the ring that are set in the mask value.
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to write to
- @param i_data DataBuffer object that holds data to write into ring
- @param i_mask DataBuffer object that holds mask value of bits to write to the ring
- @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see getRingSparse
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_mode = 0); 
-#endif //ECMD_REMOVE_RING_FUNCTIONS
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /**
@@ -4117,7 +4368,7 @@ uint32_t putRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdD
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
+uint32_t getLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName
@@ -4144,7 +4395,7 @@ uint32_t getLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
+uint32_t putLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, uint32_t i_ring_mode = 0);
 
 /**
  @brief Reads the selected latch from the input ring image into the data buffer
@@ -4166,7 +4417,7 @@ uint32_t putLatch(ecmdChipTarget & i_target, const char* i_ringName, const char 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, ecmdDataBuffer & i_ringImage);
+uint32_t getLatchImage(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, const ecmdDataBuffer & i_ringImage);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName within the provided ring image
@@ -4193,7 +4444,7 @@ uint32_t getLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const 
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage);
+uint32_t putLatchImage(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, ecmdLatchMode_t i_mode, ecmdDataBuffer & io_ringImage);
 
 /**
  @brief Creates an ecmdDataBuffer bit mask value of bits within the ring that are part of the requested latch
@@ -4215,230 +4466,7 @@ uint32_t putLatchImage(ecmdChipTarget & i_target, const char* i_ringName, const 
  NOTE : The o_mask ecmdDataBuffer will be set by this method to the size of the ring that was passed in.
  NOTE : If passing in a value for i_startBit or i_numBits, both values need to be set.  
 */
-uint32_t createSparseMaskFromLatch(ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & o_mask, ecmdLatchMode_t i_mode = ECMD_LATCHMODE_FULL, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
-
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-//@}
-
-#ifndef ECMD_REMOVE_SPY_FUNCTIONS
-/** @name Spy Functions  */
-//@{
-/**
- @brief Reads the selected spy into the data buffer
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
- @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_data DataBuffer object that holds data read from spy
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
-
-/**
- @brief Reads the selected spy and returns it's assocaiated enum
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
- @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
- @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_enumValue Enum value read from the spy
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags = 0);
-
-/**
- @brief Read an ECC grouping and return the in and out bits as well as a error mask if any out bits are invalid
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is not an ECC Grouping
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyEpCheckersName Name of spy to read from
- @param o_inLatchData Return the data for the input to the eccGroup
- @param o_outLatchData Return the Ecc data associated with the outbits of the eccGroup
- @param o_eccErrorMask Return a mask for the Ecc data a 1 in the mask means the associated eccData was in error
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
- @retval nonzero if unsuccessful
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEpCheckersName, ecmdDataBuffer & o_inLatchData, ecmdDataBuffer & o_outLatchData, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags = 0);
-
-/**
- @brief Reads the selected spy and load all the spy groups into provided list
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
- @retval ECMD_SUCCESS if successful read
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to read from
- @param o_groups List of structures containing the group data and deadbits mask
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags = 0);
-
-/**
- @brief Writes the data buffer into the selected spy
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
- @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to write to
- @param i_data DataBuffer object that holds data to write into spy
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags = 0);
-
-/**
- @brief Writes the enum into the selected spy
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
- @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval nonzero if unsuccessful
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_spyName Name of spy to write to
- @param i_enumValue String enum value to load into the spy
- @param i_flags Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0. Use ECMD_RING_MODE_SPARSE_ACCESS for sparse ring access.
-
- NOTE : This function is ring cache enabled<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t putSpyEnum(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags = 0);
-//@}
-#endif // ECMD_REMOVE_SPY_FUNCTIONS
-
-#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
-/**
- @brief Get pnor information from the dll
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_partitionName Name of the partition to read out
- @param i_partitionOffset Offset of the pnor image to read the header
- @param i_blockSize The block size to use when reading the pnor image
- @param o_data A ecmdDataBuffer that is populated with the image that was requested to be read
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t ecmdGetPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, ecmdDataBuffer & o_data );
-
-/**
- @brief Get pnor partition list from the dll
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_partitionName Name of the partition to pull information about
- @param i_partitionOffset Offset of the pnor image to read the header
- @param o_outData A ecmdPnorListData structure that contains the information about the pnor 
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t ecmdGetPnorList( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, ecmdPnorListData & o_outData );
-
-/**
- @brief Put pnor information to the dll
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_partitionName Name of the partition to read out
- @param i_partitionOffset Offset of the pnor image to read the header
- @param i_blockSize The block size to use when reading the pnor image
- @param i_data A ecmdDataBuffer that contains the image that will be written to the pnor image specified by other parameter data
- @param i_flags A ECMD_PNOR_MODE* defines.  Default value ECMD_PNOR_MODE_DEFAULT to write the data in i_data.
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-*/
-uint32_t ecmdPutPnor( ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, ecmdDataBuffer & i_data, uint32_t i_flags );
-
-#endif // ECMD_REMOVE_PNOR_FUNCTIONS
-
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
-/** @name Query Functions  */
-//@{
-/**
- @brief Query Latch information from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param o_queryData Return structure from query
- @param i_ringName if != NULL used to refine query to a single ring
- @param i_latchName if != NULL used to refine query to a single latch
- @param i_mode LatchName search mode (full or partial names)
- @param i_detail Specify the level of detail that should be returned with the query
- @retval ECMD_INVALID_RING if i_ringName is not valid for target
- @retval ECMD_INVALID_LATCHNAME if latchname not found in scandef
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_SUCCESS if successful
- @retval nonzero on failure
-
- NOTE : i_latchName or i_ringName MUST be used, they can't both be NULL<br>
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos<br>
- TARGET STATES : Unused<br>
-*/
-uint32_t ecmdQueryLatchInfo(ecmdChipTarget & i_target, ecmdLatchQueryData & o_queryData, ecmdLatchMode_t i_mode, const char * i_latchName, const char * i_ringName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
-//@}
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
-
-/**
- @brief Make a query of the processor to determine the mode in which the core is operating.
- @param i_target processor to query
- @param o_coreMode core mode of the processor
- @param o_coreChipUnit name of the chipunit by which to reference the operating core.
-
- TARGET DEPTH : pos<br>
- TARGET STATES : Unused
-
-*/
-
-uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std::string & o_coreChipUnit);
-
-/** @name Scan Functions  */
-//@{
-#ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+uint32_t createSparseMaskFromLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, ecmdDataBuffer & o_mask, ecmdLatchMode_t i_mode = ECMD_LATCHMODE_FULL, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
 
 /**
  @brief Reads the selected latches into the data buffer.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
@@ -4458,7 +4486,7 @@ uint32_t ecmdQueryMode(ecmdChipTarget & i_target, std::string & o_coreMode, std:
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode = 0);
+uint32_t getLatchOpt(const ecmdChipTarget & i_target, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, std::list<ecmdLatchEntry> & o_data, uint32_t i_ring_mode = 0);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName. Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
@@ -4483,7 +4511,7 @@ uint32_t getLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_sc
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode = 0);
+uint32_t putLatchOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, uint32_t i_ring_mode = 0);
 
 /**
  @brief Reads the selected latch from the input ring image into the data buffer.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
@@ -4503,7 +4531,7 @@ uint32_t putLatchOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & i_ringImage);
+uint32_t getLatchImageOpt(const ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & o_data, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, const ecmdDataBuffer & i_ringImage);
 
 /**
  @brief Writes the data buffer into the all latches matching i_latchName within the provided ring image.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
@@ -4528,7 +4556,7 @@ uint32_t getLatchImageOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> &
  TARGET DEPTH  : pos, chipUnit<br>
  TARGET STATES : Unused<br>
 */
-uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage);
+uint32_t putLatchImageOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer & i_data, uint32_t i_startBit, uint32_t i_numBits, uint32_t & o_matches, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_ringImage);
 
 /**
  @brief Creates an ecmdDataBuffer bit mask value of bits within the ring that are part of the requested latch.  Uses latch information from i_scandefLatchInfo that is passed in to avoid another scandef lookup.
@@ -4548,122 +4576,49 @@ uint32_t putLatchImageOpt(ecmdChipTarget & i_target, ecmdDataBuffer & i_data, ui
  NOTE : The io_mask ecmdDataBuffer must be set to the length of the ring the latch is part of prior to calling this function.
  NOTE : If passing in a value for i_startBit or i_numBits, both values need to be set.  
 */
-uint32_t createSparseMaskFromLatchOpt(ecmdChipTarget & i_target, std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
-//@}
+uint32_t createSparseMaskFromLatchOpt(const ecmdChipTarget & i_target, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
+//@}
 
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
-/** @name Query Functions  */
-//@{
+#ifndef ECMD_REMOVE_PNOR_FUNCTIONS
+/** @name PNOR Functions  */
 /**
- @brief Query Ring Ignore Mask from the DLL
+ @brief Get pnor information from the dll
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName used to refine query to a single ring
- @param o_ignoreMask ignore mask data for the ring if it exists
- @retval ECMD_INVALID_RING if i_ringName is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @param i_partitionName Name of the partition to read out
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param i_blockSize The block size to use when reading the pnor image
+ @param o_data A ecmdDataBuffer that is populated with the image that was requested to be read
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryRingIgnoreMask(ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_ignoreMask);
-//@}
-#endif // ECMD_REMOVE_RING_FUNCTIONS
+uint32_t ecmdGetPnor(const ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, ecmdDataBuffer & o_data);
 
-#ifndef ECMD_REMOVE_INIT_FUNCTIONS
-/** @name Initialization Functions */
-//@{
 /**
- @brief Run chip initializations stored in a file
+ @brief Get pnor partition list from the dll
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_initFile The file containing the initialization data
- @param i_initId The id in the initialization file to use
- @param i_mode The mode to run the initialization file in
- @param i_ringMode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- 
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
-
- TARGET DEPTH  : pos<br>
- TARGET STATES : Must be Initialized<br>
-*/
-uint32_t initChipFromFile(ecmdChipTarget & i_target, const char* i_initFile, const char* i_initId, const char* i_mode, uint32_t i_ringMode = 0);
-
-//@}
-#endif // ECMD_REMOVE_INIT_FUNCTIONS
-
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
-/** @name Query Functions  */
-//@{
-/**
- @brief Query Ring Inversion Mask from the DLL
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName used to refine query to a single ring
- @param o_inversionMask inversion mask data for the ring if it exists
- @retval ECMD_INVALID_RING if i_ringName is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @param i_partitionName Name of the partition to pull information about
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param o_outData A ecmdPnorListData structure that contains the information about the pnor 
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryRingInversionMask(ecmdChipTarget & i_target, const std::string i_ringName, ecmdDataBuffer & o_inversionMask);
-//@}
-#endif // ECMD_REMOVE_RING_FUNCTIONS
+uint32_t ecmdGetPnorList(const ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, ecmdPnorListData & o_outData);
 
-/** @name Query Functions  */
-//@{
 /**
- @brief Query related targets
+ @brief Put pnor information to the dll
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_relatedType String (format of chip[.unit]) that specifies the desired relationship of the output targets to the input
- @param o_relatedTargets List of targets that fulfill the relatedType relationship to the input target
- @param i_mode Select existing or configured targets through the ecmdLoopMode_t
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @param i_partitionName Name of the partition to read out
+ @param i_partitionOffset Offset of the pnor image to read the header
+ @param i_blockSize The block size to use when reading the pnor image
+ @param i_data A ecmdDataBuffer that contains the image that will be written to the pnor image specified by other parameter data
+ @param i_flags A ECMD_PNOR_MODE* defines.  Default value ECMD_PNOR_MODE_DEFAULT to write the data in i_data.
  @retval ECMD_SUCCESS if successful
  @retval nonzero on failure
-
- NOTE : This function does not affect ring caching<br>
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
 */
-uint32_t ecmdRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP);
+uint32_t ecmdPutPnor(const ecmdChipTarget & i_target, std::string i_partitionName, uint32_t i_partitionOffset, uint32_t i_blockSize, const ecmdDataBuffer & i_data, uint32_t i_flags);
 //@}
-
-/** @name Scan Functions  */
-//@{
-#ifndef ECMD_REMOVE_RING_FUNCTIONS
-/**
- @brief Performs sparse scan of the ring from the selected chip into the data buffer.
- A sparse scan uses the chip's scom interface to only get the bits in the ring that are set in the mask value.
- @retval ECMD_INVALID_RING if ringname is not valid for target
- @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
- @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
- @retval ECMD_CHIP_SPARSE_SCAN_NOT_SUPPORTED This chip does not support sparse scans via scom interface
- @retval ECMD_SUCCESS if successful
- @retval nonzero if unsuccessful
- @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
- @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_ringName Name of ring to read from
- @param o_data DataBuffer object that holds data read from ring
- @param i_mask DataBuffer object that holds mask value of bits to read from the ring
- @param i_traceMask DataBuffer object that holds bit positions of interest to be ANDed with i_mask and displayed in DFT MASKOUT traces
- @param i_mode Ring mode bit-field using ECMD_RING_MODE* defines.  Default value is 0.
- @see putRingSparse
-
-
- TARGET DEPTH  : pos, chipUnit<br>
- TARGET STATES : Unused<br>
-
-*/
-uint32_t getRingSparseWithTraceMask(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, ecmdDataBuffer & i_traceMask, uint32_t i_mode = 0);
-#endif //ECMD_REMOVE_RING_FUNCTIONS
-//@}
+#endif // ECMD_REMOVE_PNOR_FUNCTIONS
 
 #ifndef DOCUMENTATION
 }  //extern "C"

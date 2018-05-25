@@ -94,30 +94,30 @@ struct chipSpies{
 //  Internal Function Prototypes
 //----------------------------------------------------------------------
 /* Lookup Spy info from a spydef file */
-uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy);
-uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain);
+uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy);
+uint32_t dllGetSpyClockDomain(const ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain);
 /* Search the spy file for our spy */
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name);
 int dllLocateSpyHash32(std::ifstream &spyFile, std::ifstream &hashFile, uint32_t key, std::string spy_name);
 int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t key, std::string spy_name);
-uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList);
+uint32_t dllGetSpiesInfo(const ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList);
 int dllGetSpyListHash32(std::ifstream &hashFile, std::list<sedcHash32Entry> &spyKeysList);
 int dllGetSpyListHash64(std::ifstream &hashFile, std::list<sedcHash64Entry> &spyKeysList);
-uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
-uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
-uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask);
-uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC);
-uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
-uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
-uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName);
+uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
+uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask);
+uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC);
+uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
+uint32_t dllPutSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
+uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName);
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
+uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
 
 //----------------------------------------------------------------------
 //  Global Variables
 //----------------------------------------------------------------------
 /* Defined in ecmdDllCapi.C */
-uint32_t dllGetChipData (ecmdChipTarget & i_target, ecmdChipData & o_data);
+uint32_t dllGetChipData (const ecmdChipTarget & i_target, ecmdChipData & o_data);
 
 /* @brief Used by getSpy to buffer spy entries in memory to improve performance */
 std::list<chipSpies> spyBuffer;
@@ -129,7 +129,7 @@ std::list<chipSpies> spyBuffer;
 /**
   This function specification is the same as defined in ecmdClientCapi.H as ecmdQuerySpy
 */
-uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryDataList, const char * i_spyName, ecmdQueryDetail_t i_detail) {
+uint32_t dllQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryDataList, const char * i_spyName, ecmdQueryDetail_t i_detail) {
   uint32_t rc = ECMD_SUCCESS;
   sedcSpyContainer mySpy;
   std::list<sedcSpyContainer> mySpyList;
@@ -272,30 +272,19 @@ uint32_t dllQuerySpy(ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_query
   }
   return rc;
 }
+
 /**
   This function specification is the same as defined in ecmdClientCapi.H as getSpy
 */
-uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
+uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
   uint32_t rc = ECMD_SUCCESS;
 
   dllSpyData fdata;
   fdata.dataType = SPYDATA_DATA;
   fdata.int_data = &o_data;
 
-  rc = dllGetSpy(i_target,i_spyName,fdata);
-
-
-  return rc;
-}
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as getSpy
-*/
-uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
-  uint32_t rc = ECMD_SUCCESS;
-
   //Drop the flags and just call the standard getspy
-  rc = dllGetSpy(i_target, i_spyName, o_data);
+  rc = dllGetSpy(i_target, i_spyName, fdata);
 
 
   return rc;
@@ -304,8 +293,9 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataB
 /**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
 */
-uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue){
+uint32_t dllGetSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
   uint32_t rc = ECMD_SUCCESS;
+
   dllSpyData fdata;
   fdata.dataType = SPYDATA_ENUM;
 
@@ -316,19 +306,7 @@ uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::
   return rc;
 }
 
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
-*/
-uint32_t dllGetSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
-  uint32_t rc = ECMD_SUCCESS;
-
-  //Drop the flags and just call the standard getspyenum
-  rc = dllGetSpyEnum(i_target,i_spyName,o_enumValue);
-  
-  return rc;
-}
-
-uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups) {
+uint32_t dllGetSpyGroups(const ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
   uint32_t rc = ECMD_SUCCESS;
   dllSpyData fdata;
   fdata.dataType = SPYDATA_GROUPS;
@@ -339,16 +317,7 @@ uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std:
 
 }
 
-uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
-  uint32_t rc = ECMD_SUCCESS;
-
-  //Drop the flags and just call the standard getspygroups
-  rc = dllGetSpyGroups(i_target,i_spyName,o_groups);
-  return rc;
-
-}
-
-uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
+uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   sedcSpyContainer mySpy;
@@ -415,7 +384,7 @@ uint32_t dllGetSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
   return rc;
 }
 
-uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
   uint32_t rc = ECMD_SUCCESS;
 
   std::list<sedcLatchLine>::iterator lineit;
@@ -809,7 +778,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
   return rc;
 }
 
-uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask) {
+uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask) {
   uint32_t rc = ECMD_SUCCESS;
 
   sedcSpyContainer myDC;
@@ -869,7 +838,7 @@ uint32_t dllGetSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName, ecmd
 }
 
 
-uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC) {
+uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC) {
   uint32_t rc = ECMD_SUCCESS;
 
   sedcSpyContainer myDC;
@@ -932,81 +901,43 @@ uint32_t dllGenSpyEcc(ecmdChipTarget & i_target, std::string eccfuncName, ecmdDa
 }
 
 /**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEccGrouping
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckers
 */
-uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask){
-  uint32_t rc = ECMD_SUCCESS;
-
+uint32_t dllGetSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
+    uint32_t rc = ECMD_SUCCESS;
 
     rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
 
-  return rc;
-}
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckers
-*/
-uint32_t dllGetSpyEpCheckers(ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
-    uint32_t rc = ECMD_SUCCESS;
-
-
-    rc = dllGetSpyEpCheckers(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
-
-  return rc;
-}
-
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as PutSpy
-*/
-uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
-  dllSpyData fdata;
-
-  fdata.dataType = SPYDATA_DATA;
-  fdata.int_data = &i_data;
-
-
-  return dllPutSpy(i_target,i_spyName,fdata);
+    return rc;
 }
 
 /**
   This function specification is the same as defined in ecmdClientCapi.H as putSpy
 */
-uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
+uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_data, uint32_t i_flags){
 
-    uint32_t rc = ECMD_SUCCESS;
-    rc = dllPutSpy(i_target, i_spyName, i_data);
-    return rc;
-}
+    dllSpyData fdata;
 
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as PutSpyEnum
-*/
-uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue){
-
-  dllSpyData fdata;
-
-  fdata.dataType = SPYDATA_ENUM;
-  fdata.enum_data = i_enumValue;
-  fdata.int_data = NULL;
-
-  return dllPutSpy(i_target,i_spyName,fdata);
-
+    fdata.dataType = SPYDATA_DATA;
+    ecmdDataBuffer l_data = i_data;
+    fdata.int_data = &l_data;
+    return dllPutSpy(i_target, i_spyName, fdata);
 }
 
 /**
   This function specification is the same as defined in ecmdClientCapi.H as putSpyEnum
 */
-uint32_t dllPutSpyEnum (ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
+uint32_t dllPutSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
 
-    uint32_t rc = ECMD_SUCCESS;
-    rc = dllPutSpy(i_target, i_spyName, i_enumValue);
-    return rc;
+    dllSpyData fdata;
 
+    fdata.dataType = SPYDATA_ENUM;
+    fdata.enum_data = i_enumValue;
+    fdata.int_data = NULL;
+    return dllPutSpy(i_target, i_spyName, fdata);
 }
 
-uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data){
+uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data){
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   sedcSpyContainer mySpy;
@@ -1062,7 +993,7 @@ uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, dllSpyDat
 
 }
 
-uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
+uint32_t dllPutSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
   uint32_t rc = ECMD_SUCCESS;
 
 
@@ -1398,7 +1329,7 @@ uint32_t dllPutSpy(ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer
 }
 
 
-uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
+uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName) {
   uint32_t rc = ECMD_SUCCESS;
   sedcSpyContainer myDC;
   dllSpyData data;
@@ -1449,7 +1380,7 @@ uint32_t dllPutSpyEcc(ecmdChipTarget & i_target, std::string epcheckerName) {
   return rc;
 }
 
-uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList) {
+uint32_t dllGetSpiesInfo(const ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList) {
 
   uint32_t rc = 0;
 
@@ -1609,7 +1540,7 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
 }
 
 
-uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy) {
+uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSpyContainer& returnSpy) {
 
   uint32_t rc = 0;
 
@@ -1770,7 +1701,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   return 0;
 }
 
-uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain) {
+uint32_t dllGetSpyClockDomain(const ecmdChipTarget & i_target, sedcAEIEntry* spy_data, std::string & o_domain) {
   uint32_t rc = 0;
   bool foundit = false;
   std::list<sedcLatchLine>::iterator lineit;
@@ -1819,7 +1750,7 @@ uint32_t dllGetSpyClockDomain(ecmdChipTarget & i_target, sedcAEIEntry* spy_data,
 
 }
 
-uint32_t dllIsCoreSpy(ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isCoreRelated) {
+uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isCoreRelated) {
 
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
