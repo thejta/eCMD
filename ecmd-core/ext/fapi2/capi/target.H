@@ -152,7 +152,9 @@ inline Target<T, V> Target<K, V>::getParent(void) const
             fapi2::TARGET_TYPE_PHB |
             fapi2::TARGET_TYPE_PROC_CHIP |
             fapi2::TARGET_TYPE_MC |
-            fapi2::TARGET_TYPE_OMI;
+            fapi2::TARGET_TYPE_OMI |
+            fapi2::TARGET_TYPE_OMIC |
+            fapi2::TARGET_TYPE_MCC;
 
     static_assert( !((T == fapi2::TARGET_TYPE_PROC_CHIP) &&
                      ((K & TARGET_TYPE_PROC_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
@@ -172,7 +174,9 @@ inline Target<T, V> Target<K, V>::getParent(void) const
             fapi2::TARGET_TYPE_PEC |
             fapi2::TARGET_TYPE_PHB |
             fapi2::TARGET_TYPE_MC |
-            fapi2::TARGET_TYPE_OMI;
+            fapi2::TARGET_TYPE_OMI |
+            fapi2::TARGET_TYPE_OMIC |
+            fapi2::TARGET_TYPE_MCC;
 
     static_assert( !((T == fapi2::TARGET_TYPE_PERV) &&
                      ((K & TARGET_TYPE_PERV_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
@@ -259,9 +263,11 @@ inline Target<T, V> Target<K, V>::getParent(void) const
     // valid parents for DIMM
     // DIMM -> MCA
     // DIMM -> MBA
+    // DIMM -> OCMB
     static_assert(!((K == fapi2::TARGET_TYPE_DIMM) &&
                     (T != fapi2::TARGET_TYPE_MCA) &&
-                    (T != fapi2::TARGET_TYPE_MBA)),
+                    (T != fapi2::TARGET_TYPE_MBA) &&
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_DIMM");
 
     // valid parents for PROC
@@ -273,12 +279,18 @@ inline Target<T, V> Target<K, V>::getParent(void) const
     // valid parents for MEMBUF
     // MEMBUF -> SYSTEM
     // MEMBUF -> DMI
-    // MEMBUF -> OMI
     static_assert(!((K == fapi2::TARGET_TYPE_MEMBUF_CHIP) &&
                     (T != fapi2::TARGET_TYPE_SYSTEM) &&
-                    (T != fapi2::TARGET_TYPE_DMI) &&
-                    (T != fapi2::TARGET_TYPE_OMI)),
+                    (T != fapi2::TARGET_TYPE_DMI)),
                   "improper parent of fapi2::TARGET_TYPE_MEMBUF_CHIP");
+
+    // valid parents for OCMB
+    // OCMB -> SYSTEM
+    // OCMB -> OMI
+    static_assert(!((K == fapi2::TARGET_TYPE_OCMB_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_SYSTEM) &&
+                    (T != fapi2::TARGET_TYPE_OMI)),
+                  "improper parent of fapi2::TARGET_TYPE_OCMB_CHIP");
 
     // valid parents for EX
     // EX -> EQ
@@ -375,14 +387,40 @@ inline Target<T, V> Target<K, V>::getParent(void) const
     // valid parents for OMI
     // OMI -> MI
     // OMI -> MC
+    // OMI -> OMIC
+    // OMI -> MCC
     // OMI -> PERV
     // OMI -> PROC
     static_assert(!((K == fapi2::TARGET_TYPE_OMI) &&
                     (T != fapi2::TARGET_TYPE_MI) &&
                     (T != fapi2::TARGET_TYPE_MC) &&
+                    (T != fapi2::TARGET_TYPE_OMIC) &&
+                    (T != fapi2::TARGET_TYPE_MCC) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_OMI");
+
+    // valid parents for OMIC
+    // OMIC -> MC
+    // OMIC -> PERV
+    // OMIC -> PROC
+    static_assert(!((K == fapi2::TARGET_TYPE_OMIC) &&
+                    (T != fapi2::TARGET_TYPE_MC) &&
+                    (T != fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_OMIC");
+
+    // valid parents for MCC
+    // MCC -> MI
+    // MCC -> MC
+    // MCC -> PERV
+    // MCC -> PROC
+    static_assert(!((K == fapi2::TARGET_TYPE_MCC) &&
+                    (T != fapi2::TARGET_TYPE_MI) &&
+                    (T != fapi2::TARGET_TYPE_MC) &&
+                    (T != fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_PROC_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_MCC");
 
     // valid parents for MC
     // MC -> PERV
@@ -542,6 +580,7 @@ Target<K, V>::getChildren(const TargetState i_state) const
     INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_DIMM)
     INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_PROC_CHIP)
     INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MEMBUF_CHIP)
+    INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_OCMB_CHIP)
     INVALID_CHILD(fapi2::TARGET_TYPE_PROC_CHIP, fapi2::TARGET_TYPE_MBA)
 #undef INVALID_CHILD
 
@@ -561,6 +600,8 @@ Target<K, V>::getChildren(const TargetState i_state) const
     // PERV -> DMI
     // PERV -> MC
     // PERV -> OMI
+    // PERV -> OMIC
+    // PERV -> MCC
     static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_EQ) &&
                     (T != fapi2::TARGET_TYPE_CORE) &&
@@ -576,7 +617,9 @@ Target<K, V>::getChildren(const TargetState i_state) const
                     (T != fapi2::TARGET_TYPE_MI) &&
                     (T != fapi2::TARGET_TYPE_DMI) &&
                     (T != fapi2::TARGET_TYPE_MC) &&
-                    (T != fapi2::TARGET_TYPE_OMI)),
+                    (T != fapi2::TARGET_TYPE_OMI) &&
+                    (T != fapi2::TARGET_TYPE_OMIC) &&
+                    (T != fapi2::TARGET_TYPE_MCC)),
                   "improper child of fapi2::TARGET_TYPE_PERV");
 
     // valid children for MEMBUF
@@ -587,13 +630,21 @@ Target<K, V>::getChildren(const TargetState i_state) const
                     (T != fapi2::TARGET_TYPE_MBA)),
                   "improper child of fapi2::TARGET_TYPE_MEMBUF_CHIP");
 
+    // valid children for OCMB
+    // OCMB -> DIMM
+    static_assert(!((K == fapi2::TARGET_TYPE_OCMB_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_DIMM)),
+                  "improper child of fapi2::TARGET_TYPE_OCMB_CHIP");
+
     // valid children for system
     // SYSTEM -> PROC
     // SYSTEM -> MEMBUF
+    // SYSTEM -> OCMB
     // SYSTEM -> DIMM ??? disabled for now
     static_assert(!((K == fapi2::TARGET_TYPE_SYSTEM) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP) &&
-                    (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                    (T != fapi2::TARGET_TYPE_MEMBUF_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
                   "improper child of fapi2::TARGET_TYPE_SYSTEM");
 
     // valid children for EQ
@@ -635,9 +686,11 @@ Target<K, V>::getChildren(const TargetState i_state) const
     // valid children for MI
     // MI -> DMI
     // MI -> OMI
+    // MI -> MCC
     static_assert(!((K == fapi2::TARGET_TYPE_MI) &&
                     (T != fapi2::TARGET_TYPE_DMI) &&
-                    (T != fapi2::TARGET_TYPE_OMI)),
+                    (T != fapi2::TARGET_TYPE_OMI) &&
+                    (T != fapi2::TARGET_TYPE_MCC)),
                   "improper child of fapi2::TARGET_TYPE_MI");
 
     // valid children for DMI
@@ -647,10 +700,22 @@ Target<K, V>::getChildren(const TargetState i_state) const
                   "improper child of fapi2::TARGET_TYPE_DMI");
 
     // valid children for OMI
-    // OMI -> MEMBUF
+    // OMI -> OCMB
     static_assert(!((K == fapi2::TARGET_TYPE_OMI) &&
-                    (T != fapi2::TARGET_TYPE_MEMBUF_CHIP)),
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
                   "improper child of fapi2::TARGET_TYPE_OMI");
+
+    // valid children for OMIC
+    // OMIC -> OMI
+    static_assert(!((K == fapi2::TARGET_TYPE_OMIC) &&
+                    (T != fapi2::TARGET_TYPE_OMI)),
+                  "improper child of fapi2::TARGET_TYPE_OMIC");
+
+    // valid children for MCC
+    // MCC -> OMI
+    static_assert(!((K == fapi2::TARGET_TYPE_MCC) &&
+                    (T != fapi2::TARGET_TYPE_OMI)),
+                  "improper child of fapi2::TARGET_TYPE_MCC");
 
     // valid children for MBA
     // MBA -> DIMM
@@ -662,10 +727,14 @@ Target<K, V>::getChildren(const TargetState i_state) const
     // MC -> MI
     // MC -> DMI
     // MC -> OMI
+    // MC -> OMIC
+    // MC -> MCC
     static_assert(!((K == fapi2::TARGET_TYPE_MC) &&
                     (T != fapi2::TARGET_TYPE_MI) &&
                     (T != fapi2::TARGET_TYPE_DMI) &&
-                    (T != fapi2::TARGET_TYPE_OMI)),
+                    (T != fapi2::TARGET_TYPE_OMI) &&
+                    (T != fapi2::TARGET_TYPE_OMIC) &&
+                    (T != fapi2::TARGET_TYPE_MCC)),
                   "improper child of fapi2::TARGET_TYPE_MC");
 
     // valid children for OBUS
@@ -738,7 +807,9 @@ Target<K, V>::getChildren(const TargetFilter i_filter,
             fapi2::TARGET_TYPE_CORE |
             fapi2::TARGET_TYPE_EX |
             fapi2::TARGET_TYPE_MC |
-            fapi2::TARGET_TYPE_OMI;
+            fapi2::TARGET_TYPE_OMI |
+            fapi2::TARGET_TYPE_OMIC |
+            fapi2::TARGET_TYPE_MCC;
 
     static_assert( !((T & TARGET_TYPE_FILTER_CHIPLETS) == fapi2::TARGET_TYPE_NONE),
                    "not a valid chiplet for filtering" );
@@ -1021,6 +1092,7 @@ Target<K, V>::getChipletNumber(void) const
               (l_pEcmdTarget->chipUnitType == "c") ||
               (l_pEcmdTarget->chipUnitType == "xbus") ||
               (l_pEcmdTarget->chipUnitType == "obus") ||
+              (l_pEcmdTarget->chipUnitType == "obrick") ||
               (l_pEcmdTarget->chipUnitType == "capp") ||
               (l_pEcmdTarget->chipUnitType == "nv") ||
               (l_pEcmdTarget->chipUnitType == "mcbist") ||
@@ -1030,7 +1102,10 @@ Target<K, V>::getChipletNumber(void) const
               (l_pEcmdTarget->chipUnitType == "dmi") ||
               (l_pEcmdTarget->chipUnitType == "pec")  ||
               (l_pEcmdTarget->chipUnitType == "phb") ||
-              (l_pEcmdTarget->chipUnitType == "mc")) &&
+              (l_pEcmdTarget->chipUnitType == "mc") ||
+              (l_pEcmdTarget->chipUnitType == "omi") ||
+              (l_pEcmdTarget->chipUnitType == "omic") ||
+              (l_pEcmdTarget->chipUnitType == "mcc")) &&
              (l_pEcmdTarget->chipUnitNumState == ECMD_TARGET_FIELD_VALID))
     {
         std::list<const ecmdChipTarget*> l_targets;
