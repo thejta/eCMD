@@ -40,6 +40,7 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_SC_CHIP |
 #endif
         fapi2::TARGET_TYPE_MEMBUF_CHIP |
+        fapi2::TARGET_TYPE_OCMB_CHIP |
         fapi2::TARGET_TYPE_EX |
         fapi2::TARGET_TYPE_MBA |
         fapi2::TARGET_TYPE_MCS |
@@ -61,7 +62,9 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_PHB |
         fapi2::TARGET_TYPE_CAPP |
         fapi2::TARGET_TYPE_MC |
-        fapi2::TARGET_TYPE_OMI;
+        fapi2::TARGET_TYPE_OMI |
+        fapi2::TARGET_TYPE_OMIC |
+        fapi2::TARGET_TYPE_MCC;
 
 const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z

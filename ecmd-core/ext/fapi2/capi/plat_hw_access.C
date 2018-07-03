@@ -1306,8 +1306,61 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_8_NO_Z = fapi2::TARGET_TYPE_P
         fapi2::TARGET_TYPE_CAPP |
         fapi2::TARGET_TYPE_MC |
         fapi2::TARGET_TYPE_OMI;
-#endif
 
+const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_10 = fapi2::TARGET_TYPE_PROC_CHIP |
+        fapi2::TARGET_TYPE_SC_CHIP |
+        fapi2::TARGET_TYPE_MEMBUF_CHIP |
+        fapi2::TARGET_TYPE_EX |
+        fapi2::TARGET_TYPE_MBA |
+        fapi2::TARGET_TYPE_MCS |
+        fapi2::TARGET_TYPE_XBUS |
+        fapi2::TARGET_TYPE_ABUS |
+        fapi2::TARGET_TYPE_L4 |
+        fapi2::TARGET_TYPE_CORE |
+        fapi2::TARGET_TYPE_EQ |
+        fapi2::TARGET_TYPE_MCA |
+        fapi2::TARGET_TYPE_MCBIST |
+        fapi2::TARGET_TYPE_MI |
+        fapi2::TARGET_TYPE_DMI |
+        fapi2::TARGET_TYPE_OBUS |
+        fapi2::TARGET_TYPE_OBUS_BRICK |
+        fapi2::TARGET_TYPE_SBE |
+        fapi2::TARGET_TYPE_PPE |
+        fapi2::TARGET_TYPE_PERV |
+        fapi2::TARGET_TYPE_PEC |
+        fapi2::TARGET_TYPE_PHB |
+        fapi2::TARGET_TYPE_CAPP |
+        fapi2::TARGET_TYPE_MC |
+        fapi2::TARGET_TYPE_OMI;
+
+const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_11_NO_Z = fapi2::TARGET_TYPE_PROC_CHIP |
+        fapi2::TARGET_TYPE_MEMBUF_CHIP |
+        fapi2::TARGET_TYPE_OCMB_CHIP |
+        fapi2::TARGET_TYPE_EX |
+        fapi2::TARGET_TYPE_MBA |
+        fapi2::TARGET_TYPE_MCS |
+        fapi2::TARGET_TYPE_XBUS |
+        fapi2::TARGET_TYPE_ABUS |
+        fapi2::TARGET_TYPE_L4 |
+        fapi2::TARGET_TYPE_CORE |
+        fapi2::TARGET_TYPE_EQ |
+        fapi2::TARGET_TYPE_MCA |
+        fapi2::TARGET_TYPE_MCBIST |
+        fapi2::TARGET_TYPE_MI |
+        fapi2::TARGET_TYPE_DMI |
+        fapi2::TARGET_TYPE_OBUS |
+        fapi2::TARGET_TYPE_OBUS_BRICK |
+        fapi2::TARGET_TYPE_SBE |
+        fapi2::TARGET_TYPE_PPE |
+        fapi2::TARGET_TYPE_PERV |
+        fapi2::TARGET_TYPE_PEC |
+        fapi2::TARGET_TYPE_PHB |
+        fapi2::TARGET_TYPE_CAPP |
+        fapi2::TARGET_TYPE_MC |
+        fapi2::TARGET_TYPE_OMI |
+        fapi2::TARGET_TYPE_OMIC |
+        fapi2::TARGET_TYPE_MCC;
+#endif
 
 
     template< fapi2::TargetType K, typename V >
@@ -1402,6 +1455,20 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_8_NO_Z = fapi2::TARGET_TYPE_P
     {
         return getScomTemplate<>(i_target, i_address, o_data);
     }
+
+    fapi2::ReturnCode getScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_10, fapi2::plat_target_handle_t>& i_target,
+                              const uint64_t i_address,
+                              fapi2::buffer<uint64_t>& o_data)
+    {
+        return getScomTemplate<>(i_target, i_address, o_data);
+    }
+
+    fapi2::ReturnCode getScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_11_NO_Z, fapi2::plat_target_handle_t>& i_target,
+                              const uint64_t i_address,
+                              fapi2::buffer<uint64_t>& o_data)
+    {
+        return getScomTemplate<>(i_target, i_address, o_data);
+    }
 #endif
 
     fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET, fapi2::plat_target_handle_t>& i_target,
@@ -1434,6 +1501,20 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_8_NO_Z = fapi2::TARGET_TYPE_P
     }
 
     fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_8_NO_Z, fapi2::plat_target_handle_t>& i_target,
+                              const uint64_t i_address,
+                              const fapi2::buffer<uint64_t> i_data)
+    {
+        return putScomTemplate<>(i_target, i_address, i_data);
+    }
+
+    fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_10, fapi2::plat_target_handle_t>& i_target,
+                              const uint64_t i_address,
+                              const fapi2::buffer<uint64_t> i_data)
+    {
+        return putScomTemplate<>(i_target, i_address, i_data);
+    }
+
+    fapi2::ReturnCode putScom(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_11_NO_Z, fapi2::plat_target_handle_t>& i_target,
                               const uint64_t i_address,
                               const fapi2::buffer<uint64_t> i_data)
     {
@@ -1475,6 +1556,22 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_8_NO_Z = fapi2::TARGET_TYPE_P
     }
 
     fapi2::ReturnCode putScomUnderMask(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_8_NO_Z, fapi2::plat_target_handle_t>& i_target,
+                                       const uint64_t i_address,
+                                       const fapi2::buffer<uint64_t> i_data,
+                                       const fapi2::buffer<uint64_t> i_mask)
+    {
+        return putScomUnderMaskTemplate<>(i_target, i_address, i_data, i_mask);
+    }
+
+    fapi2::ReturnCode putScomUnderMask(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_10, fapi2::plat_target_handle_t>& i_target,
+                                       const uint64_t i_address,
+                                       const fapi2::buffer<uint64_t> i_data,
+                                       const fapi2::buffer<uint64_t> i_mask)
+    {
+        return putScomUnderMaskTemplate<>(i_target, i_address, i_data, i_mask);
+    }
+
+    fapi2::ReturnCode putScomUnderMask(const fapi2::Target<fapi2plat::TARGET_TYPE_SCOM_TARGET_14_11_NO_Z, fapi2::plat_target_handle_t>& i_target,
                                        const uint64_t i_address,
                                        const fapi2::buffer<uint64_t> i_data,
                                        const fapi2::buffer<uint64_t> i_mask)
