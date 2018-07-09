@@ -2,6 +2,7 @@
 obj_*
 src_*
 out_*
+install
 makefile.config
 makefile.override
 
