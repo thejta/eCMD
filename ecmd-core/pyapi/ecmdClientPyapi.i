@@ -9,6 +9,7 @@
 
 /*********** Start Typemaps ***********/
 %include typemaps.i
+%include pybuffer.i
 %include std_string.i
 %include std_list.i
 %include std_vector.i
@@ -111,6 +112,11 @@
 %copyctor ecmdPnorListData;
 %copyctor ecmdLooperData;
 /*********** End Copy Constructors ***********/
+
+/*********** Start Map to Bytearray ***********/
+%pybuffer_mutable_string(uint8_t * o_data);
+%pybuffer_mutable_binary(uint8_t * o_buf, uint32_t i_bytes);
+/*********** End Map to Bytearray ***********/
 
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
