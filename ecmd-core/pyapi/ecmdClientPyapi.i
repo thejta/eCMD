@@ -112,8 +112,11 @@
 /*********** End Copy Constructors ***********/
 
 /*********** Start Map to Bytearray ***********/
+// These apply the insert/extract/memCopyIn/memCopyOut functions in the edb
 %pybuffer_mutable_string(uint8_t * o_data);
-%pybuffer_mutable_binary(uint8_t * o_buf, uint32_t i_bytes);
+%pybuffer_mutable_string(uint8_t * i_data);
+%pybuffer_mutable_string(uint8_t * o_buf);
+%pybuffer_mutable_string(uint8_t * i_buf);
 /*********** End Map to Bytearray ***********/
 
 /*********** Start Files to swigify ***********/
