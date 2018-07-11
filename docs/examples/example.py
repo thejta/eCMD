@@ -68,6 +68,23 @@ edb.setWord(1, 0x0001FFFF)
 print("The value is %s" % edb.genBinStr(0, 64))
 print("The value is %s" % edb.genBinStr())
 
+# You can use the python native bytearray with the ecmdDataBuffer
+# This works to either place data in or pull data from the edb
+outdb=ecmd.ecmdDataBuffer(128)
+outdb.setBit(16)
+outdb.setBit(78)
+baData=bytearray(outdb.getByteLength())
+outdb.memCopyOut(baData, len(baData))
+import binascii
+print(binascii.hexlify(baData))
+
+indb=ecmd.ecmdDataBuffer(128)
+indb.memCopyIn(baData, len(baData))
+print(indb.genHexLeftStr())
+
+# Similar syntax works for the insert/insertFromRight/extract databuffer
+# functions as well
+
 # Plugin tests using the stub dll
 print("\n\n")
 testNum = 0
