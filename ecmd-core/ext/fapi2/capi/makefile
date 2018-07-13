@@ -17,6 +17,7 @@ SCRIPTS += scripts/parseErrorInfo.pl
 # Additional Source files for the Client API
 CAPI_SOURCE := plat_utils.C
 CAPI_SOURCE += plat_hw_access.C
+CAPI_SOURCE += plat_i2c_access.C
 CAPI_SOURCE += plat_vpd_access.C
 CAPI_SOURCE += plat_spd_access.C
 CAPI_SOURCE += plat_mbvpd_access.C
@@ -47,6 +48,9 @@ CAPI_INCLUDES += fapi2_hw_access.H
 CAPI_INCLUDES += hw_access.H
 CAPI_INCLUDES += plat_hw_access.H
 CAPI_INCLUDES += hw_access_def.H
+CAPI_INCLUDES += fapi2_i2c_access.H
+CAPI_INCLUDES += i2c_access.H
+CAPI_INCLUDES += plat_i2c_access.H
 CAPI_INCLUDES += mvpd_access.H
 CAPI_INCLUDES += mvpd_access_defs.H
 CAPI_INCLUDES += ffdc.H
