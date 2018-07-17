@@ -223,6 +223,14 @@ bool dllFapi2IsOutputLabEnabled();
 void dllFapi2OutputLab(const char* i_message); 
 
 uint32_t dllFapi2GeneralApi(std::list<void *> & io_args);
+
+uint32_t dllFapi2GetI2c(const ecmdChipTarget& i_target,
+                        const size_t i_get_size,
+                        const std::vector<uint8_t>& i_data,
+                        std::vector<uint8_t>& o_data);
+
+uint32_t dllFapi2PutI2c(const ecmdChipTarget& i_target,
+                        const std::vector<uint8_t>& i_data);
 } //extern C
 
 #endif
