@@ -70,26 +70,3 @@
     Py_DECREF(o3);
   }
 }
-
-// typemaps to support ecmdDataBuffer::extract() and extractToRight() use of uint32_t *
-// value from uint32_t * argument will be returned as part of the tuple
-%typemap(in, numinputs=0) uint32_t * o_data (uint32_t temp) { temp = 0; $1 = &temp; }
-%typemap(argout) uint32_t * o_data {
-  PyObject *o, *o2, *o3;
-  o = PyInt_FromLong(*$1);
-  if ((!$result) || ($result == Py_None)) {
-    $result = o;
-  } else {
-    if (!PyTuple_Check($result)) {
-      PyObject *o2 = $result;
-      $result = PyTuple_New(1);
-      PyTuple_SetItem($result, 0, o2);
-    }
-    o3 = PyTuple_New(1);
-    PyTuple_SetItem(o3, 0, o);
-    o2 = $result;
-    $result = PySequence_Concat(o2, o3);
-    Py_DECREF(o2);
-    Py_DECREF(o3);
-  }
-}

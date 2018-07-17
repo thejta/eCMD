@@ -9,6 +9,7 @@
 
 /*********** Start Typemaps ***********/
 %include typemaps.i
+%include pybuffer.i
 %include std_string.i
 %include std_list.i
 %include std_vector.i
@@ -111,6 +112,14 @@
 %copyctor ecmdPnorListData;
 %copyctor ecmdLooperData;
 /*********** End Copy Constructors ***********/
+
+/*********** Start Map to Bytearray ***********/
+// These apply the insert/extract/memCopyIn/memCopyOut functions in the edb
+%pybuffer_mutable_string(uint8_t * o_data);
+%pybuffer_mutable_string(uint8_t * i_data);
+%pybuffer_mutable_string(uint8_t * o_buf);
+%pybuffer_mutable_string(uint8_t * i_buf);
+/*********** End Map to Bytearray ***********/
 
 /*********** Start Files to swigify ***********/
 %include "ecmdDefines.H"
