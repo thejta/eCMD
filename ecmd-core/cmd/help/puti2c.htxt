@@ -24,10 +24,14 @@ Syntax:
         Port            Engine port number to operate on in decimal
 
         SlaveAddress    Slave Device Address in hex
+                        If using a 7-bit address, SlaveAddress is an 8-bit hex
+                        representation with the LSB ignored, so 0 to FF are valid. This
+                        differs from the 7-bit hex representation used in some external
+                        programs, such as those in i2c-tools on Linux.
 
         Data            Data to write to device
 
-        Offset          Offset into the slave device
+        Offset          Offset into the slave device in decimal
 
         FieldSize       Byte width of the offset
 
