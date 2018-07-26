@@ -64,7 +64,8 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_MC |
         fapi2::TARGET_TYPE_OMI |
         fapi2::TARGET_TYPE_OMIC |
-        fapi2::TARGET_TYPE_MCC;
+        fapi2::TARGET_TYPE_MCC |
+        fapi2::TARGET_TYPE_MEM_PORT;
 
 const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
