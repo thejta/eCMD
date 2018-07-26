@@ -1361,7 +1361,8 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_11_NO_Z = fapi2::TARGET_TYPE_
         fapi2::TARGET_TYPE_MC |
         fapi2::TARGET_TYPE_OMI |
         fapi2::TARGET_TYPE_OMIC |
-        fapi2::TARGET_TYPE_MCC;
+        fapi2::TARGET_TYPE_MCC |
+        fapi2::TARGET_TYPE_MEM_PORT;
 #endif
 
 
