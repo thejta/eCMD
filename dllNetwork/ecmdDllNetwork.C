@@ -450,7 +450,7 @@ uint32_t dllI2cReadOffsetHidden(ecmdChipTarget & i_target, uint32_t i_engineId, 
 
     if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
         controller->extractError(resultStatus);
-        return out.error(resultStatus.rc, "dllI2cReadOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        return out.error(resultStatus.rc, "dllI2cReadOffsetHidden","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
     }
 
     return rc;
@@ -493,7 +493,7 @@ uint32_t dllI2cWriteOffsetHidden(ecmdChipTarget & i_target, uint32_t i_engineId,
 
     if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
         controller->extractError(resultStatus);
-        return out.error(resultStatus.rc, "dllI2cWriteOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        return out.error(resultStatus.rc, "dllI2cWriteOffsetHidden","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
     }
 
     return rc;
