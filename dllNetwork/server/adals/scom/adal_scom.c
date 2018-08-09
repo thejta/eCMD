@@ -21,8 +21,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include "adal_scom.h"
+#include "../fsi.h"
 
 static const uint32_t fsirawSize = 3;
 static const char *fsiraw[3] = {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",   // newest
@@ -63,17 +67,41 @@ enum SCOM_REGS {
 struct adal_scom {
 	adal_t adal;
 	uint32_t offset;
+	bool has_ioctl;
 };
 typedef struct adal_scom adal_scom_t;
 
 #define to_scom_adal(x) container_of((x), struct adal_scom, adal)
 
+/* PIB Status register bits */
+#define SCOM_STATUS_ERR_SUMMARY		0x80000000
+#define SCOM_STATUS_PROTECTION		0x01000000
+#define SCOM_STATUS_PARITY		0x04000000
+#define SCOM_STATUS_PIB_ABORT		0x00100000
+#define SCOM_STATUS_PIB_RESP_MASK	0x00007000
+#define SCOM_STATUS_PIB_RESP_SHIFT	12
+
+/* Rebuild the "PIB status register" based on kernel response */
+static void adal_scom_make_status(struct scom_access *acc, unsigned long *status)
+{
+	*status = ((unsigned long)acc->pib_status) << SCOM_STATUS_PIB_RESP_SHIFT;
+	if (acc->intf_errors & SCOM_INTF_ERR_PROTECTION)
+		*status |= SCOM_STATUS_PROTECTION;
+	if (acc->intf_errors & SCOM_INTF_ERR_PARITY)
+		*status |= SCOM_STATUS_PARITY;
+	if (acc->intf_errors & SCOM_INTF_ERR_ABORT)
+		*status |= SCOM_STATUS_PIB_ABORT;
+	if (acc->intf_errors & SCOM_INTF_ERR_UNKNOWN)
+		*status |= SCOM_STATUS_ERR_SUMMARY;
+}
+
 adal_t * adal_scom_open(const char * device, int flags)
 {
-	int idx = 1;
+	int rc, idx = 1;
 	char *str;
 	char *prev = NULL;
 	adal_scom_t *scom;
+	__u32 check;
 
 	scom = (adal_scom_t *)malloc(sizeof(*scom));
 	if (scom == NULL) {
@@ -101,6 +129,10 @@ adal_t * adal_scom_open(const char * device, int flags)
 	if (idx > 1)
 		scom->offset = P1_SLAVE_OFFSET;
 
+	rc = ioctl(scom->adal.fd, FSI_SCOM_CHECK, &check);
+	if (rc == 0 && (check & SCOM_CHECK_SUPPORTED))
+		scom->has_ioctl = true;
+
 	return &scom->adal;
 }
 
@@ -121,7 +153,7 @@ int adal_scom_close(adal_t * adal)
 
 }
 
-ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
+ssize_t adal_scom_legacy_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
 {
 	int rc = 0;
 
@@ -150,7 +182,27 @@ ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigne
 	return rc;
 }
 
-ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
+ssize_t adal_scom_read(adal_t * adal, void * buf, uint64_t scom_address, unsigned long * status)
+{
+	adal_scom_t *scom = to_scom_adal(adal);
+	struct scom_access acc = {};
+	int rc;
+
+	if (!scom->has_ioctl)
+		return adal_scom_legacy_read(adal, buf, scom_address, status);
+
+	acc.addr = scom_address;
+	acc.mask = 0;
+	rc = ioctl(adal->fd, FSI_SCOM_READ, &acc);
+	if (rc)
+		return rc;
+	memcpy(buf, &acc.data, sizeof(__u64));
+	adal_scom_make_status(&acc, status);
+
+	return 8;
+}
+
+static ssize_t adal_scom_legacy_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
 	int rc = 0;
 
@@ -188,18 +240,56 @@ ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsig
 	return rc;
 }
 
-int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
+ssize_t adal_scom_write(adal_t * adal, void * buf, uint64_t scom_address,  unsigned long * status)
 {
+	adal_scom_t *scom = to_scom_adal(adal);
+	struct scom_access acc = {};
 	int rc;
 
-	rc = adal_scom_set_register(adal, RESET, 0xFFFFFFFF);
+	if (!scom->has_ioctl)
+		return adal_scom_legacy_write(adal, buf, scom_address, status);
 
-	rc = adal_scom_set_register(adal, FSI2PIB_RESET, 0xFFFFFFFF);
-	
+	acc.addr = scom_address;
+	memcpy(&acc.data, buf, sizeof(__u64));
+	acc.mask = 0;
+	rc = ioctl(adal->fd, FSI_SCOM_WRITE, &acc);
+	if (rc)
+		return rc;
+	adal_scom_make_status(&acc, status);
+
+	return 8;
+}
+
+int adal_scom_reset(adal_t * adal, scom_adal_reset_t type)
+{
+	adal_scom_t *scom = to_scom_adal(adal);
+	__u32 reset_type;
+	int rc;
+
+	switch(type) {
+	case SCOMRESETENGINE:
+		reset_type = SCOM_RESET_INTF;
+		break;
+	case SCOMRESETFULL:
+		reset_type = SCOM_RESET_INTF | SCOM_RESET_PIB;
+		break;
+	default:
+		return -1;
+	}
+
+	if (scom->has_ioctl) {
+		rc = ioctl(adal->fd, FSI_SCOM_RESET, &reset_type);
+	} else {
+		if (reset_type & SCOM_RESET_PIB)
+			rc = adal_scom_set_register(adal, RESET, 0xFFFFFFFF);
+		if (reset_type & SCOM_RESET_INTF)
+			rc = adal_scom_set_register(adal, FSI2PIB_RESET, 0xFFFFFFFF);
+	}
+
 	return rc;
 }
 
-ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_address, void * mask, unsigned long * status)
+static ssize_t adal_scom_legacy_write_under_mask(adal_t * adal, void * buf, uint64_t scom_address, void * mask, unsigned long * status)
 {
 	int rc = 0;
 	unsigned long old_data[SCOM_DATA_WORDS];
@@ -223,6 +313,24 @@ ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_addr
 	return rc;
 }
 
+ssize_t adal_scom_write_under_mask(adal_t * adal, void * buf, uint64_t scom_address, void * mask, unsigned long * status)
+{
+	adal_scom_t *scom = to_scom_adal(adal);
+	struct scom_access acc = {};
+	int rc;
+
+	if (!scom->has_ioctl)
+		return adal_scom_legacy_write_under_mask(adal, buf, scom_address, mask, status);
+
+	acc.addr = scom_address;
+	memcpy(&acc.data, buf, sizeof(__u64));
+	memcpy(&acc.mask, mask, sizeof(__u64));
+	rc = ioctl(adal->fd, FSI_SCOM_WRITE, &acc);
+	if (rc)
+		return rc;
+	adal_scom_make_status(&acc, status);
+	return 8;
+}
 
 ssize_t adal_scom_ffdc_extract(adal_t * adal, int scope, void ** buf)
 {
