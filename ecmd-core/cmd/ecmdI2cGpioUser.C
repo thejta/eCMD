@@ -220,7 +220,7 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
-      rc = ecmdI2cReadOffsetHidden(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
+      rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
     } else {
       rc = ecmdI2cRead(target1, engineId, port, slaveAddr, busspeed, numBytes, data);
     }
@@ -441,7 +441,7 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
-      rc = ecmdI2cWriteOffsetHidden(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
+      rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
     } else {
       rc = ecmdI2cWrite(target, engineId, port, slaveAddr, busspeed, data);
     }
