@@ -415,10 +415,15 @@ uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDa
 
 uint32_t dllI2cRead(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data)
 {
-    return dllI2cReadOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_bytes, o_data);
+    return dllI2cReadOffsetHidden(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_bytes, o_data);
 }
 
 uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
+{
+    return dllI2cReadOffsetHidden(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, i_offset, i_offsetFieldSize, i_bytes, o_data);
+}
+
+uint32_t dllI2cReadOffsetHidden(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     int32_t readBits = i_bytes * 8;
@@ -445,7 +450,7 @@ uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 
     if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
         controller->extractError(resultStatus);
-        return out.error(resultStatus.rc, "dllI2cReadOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        return out.error(resultStatus.rc, "dllI2cReadOffsetHidden","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
     }
 
     return rc;
@@ -453,10 +458,15 @@ uint32_t dllI2cReadOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32
 
 uint32_t dllI2cWrite(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , ecmdDataBuffer & i_data)
 {
-    return dllI2cWriteOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_data);
+    return dllI2cWriteOffsetHidden(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_data);
 }
 
 uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
+{
+    return dllI2cWriteOffsetHidden(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, i_offset, i_offsetFieldSize, i_data);
+}
+
+uint32_t dllI2cWriteOffsetHidden(ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     uint32_t flags = 0;
@@ -483,7 +493,7 @@ uint32_t dllI2cWriteOffset(ecmdChipTarget & i_target, uint32_t i_engineId, uint3
 
     if (resultStatus.rc != SERVER_COMMAND_COMPLETE) {
         controller->extractError(resultStatus);
-        return out.error(resultStatus.rc, "dllI2cWriteOffset","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
+        return out.error(resultStatus.rc, "dllI2cWriteOffsetHidden","Problem calling interface: rc = %d for %s\n", resultStatus.rc, ecmdWriteTarget(i_target,ECMD_DISPLAY_TARGET_HYBRID).c_str());
     }
 
     return rc;

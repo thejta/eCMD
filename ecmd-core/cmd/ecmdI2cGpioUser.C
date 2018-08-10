@@ -181,14 +181,19 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   
   uint32_t numBytes = (uint32_t)atoi(argv[4]);
   
-  uint32_t offset = 0, fieldSize = 0; 
+  uint64_t offset = 0;
+  uint32_t fieldSize = 0; 
   if (argc > 5) {
     if (!ecmdIsAllDecimal(argv[5])) {
       ecmdOutputError("geti2c - Non-decimal numbers detected in the offset field\n");
       return ECMD_INVALID_ARGS;
     }
     
-    offset = (uint32_t)atoi(argv[5]);
+#ifdef _LP64
+    offset = strtoul(argv[5], NULL, 10);
+#else
+    offset = strtoull(argv[5], NULL, 10);
+#endif
     
     if (!ecmdIsAllDecimal(argv[6])) {
       ecmdOutputError("geti2c - Non-decimal numbers detected in fieldSize field\n");
@@ -215,7 +220,7 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
-      rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
+      rc = ecmdI2cReadOffsetHidden(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
     } else {
       rc = ecmdI2cRead(target1, engineId, port, slaveAddr, busspeed, numBytes, data);
     }
@@ -378,7 +383,8 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   
   uint32_t slaveAddr = ecmdGenB32FromHexRight(&slaveAddr, argv[3]);
   
-  uint32_t offset = 0, fieldSize = 0; 
+  uint64_t offset = 0;
+  uint32_t fieldSize = 0; 
   if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
     std::string offsetstr, fieldstr;
 
@@ -394,7 +400,11 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
     
-    offset = (uint32_t)atoi(offsetstr.c_str());
+#ifdef _LP64
+    offset = strtoul(offsetstr.c_str(), NULL, 10);
+#else
+    offset = strtoull(offsetstr.c_str(), NULL, 10);
+#endif
     
     if (!ecmdIsAllDecimal(fieldstr.c_str())) {
       ecmdOutputError("puti2c - Non-decimal numbers detected in fieldSize field\n");
@@ -431,7 +441,7 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
-      rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
+      rc = ecmdI2cWriteOffsetHidden(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
     } else {
       rc = ecmdI2cWrite(target, engineId, port, slaveAddr, busspeed, data);
     }
