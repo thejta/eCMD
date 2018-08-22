@@ -3198,7 +3198,7 @@ uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 /**
  @brief Write the provided data into the I2C device
@@ -3238,7 +3238,7 @@ uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data);
 
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration

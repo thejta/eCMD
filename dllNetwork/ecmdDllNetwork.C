@@ -407,7 +407,7 @@ uint32_t dllI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32
     return dllI2cReadOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_bytes, o_data);
 }
 
-uint32_t dllI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
+uint32_t dllI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     int32_t readBits = i_bytes * 8;
@@ -445,7 +445,7 @@ uint32_t dllI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint3
     return dllI2cWriteOffset(i_target, i_engineId, i_port, i_slaveAddress, i_busSpeed, 0, 0, i_data);
 }
 
-uint32_t dllI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
+uint32_t dllI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, ecmdDataBuffer & i_data)
 {
     uint32_t rc = ECMD_SUCCESS;
     uint32_t flags = 0;
