@@ -28,7 +28,7 @@ Created on Jul 16, 2015
 import sys
 import ecmd
 import bitstring
-from ecmdbitstring import EcmdBitArray
+from .ecmdbitstring import EcmdBitArray
 
 class EcmdError(Exception):
     pass
