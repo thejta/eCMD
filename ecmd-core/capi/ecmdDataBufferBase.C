@@ -886,6 +886,10 @@ uint32_t ecmdDataBufferBase::shiftRight(uint32_t i_shiftNum, uint32_t i_offset) 
     ETRAC2("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+  if (i_shiftNum+i_offset > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d + i_shiftNum %d > NumBits (%d)", i_offset, i_shiftNum, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
 
   /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
   ecmdDataBufferBase shiftData;
@@ -916,6 +920,10 @@ uint32_t ecmdDataBufferBase::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
   /* Error check */
   if (i_offset > iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  if (i_offset < i_shiftNum) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d < i_shiftNum (%d)", i_offset, i_shiftNum);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
