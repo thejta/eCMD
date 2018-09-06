@@ -950,6 +950,9 @@ uint32_t ecmdDataBufferBase::shiftLeftAndResize(uint32_t i_shiftNum) {
 uint32_t ecmdDataBufferBase::rotateRight(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+  /* no need to rotate by 0 */
+  if ( i_rotateNum == 0 ) return rc;
+
   /* The quickest way to rotate the data is to grab the two chunks and swap their position */
   ecmdDataBufferBase leftPart;
   ecmdDataBufferBase rightPart;
@@ -973,6 +976,9 @@ uint32_t ecmdDataBufferBase::rotateRight(uint32_t i_rotateNum) {
 
 uint32_t ecmdDataBufferBase::rotateLeft(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  /* no need to rotate by 0 */
+  if ( i_rotateNum == 0 ) return rc;
 
   /* The quickest way to rotate the data is to grab the two chunks and swap their position */
   ecmdDataBufferBase leftPart;
