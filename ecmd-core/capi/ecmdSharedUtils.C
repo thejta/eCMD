@@ -624,7 +624,7 @@ uint32_t ecmdReadTarget(std::string i_targetStr, ecmdChipTarget & o_target) {
   // chiptyp[.chipunittype]:cage:node:slot:position[:chipunitnum[:thread]
   // 0                      1    2    3    4         5            6
 
-  if ((tokens[0].substr(0, 1) != "k") && (tokens[1].substr(0, 1) != "n"))  
+  if ((tokens.size() >= 2) && (tokens[0].substr(0, 1) != "k") && (tokens[1].substr(0, 1) != "n"))
   {
       l_alt_format_used = true;
   }
