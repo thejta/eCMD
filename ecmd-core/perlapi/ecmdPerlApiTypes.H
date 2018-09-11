@@ -1,5 +1,5 @@
 //IBM_PROLOG_BEGIN_TAG
-/* 
+/*
  * Copyright 2003,2016 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@
  or
 
  somefunction(0xFEEDB0B0);
- </p> 
+ </p>
 */
 typedef scalar scalar;
 
@@ -198,6 +198,11 @@ typedef ecmdLatchEntryList ecmdLatchEntryList;
  @see List
 */
 typedef ecmdScomEntryList ecmdScomEntryList;
+/**
+ @brief The perl version of the ecmdFileLocation C API std::list
+ @see List
+*/
+typedef ecmdFileLocationList ecmdFileLocationList;
 /**
  @brief The perl version of the ecmdArrayEntry C API std::list
  @see List
