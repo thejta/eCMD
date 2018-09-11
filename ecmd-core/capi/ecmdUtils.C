@@ -815,7 +815,7 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
   std::list< std::string >::iterator bitDetIt;
-  char bitDesc[1000];
+  char bitDesc[400], bitDesc2[500];
 
   sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
@@ -870,10 +870,10 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
       else {
         sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
       }
-      sprintf(bitDesc, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc);
+      sprintf(bitDesc2, "%-10s : ",bitDesc);
+      ecmdOutput(bitDesc2);
       if (o_strData != NULL) {
-        *o_strData += bitDesc;
+        *o_strData += bitDesc2;
       }
 
       if (length <= 8) {
@@ -1453,12 +1453,12 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
+        char *pstr = tempIntStr + sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
         std::list<std::string>::iterator relatedChipUnitIter;
         for (relatedChipUnitIter = entit->relatedChipUnit.begin(); relatedChipUnitIter != entit->relatedChipUnit.end(); relatedChipUnitIter++) {
-          sprintf(tempIntStr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
+          pstr += sprintf(pstr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
         }
-        sprintf(tempIntStr, "%s\n", tempIntStr);
+        pstr += sprintf(pstr, "%s\n", tempIntStr);
         debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
