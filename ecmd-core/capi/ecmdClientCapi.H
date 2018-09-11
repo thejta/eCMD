@@ -5263,6 +5263,25 @@ uint32_t ecmdI2cWriteOffsetHidden(ecmdChipTarget & i_target, uint32_t i_engineId
 #endif /* ifndef ECMD_REMOVE_I2C_FUNCTIONS (this comment has to be here for makedll.pl to work */
 //@}
 
+/** @name Query Functions  */
+//@{
+/**
+ @brief Query the location of a specific file type for the selected target
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
+ @param o_fileLocations Return list of locations with full path and filename to location.
+ @param io_version Specify version number of file; set to version number by plugin
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_UNKNOWN_FILE if unable to find requested file
+ @retval nonzero if unsuccessful
+
+ NOTE : This function does not affect ring caching<br>
+ TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQueryFileLocationHidden2(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version);
+//@}
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif
