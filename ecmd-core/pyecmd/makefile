@@ -47,9 +47,9 @@ test-interactive:
 # *****************************************************************************
 # Generate most of the wrapper Python code
 # *****************************************************************************
-${GENERATED_PY}: $(HEADERS_TO_PARSE)
+${GENERATED_PY}: ./generate_pyecmd.py $(HEADERS_TO_PARSE)
 	@echo "Generating $@ ..."
-	@./generate_pyecmd.py $^ > $@
+	@./generate_pyecmd.py $(HEADERS_TO_PARSE) > $@
 
 ${CONSTANTS_PY}: ${OUTPY}/ecmd.py
 	@echo "Generating $@ ..."
