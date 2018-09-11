@@ -1078,6 +1078,14 @@ struct ecmdConfigData {
 };
 
 /**
+ @brief A pair of file names returned by ecmdQueryFileLocation()
+*/
+struct ecmdFileLocation {
+    std::string textFile; ///< The human-readable version of the file
+    std::string hashFile; ///< The corresponding hash file
+};
+
+/**
  @brief Used for the ecmdQueryRing function to return ring info
 */
 struct ecmdRingData {
