@@ -10,6 +10,6 @@ with Ecmd():
      #unit_id_string = unitIdToString(2)
      #clock_state = t.queryClockState("SOMECLOCK")
      t.relatedTargets("pu.c")
-     locs, version = t.queryFileLocation(ECMD_FILE_SCANDEF, "")
-     for loc in locs:
-         testval = loc.textFile + loc.hashFile + version
+     retval = t.queryFileLocation(ECMD_FILE_SCANDEF, "")
+     for loc in retval.fileLocations:
+         testval = loc.textFile + loc.hashFile + retval.version
