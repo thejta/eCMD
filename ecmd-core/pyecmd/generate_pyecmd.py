@@ -217,24 +217,22 @@ def print_function(data, func_type):
     out_args = []
     if not returns_wrapped_method:
         for arg in args:
-            if not arg.is_output:
-                continue
-
-            out_args.append(arg)
-            if arg.is_returned_out_arg:
-                out_args_returned.append(arg)
-            else:
-                out_args_passed_in.append(arg)
+            if arg.is_output or (arg.is_inout and arg.is_returned_out_arg):
+                out_args.append(arg)
+                if arg.is_returned_out_arg:
+                    out_args_returned.append(arg)
+                else:
+                    out_args_passed_in.append(arg)
 
     # build list of parameter names for the Python function definition; add self and remove default values
-    definition_args = [arg.name_with_def_value for arg in args if arg not in out_args]
+    definition_args = [arg.name_with_def_value for arg in args if not arg.is_output]
     if func_type == FUNC_TARGETED:
         definition_args = ["self"] + definition_args
 
     # build list of parameter names for the SWIG function invocation
     invocation_args = ["self"] if func_type == FUNC_TARGETED else []
     for arg in args:
-        if arg in out_args_returned:
+        if arg in out_args_returned and not arg.is_inout:
             continue
 
         argname = arg.name
@@ -266,7 +264,7 @@ def print_function(data, func_type):
 
     # construct usage example, mainly for functions returning tuples
     example = "pyecmd." if func_type == FUNC_GLOBAL else "target." if func_type == FUNC_TARGETED else "buffer."
-    example = example + new_funcname + "(" + ", ".join(arg.name_stripped for arg in args if arg not in out_args) + ")"
+    example = example + new_funcname + "(" + ", ".join(arg.name_stripped for arg in args if not arg.is_output) + ")"
     if returns_wrapped_method:
         example = "result = " + example
     elif out_args:
