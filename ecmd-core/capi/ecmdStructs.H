@@ -32,6 +32,7 @@
 #include <list>  /* For STL list */
 #include <vector>
 #include <string>
+#include <map>
 
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
