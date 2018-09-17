@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 /* IBM_PROLOG_END_TAG                                                     */
-/// @file i2c_access.H
+/// @file mmio_access.H
 ///
 /// @brief I2C access functions that needs to be specialized for
 /// platform implementation.
