@@ -231,6 +231,17 @@ uint32_t dllFapi2GetI2c(const ecmdChipTarget& i_target,
 
 uint32_t dllFapi2PutI2c(const ecmdChipTarget& i_target,
                         const std::vector<uint8_t>& i_data);
+
+uint32_t dllFapi2GetMMIO(const ecmdChipTarget& i_target,
+                         const uint64_t i_mmioAddr,
+                         const size_t i_transSize,
+                         std::vector<uint8_t>& o_data);
+
+uint32_t dllFapi2PutMMIO(const ecmdChipTarget& i_target,
+                         const uint64_t i_mmioAddr,
+                         const size_t i_transSize,
+                         const std::vector<uint8_t>& i_data);
+
 } //extern C
 
 #endif
