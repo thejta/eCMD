@@ -18,7 +18,7 @@
 /* IBM_PROLOG_END_TAG                                                     */
 /// @file mmio_access.H
 ///
-/// @brief I2C access functions that needs to be specialized for
+/// @brief MMIO access functions that needs to be specialized for
 /// platform implementation.
 ///
 /// NOTE : This is just an example implementation for compiling against
