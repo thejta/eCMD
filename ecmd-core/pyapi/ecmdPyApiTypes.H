@@ -246,6 +246,11 @@ typedef ecmdConnectionDataList ecmdConnectionDataList;
 */
 typedef ecmdScomEntryList ecmdScomEntryList;
 /**
+ @brief The python version of the ecmdFileLocation C API std::list
+ @see List
+*/
+typedef ecmdFileLocationList ecmdFileLocationList;
+/**
  @brief The python version of the uint32_t C API std::list
  @see List
 */

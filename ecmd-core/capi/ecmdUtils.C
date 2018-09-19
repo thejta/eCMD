@@ -776,7 +776,7 @@ uint32_t ecmdDisplayDllInfo() {
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
-  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
+  std::list<ecmdFileLocation> l_fileLocs;    ///< List of scomdefs - second of pair isn't used for scomdefs
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
   bool verboseFlag = false;
@@ -795,20 +795,19 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocationHidden(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
+  rc = ecmdQueryFileLocationHidden2(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
   if (rc) {
     printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
     return rc;
   }
   std::ifstream scomdefFile;
-  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-  while (l_filePair != l_filePairs.end())
+  for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
   {
       rc = ECMD_SUCCESS;
-      scomdefFile.open(l_filePair->first.c_str());
+      scomdefFile.open(l_fileLoc->textFile.c_str());
       if(scomdefFile.fail()) {
-          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_fileLoc->textFile + "\nSkipping -v parsing\n";
           ecmdOutputWarning(printed.c_str());
           rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
           return rc;
@@ -827,7 +826,6 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
       }
       if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
           scomdefFile.close();
-          l_filePair++;
       }
       // Found the address, don't need to look in any other scomdefs
       else
@@ -942,7 +940,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
 }
 uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
-  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
+  std::list<ecmdFileLocation> l_fileLocs;       ///< List of scomdefs - hashFile isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
@@ -962,7 +960,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocationHidden(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
+  rc = ecmdQueryFileLocationHidden2(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
   if (rc) {
     printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
@@ -970,13 +968,12 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
   }
 
   std::ifstream scomdefFile;
-  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-  while (l_filePair != l_filePairs.end())
+  for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
   {
       rc = ECMD_SUCCESS;
-      scomdefFile.open(l_filePair->first.c_str());
+      scomdefFile.open(l_fileLoc->textFile.c_str());
       if(scomdefFile.fail()) {
-          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_fileLoc->textFile + "\nSkipping -v parsing\n";
           ecmdOutputWarning(printed.c_str());
           rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
           return rc;
@@ -995,7 +992,6 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
       }
       if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
           scomdefFile.close();
-          l_filePair++;
       }
       // Found the address, don't need to look in any other scomdefs
       else

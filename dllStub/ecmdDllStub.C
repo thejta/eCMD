@@ -220,6 +220,12 @@ uint32_t dllQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_
   return ECMD_SUCCESS;
 } 
 
+uint32_t dllQueryFileLocationHidden2(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version) {
+  o_fileLocations.push_back((ecmdFileLocation){ "bogus/file.text", "bogus/file.hash" });
+  io_version = "v8";
+  return ECMD_SUCCESS;
+}
+
 uint32_t dllFlushSys () {
   return ECMD_SUCCESS;
 } 

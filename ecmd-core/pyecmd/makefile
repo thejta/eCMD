@@ -41,6 +41,9 @@ test:
 	@ln -sf `pwd`/*.py ${OUTPYECMD}
 	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} test_api.py
 
+test-interactive:
+	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN}
+
 # *****************************************************************************
 # Generate most of the wrapper Python code
 # *****************************************************************************

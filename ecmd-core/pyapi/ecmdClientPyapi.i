@@ -74,6 +74,7 @@
 %template(ecmdI2CCmdEntryList)       std::list<ecmdI2CCmdEntry>;
 %template(ecmdConnectionDataList)    std::list<ecmdConnectionData>;
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;
+%template(ecmdFileLocationList)      std::list<ecmdFileLocation>;
 %template(uint32_tList)              std::list<uint32_t>;
 /*********** End Templates ***********/
 

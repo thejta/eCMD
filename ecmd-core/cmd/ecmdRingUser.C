@@ -3255,7 +3255,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t rc = ECMD_SUCCESS;
   std::string scandefFile;                      ///< Full path to scandef file
   std::string scandefHashFile;                  ///< Full path to scandefhash file
-  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scandef and scandefhash files
+  std::list<ecmdFileLocation> l_fileLocs;       ///< List of scandef and scandefhash files
   std::string i_ring;                           ///< Ring that caller specified
   std::string printed;
   uint32_t i_ringkey32;
@@ -3285,7 +3285,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t ringBeginOffset = 0;
   uint32_t numRings =0;
 
-  rc = ecmdQueryFileLocationHidden(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+  rc = ecmdQueryFileLocationHidden2(target, ECMD_FILE_SCANDEF, l_fileLocs, l_version);
   if (rc)
   {
       printed = "readScandefFile - Error occured locating scandef file\n";
@@ -3293,11 +3293,10 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       return rc;
   }
 
-  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-  while (l_filePair != l_filePairs.end())
+  for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
   {
       while(1) {
-          scandefHashFile = l_filePair->second;
+          scandefHashFile = l_fileLoc->hashFile;
 
           if ( scandefHashFile.rfind("hash.64") != std::string::npos )
           {
@@ -3367,7 +3366,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       rc = 0;
  
       /* find scandef file */
-      scandefFile = l_filePair->first;
+      scandefFile = l_fileLoc->textFile;
       
       std::ifstream ins(scandefFile.c_str());
       if (ins.fail()) {
@@ -3474,7 +3473,6 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
       }
 
       ins.close();
-      l_filePair++;
       // We found it already, so don't look in any other scandef pairs
       if (foundRing)
       {
@@ -3533,4 +3531,3 @@ void printLatchInfo(std::string latchname, ecmdDataBuffer buffer, uint32_t dataS
   ecmdOutput(printed.c_str());
 }
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
-

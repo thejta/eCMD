@@ -1454,7 +1454,7 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   uint32_t rc = 0;
 
   std::ifstream spyFile, hashFile;
-  std::list<std::pair<std::string, std::string> > spyFilePairs;
+  std::list<ecmdFileLocation> spyFilePairs;
   std::list<sedcHash32Entry> spyKeysList32;
   std::list<sedcHash32Entry>::iterator searchSpy32;
 
@@ -1473,7 +1473,7 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   /* ----------------------------------------------------------------- */
   /*  Try to find the spy position from the hash file		     */
   /* ----------------------------------------------------------------- */
-  rc = dllQueryFileLocationHidden(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
+  rc = dllQueryFileLocationHidden2(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
 
   if (rc)
   {
@@ -1483,23 +1483,23 @@ uint32_t dllGetSpiesInfo(ecmdChipTarget & i_target, std::list<sedcSpyContainer>&
   else
   {
 
-      if ( !spyFilePairs.empty() && spyFilePairs.front().second.rfind("hash.64") != std::string::npos )
+      if ( !spyFilePairs.empty() && spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos )
       {
           l_isSpydefHash64 = true;
       }
   
-      std::list<std::pair<std::string, std::string> >::iterator spyFilePair = spyFilePairs.begin();
+      std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
 
       while (spyFilePair != spyFilePairs.end()) {
-          spyFile.open(spyFilePair->first.c_str());
+          spyFile.open(spyFilePair->textFile.c_str());
           if (spyFile.fail()) {
-              sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->first.c_str());
+              sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
               dllOutputError(outstr);
               returnSpy.valid = 0;
               return ECMD_INVALID_SPY;
           }
 
-          hashFile.open(spyFilePair->second.c_str(),
+          hashFile.open(spyFilePair->hashFile.c_str(),
                         std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
 
           /* If we have a hash file, look for it in there */
@@ -1614,7 +1614,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   uint32_t rc = 0;
 
   std::ifstream spyFile, hashFile;
-  std::list<std::pair<std::string, std::string> > spyFilePairs;
+  std::list<ecmdFileLocation> spyFilePairs;
   uint32_t key32;
   uint64_t key;
   std::list<sedcSpyContainer>::iterator searchSpy;
@@ -1641,13 +1641,13 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
   returnSpy.setName(spy_name);
   do {
       /* Let's get the path to the spydef */
-      rc = dllQueryFileLocationHidden(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
+      rc = dllQueryFileLocationHidden2(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
       if (rc) return rc;
 
-      std::list<std::pair<std::string, std::string> >::iterator spyFilePair = spyFilePairs.begin();
+      std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
       while (spyFilePair != spyFilePairs.end()) {
           for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList ++) {
-              if (searchSpyList->spydefName == spyFilePair->second) {
+              if (searchSpyList->spydefName == spyFilePair->hashFile) {
                   spydefFnd = true;
                   searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
 
@@ -1672,7 +1672,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
           }
       }
       if ( spyBuffer.empty() || (!spyFnd && !spydefFnd))  {
-          curSpyInfo.spydefName = spyFilePair->second; 
+          curSpyInfo.spydefName = spyFilePair->hashFile; 
           curSpyInfo.spies.clear();
           spyBuffer.push_front(curSpyInfo);
           searchSpyList = spyBuffer.begin();
@@ -1683,9 +1683,9 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
           spyFilePair = spyFilePairs.begin();
           while (spyFilePair != spyFilePairs.end()) {
 
-              spyFile.open(spyFilePair->first.c_str());
+              spyFile.open(spyFilePair->textFile.c_str());
               if (spyFile.fail()) {
-                  sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->first.c_str());
+                  sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
                   dllOutputError(outstr);
                   returnSpy.valid = 0;
                   return ECMD_INVALID_SPY;
@@ -1696,7 +1696,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
               key = ecmdHashString64(returnSpy.name.c_str(),0);
 
 
-              if ( !spyFilePairs.empty() && (spyFilePairs.front().second.rfind("hash.64") != std::string::npos) )
+              if ( !spyFilePairs.empty() && (spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos) )
               {
                   l_isSpydefHash64 = true;
               }
@@ -1704,7 +1704,7 @@ uint32_t dllGetSpyInfo(ecmdChipTarget & i_target, const char* name, sedcSpyConta
               /* ----------------------------------------------------------------- */
               /*  Try to find the spy position from the hash file                */
               /* ----------------------------------------------------------------- */
-              hashFile.open(spyFilePair->second.c_str(),
+              hashFile.open(spyFilePair->hashFile.c_str(),
                             std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
               /* If we have a hash file, look for it in there */
               if (!hashFile.fail()) {
