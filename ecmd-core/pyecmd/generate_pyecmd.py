@@ -98,12 +98,13 @@ def python_type(type):
     elif type == "bool":              return "bool"
     elif type == "char" \
       or type == "std::string":       return "str"
-    elif type == "std::stringVector": return "list(str)"
-    elif type == "std::stringList":   return "list(str)"
     elif type == "ecmdDataBuffer":    return "EcmdBitArray"
-    elif type[-4:] == "List":         return "list(ecmd." + type[0:-4] + ")"
-    elif type[-6:] == "Vector":       return "list(ecmd." + type[0:-6] + ")"
     elif type == "ecmdChipTarget":    return "Target"
+    elif type[-4:] == "List":         return "list(" + python_type(type[0:-4]) + ")"
+    elif type[-6:] == "Vector":       return "list(" + python_type(type[0:-6]) + ")"
+    elif type[-3:] == "Map":
+        parts = type[:-3].split("_", 1)
+        return "dict(" + python_type(parts[0]) + ", " + python_type(parts[1]) + ")"
     else:                             return "ecmd." + type
 
 class FunctionArgument(object):
@@ -157,10 +158,6 @@ class FunctionArgument(object):
         return self.type.endswith("_t") or self.full_type in ("std::string", "const char")
 
     @property
-    def is_ecmd_list_type(self):
-        return self.type[:11] != "std::string" and (self.type[-4:] == "List" or self.type[-6:] == "Vector")
-
-    @property
     def retval_construction(self):
         if   self.type == "std::string":       return '""'
         elif self.type == "std::stringVector": return "[]"
@@ -168,7 +165,7 @@ class FunctionArgument(object):
         elif self.type[-2:] == "_t":           return "0"
         elif self.type == "ecmdChipTarget":    return "Target()"
         #elif self.type == "ecmdDataBuffer":    return "DataBuffer()"
-        else:                                 return "ecmd." + self.type + "()"
+        else:                                 return "ecmd." + self.type.replace("std::string", "string") + "()"
 
     @property
     def python_type(self):
@@ -338,51 +335,23 @@ def add_function(returntype, funcname, argstr, comment, header, full_prototype):
     else:
         global_functions.append(func_data)
 
-HTML_REPLACEMENTS = (
-    ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&#160;", " "), ("&quot;", '"'), ("&nbsp;", " ")
-)
-
-def unhtml(line):
-    str = re.sub(r"<.*?>", "", line)
-    for replacement in HTML_REPLACEMENTS:
-        str = str.replace(*replacement)
-    return str.strip()
-
-def parse_html(f):
-    function_re = re.compile(r"(\S+)\s+(\S+)\s*(\(.*$)")
-    next_is_header = False
-    cur_header = ""
-    for line in f:
-        line_unhtml = unhtml(line)
-        if 'memtitle' in line:
-            break
-        elif '<h2 class="groupheader"' in line:
-            next_is_header = True
-        elif '<div class="groupHeader"' in line or next_is_header:
-            cur_header = line_unhtml
-            next_is_header = False
-        elif '<td class="memItemLeft"' in line:
-            function = line_unhtml.strip()
-        elif '<td class="mdescLeft"' in line:
-            comment = line_unhtml.replace("More...", "").strip()
-
-            # The regex will filter out things like enums, class definitions and constructors
-            m = function_re.match(function.replace("*", "").replace("("," (").replace("= ","="))
-            if m:
-                (returntype, funcname, argstr) = m.group(1, 2, 3)
-                add_function(returntype, funcname, argstr, comment, cur_header, function)
-
 list2python_re = re.compile(r"std::(List|Vector)\s*\<\s*(.*?)\s*>")
-def pythonize_lists(argstr):
-    return list2python_re.sub("\\2\\1", argstr.replace("std::list", "std::List").replace("std::vector", "std::Vector"))
+map2python_re = re.compile(r"std::map\s*\<\s*(.*?)\s*,\s*(.*?)\s*>")
+def pythonize_types(argstr):
+    argstr = argstr.replace("std::list", "std::List").replace("std::vector", "std::Vector")
+    argstr = list2python_re.sub("\\2\\1", argstr)
+    argstr = map2python_re.sub("\\1_\\2Map", argstr)
+    return argstr
 
 def parse_header(f):
     cur_header = ""
     comment = ""
     comment_re = re.compile(r"@name\s+(?P<header>.*?)(?:$|\n)|@brief\s+(?P<comment>.*?)(?:$|\n[\s*]*@)", re.S)
     master_re = re.compile(r"\/\*\s*(?P<comment>.*?)\s*\*\/|\n\s*(?P<returntype>[\w\s*:]+?)(?P<funcname>\w+)\s*\(\s*(?P<argstr>[^/]*?)\s*\)\s*;", re.S)
+    # master_re splits out comment blocks and looks for function prototypes
     for m in master_re.finditer(f.read()):
         if m.group("comment"):
+            # Comments are being searched for group headers and @brief descriptions
             m = comment_re.search(m.group("comment"))
             if m and m.group("header"):
                 cur_header = re.sub(r"\s+", " ", m.group("header"))
@@ -393,8 +362,9 @@ def parse_header(f):
         elif m.group("funcname"):
             returntype = m.group("returntype").strip()
             funcname   = m.group("funcname")
-            argstr     = pythonize_lists(re.sub("\s+", " ", re.sub("\s*=\s*", "=", m.group("argstr").replace("nullptr", "NULL"))))
+            argstr     = pythonize_types(re.sub("\s+", " ", re.sub("\s*=\s*", "=", m.group("argstr").replace("nullptr", "NULL"))))
             add_function(returntype, funcname, argstr.replace("*", ""), comment, cur_header, "%s %s (%s)" % (returntype, funcname, argstr))
+            comment = ""
 
 ##### Main program #####
 if __name__ == "__main__":
@@ -405,10 +375,7 @@ if __name__ == "__main__":
     # parse input files
     for fname in sys.argv:
         with open(fname, "r") as f:
-            if fname.endswith(".html"):
-                parse_html(f)
-            elif fname.endswith(".H"):
-                parse_header(f)
+            parse_header(f)
 
     # header
     print(PROLOG+"""\
