@@ -8,7 +8,7 @@ include ../../makefile.base
 GENERATED_PY := ${OUTPYECMD}/generated.py
 CONSTANTS_PY := ${OUTPYECMD}/constants.py
 COPIED_PY := base.py __init__.py ecmdbitstring.py
-DOXYGEN_TO_PARSE := ecmdClientPyapi_8H.html ecmdSharedUtils_8H.html ecmdUtils_8H.html
+HEADERS_TO_PARSE := $(addprefix ${ECMD_CORE}/capi/, ecmdClientCapi.H ecmdSharedUtils.H ecmdUtils.H)
 PYTHON_INSTALL_PATH := ${INSTALL_PATH}/${TARGET_ARCH}/python
 PYECMD_INSTALL_PATH := ${PYTHON_INSTALL_PATH}/pyecmd
 
@@ -22,7 +22,7 @@ all:
 doxygen:
 	${VERBOSE}${MAKE} -C ../.. doxygen-create ${MAKEFLAGS} --no-print-directory
 
-generate: doxygen ${GENERATED_PY} ${CONSTANTS_PY}
+generate: ${GENERATED_PY} ${CONSTANTS_PY}
 
 build:
 
@@ -47,9 +47,9 @@ test-interactive:
 # *****************************************************************************
 # Generate most of the wrapper Python code
 # *****************************************************************************
-${GENERATED_PY}: $(addprefix ${DOXYGEN_PYAPI_PATH}/html/, $(DOXYGEN_TO_PARSE))
+${GENERATED_PY}: ./generate_pyecmd.py $(HEADERS_TO_PARSE)
 	@echo "Generating $@ ..."
-	@./generate_pyecmd.py $^ > $@
+	@./generate_pyecmd.py $(HEADERS_TO_PARSE) > $@
 
 ${CONSTANTS_PY}: ${OUTPY}/ecmd.py
 	@echo "Generating $@ ..."

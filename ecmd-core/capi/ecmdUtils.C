@@ -845,7 +845,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
   std::list< std::string >::iterator bitDetIt;
-  char bitDesc[1000];
+  char bitDesc[400], bitDesc2[500];
 
   sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
@@ -900,10 +900,10 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomDat
       else {
         sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
       }
-      sprintf(bitDesc, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc);
+      sprintf(bitDesc2, "%-10s : ",bitDesc);
+      ecmdOutput(bitDesc2);
       if (o_strData != NULL) {
-        *o_strData += bitDesc;
+        *o_strData += bitDesc2;
       }
 
       if (length <= 8) {
@@ -1011,7 +1011,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
   std::list< std::string >::iterator bitDetIt;
-  char bitDesc[1000];
+  char bitDesc[400], bitDesc2[500];
 
   sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
@@ -1066,10 +1066,10 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
       else {
         sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
       }
-      sprintf(bitDesc, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc);
+      sprintf(bitDesc2, "%-10s : ",bitDesc);
+      ecmdOutput(bitDesc2);
       if (o_strData != NULL) {
-        *o_strData += bitDesc;
+        *o_strData += bitDesc2;
       }
 
       if (length <= 8) {

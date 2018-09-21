@@ -1647,10 +1647,9 @@ uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_q
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdGlobal_DllDebug >= 10) {
     std::string printed;
-    char frontFPPTxt[100] = "ECMD DEBUG";
+    #define frontFPPTxt "ECMD DEBUG"
 
-    printed = frontFPPTxt;
-    printed += " Return Value from dllQueryConfig =============\n";
+    printed = frontFPPTxt " Return Value from dllQueryConfig =============\n";
     dllOutput(printed.c_str());
 
     std::list<ecmdCageData>::iterator ecmdCurCage;
@@ -1661,26 +1660,25 @@ uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_q
     std::list<ecmdThreadData>::iterator ecmdCurThread;
     char buf[100];
     if (o_queryData.cageData.empty()) {
-      printed = frontFPPTxt;
-      printed += "\t \t value = EMPTY\n"; dllOutput(printed.c_str());
+      printed = frontFPPTxt "\t \t value = EMPTY\n"; dllOutput(printed.c_str());
     } else {
 
       for (ecmdCurCage = o_queryData.cageData.begin(); ecmdCurCage != o_queryData.cageData.end(); ecmdCurCage ++) {
-        sprintf(buf,"%s\t \t k%d\n",frontFPPTxt, ecmdCurCage->cageId); dllOutput(buf);
+        sprintf(buf,frontFPPTxt "\t \t k%d\n", ecmdCurCage->cageId); dllOutput(buf);
         for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
-          sprintf(buf,"%s\t \t   n%d\n",frontFPPTxt, ecmdCurNode->nodeId); dllOutput(buf);
+          sprintf(buf,frontFPPTxt "\t \t   n%d\n", ecmdCurNode->nodeId); dllOutput(buf);
 
           for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
-            sprintf(buf,"%s\t \t     s%d\n",frontFPPTxt, ecmdCurSlot->slotId); dllOutput(buf);
+            sprintf(buf,frontFPPTxt "\t \t     s%d\n", ecmdCurSlot->slotId); dllOutput(buf);
 
             for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-              sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
+              sprintf(buf,frontFPPTxt "\t \t       %s:p%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
 
               for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
-                sprintf(buf,"%s\t \t         %s:c%d\n",frontFPPTxt, ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); dllOutput(buf);
+                sprintf(buf,frontFPPTxt "\t \t         %s:c%d\n", ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); dllOutput(buf);
 
                 for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
-                  sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); dllOutput(buf);
+                  sprintf(buf,frontFPPTxt "\t \t           t%d\n", ecmdCurThread->threadId); dllOutput(buf);
                 } /* curThreadIter */
 
               } /* curChipUnitIter */
