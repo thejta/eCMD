@@ -98,10 +98,10 @@ namespace fapi2
 
 inline std::ostream& operator<<(std::ostream& os, const fapi2::_ecmd_target_handle& eth)
 {
-    if (eth.value != NULL)
+    if (eth.value)
         os << ecmdWriteTarget(*(eth.value), ECMD_DISPLAY_TARGET_HYBRID);
     else
-        os << "NULL_TARGET";
+        os << "k0";
     return os;
 }
 
