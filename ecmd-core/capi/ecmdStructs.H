@@ -298,6 +298,7 @@ typedef enum {
   ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
   ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
   ECMD_DLL_PRODUCT_P9,          ///< P9 Project
+  ECMD_DLL_PRODUCT_P10,         ///< P10 Project
 } ecmdDllProduct_t;
 
 /**

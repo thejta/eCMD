@@ -748,6 +748,8 @@ uint32_t ecmdDisplayDllInfo() {
     printed += "OpenPower\n";
   } else if (info.dllProduct == ECMD_DLL_PRODUCT_P9) {
     printed += "P9\n";
+  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P10) {
+    printed += "P10\n";
   } else {
     printed += "Unknown\n";
   }
