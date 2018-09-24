@@ -27,6 +27,8 @@
 #include <ecmdStructs.H>
 #include <ecmdChipTargetCompare.H>
 #include <fapi2_multicast_defs.H>
+#include <iostream>
+#include <ecmdSharedUtils.H>
 //
 // Define what a platform handle looks like. For Hostboot,
 // for example, this might be a void*. For the SBE, this
@@ -92,6 +94,15 @@ namespace fapi2
         MulticastType multicast_type;
         MulticastGroup multicast_group;
     } plat_target_handle_t;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const fapi2::_ecmd_target_handle& eth)
+{
+    if (eth.value)
+        os << ecmdWriteTarget(*(eth.value), ECMD_DISPLAY_TARGET_HYBRID);
+    else
+        os << "k0";
+    return os;
 }
 
 #endif
