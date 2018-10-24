@@ -1009,7 +1009,11 @@ uint32_t ecmdDataBufferBase::flushTo1() {
     memset(iv_Data, 0xFF, getWordLength() * 4); /* init to 1 */
 
     /* Call setword on the last word to mask off any extra bits past iv_NumBits */
-    setWord((getWordLength()-1), 0xFFFFFFFF);
+    uint32_t bitMask = 0xFFFFFFFF;
+    if (iv_NumBits % 32) {
+      bitMask <<= ((32 * getWordLength()) - iv_NumBits);
+    }
+    setWord((getWordLength()-1), bitMask);
 
   }
   return rc;
