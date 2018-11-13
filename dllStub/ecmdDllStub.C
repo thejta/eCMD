@@ -339,7 +339,9 @@ uint32_t dllQueryArray(const ecmdChipTarget & target, ecmdArrayData & queryData,
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
+uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version) {
+  o_fileLocations.push_back((ecmdFileLocation){ "bogus/file.text", "bogus/file.hash" });
+  io_version = "v8";
   return ECMD_SUCCESS;
 } 
 

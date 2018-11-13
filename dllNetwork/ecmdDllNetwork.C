@@ -345,12 +345,12 @@ uint32_t dllQueryRing(const ecmdChipTarget & i_target, std::list<ecmdRingData> &
 
 uint32_t dllQueryArray(const ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName){ return ECMD_SUCCESS; } 
 
-uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version)
+uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version)
 {
     if (i_fileType == ECMD_FILE_HELPTEXT) {
         char directoryName[200];
         sprintf(directoryName, "%s/../../help/", dirname(getenv("ECMD_EXE")));
-        o_fileLocation = directoryName;
+        o_fileLocations.push_back((ecmdFileLocation){ directoryName, NULL });
     }
 
     return ECMD_SUCCESS;

@@ -22,12 +22,13 @@ PROLOG="""\
 """
 
 """
-Generate most of the pyecmd code by parsing function headers out of the eCMD Python API Doxygen HTML files.
+Generate most of the pyecmd code by parsing function headers out of the
+eCMD Python API Doxygen HTML files or out of the C API header files.
 
 @author Joachim Fenkes <fenkes@de.ibm.com>
 
 Instructions:
- 1. ./generate_pyecmd.py <all the HTML files you want to transform> > generated.py
+ 1. ./generate_pyecmd.py <all the HTML or header files you want to transform> > generated.py
  2. If some function is not as you'd expect, the lists at the beginning of this script
     allow some customization.
 """
@@ -68,7 +69,6 @@ non_exported_names = (
 # aren't being converted correctly - FIXME
 "parseTokens",
 "queryHostMemInfoRanges",
-"queryFileLocation",
 # not necessary because there are Pythonic replacements
 "queryErrorState",
 "hexToUInt32",
@@ -98,12 +98,13 @@ def python_type(type):
     elif type == "bool":              return "bool"
     elif type == "char" \
       or type == "std::string":       return "str"
-    elif type == "std::stringVector": return "list(str)"
-    elif type == "std::stringList":   return "list(str)"
     elif type == "ecmdDataBuffer":    return "EcmdBitArray"
-    elif type[-4:] == "List":         return "list(ecmd." + type[0:-4] + ")"
-    elif type[-6:] == "Vector":       return "list(ecmd." + type[0:-6] + ")"
     elif type == "ecmdChipTarget":    return "Target"
+    elif type[-4:] == "List":         return "list(" + python_type(type[0:-4]) + ")"
+    elif type[-6:] == "Vector":       return "list(" + python_type(type[0:-6]) + ")"
+    elif type[-3:] == "Map":
+        parts = type[:-3].split("_", 1)
+        return "dict(" + python_type(parts[0]) + ", " + python_type(parts[1]) + ")"
     else:                             return "ecmd." + type
 
 class FunctionArgument(object):
@@ -154,11 +155,7 @@ class FunctionArgument(object):
 
     @property
     def is_returned_out_arg(self):
-        return self.type.endswith("_t") or self.type in ("std::string")
-
-    @property
-    def is_ecmd_list_type(self):
-        return self.type[:11] != "std::string" and (self.type[-4:] == "List" or self.type[-6:] == "Vector")
+        return self.type.endswith("_t") or self.full_type in ("std::string", "const char")
 
     @property
     def retval_construction(self):
@@ -168,7 +165,7 @@ class FunctionArgument(object):
         elif self.type[-2:] == "_t":           return "0"
         elif self.type == "ecmdChipTarget":    return "Target()"
         #elif self.type == "ecmdDataBuffer":    return "DataBuffer()"
-        else:                                 return "ecmd." + self.type + "()"
+        else:                                 return "ecmd." + self.type.replace("std::string", "string") + "()"
 
     @property
     def python_type(self):
@@ -217,24 +214,22 @@ def print_function(data, func_type):
     out_args = []
     if not returns_wrapped_method:
         for arg in args:
-            if not arg.is_output:
-                continue
-
-            out_args.append(arg)
-            if arg.is_returned_out_arg:
-                out_args_returned.append(arg)
-            else:
-                out_args_passed_in.append(arg)
+            if arg.is_output or (arg.is_inout and arg.is_returned_out_arg):
+                out_args.append(arg)
+                if arg.is_returned_out_arg:
+                    out_args_returned.append(arg)
+                else:
+                    out_args_passed_in.append(arg)
 
     # build list of parameter names for the Python function definition; add self and remove default values
-    definition_args = [arg.name_with_def_value for arg in args if arg not in out_args]
+    definition_args = [arg.name_with_def_value for arg in args if not arg.is_output]
     if func_type == FUNC_TARGETED:
         definition_args = ["self"] + definition_args
 
     # build list of parameter names for the SWIG function invocation
     invocation_args = ["self"] if func_type == FUNC_TARGETED else []
     for arg in args:
-        if arg in out_args_returned:
+        if arg in out_args_returned and not arg.is_inout:
             continue
 
         argname = arg.name
@@ -266,7 +261,7 @@ def print_function(data, func_type):
 
     # construct usage example, mainly for functions returning tuples
     example = "pyecmd." if func_type == FUNC_GLOBAL else "target." if func_type == FUNC_TARGETED else "buffer."
-    example = example + new_funcname + "(" + ", ".join(arg.name_stripped for arg in args if arg not in out_args) + ")"
+    example = example + new_funcname + "(" + ", ".join(arg.name_stripped for arg in args if not arg.is_output) + ")"
     if returns_wrapped_method:
         example = "result = " + example
     elif out_args:
@@ -277,6 +272,8 @@ def print_function(data, func_type):
 
     # and now print the entire shebang
     print("")
+    if len(out_args) > 1:
+        print(prefix + "_" + new_funcname + "Retval = namedtuple(\"_" + new_funcname + "Retval\", \"" + " ".join(arg.name_stripped for arg in out_args) + "\")")
     print(prefix + "def " + new_funcname + "(" + ", ".join(definition_args) + "):")
     print(prefix + '    """')
     print(prefix + "    " + comment)
@@ -300,20 +297,74 @@ def print_function(data, func_type):
             print(prefix + "    base._rcwrap(rc)")
         else:
             print(prefix + "    base._rcwrap(" + invocation + ")")
-        if out_args:
+        if len(out_args) > 1:
+            print(prefix + "    return " + ("_" if func_type == FUNC_GLOBAL else "self._") + new_funcname + "Retval(" + ", ".join(return_values) + ")")
+        elif out_args:
             print(prefix + "    return " + ", ".join(return_values))
 
-HTML_REPLACEMENTS = (
-    ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"), ("&#160;", " "), ("&quot;", '"'), ("&nbsp;", " ")
-)
+def add_function(returntype, funcname, argstr, comment, header, full_prototype):
+    # filter out #defines, destructors and operators
+    if returntype == "#define" or funcname[0] == "~" or funcname[0:8] == "operator":
+        return
 
-def unhtml(line):
-    str = re.sub(r"<.*?>", "", line)
-    for replacement in HTML_REPLACEMENTS:
-        str = str.replace(*replacement)
-    return str.strip()
+    # transform function name
+    if funcname[0:4] == "ecmd":
+        new_funcname = funcname[4].lower() + funcname[5:]
+    else:
+        new_funcname = funcname
 
-function_re = re.compile(r"(\S+)\s+(\S+)\s*(\(.*$)")
+    if new_funcname in non_exported_names:
+        return
+
+    # export each function only once, warn if duplicate and not marked as "overloaded"
+    if new_funcname in found_functions:
+        if new_funcname not in overloaded_functions:
+            sys.stderr.write("WARNING: %s looks overloaded without special handling!\n" % new_funcname)
+        return
+
+    # if overloaded, replace arguments
+    if new_funcname in overloaded_functions:
+        argstr = overloaded_functions[new_funcname]
+        full_prototype = returntype + " " + funcname + " (" + argstr
+
+    # add function to the right list
+    found_functions.add(new_funcname)
+    func_data = (new_funcname, header, full_prototype, comment, returntype, funcname, argstr)
+    if re.search(r"ecmdChipTarget[\s&]+i_target", argstr):
+        target_functions.append(func_data)
+    else:
+        global_functions.append(func_data)
+
+list2python_re = re.compile(r"std::(List|Vector)\s*\<\s*(.*?)\s*>")
+map2python_re = re.compile(r"std::map\s*\<\s*(.*?)\s*,\s*(.*?)\s*>")
+def pythonize_types(argstr):
+    argstr = argstr.replace("std::list", "std::List").replace("std::vector", "std::Vector")
+    argstr = list2python_re.sub("\\2\\1", argstr)
+    argstr = map2python_re.sub("\\1_\\2Map", argstr)
+    return argstr
+
+def parse_header(f):
+    cur_header = ""
+    comment = ""
+    comment_re = re.compile(r"@name\s+(?P<header>.*?)(?:$|\n)|@brief\s+(?P<comment>.*?)(?:$|\n[\s*]*@)", re.S)
+    master_re = re.compile(r"\/\*\s*(?P<comment>.*?)\s*\*\/|\n\s*(?P<returntype>[\w\s*:]+?)(?P<funcname>\w+)\s*\(\s*(?P<argstr>[^/]*?)\s*\)\s*;", re.S)
+    # master_re splits out comment blocks and looks for function prototypes
+    for m in master_re.finditer(f.read()):
+        if m.group("comment"):
+            # Comments are being searched for group headers and @brief descriptions
+            m = comment_re.search(m.group("comment"))
+            if m and m.group("header"):
+                cur_header = re.sub(r"\s+", " ", m.group("header"))
+            elif m and m.group("comment"):
+                comment = re.sub(r"[\s*]+", " ", m.group("comment")).strip()
+                if comment[-1].isalpha():
+                    comment = comment + "."
+        elif m.group("funcname"):
+            returntype = m.group("returntype").strip()
+            funcname   = m.group("funcname")
+            argstr     = pythonize_types(re.sub("\s+", " ", re.sub("\s*=\s*", "=", m.group("argstr").replace("nullptr", "NULL"))))
+            add_function(returntype, funcname, argstr.replace("*", ""), comment, cur_header, "%s %s (%s)" % (returntype, funcname, argstr))
+            comment = ""
 
 ##### Main program #####
 if __name__ == "__main__":
@@ -323,60 +374,8 @@ if __name__ == "__main__":
 
     # parse input files
     for fname in sys.argv:
-        next_is_header = False
         with open(fname, "r") as f:
-            cur_header = ""
-            for line in f:
-                line_unhtml = unhtml(line)
-                if 'memtitle' in line:
-                    break
-                elif '<h2 class="groupheader"' in line:
-                    next_is_header = True
-                elif '<div class="groupHeader"' in line or next_is_header:
-                    cur_header = line_unhtml
-                    next_is_header = False
-                elif '<td class="memItemLeft"' in line:
-                    function = line_unhtml.strip()
-                elif '<td class="mdescLeft"' in line:
-                    comment = line_unhtml.replace("More...", "").strip()
-
-                    # The regex will filter out things like enums, class definitions and constructors
-                    m = function_re.match(function.replace("*", "").replace("("," (").replace("= ","="))
-                    if not m:
-                        continue
-                    (returntype, funcname, argstr) = m.group(1, 2, 3)
-
-                    # filter out #defines, destructors and operators
-                    if returntype == "#define" or funcname[0] == "~" or funcname[0:8] == "operator":
-                        continue
-
-                    # transform function name
-                    if funcname[0:4] == "ecmd":
-                        new_funcname = funcname[4].lower() + funcname[5:]
-                    else:
-                        new_funcname = funcname
-
-                    if new_funcname in non_exported_names:
-                        continue
-
-                    # export each function only once, warn if duplicate and not marked as "overloaded"
-                    if new_funcname in found_functions:
-                        if new_funcname not in overloaded_functions:
-                            sys.stderr.write("WARNING: %s looks overloaded without special handling!\n" % new_funcname)
-                        continue
-
-                    # if overloaded, replace arguments
-                    if new_funcname in overloaded_functions:
-                        argstr = overloaded_functions[new_funcname]
-                        function = returntype + " " + funcname + " (" + argstr
-
-                    # add function to the right list
-                    found_functions.add(new_funcname)
-                    func_data = (new_funcname, cur_header, function, comment, returntype, funcname, argstr)
-                    if "ecmdChipTarget i_target" in argstr.replace("&", ""):
-                        target_functions.append(func_data)
-                    else:
-                        global_functions.append(func_data)
+            parse_header(f)
 
     # header
     print(PROLOG+"""\
@@ -390,7 +389,8 @@ with autogenerated wrappers for most of the eCmd functions.
 '''
 
 import ecmd
-from . import base""" % ", ".join(os.path.basename(x) for x in sys.argv[1:]))
+from . import base
+from collections import namedtuple""" % ", ".join(os.path.basename(x) for x in sys.argv[1:]))
 
     # module scope functions
     cur_header = ""

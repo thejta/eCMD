@@ -327,7 +327,7 @@ uint32_t ecmdPrintHelp(const char* i_command) {
 
   uint32_t rc = ECMD_SUCCESS;
   std::string file;
-  std::list<std::pair<std::string,  std::string> > paths;
+  std::list<ecmdFileLocation> paths;
   ecmdChipTarget target;
   std::ifstream ins;
   std::string curLine;
@@ -338,7 +338,7 @@ uint32_t ecmdPrintHelp(const char* i_command) {
   if (rc) return rc;
 
   // Assume for now we only have one helptext path returned
-  file = paths.begin()->first;
+  file = paths.begin()->textFile;
   file += i_command; file += ".htxt";
 
   /* Let's go open this guy */
@@ -1180,4 +1180,3 @@ uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_proces
 
   return rc;
 }
-

@@ -744,7 +744,7 @@ uint32_t ecmdDisplayDllInfo() {
 #ifndef ECMD_REMOVE_SEDC_SUPPORT
 uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
-  std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scomdefs - second of pair isn't used for scomdefs
+  std::list<ecmdFileLocation> l_fileLocs;       ///< List of scomdefs - hashFile isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
   sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
   unsigned int runtimeFlags=0;                    ///< Directives on how to parse
@@ -764,7 +764,7 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, l_filePairs, l_version);
+  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
   if (rc) {
     printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
@@ -772,13 +772,12 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
   }
 
   std::ifstream scomdefFile;
-  std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-  while (l_filePair != l_filePairs.end())
+  for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
   {
       rc = ECMD_SUCCESS;
-      scomdefFile.open(l_filePair->first.c_str());
+      scomdefFile.open(l_fileLoc->textFile.c_str());
       if(scomdefFile.fail()) {
-          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_filePair->first + "\nSkipping -v parsing\n";
+          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_fileLoc->textFile + "\nSkipping -v parsing\n";
           ecmdOutputWarning(printed.c_str());
           rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
           return rc;
@@ -797,7 +796,6 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
       }
       if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
           scomdefFile.close();
-          l_filePair++;
       }
       // Found the address, don't need to look in any other scomdefs
       else
@@ -817,7 +815,7 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
   std::list< std::string >::iterator descIt;
   std::list<sedcScomdefDefLine>::iterator definIt;
   std::list< std::string >::iterator bitDetIt;
-  char bitDesc[1000];
+  char bitDesc[400], bitDesc2[500];
 
   sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
   ecmdOutput(bitDesc);
@@ -872,10 +870,10 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
       else {
         sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
       }
-      sprintf(bitDesc, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc);
+      sprintf(bitDesc2, "%-10s : ",bitDesc);
+      ecmdOutput(bitDesc2);
       if (o_strData != NULL) {
-        *o_strData += bitDesc;
+        *o_strData += bitDesc2;
       }
 
       if (length <= 8) {
@@ -1455,12 +1453,12 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
+        char *pstr = tempIntStr + sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
         std::list<std::string>::iterator relatedChipUnitIter;
         for (relatedChipUnitIter = entit->relatedChipUnit.begin(); relatedChipUnitIter != entit->relatedChipUnit.end(); relatedChipUnitIter++) {
-          sprintf(tempIntStr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
+          pstr += sprintf(pstr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
         }
-        sprintf(tempIntStr, "%s\n", tempIntStr);
+        pstr += sprintf(pstr, "%s\n", tempIntStr);
         debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
@@ -2296,4 +2294,3 @@ void ecmdResetExtensionInitState() {
     *(*ptrit) = false;
   }
 }
-

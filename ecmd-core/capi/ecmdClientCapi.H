@@ -540,18 +540,17 @@ uint32_t ecmdQueryTraceArray(const ecmdChipTarget & i_target, std::list<ecmdTrac
  @brief Query the location of a specific file type for the selected target
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
  @param i_fileType Enum that specifies which type of file you are looking for scandef/spydef/arraydef
- @param o_fileLocations Return string pair list with full path and filename to location. 
+ @param o_fileLocations Return list of locations with full path and filename to location.
  @param io_version Specify version number of file; set to version number by plugin
  @retval ECMD_SUCCESS if successful
  @retval ECMD_UNKNOWN_FILE if unable to find requested file
  @retval nonzero if unsuccessful
 
  NOTE : This function does not affect ring caching<br>
- First file in pair is text file, second file is hash file if applicable.<br>
  TARGET DEPTH  : cage, node, slot, pos (as applicable based on i_fileType)<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version);
+uint32_t ecmdQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version);
 //@}
 
 /**

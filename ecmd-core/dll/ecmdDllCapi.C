@@ -1647,10 +1647,9 @@ uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_q
 #ifndef ECMD_STRIP_DEBUG
   if (ecmdGlobal_DllDebug >= 10) {
     std::string printed;
-    char frontFPPTxt[100] = "ECMD DEBUG";
+    #define frontFPPTxt "ECMD DEBUG"
 
-    printed = frontFPPTxt;
-    printed += " Return Value from dllQueryConfig =============\n";
+    printed = frontFPPTxt " Return Value from dllQueryConfig =============\n";
     dllOutput(printed.c_str());
 
     std::list<ecmdCageData>::iterator ecmdCurCage;
@@ -1661,26 +1660,25 @@ uint32_t queryConfigExistSelected(ecmdChipTarget & i_target, ecmdQueryData & o_q
     std::list<ecmdThreadData>::iterator ecmdCurThread;
     char buf[100];
     if (o_queryData.cageData.empty()) {
-      printed = frontFPPTxt;
-      printed += "\t \t value = EMPTY\n"; dllOutput(printed.c_str());
+      printed = frontFPPTxt "\t \t value = EMPTY\n"; dllOutput(printed.c_str());
     } else {
 
       for (ecmdCurCage = o_queryData.cageData.begin(); ecmdCurCage != o_queryData.cageData.end(); ecmdCurCage ++) {
-        sprintf(buf,"%s\t \t k%d\n",frontFPPTxt, ecmdCurCage->cageId); dllOutput(buf);
+        sprintf(buf,frontFPPTxt "\t \t k%d\n", ecmdCurCage->cageId); dllOutput(buf);
         for (ecmdCurNode = ecmdCurCage->nodeData.begin(); ecmdCurNode != ecmdCurCage->nodeData.end(); ecmdCurNode ++) {
-          sprintf(buf,"%s\t \t   n%d\n",frontFPPTxt, ecmdCurNode->nodeId); dllOutput(buf);
+          sprintf(buf,frontFPPTxt "\t \t   n%d\n", ecmdCurNode->nodeId); dllOutput(buf);
 
           for (ecmdCurSlot = ecmdCurNode->slotData.begin(); ecmdCurSlot != ecmdCurNode->slotData.end(); ecmdCurSlot ++) {
-            sprintf(buf,"%s\t \t     s%d\n",frontFPPTxt, ecmdCurSlot->slotId); dllOutput(buf);
+            sprintf(buf,frontFPPTxt "\t \t     s%d\n", ecmdCurSlot->slotId); dllOutput(buf);
 
             for (ecmdCurChip = ecmdCurSlot->chipData.begin(); ecmdCurChip != ecmdCurSlot->chipData.end(); ecmdCurChip ++) {
-              sprintf(buf,"%s\t \t       %s:p%d\n",frontFPPTxt, ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
+              sprintf(buf,frontFPPTxt "\t \t       %s:p%d\n", ecmdCurChip->chipType.c_str(), ecmdCurChip->pos); dllOutput(buf);
 
               for (ecmdCurChipUnit = ecmdCurChip->chipUnitData.begin(); ecmdCurChipUnit != ecmdCurChip->chipUnitData.end(); ecmdCurChipUnit ++) {
-                sprintf(buf,"%s\t \t         %s:c%d\n",frontFPPTxt, ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); dllOutput(buf);
+                sprintf(buf,frontFPPTxt "\t \t         %s:c%d\n", ecmdCurChipUnit->chipUnitType.c_str(), ecmdCurChipUnit->chipUnitNum); dllOutput(buf);
 
                 for (ecmdCurThread = ecmdCurChipUnit->threadData.begin(); ecmdCurThread != ecmdCurChipUnit->threadData.end(); ecmdCurThread ++) {
-                  sprintf(buf,"%s\t \t           t%d\n",frontFPPTxt, ecmdCurThread->threadId); dllOutput(buf);
+                  sprintf(buf,frontFPPTxt "\t \t           t%d\n", ecmdCurThread->threadId); dllOutput(buf);
                 } /* curThreadIter */
 
               } /* curChipUnitIter */
@@ -5142,21 +5140,20 @@ uint32_t dllCreateSparseMaskFromLatchOpt(const ecmdChipTarget & i_target, const 
     return rc;
 }
 
-bool findLatchInCache(const std::list<std::pair<std::string, std::string> > & i_filePairs, uint64_t i_latchHashKey64, const std::string & i_ringName, ecmdLatchBufferEntry & o_latchdata)
+bool findLatchInCache(const std::list<ecmdFileLocation> & i_fileLocs, uint64_t i_latchHashKey64, const std::string & i_ringName, ecmdLatchBufferEntry & o_latchdata)
 {
     bool foundit = false;
     std::list<ecmdLatchCacheEntry>::iterator searchCacheIter;
     std::map<uint64_t, ecmdLatchBufferEntry>::iterator searchLatchIter;
     ecmdLatchCacheEntry searchCache;
 
-    std::list<std::pair<std::string, std::string> >::const_iterator l_filePair = i_filePairs.begin();
-    while (l_filePair != i_filePairs.end())
+    for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = i_fileLocs.begin(); l_fileLoc != i_fileLocs.end(); l_fileLoc++)
     {
         /* Level one */
         searchCacheIter = latchCache.end();
 
         /* Set the hashkey for the lookup and then do it */
-        searchCache.scandefHashKey = ecmdHashString64(l_filePair->first.c_str(), 0);
+        searchCache.scandefHashKey = ecmdHashString64(l_fileLoc->textFile.c_str(), 0);
 
         searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
 
@@ -5192,8 +5189,7 @@ bool findLatchInCache(const std::list<std::pair<std::string, std::string> > & i_
         {
             latchCache.push_front(searchCache);
         }
-        l_filePair++;
-    } // l_filePairs loop
+    } // l_fileLocs loop
 
     return foundit;
 }
@@ -5212,7 +5208,7 @@ uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, cons
     std::list<ecmdLatchEntry>::iterator entryIt;
     std::list<ecmdLatchEntry>::iterator entryIt1;
     std::string scandefFile;                      ///< Full path to scandef file
-    std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scandef and scandefhash files
+    std::list<ecmdFileLocation> l_fileLocs;       ///< List of scandef and scandefhash files
     std::string latchName = i_latchName;          ///< Store our latchname in a stl string
     std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
     std::string curRing;                          ///< Current ring being read in
@@ -5227,24 +5223,23 @@ uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, cons
     std::string l_version = "default";
     /* Let's see if we have already looked up this info */
     /* find scandef file */
-    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_fileLocs, l_version);
     if (rc) {
       dllRegisterErrorMsg(rc, "readScandef", "Error occured locating scandef file.\n");
       return rc;
     }
 
-    if (findLatchInCache(l_filePairs, latchHashKey64, ringName, o_latchdata))
+    if (findLatchInCache(l_fileLocs, latchHashKey64, ringName, o_latchdata))
     {
         /* We're done, get out of here */
         return rc;
     }
 
     /* We don't have it already, let's go looking */
-    std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-    while (l_filePair != l_filePairs.end())
+    for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
     {
         /* find scandef file */
-        scandefFile = l_filePair->first;
+        scandefFile = l_fileLoc->textFile;
 
         std::ifstream ins(scandefFile.c_str());
         if (ins.fail())
@@ -5430,7 +5425,6 @@ uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, cons
         o_latchdata.latchNameHashKey = latchHashKey64;
         o_latchdata.entry.sort();
 
-        l_filePair++;
         // We found the ring already, so bail 
         // Assumption is that each ring only shows up in a single scandef
         if ((!o_latchdata.entry.empty()) && (ringName != ""))
@@ -5640,7 +5634,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
     std::list< ecmdLatchHashInfo >::iterator latchHashDetIter;
     std::string scandefFile;                      ///< Full path to scandef file
     std::string scandefHashFile;                  ///< Full path to scandefhash file
-    std::list<std::pair<std::string, std::string> > l_filePairs; ///< List of scandef and scandefhash files
+    std::list<ecmdFileLocation> l_fileLocs;       ///< List of scandef and scandefhash files
     std::string latchName = i_latchName;          ///< Store our latchname in a stl string
     std::string ringName = ((i_ringName == NULL) ? "" : i_ringName);            ///< Ring that caller specified
     uint32_t latchHashKey32;                      ///< Hash Key for i_latchName
@@ -5665,24 +5659,23 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
 
     /* Let's see if we have already looked up this info */
     /* find scandef file */
-    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_filePairs, l_version);
+    rc = dllQueryFileLocation(target, ECMD_FILE_SCANDEF, l_fileLocs, l_version);
     if (rc)
     {
         dllRegisterErrorMsg(rc, "readScandefHash", "Error occured locating scandef file.\n");
         return rc;
     }
 
-    if (findLatchInCache(l_filePairs, latchHashKey64, ringName, o_latchdata))
+    if (findLatchInCache(l_fileLocs, latchHashKey64, ringName, o_latchdata))
     {
         /* We're done, get out of here */
         return rc;
     }
 
-    std::list<std::pair<std::string, std::string> >::iterator l_filePair = l_filePairs.begin();
-    while (l_filePair != l_filePairs.end())
+    for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
     {
         /* find scandef hash file */
-        scandefHashFile = l_filePair->second;
+        scandefHashFile = l_fileLoc->hashFile;
 
         std::ifstream insh;
         bool l_scandefHash64 = false;
@@ -5729,7 +5722,6 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
             if (!foundLatch)
             {
                 // look in next hash file
-                l_filePair++;
                 insh.close();
                 continue;
             }
@@ -5739,7 +5731,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
 
             std::list< ecmdLatchHashInfo >::iterator latchIter;
 
-            scandefFile = l_filePair->first;
+            scandefFile = l_fileLoc->textFile;
             std::ifstream ins(scandefFile.c_str());
             if (ins.fail())
             {
@@ -5859,7 +5851,6 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
         if (!ringFound)
         {
             // look in next hash file
-            l_filePair++;
             continue;
         }
 
@@ -6050,13 +6041,12 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
         o_latchdata.latchNameHashKey = latchHashKey64;
         o_latchdata.entry.sort();
 
-        l_filePair++;
         // We found the ring already, so bail
         if (foundRing)
         {
             break; 
         }
-    } // l_filePairs loop
+    } // l_fileLocs loop
 
     if (rc)
     {
@@ -6135,13 +6125,13 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   std::string ret = "";
 
   ecmdChipTarget dummy;
-  std::list<std::pair<std::string,  std::string> > paths;
+  std::list<ecmdFileLocation> paths;
   std::string filePath;
   std::string l_version = "default";
   uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, paths, l_version); 
 
   // Assume for now we only have one helptext path returned
-  filePath = paths.begin()->first;
+  filePath = paths.begin()->textFile;
 
   if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";
