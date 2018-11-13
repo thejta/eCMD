@@ -513,6 +513,11 @@ uint32_t ecmdDataBufferBase::setWord(uint32_t i_wordOffset, uint32_t i_value) {
     uint32_t bitMask = 0xFFFFFFFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((32 * getWordLength()) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -536,6 +541,11 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
     uint8_t bitMask = 0xFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((8 * getByteLength()) - iv_NumBits);
+
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setByte: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -577,6 +587,11 @@ uint32_t ecmdDataBufferBase::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_v
     uint16_t bitMask = 0xFFFF;
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((16 * ((getByteLength()+1)/2)) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setHalfWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -625,6 +640,11 @@ uint32_t ecmdDataBufferBase::setDoubleWord(uint32_t i_doublewordoffset, uint64_t
 #endif
     /* Shift it left by the amount of unused bits */
     bitMask <<= ((64 * ((getWordLength()+1)/2)) - iv_NumBits);
+    
+    if ( (i_value & ~bitMask) != 0 ) {
+      ETRAC0("**** ERROR : ecmdDataBufferBase::setDoubleWord: non zero data being cleared prior to set");
+    }
+
     /* Clear the unused bits */
     i_value &= bitMask;
   }
@@ -866,6 +886,10 @@ uint32_t ecmdDataBufferBase::shiftRight(uint32_t i_shiftNum, uint32_t i_offset) 
     ETRAC2("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
+  if (i_shiftNum+i_offset > iv_NumBits) {
+    ETRAC3("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d + i_shiftNum %d > NumBits (%d)", i_offset, i_shiftNum, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
 
   /* To shift the data, extact the piece being shifted and then re-insert it at the new location */
   ecmdDataBufferBase shiftData;
@@ -896,6 +920,10 @@ uint32_t ecmdDataBufferBase::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
   /* Error check */
   if (i_offset > iv_NumBits) {
     ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
+  }
+  if (i_offset < i_shiftNum) {
+    ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d < i_shiftNum (%d)", i_offset, i_shiftNum);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -950,6 +978,9 @@ uint32_t ecmdDataBufferBase::shiftLeftAndResize(uint32_t i_shiftNum) {
 uint32_t ecmdDataBufferBase::rotateRight(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
+  /* no need to rotate by 0 */
+  if ( i_rotateNum == 0 ) return rc;
+
   /* The quickest way to rotate the data is to grab the two chunks and swap their position */
   ecmdDataBufferBase leftPart;
   ecmdDataBufferBase rightPart;
@@ -973,6 +1004,9 @@ uint32_t ecmdDataBufferBase::rotateRight(uint32_t i_rotateNum) {
 
 uint32_t ecmdDataBufferBase::rotateLeft(uint32_t i_rotateNum) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
+
+  /* no need to rotate by 0 */
+  if ( i_rotateNum == 0 ) return rc;
 
   /* The quickest way to rotate the data is to grab the two chunks and swap their position */
   ecmdDataBufferBase leftPart;
@@ -1009,7 +1043,11 @@ uint32_t ecmdDataBufferBase::flushTo1() {
     memset(iv_Data, 0xFF, getWordLength() * 4); /* init to 1 */
 
     /* Call setword on the last word to mask off any extra bits past iv_NumBits */
-    setWord((getWordLength()-1), 0xFFFFFFFF);
+    uint32_t bitMask = 0xFFFFFFFF;
+    if (iv_NumBits % 32) {
+      bitMask <<= ((32 * getWordLength()) - iv_NumBits);
+    }
+    setWord((getWordLength()-1), bitMask);
 
   }
   return rc;
