@@ -99,7 +99,7 @@ def _to_ecmdDataBuffer(buf, defwidth=64):
         ecmd_buf = ecmd.ecmdDataBuffer(len(buf))
         overhang = len(buf) % 64
         bits = buf + bitstring.Bits(64 - (len(buf) % 64)) if overhang else buf # pad to multiples of 64 bits
-        for i in range(len(bits) / 64):
+        for i in range(len(bits) // 64):
             ecmd_buf.setDoubleWord(i, bits[i*64:(i+1)*64].uint)
         return ecmd_buf
     if isinstance(buf, (str, unicode)):
