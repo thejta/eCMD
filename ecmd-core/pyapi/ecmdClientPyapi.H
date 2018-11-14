@@ -136,7 +136,9 @@ char * ecmdParseOptionWithArgs(char ** io_argv, const char * i_option);
 <br>
  <hr>
  @section files Related Information
-  NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the Python API and documentation.  Treat as Python functions and especially look at any usage information associated with each function description
+  NOTE : Some of this documentation may look like C/C++ files/headers but that is a side effect of the tool we are using to generated the Python API and documentation.  Treat as Python functions and especially look at any usage information associated with each function description.
+
+ <b>IMPORTANT NOTE: Any function parameters that are listed as by-reference outputs, that aren't eCMD structures (e.g. std::string &, uint32_t &, etc.) are returned as a python tuple, along with the return code.  The return code is always the first element of the tuple.  See "Python tuple return example" in Example Python Script below.</b>
 
  <ul>
  <li>ecmdClientPyapi.H</li>
@@ -242,7 +244,7 @@ Python functions use the same ecmdChipTarget structure as the C-Api.
 
 <br><br>
  <hr>
- @section pythonuse Pyton API Usage
+ @section pythonuse Python API Usage
 
  The following should be observed when using the Python API.
 
