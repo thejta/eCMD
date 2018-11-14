@@ -119,6 +119,13 @@ print("dllBuildDate   = %s" % dllInfo.dllBuildDate)
 print("dllCapiVersion = %s" % dllInfo.dllCapiVersion)
 print("dllBuildInfo   = %s" % dllInfo.dllBuildInfo)
 
+testNum+=1; print("dll %02d) Python tuple return example" % testNum)
+(rc, unitIdVer) = ecmd.ecmdGetUnitIdVersion()
+if (rc):
+    print("ERROR: problem getting unit id version")
+else:
+    print("Unit Id Version: %08x" % unitIdVer)
+
 # Pulling this test for now
 # It breaks builds where ring support isn't included, so some smarts would need to be put into it
 # JTA 11/11/2014

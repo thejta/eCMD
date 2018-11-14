@@ -339,6 +339,7 @@ uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_nu
 
 uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
   uint32_t rc = ECMD_SUCCESS;
+  o_unitIdVersion = 0x10002030;
   return rc;
 }
 
