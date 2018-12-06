@@ -1283,7 +1283,7 @@ inline Target<T,V>* getTarget(TargetType i_type, uint8_t instance)
         return nullptr;
     }
 
-    printf("getTarget, %08X, %d\n", i_type, instance);
+    //printf("getTarget, %08X, %d\n", i_type, instance);
     // There is no ATTR_FAPI_POS for the system target
     if (i_type == fapi2::TARGET_TYPE_SYSTEM)
     {
