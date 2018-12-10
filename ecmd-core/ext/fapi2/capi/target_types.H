@@ -41,7 +41,7 @@ namespace fapi2
 ///
 
 /// Target Kind
-enum TargetType
+enum TargetType : uint64_t 
 {
     TARGET_TYPE_NONE          = 0x00000000, ///< No type
     TARGET_TYPE_SYSTEM        = 0x00000001, ///< System type
@@ -78,7 +78,7 @@ enum TargetType
     TARGET_TYPE_SC_CHIP       = 0x80000000, ///< Z SC type
 #endif
 
-    TARGET_TYPE_ALL           = 0xFFFFFFFF, ///< Any/All types
+    TARGET_TYPE_ALL           = 0x7FFFFFFFFFFFFFFF, ///< Any/All types
 
     // Compound target types
     TARGET_TYPE_CHIPS         = TARGET_TYPE_PROC_CHIP |
@@ -275,8 +275,8 @@ enum TargetFilter : uint64_t
 /// @cond
 constexpr TargetType operator|(TargetType x, TargetType y)
 {
-    return static_cast<TargetType>(static_cast<int>(x) |
-                                   static_cast<int>(y));
+    return static_cast<TargetType>(static_cast<uint64_t>(x) |
+                                   static_cast<uint64_t>(y));
 }
 #endif
 

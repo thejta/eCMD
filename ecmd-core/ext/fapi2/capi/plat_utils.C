@@ -160,6 +160,17 @@ namespace fapi2
         logError( io_rc, i_sev, i_unitTestError );
     } // end log_related_error
 
+    // 32-bit version of TARGET_TYPE_ALL
+    void log_related_error(
+        const Target<static_cast<fapi2::TargetType>(0xFFFFFFFF)>& i_target,
+        fapi2::ReturnCode& io_rc,
+        const fapi2::errlSeverity_t i_sev,
+        const bool i_unitTestError )
+    {
+        // Just commit the log in default implementation
+        logError( io_rc, i_sev, i_unitTestError );
+    } // end log_related_error
+
     ///
     /// @brief Delay this thread.
     ///
