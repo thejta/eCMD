@@ -372,7 +372,7 @@ uint32_t dllQueryFileLocationHidden2(const ecmdChipTarget & i_target, ecmdFileTy
     if (i_fileType == ECMD_FILE_HELPTEXT) {
         char directoryName[200];
         sprintf(directoryName, "%s/../../help/", dirname(getenv("ECMD_EXE")));
-        o_fileLocations.push_back((ecmdFileLocation){ directoryName, NULL });
+        o_fileLocations.push_back((ecmdFileLocation){ directoryName, "" });
     }
 
     return ECMD_SUCCESS;
