@@ -1,6 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2003,2017 IBM International Business Machines Corp.
+ * Copyright 2003,2018 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@
 //#include <linux/i2c-dev.h>
 //#include <linux/i2c.h>
 // copied from i2c-dev.h
+#define I2C_RETRIES     0x0701  /* number of time a device address should
+                                   be polled when not acknowledging */
 #define I2C_TIMEOUT     0x0702  /* set timeout in units of 10 ms */
 #define I2C_SLAVE	0x0703	/* Use this slave address */
 #define I2C_TENBIT	0x0704	/* 0 for 7 bit addrs, != 0 for 10 bit */
@@ -458,6 +460,55 @@ uint32_t ServerI2CInstruction::iic_config_device_offset(Handle * i_handle, Instr
     return rc;
 }
 
+uint32_t ServerI2CInstruction::iic_config_device_timeout(Handle * i_handle, InstructionStatus & o_status)
+{
+    uint32_t rc = 0;
+    if ( iv_deviceIdx == iv_adalFsiDevice )
+    {
+#ifdef TESTING
+        TESTPRINT("rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, %x, 0);\n", msDelay);
+#else
+        rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, &msDelay, 0);
+#endif
+    }
+    else
+    {
+#ifdef TESTING
+        TESTPRINT("ioctl(handle->fd, I2C_TIMEOUT, %d)\n", msDelay/10);
+#else
+        errno = 0;
+        system_iic * handle = (system_iic *) i_handle;
+        // value to I2C_TIMEOUT is in 10ms units
+        rc = ioctl( handle->fd, I2C_TIMEOUT, msDelay/10 );
+#endif
+    }
+    return rc;
+}
+
+uint32_t ServerI2CInstruction::iic_config_device_retries(Handle * i_handle, InstructionStatus & o_status)
+{
+    uint32_t rc = 0;
+    if ( iv_deviceIdx == iv_adalFsiDevice )
+    {
+#ifdef TESTING
+        TESTPRINT("rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_REDO_POL, %x, 0);\n", numRedos);
+#else
+        rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_REDO_POL, &numRedos, 0);
+#endif
+    }
+    else
+    {
+#ifdef TESTING
+        TESTPRINT("ioctl(handle->fd, I2C_RETRIES, %d)\n", numRedos);
+#else
+        errno = 0;
+        system_iic * handle = (system_iic *) i_handle;
+        rc = ioctl( handle->fd, I2C_RETRIES, numRedos );
+#endif
+    }
+    return rc;
+}
+
 ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status)
 {
     char errstr[200];
@@ -472,20 +523,8 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
 
         uint8_t * buffer = new uint8_t[len + 4];
 
-        // adjust timeout value based on data size
-        int timeout = len * 160 * 2 + 1000;
 #ifdef SERVER_PRINT_PERF
-        printf("bytes: %d, timeout: %d\n", len, timeout);
-#endif
-#ifdef TESTING
-        TESTPRINT("rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, %x, 0);\n", timeout);
-#else
-        ssize_t rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, &timeout, 0);
-        if (rc)
-        {
-            delete [] buffer;
-            return rc;
-        }
+        printf("bytes: %d, msDelay: %d, numRedos: %d\n", len, msDelay, numRedos);
 #endif
 
 #ifdef SERVER_PRINT_PERF
@@ -523,33 +562,6 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
     {
         system_iic * handle = (system_iic *) i_handle;
         uint32_t bytes = length % 8 ? (length / 8) + 1 : length / 8;
-
-        // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
-        // value is in 10ms units, only set timeout to something larger than 100.
-        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
-        int timeout = (length / timeoutFactor) * 1.5;
-
-        errno = 0;
-        int rc = 0;
-        if ( timeout > 100 )
-        {
-            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
-            {
-                snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_TIMEOUT, %d)\n", timeout);
-                o_status.errorMessage.append(errstr);
-            }
-#ifdef TESTING
-            TESTPRINT("rc = ioctl(handle->fd, I2C_TIMEOUT, %d);\n", timeout);
-#else
-            rc = ioctl( handle->fd, I2C_TIMEOUT, timeout );
-#endif
-            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
-            {
-                snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
-                o_status.errorMessage.append(errstr);
-            }
-            if ( rc ) return rc;
-        }
 
         uint32_t messages = 0;
         // check if we need to write address to the bus before the write
@@ -607,6 +619,7 @@ ssize_t ServerI2CInstruction::iic_read(Handle * i_handle, ecmdDataBufferBase & o
                 o_status.errorMessage.append(errstr);
             }
         }
+        int32_t rc = 0;
 #ifdef TESTING
         TESTPRINT("rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);\n");
 #else
@@ -669,22 +682,6 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
         memset(buffer, 0x00, len + 4);
         data.extract(buffer, 0, length);
 
-        // adjust timeout value based on data size
-        int timeout = len * 160 * 2 + 1000;
-#ifdef SERVER_PRINT_PERF
-        printf("bytes: %d, timeout: %d\n", len, timeout);
-#endif
-#ifdef TESTING
-        TESTPRINT("rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, %x, 0);\n", timeout);
-#else
-        ssize_t rc = adal_iic_config((adal_t *) i_handle, ADAL_CONFIG_WRITE, ADAL_IIC_CFG_TIMEOUT, &timeout, 0);
-        if (rc)
-        {
-            delete [] buffer;
-            return rc;
-        }
-#endif
-
 #ifdef SERVER_PRINT_PERF
         gettimeofday(&start_time, NULL);
 #endif
@@ -706,33 +703,6 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
     {
         system_iic * handle = (system_iic *) i_handle;
         uint32_t bytes = length % 8 ? (length / 8) + 1 : length / 8;
-
-        // adjust timeout value based on data size  assuming ~1KB/s transfer rate being used
-        // value is in 10ms units, only set timeout to something larger than 100.
-        int timeoutFactor = (i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) == 0 ? 81 : (((i2cFlags & INSTRUCTION_I2C_FLAG_RETRY_MASK) >> INSTRUCTION_I2C_FLAG_RETRY_SHIFT) * 8);
-        int timeout = (length / timeoutFactor) * 1.5;
-
-        errno = 0;
-        int rc = 0;
-        if ( timeout > 100 )
-        {
-            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
-            {
-                snprintf(errstr, 200, "SERVER_DEBUG : rc = ioctl( handle->fd, I2C_TIMEOUT, %d)\n", timeout);
-                o_status.errorMessage.append(errstr);
-            }
-#ifdef TESTING
-            TESTPRINT("rc = ioctl(handle->fd, I2C_TIMEOUT, %d);\n", timeout);
-#else
-            rc = ioctl( handle->fd, I2C_TIMEOUT, timeout );
-#endif
-            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
-            {
-                snprintf(errstr, 200, "SERVER_DEBUG : rc = %d, errno = %d\n", rc, errno);
-                o_status.errorMessage.append(errstr);
-            }
-            if ( rc ) return rc;
-        }
 
         uint32_t messages = 1;
 
@@ -766,7 +736,7 @@ ssize_t ServerI2CInstruction::iic_write(Handle * i_handle, InstructionStatus & o
                 o_status.errorMessage.append(errstr);
             }
         }
-
+        int32_t rc = 0;
 #ifdef TESTING
         TESTPRINT("rc = ioctl(handle->fd, I2C_RDWR, rdwr_data);\n");
 #else
