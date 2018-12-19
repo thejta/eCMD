@@ -1,6 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2003,2017 IBM International Business Machines Corp.
+ * Copyright 2003,2018 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,10 @@ offset(i_offset),
 offsetFieldSize(i_offsetFieldSize),
 length(i_length),
 i2cFlags(i_i2cFlags),
-address(0)
+address(0),
+iicAckMask(0),
+numRedos(0),
+msDelay(0)
 {
   version = 0x2;
   type = I2C;
@@ -83,6 +86,9 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   command = i_command;
   flags = i_flags;
   address = 0;
+  iicAckMask = 0;
+  numRedos = 0;
+  msDelay = 0;
   if(i_data != NULL) {
     i_data->shareBuffer(&data);
   }
@@ -108,6 +114,9 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   command = i_command;
   flags = i_flags;
   address = i_address;
+  iicAckMask = 0;
+  numRedos = 0;
+  msDelay = 0;
   if(i_data != NULL) {
     i_data->shareBuffer(&data);
   }
@@ -118,7 +127,7 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, uint32_t i_cfamid, 
   return 0;
 }
 
-uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data) {
+uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data, uint32_t i_iicAckMask, uint32_t i_numRedos, uint32_t i_msDelay ) {
   deviceString = i_deviceString;
   engineId = i_engineId;
   port = i_port;
@@ -130,6 +139,9 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_devi
   command = i_command;
   flags = i_flags | INSTRUCTION_FLAG_DEVSTR;
   address = 0;
+  iicAckMask = 0;
+  numRedos = 0;
+  msDelay = 0;
   if(i_data != NULL) {
     i_data->shareBuffer(&data);
   }
@@ -150,6 +162,12 @@ uint32_t I2CInstruction::setup(InstructionCommand i_command, std::string &i_devi
   {
     address = i_offset;
     version = 0x6;
+  }
+  if ( i_iicAckMask != 0 || i_numRedos != 0 || i_msDelay != 0 ) {
+    iicAckMask = i_iicAckMask;
+    numRedos = i_numRedos;
+    msDelay = i_msDelay;
+    version = 0x7;
   }
   return 0;
 }
@@ -271,9 +289,51 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
           break;
         }
 
-        /* enable retry on address and data nacks for up to 100ms */
-        if ((version > 0x1) && (INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS & i2cFlags)) {
+        /* enable retry on nacks */
+        if ( (version > 0x1) )
+        {
           // TODO implement policy
+          errno = 0;
+
+          // IF INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS then override other parameters passed in
+          if (INSTRUCTION_I2C_FLAG_NACK_RETRY_100MS & i2cFlags)
+          {
+            numRedos = 20; /* 20 redos for nacks */
+            msDelay = 5; /* 5ms delay between redo */
+          }
+          else if ( msDelay == 0 && numRedos == 0 )
+          {
+            msDelay = 1000;
+            numRedos = 10;
+          }
+
+          rc = iic_config_device_retries(*io_handle, o_status);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_config_retries() retries: %d\n", numRedos);
+            o_status.errorMessage.append(errstr);
+          }
+          if (rc) {
+            snprintf(errstr, 200, "I2CInstruction::execute Problem during I2C device retry policy config : errno %d\n", errno);
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_CONFIG_FAIL;
+            iic_ffdc(io_handle, o_status);
+            break;
+          }
+
+          rc = iic_config_device_timeout(*io_handle, o_status);
+
+          if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_config_timeout() msdelay: %d\n", msDelay);
+            o_status.errorMessage.append(errstr);
+          }
+          if (rc) {
+            snprintf(errstr, 200, "I2CInstruction::execute Problem during I2C device timeout config : errno %d\n", errno);
+            o_status.errorMessage.append(errstr);
+            rc = o_status.rc = SERVER_I2C_CONFIG_FAIL;
+            iic_ffdc(io_handle, o_status);
+            break;
+          }
         }
 
         if (command == I2CRESETLIGHT){
@@ -458,6 +518,12 @@ uint32_t I2CInstruction::flatten(uint8_t * o_data, uint32_t i_len) const {
         o_ptr[13] = htonl((uint32_t) (address & 0xFFFFFFFF));
         l_offset += 2;
       }
+      if ( version >= 0x7 ) {
+        o_ptr[12+l_offset] = htonl(iicAckMask);
+        o_ptr[13+l_offset] = htonl(numRedos);
+        o_ptr[14+l_offset] = htonl(msDelay);
+        l_offset += 3;
+      }
       if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to flatten
       } else {
@@ -513,7 +579,7 @@ uint32_t I2CInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
   uint32_t * i_ptr = (uint32_t *) i_data;
 
   version = ntohl(i_ptr[0]);
-  if((version >= 0x1) && (version <= 0x6)) {
+  if((version >= 0x1) && (version <= 0x7)) {
     command = (InstructionCommand) ntohl(i_ptr[1]);
     flags = ntohl(i_ptr[2]);
     if ((version >= 0x4) && (flags & INSTRUCTION_FLAG_DEVSTR)) {
@@ -531,6 +597,12 @@ uint32_t I2CInstruction::unflatten(const uint8_t * i_data, uint32_t i_len) {
         address = ((uint64_t) ntohl(i_ptr[12])) << 32;
         address |= ((uint64_t) ntohl(i_ptr[13]));
         l_offset += 2;
+      }
+      if ( version >= 0x7 ) {
+        iicAckMask = ntohl(i_ptr[12+l_offset]);
+        numRedos = ntohl(i_ptr[13+l_offset]);
+        msDelay = ntohl(i_ptr[14+l_offset]);
+        l_offset += 3;
       }
       if (command == I2CREAD || command == I2CRESETLIGHT || command == I2CRESETFULL) {
         // no data to unflatten
@@ -600,6 +672,9 @@ uint32_t I2CInstruction::flattenSize(void) const {
     if ((offsetFieldSize & 0x0FFFFFFF) > 4) {
       size += sizeof(uint32_t) * 2; // address
     }
+    if ( version >= 0x7 ) {
+      size += sizeof(uint32_t) * 3; // iicAckMask, numRedos, msDelay
+    }
   } else if(version == 0x1) {
     size = (13 * sizeof(uint32_t)) + data.flattenSize();
   } else if(version >= 0x2) {
@@ -645,6 +720,9 @@ std::string I2CInstruction::dumpInstruction(void) const {
   if (version > 0x1) {
     oss << "i2cFlags      : " << InstructionI2CFlagToString(i2cFlags) << std::endl;
   }
+  oss << "i2cAckMask    : " << iicAckMask << std::endl;
+  oss << "i2cAck Redos  : " << numRedos << std::endl;
+  oss << "i2cAck MsDelay: " << msDelay << std::endl;
   oss << "data length   : " << data.getBitLength() << std::endl;
   oss << "data          : ";
   for(uint32_t j = 0; j < data.getWordLength(); j++) {
