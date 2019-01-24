@@ -26,7 +26,7 @@
 
 #include <ecmdStructs.H>
 #include <ecmdChipTargetCompare.H>
-#include <fapi2_multicast_defs.H>
+#include <multicast_defs.H>
 #include <iostream>
 #include <ecmdSharedUtils.H>
 //
@@ -43,7 +43,7 @@ namespace fapi2
             {
                 value = NULL;
                 multicast = false;
-                multicast_type = MULTICAST_WRITE;
+                multicast_type = MULTICAST_OR;
                 multicast_group = 0xFFFFFFFF;
             }
         // constructor with ecmdChipTarget pointer will set
@@ -51,7 +51,7 @@ namespace fapi2
             {
                 value = i_value;
                 multicast = i_multicast;
-                multicast_type = MULTICAST_WRITE;
+                multicast_type = MULTICAST_OR;
                 multicast_group = 0xFFFFFFFF;
             }
 

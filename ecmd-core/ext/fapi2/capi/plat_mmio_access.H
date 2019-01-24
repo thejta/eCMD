@@ -27,17 +27,41 @@
 
 namespace fapi2plat
 {
+    fapi2::ReturnCode getMMIO(const ecmdChipTarget& i_target,
+                              const uint64_t i_mmioAddr,
+                              const size_t i_transSize,
+                              std::vector<uint8_t>& o_data);
 
-fapi2::ReturnCode getMMIO(const fapi2::Target<fapi2::TARGET_TYPE_OCMB_CHIP, fapi2::plat_target_handle_t>& i_target,
-                          const uint64_t i_mmioAddr,
-                          const size_t i_transSize,
-                          std::vector<uint8_t>& o_data);
+    fapi2::ReturnCode putMMIO(const ecmdChipTarget& i_target,
+                              const uint64_t i_mmioAddr,
+                              const size_t i_transSize,
+                              const std::vector<uint8_t>& i_data);
 
-fapi2::ReturnCode putMMIO(const fapi2::Target<fapi2::TARGET_TYPE_OCMB_CHIP, fapi2::plat_target_handle_t>& i_target,
-                          const uint64_t i_mmioAddr,
-                          const size_t i_transSize,
-                          const std::vector<uint8_t>& i_data);
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode getMMIO(const fapi2::Target<K, M, V>& i_target,
+                                     const uint64_t i_mmioAddr,
+                                     const size_t i_transSize,
+                                     std::vector<uint8_t>& o_data)
+    {
+        static_assert(K == fapi2::TARGET_TYPE_OCMB_CHIP, 
+                      "getMMIO requires TARGET_TYPE_OCMB_CHIP");
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::getMMIO(ecmdTarget, i_mmioAddr, i_transSize, o_data);
+    }
 
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode putMMIO(const fapi2::Target<K, M, V>& i_target,
+                              const uint64_t i_mmioAddr,
+                              const size_t i_transSize,
+                              const std::vector<uint8_t>& i_data)
+    {
+        static_assert(K == fapi2::TARGET_TYPE_OCMB_CHIP, 
+                      "putMMIO requires TARGET_TYPE_OCMB_CHIP");
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_target, ecmdTarget);
+        return fapi2plat::putMMIO(ecmdTarget, i_mmioAddr, i_transSize, i_data);
+    }
 };
 
 #endif // _FAPI2_PLAT_MMIO_ACCESS_H_

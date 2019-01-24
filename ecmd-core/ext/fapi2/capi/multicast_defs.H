@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,11 @@ namespace fapi2
 {
 enum MulticastType
 {
-    MULTICAST_WRITE,
-    MULTICAST_READAND,
-    MULTICAST_READOR,
-    MULTICAST_READBITX,
-    MULTICAST_READCOMPARE,
+    // Code points picked according to PCB spec
+    MULTICAST_OR      = 0,
+    MULTICAST_AND     = 1,
+    MULTICAST_BITX    = 2,
+    MULTICAST_COMPARE = 4,
 };
 
 typedef uint32_t MulticastGroup;

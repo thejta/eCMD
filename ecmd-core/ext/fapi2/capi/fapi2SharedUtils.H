@@ -48,8 +48,8 @@ namespace fapi2
      * @param[in] i_fapiTarget fapi2::Target to convert
      * @param[out] o_ecmdTarget generated ecmdChipTarget 
      */
-    template< TargetType K, typename V >
-    inline void fapiTargetToEcmdTarget(const fapi2::Target<K, V> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
+    template< TargetType K, MulticastType M, typename V >
+    inline void fapiTargetToEcmdTarget(const fapi2::Target<K, M, V> i_fapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
         const fapi2::plat_target_handle_t & l_handle = i_fapiTarget.get();
         const ecmdChipTarget * l_pEcmdTarget = static_cast<const ecmdChipTarget *>(l_handle);
@@ -69,8 +69,8 @@ namespace fapi2
      * @param[in] i_pFapiTarget fapi2::Target pointer to convert
      * @param[out] o_ecmdTarget generated ecmdChipTarget 
      */
-    template< TargetType K, typename V >
-    inline void fapiTargetPointerToEcmdTarget(const fapi2::Target<K, V> * const i_pFapiTarget, ecmdChipTarget & o_ecmdTarget)
+    template< TargetType K, MulticastType M, typename V >
+    inline void fapiTargetPointerToEcmdTarget(const fapi2::Target<K, M, V> * const i_pFapiTarget, ecmdChipTarget & o_ecmdTarget)
     {
         if (i_pFapiTarget != NULL)
         {

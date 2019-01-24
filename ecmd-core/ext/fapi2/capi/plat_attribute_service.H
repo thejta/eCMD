@@ -562,9 +562,9 @@ namespace fapi2 {
 //******************************************************************************
 // Get uint8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -593,9 +593,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get uint16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint16_t& o_value)
 {
     static_assert(std::is_same<T, uint16_t>::value, "Attribute type mismatch");
@@ -624,9 +624,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get uint32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint32_t& o_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch");
@@ -655,9 +655,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get uint64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint64_t& o_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch");
@@ -686,9 +686,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -717,9 +717,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         uint16_t& o_value)
 {
     static_assert(std::is_same<T, uint16_t>::value, "Attribute type mismatch");
@@ -748,9 +748,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         uint32_t& o_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch");
@@ -779,9 +779,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         uint64_t& o_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch");
@@ -810,9 +810,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get override EC Feature (uint8_t)
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getEcFeatureOverride(const AttributeId i_id,
-                                 const Target<K, V>& i_target,
+                                 const Target<K, M, V>& i_target,
                                  uint8_t& o_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch");
@@ -848,9 +848,9 @@ ReturnCode _getEcFeatureOverride(const AttributeId i_id,
 //******************************************************************************
 // Get uint8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArrayShort(const AttributeId i_id,
-                                   const Target<K, V>& i_target,
+                                   const Target<K, M, V>& i_target,
                                    uint8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -874,9 +874,9 @@ ReturnCode _getAttributeArrayShort(const AttributeId i_id,
 //******************************************************************************
 // Set uint8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArrayShort(const AttributeId i_id,
-                                   const Target<K, V>& i_target,
+                                   const Target<K, M, V>& i_target,
                                    uint8_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -900,9 +900,9 @@ ReturnCode _setAttributeArrayShort(const AttributeId i_id,
 //******************************************************************************
 // Get uint16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArrayHalfWord(const AttributeId i_id,
-				      const Target<K, V>& i_target,
+				      const Target<K, M, V>& i_target,
 				      uint16_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -926,9 +926,9 @@ ReturnCode _getAttributeArrayHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Set uint16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArrayHalfWord(const AttributeId i_id,
-				      const Target<K, V>& i_target,
+				      const Target<K, M, V>& i_target,
 				      uint16_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -953,9 +953,9 @@ ReturnCode _setAttributeArrayHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Get uint32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArrayWord(const AttributeId i_id,
-                                  const Target<K, V>& i_target,
+                                  const Target<K, M, V>& i_target,
                                   uint32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -979,9 +979,9 @@ ReturnCode _getAttributeArrayWord(const AttributeId i_id,
 //******************************************************************************
 // Set uint32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArrayWord(const AttributeId i_id,
-                                  const Target<K, V>& i_target,
+                                  const Target<K, M, V>& i_target,
                                   uint32_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1005,9 +1005,9 @@ ReturnCode _setAttributeArrayWord(const AttributeId i_id,
 //******************************************************************************
 // Get uint64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
-                                        const Target<K, V>& i_target,
+                                        const Target<K, M, V>& i_target,
                                         uint64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1031,9 +1031,9 @@ ReturnCode _getAttributeArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Set uint64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
-                                        const Target<K, V>& i_target,
+                                        const Target<K, M, V>& i_target,
                                         uint64_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1057,9 +1057,9 @@ ReturnCode _setAttributeArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id,
-                                           const Target<K, V>& i_target,
+                                           const Target<K, M, V>& i_target,
                                            uint8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1083,9 +1083,9 @@ ReturnCode _getAttributeOverrideArrayShort(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArrayHalfWord(const AttributeId i_id,
-					      const Target<K, V>& i_target,
+					      const Target<K, M, V>& i_target,
 					      uint16_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1110,9 +1110,9 @@ ReturnCode _getAttributeOverrideArrayHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id,
-                                          const Target<K, V>& i_target,
+                                          const Target<K, M, V>& i_target,
                                           uint32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1136,9 +1136,9 @@ ReturnCode _getAttributeOverrideArrayWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override uint64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id,
-                                                const Target<K, V>& i_target,
+                                                const Target<K, M, V>& i_target,
                                                 uint64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1162,9 +1162,9 @@ ReturnCode _getAttributeOverrideArrayDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Set uint8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint8_t& i_value)
 {
     static_assert(std::is_same<T, uint8_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1191,9 +1191,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set uint16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint16_t& i_value)
 {
     static_assert(std::is_same<T, uint16_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1220,9 +1220,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set uint32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 uint32_t& i_value)
 {
     static_assert(std::is_same<T, uint32_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1249,9 +1249,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set uint64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 const uint64_t & i_value)
 {
     static_assert(std::is_same<T, uint64_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1278,9 +1278,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Get int8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int8_t& o_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch");
@@ -1309,9 +1309,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get int16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int16_t& o_value)
 {
     static_assert(std::is_same<T, int16_t>::value, "Attribute type mismatch");
@@ -1340,9 +1340,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get int32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int32_t& o_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch");
@@ -1371,9 +1371,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get int64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _get(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int64_t& o_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch");
@@ -1402,9 +1402,9 @@ ReturnCode _get(const AttributeId i_id,
 //******************************************************************************
 // Get Override int8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         int8_t& o_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch");
@@ -1433,9 +1433,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override int16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         int16_t& o_value)
 {
     static_assert(std::is_same<T, int16_t>::value, "Attribute type mismatch");
@@ -1464,9 +1464,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override int32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         int32_t& o_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch");
@@ -1495,9 +1495,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get Override int64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _getOverride(const AttributeId i_id,
-                        const Target<K, V>& i_target,
+                        const Target<K, M, V>& i_target,
                         int64_t& o_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch");
@@ -1526,9 +1526,9 @@ ReturnCode _getOverride(const AttributeId i_id,
 //******************************************************************************
 // Get int8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArraySignedShort(const AttributeId i_id,
-                                         const Target<K, V>& i_target,
+                                         const Target<K, M, V>& i_target,
                                          int8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1553,9 +1553,9 @@ ReturnCode _getAttributeArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 // Set int8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArraySignedShort(const AttributeId i_id,
-                                         const Target<K, V>& i_target,
+                                         const Target<K, M, V>& i_target,
                                          int8_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1580,9 +1580,9 @@ ReturnCode _setAttributeArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 // Get int16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArraySignedHalfWord(const AttributeId i_id,
-					    const Target<K, V>& i_target,
+					    const Target<K, M, V>& i_target,
 					    int16_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1607,9 +1607,9 @@ ReturnCode _getAttributeArraySignedHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Set int16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArraySignedHalfWord(const AttributeId i_id,
-					    const Target<K, V>& i_target,
+					    const Target<K, M, V>& i_target,
 					    int16_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1634,9 +1634,9 @@ ReturnCode _setAttributeArraySignedHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Get int32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArraySignedWord(const AttributeId i_id,
-                                        const Target<K, V>& i_target,
+                                        const Target<K, M, V>& i_target,
                                         int32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1661,9 +1661,9 @@ ReturnCode _getAttributeArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 // Set int32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArraySignedWord(const AttributeId i_id,
-                                        const Target<K, V>& i_target,
+                                        const Target<K, M, V>& i_target,
                                         int32_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1688,9 +1688,9 @@ ReturnCode _setAttributeArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 // Get int64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeArraySignedDoubleWord(const AttributeId i_id,
-                                              const Target<K, V>& i_target,
+                                              const Target<K, M, V>& i_target,
                                               int64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1714,9 +1714,9 @@ ReturnCode _getAttributeArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Set int64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _setAttributeArraySignedDoubleWord(const AttributeId i_id,
-                                              const Target<K, V>& i_target,
+                                              const Target<K, M, V>& i_target,
                                               int64_t * i_pValues)
 {
     fapi2::AttributeData i_data;
@@ -1740,9 +1740,9 @@ ReturnCode _setAttributeArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override int8_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArraySignedShort(const AttributeId i_id,
-                                                 const Target<K, V>& i_target,
+                                                 const Target<K, M, V>& i_target,
                                                  int8_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1766,9 +1766,9 @@ ReturnCode _getAttributeOverrideArraySignedShort(const AttributeId i_id,
 //******************************************************************************
 // Get Override int16_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArraySignedHalfWord(const AttributeId i_id,
-						    const Target<K, V>& i_target,
+						    const Target<K, M, V>& i_target,
 						    int16_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1793,9 +1793,9 @@ ReturnCode _getAttributeOverrideArraySignedHalfWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override int32_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArraySignedWord(const AttributeId i_id,
-                                                const Target<K, V>& i_target,
+                                                const Target<K, M, V>& i_target,
                                                 int32_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1820,9 +1820,9 @@ ReturnCode _getAttributeOverrideArraySignedWord(const AttributeId i_id,
 //******************************************************************************
 // Get Override int64_t array
 //******************************************************************************
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 ReturnCode _getAttributeOverrideArraySignedDoubleWord(const AttributeId i_id,
-                                                      const Target<K, V>& i_target,
+                                                      const Target<K, M, V>& i_target,
                                                       int64_t * o_pValues)
 {
     fapi2::AttributeData o_data;
@@ -1847,9 +1847,9 @@ ReturnCode _getAttributeOverrideArraySignedDoubleWord(const AttributeId i_id,
 //******************************************************************************
 // Set int8_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int8_t& i_value)
 {
     static_assert(std::is_same<T, int8_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1876,9 +1876,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set int16_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int16_t& i_value)
 {
     static_assert(std::is_same<T, int16_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1905,9 +1905,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set int32_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 int32_t& i_value)
 {
     static_assert(std::is_same<T, int32_t>::value, "Attribute type mismatch"); // May need to remove
@@ -1934,9 +1934,9 @@ ReturnCode _set(const AttributeId i_id,
 //******************************************************************************
 // Set int64_t 
 //******************************************************************************
-template<typename T, TargetType K, typename V>
+template<typename T, TargetType K, MulticastType M, typename V>
 ReturnCode _set(const AttributeId i_id,
-                const Target<K, V>& i_target,
+                const Target<K, M, V>& i_target,
                 const int64_t & i_value)
 {
     static_assert(std::is_same<T, int64_t>::value, "Attribute type mismatch"); // May need to remove
