@@ -88,11 +88,6 @@ namespace fapi2plat
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData);
 
-    uint32_t createMCAddress(const uint64_t i_address,
-                             const fapi2::MulticastGroup i_group,
-                             const fapi2::MulticastType i_multicastType,
-                             uint64_t & o_address);
-
     const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
         fapi2::TARGET_TYPE_SC_CHIP |
@@ -163,7 +158,7 @@ namespace fapi2plat
         uint64_t l_address = i_address;
         if (l_handle.multicast)
         {
-            uint32_t rc = createMCAddress(i_address, l_handle.multicast_group, l_handle.multicast_type, l_address);
+            uint32_t rc = 1;
             if (rc)
             {
                 // ERROR
@@ -187,7 +182,7 @@ namespace fapi2plat
         uint64_t l_address = i_address;
         if (l_handle.multicast)
         {
-            uint32_t rc = createMCAddress(i_address, l_handle.multicast_group, l_handle.multicast_type, l_address);
+            uint32_t rc = 1;
             if (rc)
             {
                 // ERROR

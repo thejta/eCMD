@@ -1134,56 +1134,10 @@ namespace fapi2plat
         return rc;
     }
 
+    // FIXME remove with eCMD 14.15
     uint32_t createMCAddress(const uint64_t i_address, const fapi2::MulticastGroup i_group, const fapi2::MulticastType i_multicastType, uint64_t & o_address)
     {
         uint32_t rc = 1;
-
-#if 0
-        fapi2::buffer<uint64_t> l_address = i_address;
-
-        // set multicast bit on
-        l_address.setBit<32 + 1>();
-
-        uint8_t l_mcast_type = 0;
-        switch (i_multicastType)
-        {
-            case fapi2::MULTICAST_WRITE:
-                l_mcast_type = 5;
-                break;
-            case fapi2::MULTICAST_READAND:
-                l_mcast_type = 1;
-                break;
-            case fapi2::MULTICAST_READOR:
-                l_mcast_type = 0;
-                break;
-            case fapi2::MULTICAST_READBITX:
-                l_mcast_type = 2;
-                break;
-            case fapi2::MULTICAST_READCOMPARE:
-                l_mcast_type = 4;
-                break;
-            default:
-                // ERROR
-                rc |= 0x01;
-        }
-        // set multicast type
-        l_address.insertFromRight<32 + 2, 3>(l_mcast_type);
-
-        if (i_group > 7)
-        {
-            // ERROR
-            rc |= 0x02;
-        }
-
-        // set multicast group
-        l_address.insertFromRight<32 + 5, 3>(i_group);
-
-        if (rc == 0)
-        {
-            o_address = l_address;
-        }
-
-#endif
         return rc;
     }
 
