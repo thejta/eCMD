@@ -2304,10 +2304,11 @@ std::string ecmdGetSharedLibVersion();
 /**
  Defines for getMemPba 
 */
-#define PBA_MODE_LCO    0x00000001  ///< Use LCO mode with putMemPba
-#define PBA_MODE_INJECT 0x00000002  ///< Use Inject mode with putMemPba
-#define PBA_MODE_DMA    0x00000003  ///< Use DMA mode with putMemPba
-#define PBA_MODE_MASK   0x000000FF  ///< Mask for determining PBA mode
+#define PBA_MODE_LCO           0x00000001  ///< Use LCO mode with putMemPba
+#define PBA_MODE_INJECT        0x00000002  ///< Use Inject mode with putMemPba
+#define PBA_MODE_DMA           0x00000003  ///< Use DMA mode with putMemPba
+#define PBA_MODE_CACHE_INHIBIT 0x00000004  ///< Use Cache inhibit mode with putMemPba
+#define PBA_MODE_MASK          0x000000FF  ///< Mask for determining PBA mode
 #if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
 #define PBA_OPTION_PASSTHROUGH 0x80000000  ///< Use SBE Host Passthrough, input address will be ignored
 #endif
