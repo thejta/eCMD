@@ -3,7 +3,7 @@ Syntax: getmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
         getmempba <MemAddress> <NumBytes> [-exp <data> [-i<format>] [-mask <data>]]
         getmempba <MemAddress>  [-exp -f[d|b]<filename>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
-        [-pt]
+        [-pt] [-mode <PbaMode>]
 
         ECMD:           Core Common Function
 
@@ -41,6 +41,8 @@ Syntax: getmempba <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
 
                         Run 'ecmdquery options' for a list of the global command line
                         options and their definitions
+
+        -mode <PbaMode> Specify witch mode to use: 'ci' : default is none
         --------------------------------------------------------------------------------
 
         Examples:       > getmempba 1000 128 -p0

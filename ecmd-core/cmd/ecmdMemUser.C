@@ -929,6 +929,17 @@ uint32_t ecmdGetMemPbaUser(int argc, char * argv[]) {
     expectFlag = ecmdParseOption(&argc, &argv, "-exp");
   }
 
+  char * modestring = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+  if (modestring != NULL) {
+      if (strcmp(modestring, "ci") == 0) {
+          pbaMode = PBA_MODE_CACHE_INHIBIT;
+      } else {
+          printLine = cmdlineName + "Unknown mode option. Valid option is ci.\n";
+          ecmdOutputError(printLine.c_str());
+          return ECMD_INVALID_ARGS;
+      }
+  }
+
   // Check for passthrough flag
   passthroughFlag = ecmdParseOption(&argc, &argv, "-pt");
   if (passthroughFlag) {
@@ -1195,8 +1206,10 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
       pbaMode = PBA_MODE_LCO;
     } else if (strcmp(modestring, "dma") == 0) {
       pbaMode = PBA_MODE_DMA;
+    } else if (strcmp(modestring, "ci") == 0) {
+      pbaMode = PBA_MODE_CACHE_INHIBIT;
     } else {
-      printLine = cmdlineName + "Unknown mode option. Valid options are lco dma or inj.\n";
+      printLine = cmdlineName + "Unknown mode option. Valid options are lco dma inj or ci.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
     }
