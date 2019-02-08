@@ -26,7 +26,7 @@
 
 #include <ecmdStructs.H>
 #include <ecmdChipTargetCompare.H>
-#include <fapi2_multicast_defs.H>
+#include <multicast_defs.H>
 #include <iostream>
 #include <ecmdSharedUtils.H>
 //
@@ -43,16 +43,16 @@ namespace fapi2
             {
                 value = NULL;
                 multicast = false;
-                multicast_type = MULTICAST_WRITE;
-                multicast_group = 0xFFFFFFFF;
+                multicast_type = MULTICAST_OR;
+                multicast_group = static_cast<MulticastGroup>(0xFFFFFFFF);
             }
         // constructor with ecmdChipTarget pointer will set
         _ecmd_target_handle(const ecmdChipTarget * i_value, const bool i_multicast = false)
             {
                 value = i_value;
                 multicast = i_multicast;
-                multicast_type = MULTICAST_WRITE;
-                multicast_group = 0xFFFFFFFF;
+                multicast_type = MULTICAST_OR;
+                multicast_group = static_cast<MulticastGroup>(0xFFFFFFFF);
             }
 
         bool operator==(const _ecmd_target_handle& rhs) const

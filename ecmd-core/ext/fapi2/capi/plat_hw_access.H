@@ -88,11 +88,6 @@ namespace fapi2plat
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData);
 
-    uint32_t createMCAddress(const uint64_t i_address,
-                             const fapi2::MulticastGroup i_group,
-                             const fapi2::MulticastType i_multicastType,
-                             uint64_t & o_address);
-
     const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
         fapi2::TARGET_TYPE_SC_CHIP |
@@ -149,8 +144,8 @@ namespace fapi2plat
         static_assert( ((K & L) != fapi2::TARGET_TYPE_NONE), "Invalid TargetType for HW access" );
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode getScom(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode getScom(const fapi2::Target<K, M, V>& i_target,
                                      const uint64_t i_address,
                                      fapi2::buffer<uint64_t>& o_data)
     {
@@ -163,7 +158,7 @@ namespace fapi2plat
         uint64_t l_address = i_address;
         if (l_handle.multicast)
         {
-            uint32_t rc = createMCAddress(i_address, l_handle.multicast_group, l_handle.multicast_type, l_address);
+            uint32_t rc = 1;
             if (rc)
             {
                 // ERROR
@@ -173,8 +168,8 @@ namespace fapi2plat
         return fapi2plat::getScom(ecmdTarget, l_address, o_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode putScom(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode putScom(const fapi2::Target<K, M, V>& i_target,
                                      const uint64_t i_address,
                                      const fapi2::buffer<uint64_t> i_data)
     {
@@ -187,7 +182,7 @@ namespace fapi2plat
         uint64_t l_address = i_address;
         if (l_handle.multicast)
         {
-            uint32_t rc = createMCAddress(i_address, l_handle.multicast_group, l_handle.multicast_type, l_address);
+            uint32_t rc = 1;
             if (rc)
             {
                 // ERROR
@@ -197,8 +192,8 @@ namespace fapi2plat
         return fapi2plat::putScom(ecmdTarget, l_address, i_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode putScomUnderMask(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode putScomUnderMask(const fapi2::Target<K, M, V>& i_target,
                                               const uint64_t i_address,
                                               const fapi2::buffer<uint64_t> i_data,
                                               const fapi2::buffer<uint64_t> i_mask)
@@ -209,8 +204,8 @@ namespace fapi2plat
         return fapi2plat::putScomUnderMask(ecmdTarget, i_address, i_data, i_mask);
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode getCfamRegister(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode getCfamRegister(const fapi2::Target<K, M, V>& i_target,
                                              const uint32_t i_address,
                                              fapi2::buffer<uint32_t>& o_data)
     {
@@ -220,8 +215,8 @@ namespace fapi2plat
         return fapi2plat::getCfamRegister(ecmdTarget, i_address, o_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode putCfamRegister(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode putCfamRegister(const fapi2::Target<K, M, V>& i_target,
                                              const uint32_t i_address,
                                              const fapi2::buffer<uint32_t> i_data)
     {
@@ -231,8 +226,8 @@ namespace fapi2plat
         return fapi2plat::putCfamRegister(ecmdTarget, i_address, i_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    inline fapi2::ReturnCode getRing(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode getRing(const fapi2::Target<K, M, V>& i_target,
                                      const scanRingId_t i_address,
                                      fapi2::variable_buffer& o_data,
                                      const fapi2::RingMode i_ringMode)
@@ -243,8 +238,8 @@ namespace fapi2plat
         return fapi2plat::getRing(ecmdTarget, i_address, o_data, i_ringMode);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode putRing(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode putRing(const fapi2::Target<K, M, V>& i_target,
                               const RingId_t i_ringID,
                               const fapi2::RingMode i_ringMode)
     {
@@ -254,8 +249,8 @@ namespace fapi2plat
         return fapi2plat::putRing(ecmdTarget, i_ringID, i_ringMode);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode putRing(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode putRing(const fapi2::Target<K, M, V>& i_target,
                               const scanRingId_t i_address,
                               const fapi2::variable_buffer& i_data,
                               const fapi2::RingMode i_ringMode)
@@ -266,8 +261,8 @@ namespace fapi2plat
         return fapi2plat::putRing(ecmdTarget, i_address, i_data, i_ringMode);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode getSpy(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode getSpy(const fapi2::Target<K, M, V>& i_target,
                              const char * const i_spyId,
                              fapi2::variable_buffer& o_data)
     {
@@ -277,8 +272,8 @@ namespace fapi2plat
         return fapi2plat::getSpy(ecmdTarget, i_spyId, o_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode putSpy(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode putSpy(const fapi2::Target<K, M, V>& i_target,
                              const char * const i_spyId,
                              const fapi2::variable_buffer& i_data)
     {
@@ -288,8 +283,8 @@ namespace fapi2plat
         return fapi2plat::putSpy(ecmdTarget, i_spyId, i_data);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode getSpyImage(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode getSpyImage(const fapi2::Target<K, M, V>& i_target,
                                   const char * const i_spyId,
                                   fapi2::variable_buffer& o_data,
                                   const fapi2::variable_buffer& i_imageData)
@@ -300,8 +295,8 @@ namespace fapi2plat
         return fapi2plat::getSpyImage(ecmdTarget, i_spyId, o_data, i_imageData);
     }
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode putSpyImage(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode putSpyImage(const fapi2::Target<K, M, V>& i_target,
                                   const char* const i_spyId,
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData)

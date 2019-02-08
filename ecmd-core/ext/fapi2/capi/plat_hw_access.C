@@ -1134,57 +1134,14 @@ namespace fapi2plat
         return rc;
     }
 
+    // FIXME remove with eCMD 14.15
     uint32_t createMCAddress(const uint64_t i_address, const fapi2::MulticastGroup i_group, const fapi2::MulticastType i_multicastType, uint64_t & o_address)
     {
-        uint32_t rc = 0;
-
-        fapi2::buffer<uint64_t> l_address = i_address;
-
-        // set multicast bit on
-        l_address.setBit<32 + 1>();
-
-        uint8_t l_mcast_type = 0;
-        switch (i_multicastType)
-        {
-            case fapi2::MULTICAST_WRITE:
-                l_mcast_type = 5;
-                break;
-            case fapi2::MULTICAST_READAND:
-                l_mcast_type = 1;
-                break;
-            case fapi2::MULTICAST_READOR:
-                l_mcast_type = 0;
-                break;
-            case fapi2::MULTICAST_READBITX:
-                l_mcast_type = 2;
-                break;
-            case fapi2::MULTICAST_READCOMPARE:
-                l_mcast_type = 4;
-                break;
-            default:
-                // ERROR
-                rc |= 0x01;
-        }
-        // set multicast type
-        l_address.insertFromRight<32 + 2, 3>(l_mcast_type);
-
-        if (i_group > 7)
-        {
-            // ERROR
-            rc |= 0x02;
-        }
-
-        // set multicast group
-        l_address.insertFromRight<32 + 5, 3>(i_group);
-
-        if (rc == 0)
-        {
-            o_address = l_address;
-        }
-
+        uint32_t rc = 1;
         return rc;
     }
 
+#if 0
 /* hack to support old target type before eCMD 14.6 */
 const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_5 = fapi2::TARGET_TYPE_PROC_CHIP |
         fapi2::TARGET_TYPE_MEMBUF_CHIP |
@@ -1606,8 +1563,8 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_11_NO_Z = fapi2::TARGET_TYPE_
     }
 #endif
 
-    template< fapi2::TargetType K, typename V >
-    fapi2::ReturnCode putRing(const fapi2::Target<K, V>& i_target,
+    template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
+    fapi2::ReturnCode putRing(const fapi2::Target<K, M, V>& i_target,
                               const RingID i_ringID,
                               const fapi2::RingMode i_ringMode)
     {
@@ -1762,6 +1719,7 @@ const fapi2::TargetType TARGET_TYPE_SCOM_TARGET_14_11_NO_Z = fapi2::TARGET_TYPE_
     {
         return fapi2plat::putSpyImage<>(i_target, i_spyId, i_data, o_imageData);
     }
+#endif
 #endif
 
 } // namespace fapi2plat

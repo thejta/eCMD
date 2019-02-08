@@ -26,7 +26,6 @@
 
 #include <plat_target.H>
 #include <fapi2_target.H>
-#include <multicast.H>
 #include <stdio.h>
 #include <attribute_ids.H>
 
@@ -51,13 +50,24 @@ extern "C" {
 
 namespace fapi2
 {
+
+template<TargetType K, MulticastType M, typename V>
+static constexpr void plat_apply_target_limits(void)
+{
+    static_assert(!(K & TARGET_TYPE_MULTICAST),
+                  "Multicast targets are not supported on this platform");
+}
+
+template<TargetType T, MulticastType M, typename V>
+inline void Target<T, M, V>::mcUpdateHandle() {};
+
 ///
 /// @brief Assignment Operator.
 /// @param[in] i_right Reference to Target to assign from.
 /// @return Reference to 'this' Target
 ///
-template<TargetType K, typename V>
-Target<K, V>& Target<K, V>::operator=(const Target& i_right)
+template<TargetType K, MulticastType M, typename V>
+Target<K, M, V>& Target<K, M, V>::operator=(const Target& i_right)
 {
     iv_handle = i_right.iv_handle;
     return *this;
@@ -70,8 +80,8 @@ Target<K, V>& Target<K, V>::operator=(const Target& i_right)
 /// @note Platforms need to define this so that the physical
 /// targets are determined to be equivilent rather than just the handles
 ///
-template<TargetType K, typename V>
-bool Target<K, V>::operator==(const Target& i_right) const
+template<TargetType K, MulticastType M, typename V>
+bool Target<K, M, V>::operator==(const Target& i_right) const
 {
     return iv_handle == i_right.iv_handle;
 }
@@ -83,8 +93,8 @@ bool Target<K, V>::operator==(const Target& i_right) const
 /// @note Platforms need to define this so that the physical
 /// targets are determined to be equivilent rather than just the handles
 ///
-template<TargetType K, typename V>
-bool Target<K, V>::operator!=(const Target& i_right) const
+template<TargetType K, MulticastType M, typename V>
+bool Target<K, M, V>::operator!=(const Target& i_right) const
 {
     return iv_handle != i_right.iv_handle;
 }
@@ -96,8 +106,8 @@ bool Target<K, V>::operator!=(const Target& i_right) const
 /// @note Platforms need to define this so that the physical
 /// targets are determined to be less than rather than just the handles
 ///
-template<TargetType K, typename V>
-bool Target<K, V>::operator<(const Target& i_right) const
+template<TargetType K, MulticastType M, typename V>
+bool Target<K, M, V>::operator<(const Target& i_right) const
 {
     return iv_handle < i_right.iv_handle;
 }
@@ -107,9 +117,9 @@ bool Target<K, V>::operator<(const Target& i_right) const
 /// @tparam T The type of the parent
 /// @return Target<T> a target representing the parent
 ///
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 template<TargetType T>
-inline Target<T, V> Target<K, V>::getParent(void) const
+inline Target<T, M, V> Target<K, M, V>::getParent(void) const
 {
     // General compound chiplet check for proc parent
 
@@ -571,16 +581,16 @@ inline Target<T, V> Target<K, V>::getParent(void) const
     if (l_rc)
     {
         // ERROR
-        return Target<T, V>();
+        return Target<T, M, V>();
     }
 
     if (l_targets.empty())
     {
         // ERROR
-        return Target<T, V>();
+        return Target<T, M, V>();
     }
 
-    return Target<T, V>(plat_target_handle_t(l_targets.front()));
+    return Target<T, M, V>(plat_target_handle_t(l_targets.front()));
 }
 
 ///
@@ -592,10 +602,10 @@ inline Target<T, V> Target<K, V>::getParent(void) const
 /// @warning The children of EX's (cores) are expected to be returned
 /// in order. That is, core 0 is std::vector[0].
 ///
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 template< TargetType T>
-inline std::vector<Target<T, V> >
-Target<K, V>::getChildren(const TargetState i_state) const
+inline std::vector<Target<T, M, V> >
+Target<K, M, V>::getChildren(const TargetState i_state) const
 {
 #ifdef FAPI_2_Z_TARGET_RULES
     // valid children for SC_CHIP
@@ -835,7 +845,7 @@ Target<K, V>::getChildren(const TargetState i_state) const
 #endif
 
     std::list<const ecmdChipTarget*> l_targets;
-    std::vector<Target<T, V> > l_children;
+    std::vector<Target<T, M, V> > l_children;
 
     plat_target_handle_t l_handle = this->get();
     const ecmdChipTarget * l_pEcmdTarget = l_handle;
@@ -857,7 +867,7 @@ Target<K, V>::getChildren(const TargetState i_state) const
 
     while (l_target != l_targets.end())
     {
-        l_children.push_back(Target<T, V>(plat_target_handle_t(*l_target)));
+        l_children.push_back(Target<T, M, V>(plat_target_handle_t(*l_target)));
         l_target++;
     }
 
@@ -872,10 +882,10 @@ Target<K, V>::getChildren(const TargetState i_state) const
 /// @return std::vector<Target<T> > a vector of present/functional
 /// children
 ///
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 template< TargetType T>
-inline std::vector<Target<T, V> >
-Target<K, V>::getChildren(const TargetFilter i_filter,
+inline std::vector<Target<T, M, V> >
+Target<K, M, V>::getChildren(const TargetFilter i_filter,
     const TargetState i_state) const
 {
     const fapi2::TargetType TARGET_TYPE_FILTER_CHIPLETS =
@@ -903,7 +913,7 @@ Target<K, V>::getChildren(const TargetFilter i_filter,
                    "not a valid chiplet for filtering" );
 
     std::list<const ecmdChipTarget*> l_targets;
-    std::vector<Target<T, V> > l_children;
+    std::vector<Target<T, M, V> > l_children;
 
     plat_target_handle_t l_handle = this->get();
     const ecmdChipTarget * l_pEcmdTarget = l_handle;
@@ -925,7 +935,7 @@ Target<K, V>::getChildren(const TargetFilter i_filter,
 
     while (l_target != l_targets.end())
     {
-        l_children.push_back(Target<T, V>(plat_target_handle_t(*l_target)));
+        l_children.push_back(Target<T, M, V>(plat_target_handle_t(*l_target)));
         l_target++;
     }
 
@@ -942,10 +952,10 @@ Target<K, V>::getChildren(const TargetFilter i_filter,
 /// @note o_target is only valid if return is FAPI2_RC_SUCCESS
 ///
 
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 template<TargetType T>
 inline fapi2::ReturnCodes
-Target<K, V>::getOtherEnd(Target<T, V>& o_target, const TargetState i_state) const
+Target<K, M, V>::getOtherEnd(Target<T, M, V>& o_target, const TargetState i_state) const
 {
     // FIXME add static asserts
     std::list<const ecmdChipTarget*> l_targets;
@@ -960,7 +970,7 @@ Target<K, V>::getOtherEnd(Target<T, V>& o_target, const TargetState i_state) con
         return FAPI2_RC_FALSE;
     }
 
-    o_target = Target<T, V>(l_targets.front());
+    o_target = Target<T, M, V>(l_targets.front());
     return FAPI2_RC_SUCCESS;
 }
 
@@ -969,9 +979,9 @@ Target<K, V>::getOtherEnd(Target<T, V>& o_target, const TargetState i_state) con
 /// @return true if target is functional, false if non-functional
 ///
 
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 inline bool
-Target<K, V>::isFunctional(void) const
+Target<K, M, V>::isFunctional(void) const
 {
     // static target test
     static_assert( is_same<K, fapi2::ATTR_FUNCTIONAL_TargetType>(),
@@ -1003,9 +1013,9 @@ Target<K, V>::isFunctional(void) const
 /// @note For logical targets such as the EX, the chiplet number of
 /// their immediate parent chiplet is returned
 ///
-template<TargetType K, typename V>
+template<TargetType K, MulticastType M, typename V>
 inline uint8_t
-Target<K, V>::getChipletNumber(void) const
+Target<K, M, V>::getChipletNumber(void) const
 {
     uint8_t l_pervasive_chipunit = 0;
     plat_target_handle_t l_handle = this->get();
@@ -1081,8 +1091,8 @@ Target<K, V>::getChipletNumber(void) const
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template< TargetType T, typename V >
-inline void toString(const Target<T, V>& i_target, char* i_buffer, size_t i_bsize)
+template< TargetType T, MulticastType M, typename V >
+inline void toString(const Target<T, M, V>& i_target, char* i_buffer, size_t i_bsize)
 {
     ecmdChipTarget l_ecmdTarget;
     fapiTargetToEcmdTarget(i_target, l_ecmdTarget);
@@ -1101,8 +1111,8 @@ inline void toString(const Target<T, V>& i_target, char* i_buffer, size_t i_bsiz
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template< TargetType T, typename V >
-inline void toString(const Target<T, V>* i_target, char* i_buffer, size_t i_bsize)
+template< TargetType T, MulticastType M, typename V >
+inline void toString(const Target<T, M, V>* i_target, char* i_buffer, size_t i_bsize)
 {
     ecmdChipTarget l_ecmdTarget;
     fapiTargetPointerToEcmdTarget(i_target, l_ecmdTarget);
@@ -1117,17 +1127,17 @@ inline void toString(const Target<T, V>* i_target, char* i_buffer, size_t i_bsiz
 /// the desired target
 /// @return Target<T> the target requested
 ///
-template<TargetType T, typename V>
-inline Target<T, V> getTarget(uint64_t Ordinal)
+template<TargetType T, MulticastType M, typename V>
+inline Target<T, M, V> getTarget(uint64_t Ordinal)
 {
     // For testing
-    return Target<T, V>(NULL);
+    return Target<T, M, V>(NULL);
 }
 
 template<>
-inline Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t> getTarget(uint64_t Ordinal)
+inline Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::MULTICAST_OR, fapi2::plat_target_handle_t> getTarget(uint64_t Ordinal)
 {
-    fapi2::Target<fapi2::TARGET_TYPE_SYSTEM, fapi2::plat_target_handle_t> l_system;
+    fapi2::Target<fapi2::TARGET_TYPE_SYSTEM, fapi2::MULTICAST_OR, fapi2::plat_target_handle_t> l_system;
     ecmdChipTarget l_ecmdTarget;
     fapiTargetToEcmdTarget(l_system, l_ecmdTarget);
 
@@ -1137,7 +1147,7 @@ inline Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t> getTarg
     if ((l_ecmd_rc) || (l_targets.empty()))
     {
         // ERROR
-        return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t>(NULL);
+        return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::MULTICAST_OR, fapi2::plat_target_handle_t>(NULL);
     }
 
     // search fapi positions
@@ -1159,17 +1169,17 @@ inline Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t> getTarg
     if ((l_matches > 1) || (l_matches == 0))
     {
         // ERROR
-        return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t>(NULL);
+        return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::MULTICAST_OR, fapi2::plat_target_handle_t>(NULL);
     }
 
-    return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::plat_target_handle_t>(l_matching_targets.front());
+    return Target<fapi2::TARGET_TYPE_PROC_CHIP, fapi2::MULTICAST_OR, fapi2::plat_target_handle_t>(l_matching_targets.front());
 }
 
 #ifdef FAPI2_ENABLE_PLATFORM_GET_TARGET
-template<TargetType T, typename V=fapi2::plat_target_handle_t>
-inline Target<T,V>* getTarget(TargetType i_type, uint8_t instance)
+template<TargetType T, MulticastType M=fapi2::MULTICAST_OR, typename V=fapi2::plat_target_handle_t>
+inline Target<T, M, V>* getTarget(TargetType i_type, uint8_t instance)
 {
-    fapi2::Target<fapi2::TARGET_TYPE_SYSTEM, V> l_system;
+    fapi2::Target<fapi2::TARGET_TYPE_SYSTEM, M, V> l_system;
     ecmdChipTarget l_ecmdTarget;
     fapiTargetToEcmdTarget(l_system, l_ecmdTarget);
 
@@ -1186,7 +1196,7 @@ inline Target<T,V>* getTarget(TargetType i_type, uint8_t instance)
     // There is no ATTR_FAPI_POS for the system target
     if (i_type == fapi2::TARGET_TYPE_SYSTEM)
     {
-        return new Target<T,V>(l_targets.front());
+        return new Target<T, M, V>(l_targets.front());
     }
 
     // search fapi positions
@@ -1211,7 +1221,7 @@ inline Target<T,V>* getTarget(TargetType i_type, uint8_t instance)
         return nullptr;
     }
 
-    return new Target<T,V>(l_matching_targets.front());
+    return new Target<T, M, V>(l_matching_targets.front());
 }
 #endif // FAPI2_ENABLE_PLATFORM_GET_TARGET
 
@@ -1225,8 +1235,8 @@ inline Target<T,V>* getTarget(TargetType i_type, uint8_t instance)
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template<TargetType T, typename V, typename B>
-inline void toString(const Target<T, V>& i_target, B& i_buffer)
+template<TargetType T, MulticastType M, typename V, typename B>
+inline void toString(const Target<T, M, V>& i_target, B& i_buffer)
 {
 }
 
