@@ -85,6 +85,49 @@ inline OpModes getOpMode(void)
     return NORMAL;
 }
 
+//--------------------------------------------------------------------------
+// Multicast mapping functions
+//--------------------------------------------------------------------------
+
+/// @brief Set up or replace the multicast group mapping for a given chip
+/// @param[in] i_chip     The chip whose multicast map is to be replaced
+/// @param[in] i_mappings A list of multicast group mappings
+/// @return FAPI2_RC_SUCCESS if the map was updated, otherwise error code.
+///
+/// This replaces the given chip's map of abstract multicast groups to chip
+/// specific hardware values with a new map. Any abstract group not explicitly
+/// mapped via i_mappings will be unmapped after this call returns success,
+/// and attempting to create multicast targets targeting unmapped groups will
+/// result in error.
+/// i_mappings may contain an arbitrary amount of abstract/HW pairs, but the
+/// function may return an error if too many mappings are specified.
+template< MulticastType M, typename V >
+inline ReturnCode setMulticastGroupMap(const Target<TARGET_TYPE_PROC_CHIP, M, V>& i_chip,
+                                       const std::vector< MulticastGroupMapping >& i_mappings)
+{
+    ReturnCode l_rc;
+    bool l_traceit = fapi2plat::isScanTraceEnabled();
+
+    // call the platform implementation
+    l_rc = fapi2plat::setMulticastGroupMap( i_chip, i_mappings );
+
+    if (l_rc != FAPI2_RC_SUCCESS)
+    {
+        char target_string[MAX_ECMD_STRING_LEN];
+        fapi2::toString(i_chip, target_string, MAX_ECMD_STRING_LEN);
+        FAPI_ERR("setMulticastGroupMap failed - Target %s", target_string);
+    }
+
+    if( l_traceit )
+    {
+        char target_string[MAX_ECMD_STRING_LEN];
+        fapi2::toString(i_chip, target_string, MAX_ECMD_STRING_LEN);
+        FAPI_SCAN( "TRACE : SETMCGRPMAP : %s : ", target_string );
+    }
+
+    return l_rc;
+}
+
 //------------------------------------------------------------------------------
 // HW Communication Functions to be implemented at the platform layer.
 //------------------------------------------------------------------------------
