@@ -70,6 +70,26 @@ inline void setOpMode(const OpModes i_mode);
 inline OpModes getOpMode(void);
 
 //--------------------------------------------------------------------------
+// Multicast mapping functions
+//--------------------------------------------------------------------------
+
+/// @brief Set up or replace the multicast group mapping for a given chip
+/// @param[in] i_chip     The chip whose multicast map is to be replaced
+/// @param[in] i_mappings A list of multicast group mappings
+/// @return FAPI2_RC_SUCCESS if the map was updated, otherwise error code.
+///
+/// This replaces the given chip's map of abstract multicast groups to chip
+/// specific hardware values with a new map. Any abstract group not explicitly
+/// mapped via i_mappings will be unmapped after this call returns success,
+/// and attempting to create multicast targets targeting unmapped groups will
+/// result in error.
+/// i_mappings may contain an arbitrary amount of abstract/HW pairs, but the
+/// function may return an error if too many mappings are specified.
+template< MulticastType M, typename V >
+inline ReturnCode setMulticastGroupMap(const Target<TARGET_TYPE_PROC_CHIP, M, V>& i_chip,
+                                       const std::vector< MulticastGroupMapping >& i_mappings);
+
+//--------------------------------------------------------------------------
 // HW Communication Functions
 //--------------------------------------------------------------------------
 
@@ -168,7 +188,7 @@ template< TargetType K, MulticastType M, typename V >
 inline ReturnCode getRing(const Target<K, M, V>& i_target,
                           const scanRingId_t i_address,
                           variable_buffer& o_data,
-                          const RingMode i_ringMode = 0);
+                          const RingMode i_ringMode = RING_MODE_HEADER_CHECK);
 
 /// @brief Read-modify-write a ring on a chip.
 /// @tparam K template parameter, passed in target.
@@ -184,7 +204,7 @@ inline ReturnCode modifyRing(const Target<K, M, V>& i_target,
                              const scanRingId_t i_address,
                              const variable_buffer& i_data,
                              const ChipOpModifyMode i_modifyMode,
-                             const RingMode i_ringMode = 0);
+                             const RingMode i_ringMode = RING_MODE_HEADER_CHECK);
 #endif
 
 // --------------------------------------------------------------------------
@@ -322,7 +342,7 @@ inline ReturnCode putSpy(const Target<K, M, V>& i_target,
                          const char* const i_spyId,
                          const variable_buffer& i_data);
 
-template<TargetType K, MulticastType M, typename V >
+template< TargetType K, MulticastType M, typename V >
 inline ReturnCode putSpyWithCare(const Target<K, M, V>& i_target,
                                  const char* const i_spyId,
                                  const variable_buffer& i_data,

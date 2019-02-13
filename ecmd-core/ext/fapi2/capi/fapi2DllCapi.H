@@ -249,6 +249,20 @@ uint32_t dllFapi2PutMMIO(const ecmdChipTarget& i_target,
                          const size_t i_transSize,
                          const std::vector<uint8_t>& i_data);
 
+uint32_t dllFapi2SetMcastGroupMap(const ecmdChipTarget & i_target,
+                                  const std::vector< fapi2::MulticastGroupMapping > & i_mappings);
+
+uint32_t dllFapi2GetScomMulticast(const ecmdChipTarget& i_target,
+                                  const uint32_t i_type,
+                                  const uint32_t i_group,
+                                  const uint64_t i_address,
+                                  ecmdDataBuffer& o_data);
+
+uint32_t dllFapi2PutScomMulticast(const ecmdChipTarget& i_target,
+                                  const uint32_t i_type,
+                                  const uint32_t i_group,
+                                  const uint64_t i_address,
+                                  const ecmdDataBuffer& i_data);
 } //extern C
 
 #endif
