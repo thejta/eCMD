@@ -1259,7 +1259,7 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
   std::string  pbaUnitName;
   rc = ecmdGetPbaUnit(target,pbaUnitName);
   if (pbaUnitName.empty()) {
-    ecmdOutputError("r- unable to find chipunit type for this command\n");
+    ecmdOutputError(" - unable to find chipunit type for this command\n");
     return ECMD_INVALID_ARGS;
   }
 
