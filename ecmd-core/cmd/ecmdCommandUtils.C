@@ -1180,3 +1180,18 @@ uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_proces
 
   return rc;
 }
+
+uint32_t ecmdGetPbaUnit(ecmdChipTarget & i_target, std::string & o_pbaUnitName)
+{
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipData chipData;
+  rc = ecmdGetChipData(i_target, chipData);
+  if (rc) return rc;
+
+  o_pbaUnitName = "ex";  //p9 and prior processors
+  if ( (chipData.chipType == "p10") ) {
+    o_pbaUnitName = "c"; // we use core
+  }
+
+  return rc;
+}
