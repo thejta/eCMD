@@ -143,7 +143,10 @@ namespace fapi2plat
         fapi2::TARGET_TYPE_OMI |
         fapi2::TARGET_TYPE_OMIC |
         fapi2::TARGET_TYPE_MCC |
-        fapi2::TARGET_TYPE_MEM_PORT;
+        fapi2::TARGET_TYPE_MEM_PORT |
+        fapi2::TARGET_TYPE_NMMU |
+        fapi2::TARGET_TYPE_PAU |
+        fapi2::TARGET_TYPE_IOHS;
 
     const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
@@ -161,7 +164,9 @@ namespace fapi2plat
         fapi2::TARGET_TYPE_EX |
         fapi2::TARGET_TYPE_OBUS |
         fapi2::TARGET_TYPE_MCBIST |
-        fapi2::TARGET_TYPE_MC;
+        fapi2::TARGET_TYPE_MC |
+        fapi2::TARGET_TYPE_PEC |
+        fapi2::TARGET_TYPE_IOHS;
 
     template< fapi2::TargetType K, fapi2::TargetType L >
     constexpr void checkValidAccess()
