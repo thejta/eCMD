@@ -1255,12 +1255,21 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
   }
+
+  std::string  pbaUnitName;
+  rc = ecmdGetPbaUnit(target,pbaUnitName);
+  if (pbaUnitName.empty()) {
+    ecmdOutputError("r- unable to find chipunit type for this command\n");
+    return ECMD_INVALID_ARGS;
+  }
+
+
   //Setup the target that will be used to query the system config 
   target.chipType = ECMD_CHIPT_PROCESSOR;
   target.chipTypeState = ECMD_TARGET_FIELD_VALID;
   target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
   if ((pbaMode & PBA_MODE_MASK) == PBA_MODE_LCO) {
-    target.chipUnitType = "ex";
+    target.chipUnitType = pbaUnitName;
     target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
     target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
     target.threadState = ECMD_TARGET_FIELD_UNUSED;

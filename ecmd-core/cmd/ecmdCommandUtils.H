@@ -177,4 +177,14 @@ std::string  getBestEcmd(std::string i_ecmd);
  @retval non-zero on failure
 */
 uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName);
+
+/**
+ @brief Will get the processing unit name from the DLL
+ @param i_target ecmdChipTarget containing data to format into string
+ @param o_pbaUnitName Return processing unit name.
+ @retval ECMD_SUCCESS on success
+ @retval non-zero on failure
+*/
+uint32_t ecmdGetPbaUnit(ecmdChipTarget & i_target, std::string & o_pbaUnitName);
+
 #endif /* ecmdCommandUtils_h */
