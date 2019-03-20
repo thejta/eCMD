@@ -300,6 +300,12 @@ inline Target<T, M, V> Target<K, M, V>::getParent(void) const
                     (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_DIMM");
 
+    // valid parents for PMIC
+    // PMIC -> OCMB
+    static_assert(!((K == fapi2::TARGET_TYPE_PMIC) &&
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_PMIC");
+
     // valid parents for PROC
     // PROC -> SYSTEM
     static_assert(!((K == fapi2::TARGET_TYPE_PROC_CHIP) &&
@@ -719,9 +725,11 @@ Target<K, M, V>::getChildren(const TargetState i_state) const
     // valid children for OCMB
     // OCMB -> MEM_PORT
     // OCMB -> DIMM
+    // OCMB -> PMIC
     static_assert(!((K == fapi2::TARGET_TYPE_OCMB_CHIP) &&
                     (T != fapi2::TARGET_TYPE_MEM_PORT) &&
-                    (T != fapi2::TARGET_TYPE_DIMM)),
+                    (T != fapi2::TARGET_TYPE_DIMM) &&
+                    (T != fapi2::TARGET_TYPE_PMIC)),
                   "improper child of fapi2::TARGET_TYPE_OCMB_CHIP");
 
     // valid children for system
