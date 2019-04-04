@@ -263,6 +263,12 @@ uint32_t dllFapi2PutScomMulticast(const ecmdChipTarget& i_target,
                                   const uint32_t i_group,
                                   const uint64_t i_address,
                                   const ecmdDataBuffer& i_data);
+
+uint32_t dllFapi2GetMcastGroupTargets(const ecmdChipTarget& i_target,
+                                      const fapi2::TargetType i_associatedTargetType,
+                                      const uint32_t i_group,
+                                      std::list<const ecmdChipTarget*>& o_targets,
+                                      const fapi2::TargetState i_state);
 } //extern C
 
 #endif

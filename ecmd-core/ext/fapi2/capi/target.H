@@ -46,6 +46,12 @@ extern "C" {
         const fapi2::TargetFilter i_filter,
         const fapi2::TargetState i_state);
     uint32_t fapi2GetAttribute(const ecmdChipTarget & i_target, const uint32_t i_id, fapi2::AttributeData & o_data);
+    uint32_t fapi2GetMcastGroupTargets(
+        const ecmdChipTarget& i_target,
+        const fapi2::TargetType i_associatedTargetType,
+        const uint32_t i_group,
+        std::list<const ecmdChipTarget*>& o_targets,
+        const fapi2::TargetState i_state);
 }
 
 namespace fapi2
@@ -122,6 +128,12 @@ template<TargetType K, MulticastType M, typename V>
 template<TargetType T>
 inline Target<T, M, V> Target<K, M, V>::getParent(void) const
 {
+    // It's forbidden to strip multicast from a target below PROC_CHIP level:
+    // Since a multicast might end up expanding to more than one unicast target,
+    // users are required to use getChildren if they want to map back to unicast.
+    static_assert(!(((K ^ T) & TARGET_TYPE_MULTICAST) && ((T & TARGET_TYPE_CHIPLETS) != TARGET_TYPE_NONE)),
+                  "Parent target for a multicast target must also be multicast or PROC_CHIP");
+
     // General compound chiplet check for proc parent
 
 #ifdef FAPI_2_Z_TARGET_RULES
@@ -579,11 +591,26 @@ inline Target<T, M, V> Target<K, M, V>::getParent(void) const
                   "improper parent of fapi2::TARGET_TYPE_PAU");
 #endif
 
-    std::list<const ecmdChipTarget*> l_targets;
-
     plat_target_handle_t l_handle = this->get();
+
+    if ((T == (fapi2::TARGET_TYPE_EQ | fapi2::TARGET_TYPE_MULTICAST)) &&
+        (K == (fapi2::TARGET_TYPE_CORE | fapi2::TARGET_TYPE_MULTICAST)) &&
+        (l_handle.multicast == true ))
+    {
+        // strip off core select
+        l_handle.multicast_group = static_cast<MulticastGroup>(static_cast<uint32_t>(l_handle.multicast_group) & 0xFFFFFF);
+        return Target<T, M, V>(l_handle);
+    }
+
+    std::list<const ecmdChipTarget*> l_targets;
+    uint32_t l_rc = 0;
+
     const ecmdChipTarget * l_pEcmdTarget = l_handle;
-    uint32_t l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
+    if ((T == (fapi2::TARGET_TYPE_EQ | fapi2::TARGET_TYPE_MULTICAST)) &&
+        (K == (fapi2::TARGET_TYPE_CORE | fapi2::TARGET_TYPE_MULTICAST)))
+        l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, fapi2::TARGET_TYPE_EQ, l_targets, TARGET_STATE_FUNCTIONAL);
+    else
+        l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
 
     if (l_rc)
     {
@@ -614,6 +641,11 @@ template< TargetType T>
 inline std::vector<Target<T, M, V> >
 Target<K, M, V>::getChildren(const TargetState i_state) const
 {
+    // valid children for multicast targets are the same with multicast stripped
+    static_assert(!((K & TARGET_TYPE_MULTICAST) &&
+                  (K != (T | TARGET_TYPE_MULTICAST))),
+                  "improper child of fapi2::TARGET_TYPE_MULTICAST");
+
 #ifdef FAPI_2_Z_TARGET_RULES
     // valid children for SC_CHIP
     // SC_CHIP -> ABUS
@@ -857,27 +889,42 @@ Target<K, M, V>::getChildren(const TargetState i_state) const
     std::vector<Target<T, M, V> > l_children;
 
     plat_target_handle_t l_handle = this->get();
-    const ecmdChipTarget * l_pEcmdTarget = l_handle;
-    uint32_t l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, i_state);
 
-    if (l_rc)
+    if ((K & TARGET_TYPE_MULTICAST) && (l_handle.multicast == false))
     {
-        // ERROR
-        return l_children;
+        // If this target is a unicast target in disguise, return just this target
+        // with the multicast qualifier stripped.
+        l_children.push_back(Target<T, M, V>(l_handle));
     }
-
-    if (l_targets.empty())
+    else
     {
-        // ERROR
-        return l_children;
-    }
+        const ecmdChipTarget * l_pEcmdTarget = l_handle;
+        uint32_t l_rc = 0;
 
-    auto l_target = l_targets.begin();
+        if ((K & TARGET_TYPE_MULTICAST) && (l_handle.multicast == true))
+            l_rc = fapi2GetMcastGroupTargets(*l_pEcmdTarget, T, static_cast<uint32_t>(l_handle.multicast_group), l_targets, i_state);
+        else
+            l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, i_state);
 
-    while (l_target != l_targets.end())
-    {
-        l_children.push_back(Target<T, M, V>(plat_target_handle_t(*l_target)));
-        l_target++;
+        if (l_rc)
+        {
+            // ERROR
+            return l_children;
+        }
+
+        if (l_targets.empty())
+        {
+            // ERROR
+            return l_children;
+        }
+
+        auto l_target = l_targets.begin();
+
+        while (l_target != l_targets.end())
+        {
+            l_children.push_back(Target<T, M, V>(plat_target_handle_t(*l_target)));
+            l_target++;
+        }
     }
 
     return l_children;
@@ -897,6 +944,10 @@ inline std::vector<Target<T, M, V> >
 Target<K, M, V>::getChildren(const TargetFilter i_filter,
     const TargetState i_state) const
 {
+    // multicast targets are not valid for this interface
+    static_assert(!(K & TARGET_TYPE_MULTICAST),
+                  "fapi2::TARGET_TYPE_MULTICAST not valid with filter getChildren");
+
     const fapi2::TargetType TARGET_TYPE_FILTER_CHIPLETS =
             fapi2::TARGET_TYPE_XBUS |
             fapi2::TARGET_TYPE_OBUS |
@@ -916,7 +967,10 @@ Target<K, M, V>::getChildren(const TargetFilter i_filter,
             fapi2::TARGET_TYPE_MC |
             fapi2::TARGET_TYPE_OMI |
             fapi2::TARGET_TYPE_OMIC |
-            fapi2::TARGET_TYPE_MCC;
+            fapi2::TARGET_TYPE_MCC |
+            fapi2::TARGET_TYPE_NMMU |
+            fapi2::TARGET_TYPE_PAU |
+            fapi2::TARGET_TYPE_IOHS;
 
     static_assert( !((T & TARGET_TYPE_FILTER_CHIPLETS) == fapi2::TARGET_TYPE_NONE),
                    "not a valid chiplet for filtering" );
@@ -967,8 +1021,11 @@ template< TargetType T, MulticastType O >
 inline Target < T | TARGET_TYPE_MULTICAST, O, V >
 Target<K, M, V>::getMulticast(const MulticastGroup i_group) const
 {
-    static_assert( (K == fapi2::TARGET_TYPE_PROC_CHIP),
-                   "getMulticast is valid only on a chip-level target" );
+    static_assert((K == TARGET_TYPE_PROC_CHIP), "Parent target must be the proc chip");
+    static_assert((T & TARGET_TYPE_MULTICASTABLE) != 0,
+                  "Requested target type must be part of TARGET_TYPE_MULTICASTABLE");
+    static_assert(bitCount<T>::count == 1,
+                  "Requested target type must be a single type, TARGET_TYPE_MULTICAST will be added automatically");
 
     plat_target_handle_t l_handle = this->get();
     l_handle.multicast = true;
@@ -996,8 +1053,7 @@ template< MulticastType O >
 inline Target < TARGET_TYPE_CORE | TARGET_TYPE_MULTICAST, O, V >
 Target<K, M, V>::getMulticast(const MulticastGroup i_group, const MulticastCoreSelect i_cores) const
 {
-    static_assert( (K == fapi2::TARGET_TYPE_PROC_CHIP),
-                   "getMulticast is valid only on a chip-level target" );
+    static_assert((K == TARGET_TYPE_PROC_CHIP), "Parent target must be the proc chip");
 
     plat_target_handle_t l_handle = this->get();
     l_handle.multicast = true;
