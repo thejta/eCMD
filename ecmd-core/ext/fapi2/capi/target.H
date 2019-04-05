@@ -1203,6 +1203,51 @@ Target<K, M, V>::getChipletNumber(void) const
     return l_pervasive_chipunit;
 }
 
+#ifdef FAPI2_ENABLE_PLATFORM_GET_CORE_SELECT
+inline MulticastCoreSelect
+_getUnicastCoreSelectFromHandle(const plat_target_handle_t & i_handle)
+{
+    MulticastCoreSelect l_mcs = static_cast<MulticastCoreSelect>(0);
+
+    const ecmdChipTarget * l_pEcmdTarget = i_handle;
+
+    if (l_pEcmdTarget != nullptr)
+    {
+        switch (l_pEcmdTarget->chipUnitNum % 4)
+        {
+            case 0:
+                l_mcs = MCCORE_0;
+                break;
+            case 1:
+                l_mcs = MCCORE_1;
+                break;
+            case 2:
+                l_mcs = MCCORE_2;
+                break;
+            case 3:
+                l_mcs = MCCORE_3;
+                break;
+            default:
+                break;
+        }
+    }
+
+    return l_mcs;
+}
+
+template<TargetType K, MulticastType M, typename V>
+inline MulticastCoreSelect
+Target<K, M, V>::_getCoreSelect(void) const
+{
+    plat_target_handle_t l_handle = this->get();
+
+    if (l_handle.multicast == true)
+        return static_cast<MulticastCoreSelect>(static_cast<uint32_t>(l_handle.multicast_group) >> 24);
+    else
+        return _getUnicastCoreSelectFromHandle(l_handle);
+}
+#endif // FAPI2_ENABLE_PLATFORM_GET_CORE_SELECT
+
 ///
 ///
 /// @brief Return the string interpretation of this target
