@@ -34,7 +34,6 @@ CAPI_INCLUDES += target.H
 CAPI_INCLUDES += target_types.H
 CAPI_INCLUDES += target_states.H
 CAPI_INCLUDES += plat_target_rules.H
-//CAPI_INCLUDES += multicast.H
 CAPI_INCLUDES += multicast_defs.H
 CAPI_INCLUDES += buffer_parameters.H
 CAPI_INCLUDES += buffer_traits.H
