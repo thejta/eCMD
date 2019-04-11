@@ -17,7 +17,7 @@
  */
 /* IBM_PROLOG_END_TAG                                                     */
 /**
- * @file plat_target_types.H
+ * @file plat_target_rules.H
  * @brief relationship rules for fapi2 targets
  */
 
