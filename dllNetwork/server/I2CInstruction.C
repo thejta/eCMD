@@ -28,6 +28,7 @@
 #include <sstream>
 #include <iomanip>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <OutputLite.H>
 extern OutputLite out;
@@ -270,7 +271,14 @@ uint32_t I2CInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
         errno = 0;
 
         if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-          snprintf(errstr, 200, "SERVER_DEBUG : iic_config_device_offset() offset = 0x%08X\n", offset);
+          if (offsetFieldSize > 4)
+          {
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_config_device_offset() address = 0x%0" PRIx64 "\n", address);
+          }
+          else
+          {
+            snprintf(errstr, 200, "SERVER_DEBUG : iic_config_device_offset() offset = 0x%08X\n", offset);
+          }
           o_status.errorMessage.append(errstr);
         }
 
