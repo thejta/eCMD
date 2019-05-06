@@ -9,3 +9,6 @@ makefile.override
 # We want to ignore any sub ecmd-* dirs, except the included ecmd-core
 ecmd-*
 !ecmd-core
+
+# Ignore auto-generated git version files
+/dllNetwork/server/git_version.C
