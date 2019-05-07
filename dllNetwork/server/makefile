@@ -82,8 +82,7 @@ LDFLAGS += -ldl -lpthread -lz
 all:
 	${run-all}
 
-generate:
-  # Do nothing
+generate: git_version.C
 
 build: ${TARGET}
 
@@ -127,7 +126,7 @@ ${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
 ../../.git/HEAD:
 ../../.git/index:
 git_version.C: ../../.git/HEAD ../../.git/index
-	@echo "const char *git_version = \"$(shell git describe --dirty --always --tags)\";" > $@
+	@echo "const char *git_version = \"$(shell git describe --dirty --always --tags)\";" > ${SRCPATH}/$@
 
 # *****************************************************************************
 # Create the Target
