@@ -39,6 +39,7 @@ TGT_INCLUDES += PNORInstruction.H
 TGT_INCLUDES += fd_impl.H
 TGT_INCLUDES += ServerSBEFIFOInstruction.H
 TGT_INCLUDES += SBEFIFOInstruction.H
+TGT_INCLUDES += git_version.H
 
 TGT_SOURCE := Instruction.C
 TGT_SOURCE += InstructionStatus.C
@@ -57,6 +58,7 @@ TGT_SOURCE += PNORInstruction.C
 TGT_SOURCE += fd_impl.C
 TGT_SOURCE += ServerSBEFIFOInstruction.C
 TGT_SOURCE += SBEFIFOInstruction.C
+TGT_SOURCE += git_version.C
 TGT_SOURCE += server1p.C
 
 TGT_SOURCE_C := adal_base.c
@@ -80,8 +82,7 @@ LDFLAGS += -ldl -lpthread -lz
 all:
 	${run-all}
 
-generate:
-  # Do nothing
+generate: git_version.C
 
 build: ${TARGET}
 
@@ -114,6 +115,18 @@ ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 ${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
 	@echo Compiling $<
 	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
+
+# *****************************************************************************
+# Create a .C file containing the git hash to print out as part of the
+# serverversion. If we are building from a .zip download, the .git
+# folder doesn't exist. Create empty targets for the .git folder so
+# make doesn't try to create them. If we build in this situation, the
+# version is an empty string, which is the best we can do.
+# *****************************************************************************
+../../.git/HEAD:
+../../.git/index:
+git_version.C: ../../.git/HEAD ../../.git/index
+	@echo "const char *git_version = \"$(shell git describe --dirty --always --tags)\";" > ${SRCPATH}/$@
 
 # *****************************************************************************
 # Create the Target

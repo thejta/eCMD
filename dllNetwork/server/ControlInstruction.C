@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <git_version.H>
 
 #ifdef OTHER_USE
 #include <OutputLite.H>
@@ -282,6 +283,7 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
         std::ostringstream oss;
         oss << "Server Version" << std::endl;
         oss << "Date: " << __DATE__ << " " << __TIME__ << std::endl;
+        oss << "Git Version: " << git_version << std::endl;
         std::map<std::string, uint32_t>::iterator versionIterator = controls->global_version_map_pointer->begin();
         while (versionIterator != controls->global_version_map_pointer->end()) {
           oss << std::left << std::setw(24) << versionIterator->first << " : " << versionIterator->second << std::endl;
