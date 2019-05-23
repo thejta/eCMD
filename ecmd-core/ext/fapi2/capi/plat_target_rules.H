@@ -302,7 +302,8 @@ constexpr void _check_proc_chip_valid_parent()
             fapi2::TARGET_TYPE_NMMU |
             fapi2::TARGET_TYPE_PAU |
             fapi2::TARGET_TYPE_IOHS |
-            fapi2::TARGET_TYPE_FC;
+            fapi2::TARGET_TYPE_FC |
+            fapi2::TARGET_TYPE_PAUC;
 
     static_assert( !((T == fapi2::TARGET_TYPE_PROC_CHIP) &&
                      ((K & TARGET_TYPE_PROC_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
@@ -334,7 +335,8 @@ constexpr void _check_perv_valid_parent()
             fapi2::TARGET_TYPE_PAU |
             fapi2::TARGET_TYPE_IOHS |
             fapi2::TARGET_TYPE_FC |
-            fapi2::TARGET_TYPE_PPE;
+            fapi2::TARGET_TYPE_PPE |
+            fapi2::TARGET_TYPE_PAUC;
 
     static_assert( !((T == fapi2::TARGET_TYPE_PERV) &&
                      ((K & TARGET_TYPE_PERV_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
@@ -576,10 +578,12 @@ constexpr void _check_valid_parent_of_omic()
 {
     // valid parents for OMIC
     // OMIC -> MC
+    // OMIC -> PAUC
     // OMIC -> PERV
     // OMIC -> PROC
     static_assert(!((K == fapi2::TARGET_TYPE_OMIC) &&
                     (T != fapi2::TARGET_TYPE_MC) &&
+                    (T != fapi2::TARGET_TYPE_PAUC) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_OMIC");
@@ -737,9 +741,11 @@ template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_parent_of_iohs()
 {
     // valid parents for IOHS
+    // IOHS -> PAUC
     // IOHS -> PERV
     // IOHS -> PROC
     static_assert(!((K == fapi2::TARGET_TYPE_IOHS) &&
+                    (T != fapi2::TARGET_TYPE_PAUC) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_IOHS");
@@ -751,10 +757,12 @@ constexpr void _check_valid_parent_of_pau()
     // valid parents for PAU
     // PAU -> PERV
     // PAU -> IOHS
+    // PAU -> PAUC
     // PAU -> PROC
     static_assert(!((K == fapi2::TARGET_TYPE_PAU) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_IOHS) &&
+                    (T != fapi2::TARGET_TYPE_PAUC) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_PAU");
 }
@@ -845,6 +853,7 @@ constexpr void _check_perv_valid_children()
     // PERV -> IOHS
     // PERV -> FC
     // PERV -> PPE
+    // PERV -> PAUC
     static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
                     (T != fapi2::TARGET_TYPE_EQ) &&
                     (T != fapi2::TARGET_TYPE_CORE) &&
@@ -868,7 +877,8 @@ constexpr void _check_perv_valid_children()
                     (T != fapi2::TARGET_TYPE_PAU) &&
                     (T != fapi2::TARGET_TYPE_IOHS) &&
                     (T != fapi2::TARGET_TYPE_FC) &&
-                    (T != fapi2::TARGET_TYPE_PPE)),
+                    (T != fapi2::TARGET_TYPE_PPE) &&
+                    (T != fapi2::TARGET_TYPE_PAUC)),
                   "improper child of fapi2::TARGET_TYPE_PERV");
 }
 
@@ -1078,6 +1088,21 @@ constexpr void _check_obus_valid_children()
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_pauc_valid_children()
+{
+    // valid children for PAUC
+    // PAUC -> IOHS
+    // PAUC -> PAU
+    // PAUC -> OMIC
+    static_assert(!((K == fapi2::TARGET_TYPE_PAUC) &&
+                    (T != fapi2::TARGET_TYPE_IOHS) &&
+                    (T != fapi2::TARGET_TYPE_PAU) &&
+                    (T != fapi2::TARGET_TYPE_OMIC)),
+                  "improper child of fapi2::TARGET_TYPE_PAUC");
+}
+
+
+template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_unicast_children()
 {
     fapi2plat::_check_proc_chip_valid_children<K, T>();
@@ -1099,6 +1124,7 @@ constexpr void _check_valid_unicast_children()
     fapi2plat::_check_mba_valid_children<K, T>();
     fapi2plat::_check_mc_valid_children<K, T>();
     fapi2plat::_check_obus_valid_children<K, T>();
+    fapi2plat::_check_pauc_valid_children<K, T>();
 }
 
 #endif
