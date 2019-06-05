@@ -1307,6 +1307,8 @@ public:
    * @param o_errorState Stored Error state
    */
   void queryErrorState(uint32_t & o_errorState);
+
+  void queryErrorState(uint32_t & o_errorState) const;
   //@}
 
   /** @name Operator overloads */

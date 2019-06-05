@@ -2915,6 +2915,11 @@ void ecmdDataBuffer::queryErrorState(uint32_t & o_errorState)
    return  ecmdDataBufferBase::queryErrorState(o_errorState);
 }
 
+void ecmdDataBuffer::queryErrorState(uint32_t & o_errorState) const
+{
+   return  ecmdDataBufferBase::queryErrorState(o_errorState);
+}
+
 uint32_t ecmdDataBuffer::invert()
 {
    return  ecmdDataBufferBase::invert();
