@@ -2592,6 +2592,14 @@ void ecmdDataBufferBase::queryErrorState( uint32_t & o_errorState) {
   }
 }
 
+void ecmdDataBufferBase::queryErrorState( uint32_t & o_errorState) const {
+  if (iv_RealData != NULL) {
+    o_errorState = iv_RealData[EDB_RETURN_CODE];
+  } else {
+    o_errorState = 0;
+  }
+}
+
 /* Here is the plan for the compression format
  3 byte header, includes a version
  4 byte length

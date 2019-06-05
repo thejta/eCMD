@@ -1654,6 +1654,12 @@ public:
   void queryErrorState(uint32_t & o_errorState);
 
   /**
+   * @brief This function returns the stored error state that could have been caused by any number of previous operations on the buffer
+   * @param o_errorState Stored Error state
+   */
+  void queryErrorState(uint32_t & o_errorState) const;
+
+  /**
    * @brief Look to see if the compression header is at the start of the buffer
    * @retval true if compressed, false if not
    */
