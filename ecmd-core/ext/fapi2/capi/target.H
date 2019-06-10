@@ -135,8 +135,8 @@ inline Target<T, M, V> Target<K, M, V>::getParent(void) const
 
     plat_target_handle_t l_handle = this->get();
 
-    if ((T == (fapi2::TARGET_TYPE_EQ | fapi2::TARGET_TYPE_MULTICAST)) &&
-        (K == (fapi2::TARGET_TYPE_CORE | fapi2::TARGET_TYPE_MULTICAST)) &&
+    if ((T == (T | fapi2::TARGET_TYPE_MULTICAST)) &&
+        (K == (K | fapi2::TARGET_TYPE_MULTICAST)) &&
         (l_handle.multicast == true ))
     {
         // strip off core select
@@ -148,11 +148,7 @@ inline Target<T, M, V> Target<K, M, V>::getParent(void) const
     uint32_t l_rc = 0;
 
     const ecmdChipTarget * l_pEcmdTarget = l_handle;
-    if ((T == (fapi2::TARGET_TYPE_EQ | fapi2::TARGET_TYPE_MULTICAST)) &&
-        (K == (fapi2::TARGET_TYPE_CORE | fapi2::TARGET_TYPE_MULTICAST)))
-        l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, fapi2::TARGET_TYPE_EQ, l_targets, TARGET_STATE_FUNCTIONAL);
-    else
-        l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
+    l_rc = fapi2GetAssociatedTargets(*l_pEcmdTarget, T, l_targets, TARGET_STATE_FUNCTIONAL);
 
     if (l_rc)
     {
