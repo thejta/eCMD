@@ -468,7 +468,13 @@ Target<K, M, V>::getChipletNumber(void) const
               (l_pEcmdTarget->chipUnitType == "mc") ||
               (l_pEcmdTarget->chipUnitType == "omi") ||
               (l_pEcmdTarget->chipUnitType == "omic") ||
-              (l_pEcmdTarget->chipUnitType == "mcc")) &&
+              (l_pEcmdTarget->chipUnitType == "mcc") ||
+              (l_pEcmdTarget->chipUnitType == "nmmu") ||
+              (l_pEcmdTarget->chipUnitType == "pau") ||
+              (l_pEcmdTarget->chipUnitType == "iohs") ||
+              (l_pEcmdTarget->chipUnitType == "fc") ||
+              (l_pEcmdTarget->chipUnitType == "pauc") ||
+              (l_pEcmdTarget->chipUnitType == "ppe")) &&
              (l_pEcmdTarget->chipUnitNumState == ECMD_TARGET_FIELD_VALID))
     {
         std::list<const ecmdChipTarget*> l_targets;
