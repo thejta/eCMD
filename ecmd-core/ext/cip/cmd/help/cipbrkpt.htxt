@@ -1,0 +1,16 @@
+Syntax: cipbrkpt  get|set|clear [AddressType] [Address] [partitionID#] [all]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           CIP (Converged IP) Extension
+        Function:       Set/Clear a software breakpoint in Processor.
+                        gets the breakpoint table.
+        Parameters:
+        ------------------------------------------------------------------------
+        AddressType - real | effective | virtual (Required for set operation)
+        Address     - 12 bytes max in hex.(Required for set operation)
+        partitionID - Id of the partition to be acted on, defaults to 0
+        all         - Clears all Breakpoints(only supported for clear)
+        ------------------------------------------------------------------------
+        Examples:       > cipbrkpt get
+                        > cipbrkpt clear all
+                        > cipbrkpt set real 108 partitionId 2
