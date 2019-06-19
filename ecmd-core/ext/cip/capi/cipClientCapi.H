@@ -1080,7 +1080,7 @@ uint32_t cipPutMemProcVariousAddrType(ecmdChipTarget & i_target, ecmdDataBuffer 
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipSetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+uint32_t cipSetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
 
 /**
  @brief Clear a software breakpoint in Processor 
@@ -1101,7 +1101,7 @@ uint32_t cipSetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDa
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipClearSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+uint32_t cipClearSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
 
 /**
  @brief Get software breakpoint table
@@ -1121,7 +1121,7 @@ uint32_t cipClearSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmd
  TARGET STATES : Unused<br>
 
 */
-uint32_t cipGetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+uint32_t cipGetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
 
 /**
  @brief Function to wait for a breakpoint event to occur
