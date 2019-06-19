@@ -11,7 +11,7 @@ EXTENSION_NAME := cip
 CAPI_SOURCE  :=
 
 # Additional Source files for the Shared Lib
-SLIB_SOURCE  :=
+SLIB_SOURCE  := cipStructs.C
 
 # These are additional includes for the client api
 INCLUDES     :=

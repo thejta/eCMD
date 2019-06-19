@@ -1,6 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2003,2016 IBM International Business Machines Corp.
+ * Copyright 2003,2019 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,10 +248,10 @@ typedef enum {
 */
 struct cipSoftwareEvent_t
 {
-   //uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-   //uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-   //uint32_t flattenSize(void);
-   //void printStruct();
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void);
+   void printStruct();
 
    cipEventType_t  event; ///< Event Type enum
    uint32_t  seqId;       ///< seqId, ie Absolute core number
@@ -264,10 +264,10 @@ struct cipSoftwareEvent_t
 */
 struct cipBrkptTableEntry
 {   
-   //uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-   //uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-   //uint32_t flattenSize(void);
-   //void printStruct();
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void);
+   void printStruct();
 
   ecmdDataBuffer   Address; ///< breakpoint address aligned on 4-byte boundary
   ecmdDataBuffer   Original_Instruction; ///< Original Instruction at this address
