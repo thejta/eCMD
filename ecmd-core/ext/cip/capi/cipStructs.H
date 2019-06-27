@@ -224,6 +224,11 @@ CIP_MAINSTORE_ADDR_TYPE_MASK = 0x0007  // @06a
  @brief Struct used for Translate variables in Mainstore Memory D/A and Breakpoint Interfaces
  */
 struct cipXlateVariables {
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
+
   bool tagsActive;			///< 1 = Tags Active Mode; 0 = Tags Inactive Mode
   bool mode32bit;			///< 1 = 32 bit mode; 0 = 64 bit mode
   bool writeECC;			///< 1 = write ECC using ECC buffer as input; 0 = have ECC calculated
@@ -248,10 +253,10 @@ typedef enum {
 */
 struct cipSoftwareEvent_t
 {
-   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
    uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-   uint32_t flattenSize(void);
-   void printStruct();
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
 
    cipEventType_t  event; ///< Event Type enum
    uint32_t  seqId;       ///< seqId, ie Absolute core number
@@ -264,10 +269,10 @@ struct cipSoftwareEvent_t
 */
 struct cipBrkptTableEntry
 {   
-   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
    uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-   uint32_t flattenSize(void);
-   void printStruct();
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
 
   ecmdDataBuffer   Address; ///< breakpoint address aligned on 4-byte boundary
   ecmdDataBuffer   Original_Instruction; ///< Original Instruction at this address

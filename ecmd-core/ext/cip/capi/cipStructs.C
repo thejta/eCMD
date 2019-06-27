@@ -34,17 +34,151 @@
 #include <stdio.h>
 #include <string.h>
  
+#define CIP_XLATE_TAGS_ACTIVE_MASK 0x80000000
+#define CIP_XLATE_MODE_32_BIT_MASK 0x40000000
+#define CIP_XLATE_WRITE_ECC_MASK   0x20000000
+#define CIP_XLATE_MANUAL_MASK      0x10000000
 
 //--------------------------------------------------------------------
 //  Member Functions                                                
 //--------------------------------------------------------------------
 
+uint32_t cipXlateVariables::flatten(uint8_t *o_buf, uint32_t &i_len) const
+{
+  uint32_t tmpData32 = 0;
+  uint32_t l_rc = ECMD_SUCCESS;
+
+  int l_len = (int)i_len;   // use a local copy to decrement
+  uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
+
+  do      // Single entry ->
+  {
+    // Check for buffer overflow conditions.
+    if (this->flattenSize() > i_len)
+    {
+      // Generate an error for buffer overflow conditions.
+      ETRAC2("ECMD: Buffer overflow occurred in "
+             "cipXlateVariables::flatten(), "
+             "structure size = %d; input length = %d",
+             this->flattenSize(), i_len);
+      l_rc = ECMD_DATA_OVERFLOW;
+      break;
+    }
+
+    // Flatten and store each data member in the ouput buffer
+
+    if (tagsActive)
+        tmpData32 |= CIP_XLATE_TAGS_ACTIVE_MASK;
+    if (mode32bit)
+        tmpData32 |= CIP_XLATE_MODE_32_BIT_MASK;
+    if (writeECC)
+        tmpData32 |= CIP_XLATE_WRITE_ECC_MASK;
+    if (manualXlateFlag)
+        tmpData32 |= CIP_XLATE_MANUAL_MASK;
+    tmpData32 |= (uint32_t) addrType;
+
+    tmpData32 = htonl( tmpData32 );
+    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+    l_ptr8 += sizeof(tmpData32);
+    l_len  -= sizeof(tmpData32);
+
+    // "partitonId" (uint32_t)
+    tmpData32 = htonl( partitionId );
+    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+    l_ptr8 += sizeof(partitionId);
+    l_len  -= sizeof(partitionId);
+
+    // Final check: if the length isn't 0, something went wrong
+    if (l_len != 0)
+    {
+      // Generate an error for buffer overflow conditions.
+      ETRAC3("ECMD: Buffer overflow occurred in "
+             "cipSoftwareEvent_t::flatten(), struct size= %d; "
+             "input length= %d; remainder= %d\n",
+             this->flattenSize(), i_len, l_len);
+      l_rc = ECMD_DATA_OVERFLOW;
+      break;
+    }
+
+  } while (false);   // <- single exit
+
+  return l_rc;
+}
+
+uint32_t cipXlateVariables::unflatten(const uint8_t *i_buf, uint32_t &i_len)
+{
+  uint32_t l_rc = ECMD_SUCCESS;
+  uint32_t tmpData32 = 0;
+
+  uint32_t l_len = (int)i_len; 
+  const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
+
+  do    // Single entry ->
+  {
+    // Unflatten each data member from the input buffer
+
+    // (bool values and addrType, stored as uint32_t)
+    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+    tmpData32 = ntohl( tmpData32 );
+    l_ptr8 += sizeof(tmpData32);
+    l_len  -= sizeof(tmpData32);
+
+    tagsActive = (tmpData32 & CIP_XLATE_TAGS_ACTIVE_MASK);
+    mode32bit = (tmpData32 & CIP_XLATE_MODE_32_BIT_MASK);
+    writeECC = (tmpData32 & CIP_XLATE_WRITE_ECC_MASK);
+    manualXlateFlag = (tmpData32 & CIP_XLATE_MANUAL_MASK);
+    addrType = (cipMainstoreAddrType_t) (tmpData32 & CIP_MAINSTORE_ADDR_TYPE_MASK);
+
+    // "partitionId" (uint32_t)
+    memcpy( &partitionId, l_ptr8, sizeof(partitionId) );
+    partitionId = ntohl( partitionId );
+    l_ptr8 += sizeof(partitionId);
+    l_len  -= sizeof(partitionId);
+
+    // Final check: if the length isn't 0, something went wrong
+    if (l_len != 0)
+    {
+      // Generate an error for buffer overflow conditions.
+      ETRAC3("ECMD: Buffer overflow occurred in "
+             "cipSoftwareEvent_t::unflatten(), struct size= %d; "
+             "input length= %d; remainder= %d\n",
+             this->flattenSize(), i_len, l_len);
+      l_rc = ECMD_DATA_OVERFLOW;
+      break;
+    }
+
+  } while (false);   // <- single exit
+
+  return l_rc;
+}
+
+uint32_t cipXlateVariables::flattenSize(void) const
+{
+    uint32_t flatSize = 0;
+
+    flatSize += sizeof(uint32_t); // (bool values and addrType, stored as uint32_t)
+    flatSize += sizeof(partitionId); // partitionId
+
+    return flatSize;
+}
+
+void cipXlateVariables::printStruct() const
+{
+  printf("\ncipXlateVariables Struct\n");
+
+  printf("\ttagsActive = %s\n", (tagsActive ? "true" : "false"));
+  printf("\tmode32bit = %s\n", (mode32bit ? "true" : "false"));
+  printf("\twriteECC = %s\n", (writeECC ? "true" : "false"));
+  printf("\tmanualXlateFlag = %s\n", (manualXlateFlag ? "true" : "false"));
+  printf("\taddrType= %d\n", addrType);
+  printf("\tpartitionId = %d\n", partitionId);
+}
 
 /*
  * The following methods for the cipSoftwareEvent_t struct will flatten,
  * unflatten & get the flattened size of the struct.
  */
-uint32_t cipSoftwareEvent_t::flatten(uint8_t *o_buf, uint32_t &i_len)
+uint32_t cipSoftwareEvent_t::flatten(uint8_t *o_buf, uint32_t &i_len) const
 {
   uint32_t tmpData32 = 0;
   uint32_t l_rc = ECMD_SUCCESS;
@@ -208,7 +342,7 @@ uint32_t cipSoftwareEvent_t::unflatten(const uint8_t *i_buf, uint32_t &i_len)
 }
 
 
-uint32_t cipSoftwareEvent_t::flattenSize(void)
+uint32_t cipSoftwareEvent_t::flattenSize(void) const
 {
 
     uint32_t flatSize = 0;
@@ -222,7 +356,8 @@ uint32_t cipSoftwareEvent_t::flattenSize(void)
     return flatSize;
 }
 
-void cipSoftwareEvent_t::printStruct(){
+void cipSoftwareEvent_t::printStruct() const
+{
 
   printf("\ncipSoftwareEvent_t Struct\n");
 
@@ -237,7 +372,7 @@ void cipSoftwareEvent_t::printStruct(){
  * The following methods for the cipBrkptTableEntry struct will flatten,
  * unflatten & get the flattened size of the struct.
  */
-uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len)
+uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len) const
 {
   uint32_t tmpData32 = 0;
   uint32_t l_rc = ECMD_SUCCESS;
@@ -471,7 +606,7 @@ uint32_t cipBrkptTableEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len)
 }
     
     
-uint32_t cipBrkptTableEntry::flattenSize(void)
+uint32_t cipBrkptTableEntry::flattenSize(void) const
 {   
 
     uint32_t flatSize = 0;
@@ -489,7 +624,8 @@ uint32_t cipBrkptTableEntry::flattenSize(void)
     return flatSize;
 }
 
-void cipBrkptTableEntry::printStruct(){
+void cipBrkptTableEntry::printStruct() const
+{
 
   printf("\ncipBrkptTableEntry Struct\n");
 
