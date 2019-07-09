@@ -700,6 +700,7 @@ struct ecmdChipTarget {
 
   // Methods
   uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
   int operator==(const ecmdChipTarget& rhs) const; ///< Used to compare ecmdChipTarget variables based on state fields

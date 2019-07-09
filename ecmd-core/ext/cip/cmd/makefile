@@ -8,7 +8,7 @@ include ../../../../makefile.base
 EXTENSION_NAME   := cip
 
 # This is Additional extension for the client api
-SOURCE       := cipProcUser.C cipPoreUser.C
+SOURCE       := cipProcUser.C cipPoreUser.C cipBrkptUser.C
 
 # These are additional includes for the client api
 INCLUDES     :=

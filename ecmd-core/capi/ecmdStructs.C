@@ -192,7 +192,11 @@ bool ecmdChipTarget::operator<(const ecmdChipTarget& rhs) const {
  * This function will flatten the ecmdChipTarget struct for transport accross
  * the user <-> cecserver interface.  
  */
-uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len){
+    return ((const ecmdChipTarget *) this)->flatten(o_buf, i_len);
+}
+
+uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) const {
 
 	uint32_t rc    = ECMD_SUCCESS;
 	int      l_len = (int) i_len;
