@@ -21,6 +21,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#define __STDC_FORMAT_MACROS 1
 #include <I2CInstruction.H>
 #include <arpa/inet.h>
 #include <stdio.h>
