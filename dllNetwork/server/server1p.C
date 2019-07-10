@@ -57,6 +57,7 @@
 #include <ServerI2CInstruction.H>
 #include <PNORInstruction.H>
 #include <ServerSBEFIFOInstruction.H>
+#include <ServerBrkptInstruction.H>
 
 #include <OutputLite.H>
 OutputLite out;
@@ -231,6 +232,9 @@ void processClient(int socket, enum socketState & state)
                     break;
                 case Instruction::SBEFIFO:
                     newInstruction = new ServerSBEFIFOInstruction();
+                    break;
+                case Instruction::BRKPT:
+                    newInstruction = new ServerBrkptInstruction();
                     break;
                 default:
                     printf("ERROR : socket %d : Unknown instruction received %d\n", socket, instructionInfo.type);
