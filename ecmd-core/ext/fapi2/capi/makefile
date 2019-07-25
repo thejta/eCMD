@@ -68,6 +68,7 @@ CAPI_INCLUDES += hwp_ffdc_classes.H
 CAPI_INCLUDES += set_sbe_error.H
 CAPI_INCLUDES += utils.H
 CAPI_INCLUDES += plat_utils.H
+CAPI_INCLUDES += plat_types.H
 CAPI_INCLUDES += fapi2SharedUtils.H
 CAPI_INCLUDES += fapi2DllCapi.H
 CAPI_INCLUDES += fapi2ClientEnums.H
