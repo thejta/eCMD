@@ -573,7 +573,7 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
 
         if (attributeIds.count(targetType) == 0)
         {
-            fapi2GetAttributeIdsByType(targetType, attributeSource, attributeIds[targetType]);
+            fapi2GetAttrIdsByType(targetType, attributeSource, attributeIds[targetType]);
         }
 
         if ((attributeIds.count(targetType) != 0) && (!attributeIds[targetType].empty()))

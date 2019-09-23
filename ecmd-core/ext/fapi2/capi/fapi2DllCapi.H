@@ -125,6 +125,11 @@ uint32_t dllFapi2GetAttributeIdsByType(
 	uint32_t i_attributeSources, 
 	std::list<fapi2::AttributeId> & o_attributeIds);
 
+uint32_t dllFapi2GetAttrIdsByType(
+	fapi2::TargetType i_targetTypes, 
+	uint32_t i_attributeSources, 
+	std::list<fapi2::AttributeId> & o_attributeIds);
+
 void dllFapi2OutputError(const char* i_message); 
 
 void dllFapi2OutputInfo(const char* i_message); 
