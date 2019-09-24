@@ -197,13 +197,22 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId &
 uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
 
 /**
- @brief Retrieve a list of attributes based upon their TargetType and AttributeSource
+ @brief deprecated Retrieve a list of attributes based upon their TargetType and AttributeSource deprecated
  @param i_targetTypes An ored value of requested TargetType
  @param i_attributeSources An ored value of requested AttributeSource
  @param o_attributeIds A list of AttributeId based upon the requested types
  @retval ECMD_SUCCESS if successful
 */
 uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds);
+
+/**
+ @brief Retrieve a list of attributes based upon their TargetType and AttributeSource
+ @param i_targetTypes An ored value of requested TargetType
+ @param i_attributeSources An ored value of requested AttributeSource
+ @param o_attributeIds A list of AttributeId based upon the requested types
+ @retval ECMD_SUCCESS if successful
+*/
+uint32_t fapi2GetAttrIdsByType(fapi2::TargetType i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds);
 
 //@}
 
