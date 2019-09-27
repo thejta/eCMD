@@ -120,8 +120,8 @@ uint32_t dllFapi2GetAttrInfo(
 	uint32_t & o_numOfBytes, 
 	bool & o_attrEnum);
 
-uint32_t dllFapi2GetAttributeIdsByType(
-	uint32_t i_targetTypes, 
+uint32_t dllFapi2GetAttrIdsByType(
+	fapi2::TargetType i_targetTypes, 
 	uint32_t i_attributeSources, 
 	std::list<fapi2::AttributeId> & o_attributeIds);
 
