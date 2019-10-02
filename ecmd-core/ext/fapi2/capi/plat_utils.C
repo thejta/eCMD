@@ -459,11 +459,4 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode specialWakeup(const fapi2::Target<fapi2plat::TARGET_TYPE_SPECIAL_WAKEUP_TARGET> & i_target, bool i_enable)
-    {
-        ecmdChipTarget ecmdTarget;
-        fapi2::fapiTargetToEcmdTarget(i_target, ecmdTarget); 
-        return (fapi2::ReturnCodes) fapi2plat::specialWakeup(ecmdTarget, i_enable);
-    }
-
 };

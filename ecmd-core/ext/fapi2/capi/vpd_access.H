@@ -31,16 +31,14 @@
 #include <fapi2_vpd_access.H>
 namespace fapi2
 {
-// -- platform specializations for getVPD go here --
 
-// specialization for MCS target
-template<>
-inline fapi2::ReturnCode getVPD(const fapi2::Target<fapi2::TARGET_TYPE_MCS, fapi2::plat_target_handle_t>& i_target,
-                               VPDInfo<fapi2::TARGET_TYPE_MCS>& io_vpd_info,
-                               uint8_t* o_blob)
-{
-    return platGetVPD( i_target, io_vpd_info, o_blob );
-}
+    template<TargetType T, MulticastType M, typename V>
+    inline ReturnCode getVPD(const Target<T, M, V>& i_target,
+                             VPDInfo<T>& io_vpd_info,
+                             uint8_t* o_blob)
+    {
+        return platGetVPD( i_target, io_vpd_info, o_blob );
+    }
 
 };
 

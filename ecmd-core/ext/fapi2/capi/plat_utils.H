@@ -49,16 +49,18 @@ namespace fapi2plat
                                                                 fapi2::TARGET_TYPE_EX |
                                                                 fapi2::TARGET_TYPE_EQ;
 
-    fapi2::ReturnCode specialWakeup(const fapi2::Target<fapi2plat::TARGET_TYPE_SPECIAL_WAKEUP_TARGET, fapi2::plat_target_handle_t> & i_target, bool i_enable);
+    uint32_t specialWakeup(const ecmdChipTarget & i_target, const bool i_enable);
 };
 
 namespace fapi2
 {
-template<TargetType T, typename V>
-inline ReturnCode platSpecialWakeup( const Target<T, V>& i_target, bool i_enable)
-{
-    return fapi2plat::specialWakeup(i_target, i_enable);
-}
+    template<TargetType T, MulticastType M, typename V>
+    inline ReturnCode platSpecialWakeup( const Target<T, M, V>& i_target, bool i_enable)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapi2::fapiTargetToEcmdTarget(i_target, ecmdTarget); 
+        return (fapi2::ReturnCodes) fapi2plat::specialWakeup(ecmdTarget, i_enable);
+    }
 
-}
+};
 #endif

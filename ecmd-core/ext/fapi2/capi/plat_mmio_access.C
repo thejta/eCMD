@@ -198,25 +198,5 @@ fapi2::ReturnCode putMMIO(const ecmdChipTarget& i_target,
 
 }
 
-fapi2::ReturnCode getMMIO(const fapi2::Target<fapi2::TARGET_TYPE_OCMB_CHIP, fapi2::plat_target_handle_t>& i_target,
-                          const uint64_t i_mmioAddr,
-                          const size_t i_transSize,
-                          std::vector<uint8_t>& o_data)
-{
-        ecmdChipTarget ecmdTarget;
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);
-        return fapi2plat::getMMIO(ecmdTarget, i_mmioAddr, i_transSize, o_data);
-}
-
-fapi2::ReturnCode putMMIO(const fapi2::Target<fapi2::TARGET_TYPE_OCMB_CHIP, fapi2::plat_target_handle_t>& i_target,
-                          const uint64_t i_mmioAddr,
-                          const size_t i_transSize,
-                          const std::vector<uint8_t>& i_data)
-{
-        ecmdChipTarget ecmdTarget;
-        fapiTargetToEcmdTarget(i_target, ecmdTarget);
-        return fapi2plat::putMMIO(ecmdTarget, i_mmioAddr, i_transSize, i_data);
-}
-
 };
 
