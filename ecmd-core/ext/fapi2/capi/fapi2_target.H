@@ -31,6 +31,7 @@
 #include <vector>
 #include <target_types.H>
 #include <target_states.H>
+#include <multicast_defs.H>
 #include <plat_target.H>
 #include <return_code_defs.H>
 
@@ -38,8 +39,18 @@ namespace fapi2
 {
 
 ///
+/// @brief Apply any platform specific static assertions to target construction
+/// @tparam K the type of target to be constructed
+/// @tparam M the multicast type of the target to be constructed
+/// @tparam V the value type of the target to be constructed
+///
+template<TargetType K, MulticastType M, typename V>
+static constexpr void plat_apply_target_limits(void);
+
+///
 /// @brief Class representing a FAPI2 Target
 /// @tparam K the type (Kind) of target
+/// @tparam M the type of multicast operation if it's a multicast target
 /// @tparam V the type of the target's Value
 /// @remark TargetLite targets are uint64_t, Targets
 /// are uintptr_t (void*).
@@ -96,7 +107,7 @@ namespace fapi2
 /// fapi2::Target<fapi2::TARGET_TYPE_ABUS_ENDPOINT> E;
 /// takesProcOrMembuf( E );
 /// @endcode
-template<TargetType K, typename V = plat_target_handle_t>
+template<TargetType K, MulticastType M = MULTICAST_OR, typename V = plat_target_handle_t>
 class Target
 {
     public:
@@ -106,7 +117,9 @@ class Target
         ///        that takes in a value as a param
         ///
         Target(): Target(V())
-        {};
+        {
+            plat_apply_target_limits<K, M, V>();
+        };
 
         ///
         /// @brief Create a Target, with a value
@@ -118,7 +131,9 @@ class Target
         ///
         Target(const V& Value):
             iv_handle(Value)
-        {};
+        {
+            plat_apply_target_limits<K, M, V>();
+        };
 
 
         ///
@@ -197,7 +212,7 @@ class Target
         /// @return Target<T> a target representing the parent
         ///
         template< TargetType T >
-        inline Target<T, V> getParent(void) const;
+        inline Target<T, M, V> getParent(void) const;
 
         ///
         /// @brief Is this target a chip?
@@ -271,7 +286,7 @@ class Target
         /// in order. That is, core 0 is std::vector[0].
         ///
         template< TargetType T>
-        inline std::vector<Target<T, V> >
+        inline std::vector<Target<T, M, V> >
         getChildren(const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
 
         ///
@@ -283,7 +298,7 @@ class Target
         /// children
         ///
         template< TargetType T>
-        inline std::vector<Target<T, V> >
+        inline std::vector<Target<T, M, V> >
         getChildren(const TargetFilter i_filter,
                     const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
 
@@ -299,7 +314,7 @@ class Target
 
         template<TargetType T>
         inline fapi2::ReturnCodes
-        getOtherEnd(Target<T, V>& o_target, const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
+        getOtherEnd(Target<T, M, V>& o_target, const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
 
         ///
         /// @brief Is the target functional?
@@ -323,10 +338,12 @@ class Target
         /// @brief Copy from a Target<O> to a Target<K>
         /// @tparam O the target type of the other
         ///
-        template<TargetType O, typename VO>
-        inline Target( const Target<O, VO>& Other ):
-            Target<K, V>(Other.get())
+        template<TargetType O, MulticastType MO, typename VO>
+        inline Target( const Target<O, MO, VO>& Other ):
+            Target<K, M, V>(Other.get())
         {
+            plat_apply_target_limits<K, M, V>();
+
             // In case of recursion depth failure, use -ftemplate-depth=
             static_assert( (K & O) != 0,
                            "unable to cast Target, no shared types");
@@ -341,6 +358,8 @@ class Target
         static const TargetType iv_type = K;
         V iv_handle;
 
+        /// @brief if iv_handle is a multicast target, update its multicast type to M
+        inline void mcUpdateHandle();
 };
 
 // EX threads map to CORE threads:
@@ -469,8 +488,8 @@ inline uint8_t thread_bitset_f2n(const uint8_t i_ordinal, const uint8_t i_thread
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template< TargetType T, typename V >
-inline void toString(const Target<T, V>& i_target, char* i_buffer, size_t i_bsize);
+template< TargetType T, MulticastType M, typename V >
+inline void toString(const Target<T, M, V>& i_target, char* i_buffer, size_t i_bsize);
 
 ///
 /// @brief Return the string interpretation of this target
@@ -483,8 +502,8 @@ inline void toString(const Target<T, V>& i_target, char* i_buffer, size_t i_bsiz
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template< TargetType T, typename V >
-inline void toString(const Target<T, V>* i_target, char* i_buffer, size_t i_bsize);
+template< TargetType T, MulticastType M, typename V >
+inline void toString(const Target<T, M, V>* i_target, char* i_buffer, size_t i_bsize);
 
 ///
 /// @brief Get an enumerated target of a specific type
@@ -493,28 +512,8 @@ inline void toString(const Target<T, V>* i_target, char* i_buffer, size_t i_bsiz
 /// the desired target
 /// @return Target<T> the target requested
 ///
-template<TargetType T, typename V = plat_target_handle_t>
-inline Target<T, V> getTarget(uint64_t Ordinal);
-
-// Why has the been removed? For starters, the API name
-// is probably wrong as it's already been confused with
-// Target::getChildren(). And if I'm going to change it
-// I really want to see if we need it. I'm still not
-// clear on whether we're alloing this traversal or not.
-#if 0
-///
-/// @brief Get the base target's children
-/// @tparam T The type of the target
-/// @return std::vector<Target<T,V>> a vector of present/functional
-/// children
-///
-template<TargetType T, typename V>
-inline std::vector<Target<T, V>> getChildren()
-{
-    // For testing
-    return {Target<T, V>(), Target<T, V>()};
-}
-#endif
+template<TargetType T, MulticastType M = MULTICAST_OR, typename V = plat_target_handle_t>
+inline Target<T, M, V> getTarget(uint64_t Ordinal);
 
 ///
 /// @brief Return the string interpretation of this target
@@ -526,8 +525,8 @@ inline std::vector<Target<T, V>> getChildren()
 /// @post The contents of the buffer is replaced with the string
 /// representation of the target
 ///
-template<TargetType T, typename V, typename B>
-inline void toString(const Target<T, V>& i_target, B& i_buffer);
+template<TargetType T, MulticastType M, typename V, typename B>
+inline void toString(const Target<T, M, V>& i_target, B& i_buffer);
 
 ///
 /// @brief Check if the target is of a type, or in a type subset.
@@ -540,6 +539,7 @@ inline constexpr bool is_same(void)
 {
     return (K & T) != 0;
 }
+
 }
 
 #endif
