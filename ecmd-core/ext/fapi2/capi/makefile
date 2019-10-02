@@ -31,7 +31,6 @@ CAPI_INCLUDES := fapi2_target.H
 CAPI_INCLUDES += plat_target.H
 CAPI_INCLUDES += target.H
 CAPI_INCLUDES += target_types.H
-CAPI_INCLUDES += plat_target_filter.H
 CAPI_INCLUDES += target_states.H
 CAPI_INCLUDES += multicast.H
 CAPI_INCLUDES += fapi2_multicast.H
