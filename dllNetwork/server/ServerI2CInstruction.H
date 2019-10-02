@@ -2,7 +2,7 @@
 #define _ServerI2CInstruction_H
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2003,2017 IBM International Business Machines Corp.
+ * Copyright 2003,2018 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ class ServerI2CInstruction : public I2CInstruction
     uint32_t iic_config_slave_address(Handle * i_handle, InstructionStatus & o_status);
     uint32_t iic_config_device_width(Handle * i_handle, InstructionStatus & o_status);
     uint32_t iic_config_device_offset(Handle * i_handle, InstructionStatus & o_status);
+    uint32_t iic_config_device_retries(Handle * i_handle, InstructionStatus & o_status);
+    uint32_t iic_config_device_timeout(Handle * i_handle, InstructionStatus & o_status);
     ssize_t iic_read(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status);
     ssize_t iic_write(Handle * i_handle, InstructionStatus & o_status);
     uint32_t iic_reset(Handle * i_handle, ResetType i_type);
