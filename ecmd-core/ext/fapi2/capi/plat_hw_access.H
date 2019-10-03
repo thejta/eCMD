@@ -146,7 +146,8 @@ namespace fapi2plat
         fapi2::TARGET_TYPE_MEM_PORT |
         fapi2::TARGET_TYPE_NMMU |
         fapi2::TARGET_TYPE_PAU |
-        fapi2::TARGET_TYPE_IOHS;
+        fapi2::TARGET_TYPE_IOHS |
+        fapi2::TARGET_TYPE_PAUC;
 
     const fapi2::TargetType TARGET_TYPE_CFAM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
