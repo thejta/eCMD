@@ -35,8 +35,6 @@
 #include <plat_target.H>
 #include <return_code_defs.H>
 
-#define FAPI2_ENABLE_PLATFORM_GET_CORE_SELECT
-
 namespace fapi2
 {
 
