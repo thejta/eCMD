@@ -179,6 +179,12 @@ ecmdDataBuffer::ecmdDataBuffer(const ecmdDataBuffer& i_other)
 //---------------------------------------------------------------------
 ecmdDataBuffer::~ecmdDataBuffer()
 {
+#ifndef REMOVE_SIM
+  if (iv_DataStr != NULL) {
+    delete[] iv_DataStr;
+    iv_DataStr = NULL;
+  }
+#endif
 }
 
 //---------------------------------------------------------------------
@@ -2611,6 +2617,9 @@ uint32_t ecmdDataBuffer::shareBuffer(ecmdDataBuffer* i_sharingBuffer)
     rc = ecmdDataBufferBase::shareBuffer(i_sharingBuffer);
     if (rc) return rc;
 #ifndef REMOVE_SIM
+    if (i_sharingBuffer->iv_DataStr != NULL) {
+      delete[] i_sharingBuffer->iv_DataStr;
+    }
     i_sharingBuffer->iv_DataStr = iv_DataStr;
     i_sharingBuffer->iv_XstateEnabled = iv_XstateEnabled;
 #endif
