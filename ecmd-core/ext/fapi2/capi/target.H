@@ -54,12 +54,13 @@ namespace fapi2
 template<TargetType K, MulticastType M, typename V>
 static constexpr void plat_apply_target_limits(void)
 {
-    static_assert(!(K & TARGET_TYPE_MULTICAST),
-                  "Multicast targets are not supported on this platform");
 }
 
 template<TargetType T, MulticastType M, typename V>
-inline void Target<T, M, V>::mcUpdateHandle() {};
+inline void Target<T, M, V>::mcUpdateHandle()
+{
+    iv_handle.multicast_type = M;
+}
 
 ///
 /// @brief Assignment Operator.
@@ -940,6 +941,64 @@ Target<K, M, V>::getChildren(const TargetFilter i_filter,
     }
 
     return l_children;
+}
+
+///
+/// @brief Get a multicast target for a given chip
+/// @tparam T The type of target to return; TARGET_TYPE_MULTICAST is added automatically
+/// @tparam O The type of multicast read operation for the target; defaults to OR
+/// @param[in] i_group The abstract multicast group the target should point to
+/// @return The multicast target
+///
+/// This method is only applicable to chip-level targets.
+/// If the requested multicast group cannot be mapped to an available HW multicast
+/// group, a platform specific error will be thrown.
+///
+template<TargetType K, MulticastType M, typename V>
+template< TargetType T, MulticastType O >
+inline Target < T | TARGET_TYPE_MULTICAST, O, V >
+Target<K, M, V>::getMulticast(const MulticastGroup i_group) const
+{
+    static_assert( (K == fapi2::TARGET_TYPE_PROC_CHIP),
+                   "getMulticast is valid only on a chip-level target" );
+
+    plat_target_handle_t l_handle = this->get();
+    l_handle.multicast = true;
+    l_handle.multicast_group = i_group;
+
+    // FIXME check if group is valid
+
+    Target <T | TARGET_TYPE_MULTICAST, O, V> t(l_handle);
+    return t;
+}
+
+///
+/// @brief Get a multicast core target for a given chip
+/// @tparam O The type of multicast read operation for the target; defaults to OR
+/// @param[in] i_group The abstract multicast group (selecting EQs) the target should point to
+/// @param[in] i_cores Which cores inside the selected EQ should be targeted
+/// @return The multicast target
+///
+/// This method is only applicable to chip-level targets.
+/// If the requested multicast group cannot be mapped to an available HW multicast
+/// group, a platform specific error will be thrown.
+///
+template<TargetType K, MulticastType M, typename V>
+template< MulticastType O >
+inline Target < TARGET_TYPE_CORE | TARGET_TYPE_MULTICAST, O, V >
+Target<K, M, V>::getMulticast(const MulticastGroup i_group, const MulticastCoreSelect i_cores) const
+{
+    static_assert( (K == fapi2::TARGET_TYPE_PROC_CHIP),
+                   "getMulticast is valid only on a chip-level target" );
+
+    plat_target_handle_t l_handle = this->get();
+    l_handle.multicast = true;
+    l_handle.multicast_group = static_cast<MulticastGroup>(static_cast<uint32_t>(i_group) | (static_cast<uint32_t>(i_cores) << 24));
+
+    // FIXME check if group is valid
+
+    Target <TARGET_TYPE_CORE | TARGET_TYPE_MULTICAST, O, V> t(l_handle);
+    return t;
 }
 
 ///

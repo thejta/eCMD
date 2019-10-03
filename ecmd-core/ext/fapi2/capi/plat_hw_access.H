@@ -35,6 +35,21 @@
 
 namespace fapi2plat
 {
+    fapi2::ReturnCode setMulticastGroupMap(const ecmdChipTarget & i_target,
+                                           const std::vector< fapi2::MulticastGroupMapping > & i_mappings);
+
+    fapi2::ReturnCode getScomMulticast(const ecmdChipTarget& i_target,
+                                       const uint32_t i_type,
+                                       const uint32_t i_group,
+                                       const uint64_t i_address,
+                                       fapi2::buffer<uint64_t>& o_data);
+
+    fapi2::ReturnCode putScomMulticast(const ecmdChipTarget & i_target,
+                                       const uint32_t i_type,
+                                       const uint32_t i_group,
+                                       const uint64_t i_address,
+                                       const fapi2::buffer<uint64_t> i_data);
+
     fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
                               const uint64_t i_address,
                               fapi2::buffer<uint64_t>& o_data);
@@ -87,6 +102,16 @@ namespace fapi2plat
                                   const char* const i_spyId,
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData);
+
+    template< fapi2::MulticastType M, typename V >
+    inline fapi2::ReturnCode setMulticastGroupMap(const fapi2::Target<fapi2::TARGET_TYPE_PROC_CHIP, M, V>& i_chip,
+                                                  const std::vector< fapi2::MulticastGroupMapping >& i_mappings)
+    {
+        ecmdChipTarget ecmdTarget;
+        fapiTargetToEcmdTarget(i_chip, ecmdTarget);
+
+        return fapi2plat::setMulticastGroupMap(ecmdTarget, i_mappings);
+    }
 
     const fapi2::TargetType TARGET_TYPE_SCOM_TARGET = fapi2::TARGET_TYPE_PROC_CHIP |
 #ifdef FAPI_2_Z
@@ -155,17 +180,10 @@ namespace fapi2plat
 
         const fapi2::plat_target_handle_t & l_handle = i_target.get();
 
-        uint64_t l_address = i_address;
         if (l_handle.multicast)
-        {
-            uint32_t rc = 1;
-            if (rc)
-            {
-                // ERROR
-                return fapi2::FAPI2_RC_INVALID_PARAMETER;
-            }
-        }
-        return fapi2plat::getScom(ecmdTarget, l_address, o_data);
+            return fapi2plat::getScomMulticast(ecmdTarget, static_cast<uint32_t>(M), static_cast<uint32_t>(l_handle.multicast_group), i_address, o_data);
+
+        return fapi2plat::getScom(ecmdTarget, i_address, o_data);
     }
 
     template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
@@ -179,17 +197,10 @@ namespace fapi2plat
 
         const fapi2::plat_target_handle_t & l_handle = i_target.get();
 
-        uint64_t l_address = i_address;
         if (l_handle.multicast)
-        {
-            uint32_t rc = 1;
-            if (rc)
-            {
-                // ERROR
-                return fapi2::FAPI2_RC_INVALID_PARAMETER;
-            }
-        }
-        return fapi2plat::putScom(ecmdTarget, l_address, i_data);
+            return fapi2plat::putScomMulticast(ecmdTarget, static_cast<uint32_t>(M), static_cast<uint32_t>(l_handle.multicast_group), i_address, i_data);
+
+        return fapi2plat::putScom(ecmdTarget, i_address, i_data);
     }
 
     template< fapi2::TargetType K, fapi2::MulticastType M, typename V >
