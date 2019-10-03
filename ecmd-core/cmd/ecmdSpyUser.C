@@ -245,7 +245,11 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
     spyData = spyDataList.begin();
 
     /* Make sure the user didn't request enum output on an ispy */
-    if (((outputformat == "enum") || (inputformat == "enum")) && !spyData->isEnumerated) {
+    if ((((outputformat == "enum") || (inputformat == "enum")) && !spyData->isEnumerated) && 
+        // Don't want to error out if these conditions are also met. 
+        // When using dial mode, isEnumerated is always set to false.  
+        // Still allow user to specify enum in/out format if spyId and spyData have these values.  
+        ((spyData->spyId != 0xDDDDDDDDDDDDDDDDULL) && (spyData->spyName != "DIAL"))) {
       ecmdOutputError("getspy - Spy doesn't support enumerations, can't use -ienum or -oenum\n");
       rc = ECMD_INVALID_ARGS;
       break;  
@@ -261,7 +265,7 @@ uint32_t ecmdGetSpyUser(int argc, char * argv[]) {
         if (inputformat == "default") inputformat = "x";
       }
     } 
-    if ((outputformat == "enum") && (inputformat != "enum")) {
+    if ((outputformat == "enum") && (expectFlag && (inputformat != "enum"))) {
       /* We can't do an expect on non-enumerated when they want a fetch of enumerated */
       ecmdOutputError("getspy - When reading enumerated spy's both input and output format's must be of type 'enum'\n");
       rc = ECMD_INVALID_ARGS;
