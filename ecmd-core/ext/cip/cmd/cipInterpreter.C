@@ -85,6 +85,8 @@ uint32_t cipCommandInterpreter(int argc, char* argv[]) {
 #ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
         } else if (!strcmp(argv[0], "cipbreakpoint")) {
           rc = cipBreakpointUser(argc - 1, argv + 1);
+        } else if (!strcmp(argv[0], "cipbrkpt")) {
+          rc = cipBrkptUser(argc - 1, argv + 1);
 #endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */

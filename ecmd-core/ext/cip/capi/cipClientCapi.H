@@ -1018,6 +1018,82 @@ uint32_t cipPutMemProcVariousAddrType(const ecmdChipTarget & i_target, ecmdDataB
 //@}
 /* End Memory Functions */
 
+/** @name Breakpoint Functions */
+//@{
+#ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
+/**
+ @brief Set a software breakpoint in Processor 
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_address Address to set breakpoint at
+ @param i_xlateVars Scruct with numerous translation variables
+ @param o_brkptTableEntries List of cipBrkptTableEntry structs
+ @param o_virtualAddress Caculated Virtual Address
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RETRY_WITH_VIRTUAL_ADDR Requests that the user retries operation with returned Virtual Address
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipSetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+
+/**
+ @brief Clear a software breakpoint in Processor 
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_address Address to clear breakpoint at (see NOTE below)
+ @param i_xlateVars Scruct with numerous translation variables
+ @param o_brkptTableEntries List of cipBrkptTableEntry structs
+ @param o_virtualAddress Caculated Virtual Address
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RETRY_WITH_VIRTUAL_ADDR Requests that the user retries operation with returned Virtual Address
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+ NOTE : If i_address is an empty ecmdDataBuffer (bitLength=0), ALL Breakpoints on the system will be cleared
+
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipClearSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+
+/**
+ @brief Get software breakpoint table
+ @param i_target Struct that contains chip and cage/node/slot/position/core/thread information
+ @param i_address Address to get breakpoint at
+ @param i_xlateVars Scruct with numerous translation variables
+ @param o_brkptTableEntries List of cipBrkptTableEntry structs
+ @param o_virtualAddress Caculated Virtual Address
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_RETRY_WITH_VIRTUAL_ADDR Requests that the user retries operation with returned Virtual Address
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+
+ TARGET DEPTH  : Thread<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t cipGetSoftwareBreakpoint (const ecmdChipTarget & i_target, const ecmdDataBuffer & i_address, const cipXlateVariables i_xlateVars, std::list<cipBrkptTableEntry> & o_brkptTableEntries, ecmdDataBuffer & o_virtualAddress);
+
+/**
+ @brief Function to wait for a breakpoint event to occur
+ @param i_NumSecs Number of seconds to wait for event.
+ @param o_events List of  cipSoftwareEvent_t structs 
+ @retval ECMD_SUCCESS if successful
+ @retval nonzero if unsuccessful
+*/
+uint32_t cipWaitAsyncEvent(uint32_t i_NumSecs, std::list<cipSoftwareEvent_t> & o_events);
+#endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
+//@}
+/* End Breakpoint Functions */
+
 #ifndef DOCUMENTATION
 } /* end extern "c" */
 #endif

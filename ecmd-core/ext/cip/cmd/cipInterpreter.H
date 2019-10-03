@@ -62,6 +62,7 @@ uint32_t cipInstructUser(int argc, char* argv[]);
 
 #ifndef CIP_REMOVE_BREAKPOINT_FUNCTIONS
 uint32_t cipBreakpointUser(int argc, char* argv[]);
+uint32_t cipBrkptUser(int argc, char* argv[]);
 #endif // CIP_REMOVE_BREAKPOINT_FUNCTIONS
 
 #ifndef CIP_REMOVE_VR_FUNCTIONS
