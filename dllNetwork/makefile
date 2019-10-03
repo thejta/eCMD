@@ -20,8 +20,8 @@ VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:
 ECMD_INCLUDES := ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
 
 # The source files and includes in our local dirs that are going into the build
-TGT_INCLUDES  := ecmdDllCapi.H eth_transfer1.h transfer.h OutputLite.H ecmdTransfer.H Controller.H fd_impl.H Instruction.H InstructionStatus.H FSIInstruction.H GPIOInstruction.H I2CInstruction.H ControlInstruction.H InstructionFlag.H PNORInstruction.H
-TGT_SOURCE    := ecmdDllCapi.C ecmdDllNetwork.C ecmdDllNetworkInfo.C eth_transfer1.C OutputLite.C ecmdTransfer.C Controller.C fd_impl.C Instruction.C InstructionStatus.C FSIInstruction.C GPIOInstruction.C I2CInstruction.C ControlInstruction.C InstructionFlag.C PNORInstruction.C
+TGT_INCLUDES  := ecmdDllCapi.H eth_transfer1.h transfer.h OutputLite.H ecmdTransfer.H Controller.H fd_impl.H Instruction.H InstructionStatus.H FSIInstruction.H GPIOInstruction.H I2CInstruction.H ControlInstruction.H InstructionFlag.H PNORInstruction.H git_version.H
+TGT_SOURCE    := ecmdDllCapi.C ecmdDllNetwork.C ecmdDllNetworkInfo.C eth_transfer1.C OutputLite.C ecmdTransfer.C Controller.C fd_impl.C Instruction.C InstructionStatus.C FSIInstruction.C GPIOInstruction.C I2CInstruction.C ControlInstruction.C InstructionFlag.C PNORInstruction.C git_version.C
 
 # Combine all the includes into one variable for the build
 INCLUDES      := ${ECMD_INCLUDES} ${TGT_INCLUDES}
@@ -37,7 +37,7 @@ all:
 	${run-all}
 
 generate:
-  # Do nothing
+	$(MAKE) --directory=server $@
 
 build: ${TARGET}
         # Remove the object after each build to force a rebuild
