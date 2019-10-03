@@ -313,3 +313,44 @@ uint32_t fapi2GeneralApi(std::list<void *> & io_args)
 
     return l_rc;
 }
+
+uint32_t fapi2GetMcastGroupTargets(const ecmdChipTarget& i_target, const fapi2::TargetType i_associatedTargetType, const uint32_t i_group, std::list<const ecmdChipTarget*>& o_targets, const fapi2::TargetState i_state)
+{
+    uint32_t l_rc;
+
+#ifndef ECMD_STATIC_FUNCTIONS
+    if (dlHandle == NULL)
+    {
+        fprintf(stderr,"dllFapi2GetMcastGroupTargets%s",ECMD_DLL_NOT_LOADED_ERROR);
+        exit(ECMD_DLL_INVALID);
+    }
+#endif
+
+    if (!fapi2Initialized)
+    {
+        fprintf(stderr,"dllFapi2GetMcastGroupTargets: eCMD Extension not initialized before function called\n");
+        fprintf(stderr,"dllFapi2GetMcastGroupTargets: OR eCMD fapi2 Extension not supported by plugin\n");
+        exit(ECMD_DLL_INVALID);
+    }
+
+#ifdef ECMD_STATIC_FUNCTIONS
+    l_rc = dllFapi2GetMcastGroupTargets(i_target, i_associatedTargetType, i_group, o_targets, i_state);
+#else
+    if (fapi2DllFnTable[ECMD_FAPI2GETMCASTGROUPTARGETS] == NULL)
+    {
+        fapi2DllFnTable[ECMD_FAPI2GETMCASTGROUPTARGETS] = (void*)dlsym(dlHandle, "dllFapi2GetMcastGroupTargets");
+        if (fapi2DllFnTable[ECMD_FAPI2GETMCASTGROUPTARGETS] == NULL)
+        {
+            fprintf(stderr,"dllFapi2GetMcastGroupTargets%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+            ecmdDisplayDllInfo();
+            exit(ECMD_DLL_INVALID);
+        }
+    }
+
+    uint32_t (*Function)(const ecmdChipTarget &, const fapi2::TargetType, const uint32_t, std::list<const ecmdChipTarget *> &, const fapi2::TargetState) = 
+        (uint32_t(*)(const ecmdChipTarget &, const fapi2::TargetType, const uint32_t, std::list<const ecmdChipTarget *> &, const fapi2::TargetState ))fapi2DllFnTable[ECMD_FAPI2GETMCASTGROUPTARGETS];
+    l_rc = (*Function)(i_target, i_associatedTargetType, i_group, o_targets, i_state);
+#endif
+
+    return l_rc;
+}
