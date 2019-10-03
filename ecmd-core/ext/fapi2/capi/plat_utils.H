@@ -25,6 +25,7 @@
 #define __FAPI2_PLAT_UTILS__
 
 #include <stdint.h>
+#include <plat_types.H>
 
 
 namespace fapi2plat
@@ -54,6 +55,8 @@ namespace fapi2plat
 
 namespace fapi2
 {
+    static const PlatformType PLATFORM = PLAT_CRONUS;
+
     template<TargetType T, MulticastType M, typename V>
     inline ReturnCode platSpecialWakeup( const Target<T, M, V>& i_target, bool i_enable)
     {

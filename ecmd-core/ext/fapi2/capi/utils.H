@@ -27,11 +27,25 @@
 #include <stdint.h>
 #include <return_code.H>
 #include <target_types.H>
+#include <plat_types.H>
 #include <plat_utils.H>
 
 
 namespace fapi2
 {
+///
+/// @brief Macro to check for a given platform.
+/// Platforms are expected to define a constant PLATFORM value in plat_utils.H
+///
+template <PlatformType i_type>
+static inline constexpr bool is_platform()
+{
+    // This assertion makes sure that PLATFORM is a compile time constant
+    static_assert(fapi2::PLATFORM != fapi2::PLAT_EXAMPLE, "");
+    constexpr bool result = fapi2::PLATFORM == i_type;
+    return result;
+}
+
 #ifndef __PPE__
 ///
 /// @brief Enable/Disable special wakeup on processor chip core(s)
