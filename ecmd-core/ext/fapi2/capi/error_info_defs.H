@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2018 IBM International Business Machines Corp.
+ * Copyright 2019 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@
 #endif
 namespace fapi2
 {
+// For HW callout - Clock position undefined to 0xFF(default)
+#define CLOCK_POS_UNDEF 0xFF
 
 ///
 /// @brief Type to hold the ffdc data to be sent to hostboot
