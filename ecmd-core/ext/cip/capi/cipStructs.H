@@ -1,6 +1,6 @@
 //IBM_PROLOG_BEGIN_TAG
 /* 
- * Copyright 2003,2016 IBM International Business Machines Corp.
+ * Copyright 2003,2019 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,6 +220,11 @@ CIP_MAINSTORE_ADDR_TYPE_MASK = 0x0007  // @06a
  @brief Struct used for Translate variables in Mainstore Memory D/A and Breakpoint Interfaces
  */
 struct cipXlateVariables {
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
+
   bool tagsActive;			///< 1 = Tags Active Mode; 0 = Tags Inactive Mode
   bool mode32bit;			///< 1 = 32 bit mode; 0 = 64 bit mode
   bool writeECC;			///< 1 = write ECC using ECC buffer as input; 0 = have ECC calculated
@@ -228,4 +233,49 @@ struct cipXlateVariables {
   uint32_t partitionId;			///< Id of the partition to be acted on
 } ;
 
+/**
+ @brief This is used in cipSoftwareEvent_t struct
+*/
+typedef enum { 
+  CIP_EVENT_UNKNOWN = 0x0000,
+  CIP_EVENT_MCHK    = 0x0004,
+  CIP_EVENT_BRKPNT  = 0x0080,
+  CIP_EVENT_TI      = 0x0006,
+  CIP_EVENT_OLCRCVD = 0x0001
+} cipEventType_t;
+
+/**
+ @brief Used by cipWaitAsyncEvent() Interface
+*/
+struct cipSoftwareEvent_t
+{
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
+
+   cipEventType_t  event; ///< Event Type enum
+   uint32_t  seqId;       ///< seqId, ie Absolute core number
+   uint32_t  rel_thread;  ///< Relative thread number of the seqId
+   ecmdChipTarget target; ///< ecmdChipTarget related to this Event
+};
+
+/**
+ @brief Used by breakpoint interfaces
+*/
+struct cipBrkptTableEntry
+{   
+   uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
+   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
+   uint32_t flattenSize(void) const;
+   void printStruct() const;
+
+  ecmdDataBuffer   Address; ///< breakpoint address aligned on 4-byte boundary
+  ecmdDataBuffer   Original_Instruction; ///< Original Instruction at this address
+  uint32_t   Partition_Id;  ///< partition id
+  uint8_t    Installed;     ///< install bit: not installed = 0; installed = 1
+  uint8_t    TA;            ///< Tags Active: tags in-active=0; tags active = 1  
+  uint8_t    Addr_Mode;     ///< Address Mode: 64-bit address = 0, 32 bit address = 1
+  uint8_t    Addr_Type;     ///< Addr Type: Real = 0, Effective = 1, Virtual = 2
+};
 #endif /* cipStructs_h */
