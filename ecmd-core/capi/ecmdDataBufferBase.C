@@ -2584,14 +2584,6 @@ uint32_t ecmdDataBufferBase::shareBuffer(ecmdDataBufferBase* i_sharingBuffer)
     return(rc);
 }
 
-void ecmdDataBufferBase::queryErrorState( uint32_t & o_errorState) {
-  if (iv_RealData != NULL) {
-    o_errorState = iv_RealData[EDB_RETURN_CODE];
-  } else {
-    o_errorState = 0;
-  }
-}
-
 void ecmdDataBufferBase::queryErrorState( uint32_t & o_errorState) const {
   if (iv_RealData != NULL) {
     o_errorState = iv_RealData[EDB_RETURN_CODE];

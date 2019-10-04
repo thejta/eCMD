@@ -192,10 +192,6 @@ bool ecmdChipTarget::operator<(const ecmdChipTarget& rhs) const {
  * This function will flatten the ecmdChipTarget struct for transport accross
  * the user <-> cecserver interface.  
  */
-uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len){
-    return ((const ecmdChipTarget *) this)->flatten(o_buf, i_len);
-}
-
 uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) const {
 
 	uint32_t rc    = ECMD_SUCCESS;
@@ -541,7 +537,7 @@ void ecmdChipTarget::printStruct() const {
  * The following methods for the ecmdThreadData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdThreadData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdThreadData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 	uint32_t tmpData32 = 0;
 	uint32_t rc        = ECMD_SUCCESS;
@@ -644,7 +640,7 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;
 }
 
-uint32_t ecmdThreadData::flattenSize() {
+uint32_t ecmdThreadData::flattenSize() const{
 
 	uint32_t flatSize = 0;
 
@@ -677,7 +673,7 @@ bool ecmdThreadData::operator<(const ecmdThreadData& rhs) const {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdThreadData::printStruct() {
+void ecmdThreadData::printStruct() const {
 
 	printf("\n\t\t\t\t\t\t\tThread Data:\n");
 	printf("\t\t\t\t\t\t\tThread ID: %d\n", threadId);
@@ -701,7 +697,7 @@ bool ecmdChipUnitData::operator<(const ecmdChipUnitData& rhs) const {
   return false;
 }
  
-uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 
     uint32_t tmpData32 = 0;
@@ -710,7 +706,7 @@ uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
     uint8_t *l_ptr = o_buf;
 
-    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+    std::list<ecmdThreadData>::const_iterator threaditor = threadData.begin();
 
 
     
@@ -911,10 +907,10 @@ uint32_t ecmdChipUnitData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
     return rc;
 }
 
-uint32_t ecmdChipUnitData::flattenSize() {
+uint32_t ecmdChipUnitData::flattenSize() const {
 
     uint32_t flatSize = 0;
-    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+    std::list<ecmdThreadData>::const_iterator threaditor = threadData.begin();
 
     do {    // Single entry ->
 
@@ -958,9 +954,9 @@ uint32_t ecmdChipUnitData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdChipUnitData::printStruct() {
+void ecmdChipUnitData::printStruct() const {
 
-    std::list<ecmdThreadData>::iterator threaditor = threadData.begin();
+    std::list<ecmdThreadData>::const_iterator threaditor = threadData.begin();
 
     printf("\n\t\t\t\t\t\tChipUnit Data:\n");
 
@@ -988,7 +984,7 @@ void ecmdChipUnitData::printStruct() {
  * The following methods for the ecmdChipData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 	uint32_t rc	   = ECMD_SUCCESS;
 
 	uint32_t tmpData32 = 0;
@@ -996,7 +992,7 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	uint8_t *l_ptr = o_buf;
 
-    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
+    std::list<ecmdChipUnitData>::const_iterator chipunititor = chipUnitData.begin();
 
 	do {	// Single entry ->
 
@@ -1245,10 +1241,10 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;
 }
 
-uint32_t ecmdChipData::flattenSize() {
+uint32_t ecmdChipData::flattenSize() const {
 	uint32_t flatSize = 0;
 	
-    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
+    std::list<ecmdChipUnitData>::const_iterator chipunititor = chipUnitData.begin();
 
 	do {	// Single entry ->
 
@@ -1311,9 +1307,9 @@ bool ecmdChipData::operator<(const ecmdChipData& rhs) const {
 
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdChipData::printStruct() {
+void ecmdChipData::printStruct() const{
 
-    std::list<ecmdChipUnitData>::iterator chipunititor = chipUnitData.begin();
+    std::list<ecmdChipUnitData>::const_iterator chipunititor = chipUnitData.begin();
 
 	printf("\n\t\t\t\t\tChip Data:\n");
 
@@ -1343,7 +1339,7 @@ void ecmdChipData::printStruct() {
  * The following methods for the ecmdSlotData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
@@ -1351,7 +1347,7 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	uint8_t *l_ptr = o_buf;
 
-	std::list<ecmdChipData>::iterator chipitor = chipData.begin();
+	std::list<ecmdChipData>::const_iterator chipitor = chipData.begin();
 
 	do {	// Single entry -> 
 
@@ -1527,10 +1523,10 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;
 }
 
-uint32_t ecmdSlotData::flattenSize() {
+uint32_t ecmdSlotData::flattenSize() const {
 
 	uint32_t flatSize = 0;
-	std::list<ecmdChipData>::iterator chipitor = chipData.begin();
+	std::list<ecmdChipData>::const_iterator chipitor = chipData.begin();
 
 	do {	// Single entry ->
 
@@ -1582,9 +1578,9 @@ bool ecmdSlotData::operator<(const ecmdSlotData& rhs) const {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdSlotData::printStruct() {
+void ecmdSlotData::printStruct() const {
 
-	std::list<ecmdChipData>::iterator chipitor = chipData.begin();
+	std::list<ecmdChipData>::const_iterator chipitor = chipData.begin();
 
 	printf("\n\t\t\t\tSlot Data:\n");
 
@@ -1611,7 +1607,7 @@ void ecmdSlotData::printStruct() {
  * The following methods for the ecmdNodeData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
@@ -1619,7 +1615,7 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	uint8_t *l_ptr = o_buf;
 
-	std::list<ecmdSlotData>::iterator slotitor = slotData.begin();
+	std::list<ecmdSlotData>::const_iterator slotitor = slotData.begin();
 
 	do {	// Single entry ->
 
@@ -1800,10 +1796,10 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;	
 }
 
-uint32_t ecmdNodeData::flattenSize()  {
+uint32_t ecmdNodeData::flattenSize() const {
 
 	uint32_t flatSize = 0;
-	std::list<ecmdSlotData>::iterator slotitor = slotData.begin();
+	std::list<ecmdSlotData>::const_iterator slotitor = slotData.begin();
 
 	do {    // Single entry ->
 
@@ -1855,9 +1851,9 @@ bool ecmdNodeData::operator<(const ecmdNodeData& rhs) const {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdNodeData::printStruct() {
+void ecmdNodeData::printStruct() const {
 
-	std::list<ecmdSlotData>::iterator slotitor = slotData.begin();
+	std::list<ecmdSlotData>::const_iterator slotitor = slotData.begin();
 
 	printf("\n\t\t\tNode Data:\n");
 
@@ -1884,7 +1880,7 @@ void ecmdNodeData::printStruct() {
  * The following methods for the ecmdCageData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
@@ -1892,7 +1888,7 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	uint8_t *l_ptr = o_buf;
 
-	std::list<ecmdNodeData>::iterator nodeitor = nodeData.begin();
+	std::list<ecmdNodeData>::const_iterator nodeitor = nodeData.begin();
 
 	do {    // Single entry ->
 
@@ -2072,10 +2068,10 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;
 }
 
-uint32_t ecmdCageData::flattenSize() {
+uint32_t ecmdCageData::flattenSize() const {
 
 	uint32_t flatSize = 0;
-	std::list<ecmdNodeData>::iterator nodeitor = nodeData.begin();
+	std::list<ecmdNodeData>::const_iterator nodeitor = nodeData.begin();
 
 	do {    // Single entry ->
 
@@ -2127,9 +2123,9 @@ bool ecmdCageData::operator<(const ecmdCageData& rhs) const {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdCageData::printStruct() {
+void ecmdCageData::printStruct() const {
 
-	std::list<ecmdNodeData>::iterator nodeitor = nodeData.begin();
+	std::list<ecmdNodeData>::const_iterator nodeitor = nodeData.begin();
 
 	printf("\n\t\tCage Data:\n");
 
@@ -2156,7 +2152,7 @@ void ecmdCageData::printStruct() {
  * The following methods for the ecmdQueryData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) {
+uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 	uint32_t tmpData32 = 0;
 	uint32_t listSize  = 0;
@@ -2164,7 +2160,7 @@ uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) {
 
 	uint8_t *l_ptr = o_buf;
 
-	std::list<ecmdCageData>::iterator cageitor = cageData.begin();
+	std::list<ecmdCageData>::const_iterator cageitor = cageData.begin();
 
 	do {    // Single entry ->
 
@@ -2334,10 +2330,10 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 	return rc;
 }
 
-uint32_t ecmdQueryData::flattenSize() {
+uint32_t ecmdQueryData::flattenSize() const {
 
 	uint32_t flatSize = 0;
-	std::list<ecmdCageData>::iterator cageitor = cageData.begin();
+	std::list<ecmdCageData>::const_iterator cageitor = cageData.begin();
 
 	do {    // Single entry ->
 
@@ -2379,9 +2375,9 @@ uint32_t ecmdQueryData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdQueryData::printStruct() {
+void  ecmdQueryData::printStruct() const {
 
-	std::list<ecmdCageData>::iterator cageitor = cageData.begin();
+	std::list<ecmdCageData>::const_iterator cageitor = cageData.begin();
 
 	printf("\n\tQuery Data:\n");
 
@@ -2416,7 +2412,7 @@ bool ecmdSpyData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
         uint32_t tmpData32 = 0;
 	uint64_t tmpData64 = 0;
@@ -2426,7 +2422,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = o_buf;
 
-        std::list<std::string>:: iterator listStringIter;
+        std::list<std::string>:: const_iterator listStringIter;
 
 
         do {    // Single entry ->
@@ -2722,12 +2718,12 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 }
 
 
-uint32_t ecmdSpyData::flattenSize() {
+uint32_t ecmdSpyData::flattenSize() const {
 
         uint32_t flatSize = 0;
         uint32_t enumsListSize  = 0;
         uint32_t epCheckersListSize  = 0;
-        std::list<std::string>:: iterator listStringIter;
+        std::list<std::string>:: const_iterator listStringIter;
 
 
         do {    // Single entry ->
@@ -2785,12 +2781,12 @@ uint32_t ecmdSpyData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdSpyData::printStruct() {
+void  ecmdSpyData::printStruct() const {
 
         uint32_t enumsListSize  = enums.size();
         uint32_t epCheckersListSize  = epCheckers.size();
 
-        std::list<std::string>:: iterator listStringIter;
+        std::list<std::string>:: const_iterator listStringIter;
 
 
         printf("\n\t--- Spy Data Structure ---\n");
@@ -2846,7 +2842,7 @@ void  ecmdSpyData::printStruct() {
  * The following methods for the ecmdArrayEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdArrayEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
+uint32_t ecmdArrayEntry::flatten(uint8_t * o_buf, uint32_t i_len) const{
 
     uint32_t tmpData32 = 0;
     uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
@@ -3037,7 +3033,7 @@ bool ecmdRingData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
         uint32_t tmpData32 = 0;
         uint64_t tmpData64 = 0;
@@ -3047,8 +3043,8 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) {
 
         uint8_t *l_ptr = o_buf;
 
-        std::list<std::string>:: iterator ringNamesIter;
-        std::list<uint64_t>::iterator ringIdIter;
+        std::list<std::string>:: const_iterator ringNamesIter;
+        std::list<uint64_t>::const_iterator ringIdIter;
 
 
         do {    // Single entry ->
@@ -3333,12 +3329,12 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 }
 
 
-uint32_t ecmdRingData::flattenSize() {
+uint32_t ecmdRingData::flattenSize() const {
 
         uint32_t flatSize = 0;
         uint32_t ringNamesListSize  = 0;
         uint32_t ringIdListSize = 0;
-        std::list<std::string>:: iterator ringNamesIter;
+        std::list<std::string>:: const_iterator ringNamesIter;
 
 
         do {    // Single entry ->
@@ -3388,12 +3384,12 @@ uint32_t ecmdRingData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdRingData::printStruct() {
+void  ecmdRingData::printStruct() const {
 
         uint32_t ringNamesListSize  = ringNames.size();
 
-        std::list<std::string>:: iterator ringNamesIter;
-        std::list<uint64_t>::iterator ringIdIter;
+        std::list<std::string>:: const_iterator ringNamesIter;
+        std::list<uint64_t>::const_iterator ringIdIter;
 
 
         printf("\n\t--- Ring Data Structure ---\n");
@@ -3455,7 +3451,7 @@ bool ecmdArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
         uint32_t tmpData32 = 0;
         uint32_t rc     = ECMD_SUCCESS;
@@ -3699,7 +3695,7 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 }
 
 
-uint32_t ecmdArrayData::flattenSize() {
+uint32_t ecmdArrayData::flattenSize() const {
 
         uint32_t flatSize = 0;
 
@@ -3726,7 +3722,7 @@ uint32_t ecmdArrayData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdArrayData::printStruct() {
+void  ecmdArrayData::printStruct() const {
 
         printf("\n\t--- Array Data Structure ---\n");
 
@@ -3752,7 +3748,7 @@ void  ecmdArrayData::printStruct() {
  * The following methods for the ecmdIndexEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
+uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 
     uint32_t tmpData32 = 0;
     uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
@@ -3811,7 +3807,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
 		   "input length = %x; "
 		   "remainder = %d\n",
 		   this->flattenSize(), i_len, l_left);
-	    rc = ECMD_DATA_OVERFLOW;
+	    l_rc = ECMD_DATA_OVERFLOW;
 	    break;
 	}
 	if (l_left > 0)
@@ -3823,7 +3819,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
 		   "input length = %x; "
 		   "remainder = %d\n",
 		   this->flattenSize(), i_len, l_left);
-	    rc = ECMD_DATA_UNDERFLOW;
+	    l_rc = ECMD_DATA_UNDERFLOW;
 	    break;
 	}
 
@@ -3903,7 +3899,7 @@ uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
     return l_rc;
 }
 
-uint32_t ecmdIndexEntry::flattenSize() {
+uint32_t ecmdIndexEntry::flattenSize() const {
 
     return (sizeof(index)		// Space for member "index"
 	    + sizeof(uint32_t)		// Size of member "buffer"
@@ -3913,7 +3909,7 @@ uint32_t ecmdIndexEntry::flattenSize() {
 
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdIndexEntry::printStruct() {
+void ecmdIndexEntry::printStruct() const {
 
     uint32_t tmpData = 0;
     std::string tmpString;
@@ -3944,7 +3940,7 @@ bool ecmdTraceArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) 
+uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const 
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -4144,7 +4140,7 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
         return l_rc;
 }
 
-uint32_t ecmdTraceArrayData::flattenSize() 
+uint32_t ecmdTraceArrayData::flattenSize() const 
 {
         uint32_t flatSize = 0;
 
@@ -4163,7 +4159,7 @@ uint32_t ecmdTraceArrayData::flattenSize()
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdTraceArrayData::printStruct() {
+void  ecmdTraceArrayData::printStruct() const {
 
         printf("\n\t--- Trace Array Data Structure ---\n");
 
@@ -4193,7 +4189,7 @@ bool ecmdFastArrayData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) 
+uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -4393,7 +4389,7 @@ uint32_t ecmdFastArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
         return l_rc;
 }
 
-uint32_t ecmdFastArrayData::flattenSize() 
+uint32_t ecmdFastArrayData::flattenSize() const
 {
         uint32_t flatSize = 0;
 
@@ -4412,7 +4408,7 @@ uint32_t ecmdFastArrayData::flattenSize()
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdFastArrayData::printStruct() {
+void  ecmdFastArrayData::printStruct() const {
 
         printf("\n\t--- Fast Array Data Structure ---\n");
 
@@ -4462,7 +4458,7 @@ bool ecmdScomData::isChipUnitMatch(std::string &i_chipUnitType) {
  */
 //FIXME these are not implemented
 #if 0
-uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
         uint32_t listSize  = 0;
         uint32_t tmpData32 = 0;
@@ -4705,7 +4701,7 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
 }
 
 
-uint32_t ecmdScomData::flattenSize()
+uint32_t ecmdScomData::flattenSize() const
 {
         uint32_t flatSize = 0;
 
@@ -4724,7 +4720,7 @@ uint32_t ecmdScomData::flattenSize()
 
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdScomData::printStruct()
+void  ecmdScomData::printStruct() const
 {
 
         printf("\n\t--- Scom Data Structure ---\n");
@@ -4771,7 +4767,7 @@ bool ecmdLatchData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
         uint32_t tmpData32 = 0;
         uint32_t strLen = 0;
@@ -5028,7 +5024,7 @@ void  ecmdLatchData::printStruct() const
  * The following methods for the ecmdI2CCmdEntry struct will flatten,
  * unflatten & get the flattened size of the struct.
  */
-uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
         uint32_t tmpData32 = 0;
         uint32_t l_rc = ECMD_SUCCESS;
@@ -5316,7 +5312,7 @@ void  ecmdI2CCmdEntry::printStruct() const
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdNameEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdNameEntry::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
@@ -5325,12 +5321,12 @@ uint32_t ecmdNameEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdNameEntry::flattenSize() {
+uint32_t ecmdNameEntry::flattenSize() const {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdNameEntry::printStruct() {
+void  ecmdNameEntry::printStruct() const {
 
         printf("\n\t--- Name Entry Structure ---\n");
 
@@ -5343,7 +5339,7 @@ void  ecmdNameEntry::printStruct() {
  * The following methods for the ecmdNameVectorEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdNameVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdNameVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
@@ -5352,12 +5348,12 @@ uint32_t ecmdNameVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdNameVectorEntry::flattenSize() {
+uint32_t ecmdNameVectorEntry::flattenSize() const{
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdNameVectorEntry::printStruct() {
+void  ecmdNameVectorEntry::printStruct() const {
 
         printf("\n\t--- Name Vector Entry Structure ---\n");
 
@@ -5371,7 +5367,7 @@ void  ecmdNameVectorEntry::printStruct() {
  * The following methods for the ecmdIndexVectorEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
 	uint32_t tmpData32 = 0;
 	uint32_t numElements = 0;
@@ -5381,7 +5377,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len)
         int l_len = (int)i_len;  // use a local copy to decrement
 	uint8_t *l_ptr8 = o_buf;
 
-        std::vector<ecmdDataBuffer>::iterator bufIter;
+        std::vector<ecmdDataBuffer>::const_iterator bufIter;
 
         do      // Single entry ->
         {
@@ -5558,10 +5554,10 @@ uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return l_rc;
 }
 
-uint32_t ecmdIndexVectorEntry::flattenSize()
+uint32_t ecmdIndexVectorEntry::flattenSize() const
 {
         uint32_t flatSize = 0;
-        std::vector<ecmdDataBuffer>::iterator bufIter;
+        std::vector<ecmdDataBuffer>::const_iterator bufIter;
 
         // Size of non-list member data.
         flatSize = sizeof(index) +
@@ -5582,7 +5578,7 @@ uint32_t ecmdIndexVectorEntry::flattenSize()
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdIndexVectorEntry::printStruct() {
+void  ecmdIndexVectorEntry::printStruct() const {
 
         printf("\n\t--- Index Vector Entry Structure ---\n");
 
@@ -5599,7 +5595,7 @@ void  ecmdIndexVectorEntry::printStruct() {
  * The following methods for the ecmdLatchEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdLatchEntry::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdLatchEntry::flatten(uint8_t *o_buf, uint32_t i_len) const {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
@@ -5608,12 +5604,12 @@ uint32_t ecmdLatchEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdLatchEntry::flattenSize() {
+uint32_t ecmdLatchEntry::flattenSize() const {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdLatchEntry::printStruct() {
+void  ecmdLatchEntry::printStruct() const {
 
         printf("\n\t--- Latch Entry Structure ---\n");
 
@@ -5636,7 +5632,7 @@ bool ecmdLatchQueryData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdLatchQueryData::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdLatchQueryData::flatten(uint8_t *o_buf, uint32_t i_len) const {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
@@ -5645,12 +5641,12 @@ uint32_t ecmdLatchQueryData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdLatchQueryData::flattenSize() {
+uint32_t ecmdLatchQueryData::flattenSize() const {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdLatchQueryData::printStruct() {
+void  ecmdLatchQueryData::printStruct() const {
 
         printf("\n\t--- Latch Entry Structure ---\n");
 
@@ -5672,7 +5668,7 @@ bool ecmdProcRegisterInfo::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
    // @0aa - below
    uint32_t l_rc = ECMD_SUCCESS ;
@@ -5784,7 +5780,7 @@ uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t i_len)
    // @0aa - above
 }
 
-uint32_t ecmdProcRegisterInfo::flattenSize()
+uint32_t ecmdProcRegisterInfo::flattenSize() const
 {
    // @0aa - below
    uint32_t flatSize = 0;
@@ -5802,7 +5798,7 @@ uint32_t ecmdProcRegisterInfo::flattenSize()
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdProcRegisterInfo::printStruct()
+void  ecmdProcRegisterInfo::printStruct() const
 {
 
    printf("\n\t--- Proc Register Info Structure ---\n");
@@ -5833,7 +5829,7 @@ bool ecmdCacheData::isChipUnitMatch(std::string &i_chipUnitType) {
   return false;
 }
 
-uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len)
+uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len) const
 {
    // @0aa - below
    uint32_t l_rc = ECMD_SUCCESS ;
@@ -5920,7 +5916,7 @@ uint32_t ecmdCacheData::unflatten(const uint8_t *i_buf, uint32_t i_len)
    return l_rc;
 }
 
-uint32_t ecmdCacheData::flattenSize()
+uint32_t ecmdCacheData::flattenSize() const
 {
    // @0aa - below
    uint32_t flatSize = 0;
@@ -5933,7 +5929,7 @@ uint32_t ecmdCacheData::flattenSize()
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdCacheData::printStruct()
+void  ecmdCacheData::printStruct() const
 {
 
    printf("\n\t--- Proc Register Info Structure ---\n");
@@ -5951,7 +5947,7 @@ void  ecmdCacheData::printStruct()
  * The following methods for the ecmdScomEntry struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) {
+uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 
     uint32_t tmpData32 = 0;
     uint32_t dataBufSize = 0;    // temp holder for ecmdDataBuffer size
@@ -6127,7 +6123,7 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
     return l_rc;
 }
 
-uint32_t ecmdScomEntry::flattenSize() {
+uint32_t ecmdScomEntry::flattenSize() const {
 
     uint32_t flatSize = 0;
 
@@ -6149,7 +6145,7 @@ uint32_t ecmdScomEntry::flattenSize() {
 
 
 #ifndef ECMD_STRIP_DEBUG
-void ecmdScomEntry::printStruct() {
+void ecmdScomEntry::printStruct() const {
 
     printf("\n\t\teCMD Scom Entry:\n");
 
@@ -6180,7 +6176,7 @@ void ecmdScomEntry::printStruct() {
  * The following methods for the ecmdSimModelInfo struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdSimModelInfo::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdSimModelInfo::flatten(uint8_t *o_buf, uint32_t i_len) const {
 
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
@@ -6189,12 +6185,12 @@ uint32_t ecmdSimModelInfo::unflatten(const uint8_t *i_buf, uint32_t i_len) {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
-uint32_t ecmdSimModelInfo::flattenSize() {
+uint32_t ecmdSimModelInfo::flattenSize() const {
         return ECMD_FUNCTION_NOT_SUPPORTED;
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdSimModelInfo::printStruct() {
+void  ecmdSimModelInfo::printStruct() const {
 
         printf("\n\t--- Proc Register Info Structure ---\n");
 
@@ -6209,7 +6205,7 @@ void  ecmdSimModelInfo::printStruct() {
  * The following methods for the ecmdConnectionData struct will flatten, unflatten &
  * get the flattened size of the struct.
  */
-uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) {
+uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) const {
   uint32_t tmpData32 = 0;
   uint32_t l_rc = ECMD_SUCCESS;
 
@@ -6393,7 +6389,7 @@ uint32_t ecmdConnectionData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
    return l_rc;
 }
 
-uint32_t ecmdConnectionData::flattenSize() {
+uint32_t ecmdConnectionData::flattenSize() const {
   uint32_t flatSize = 0;
   uint32_t dataBufSize = 0;
   // Calculate the size needed to store the flattened struct
@@ -6407,7 +6403,7 @@ uint32_t ecmdConnectionData::flattenSize() {
 }
 
 #ifndef ECMD_STRIP_DEBUG
-void  ecmdConnectionData::printStruct() {
+void  ecmdConnectionData::printStruct() const {
 
   printf("\n\t--- Connection Data Structure ---\n");
 
