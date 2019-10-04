@@ -2910,11 +2910,6 @@ uint32_t ecmdDataBuffer::setOr(uint32_t i_data, uint32_t i_startbit, uint32_t i_
    return  ecmdDataBufferBase::setOr(i_data, i_startbit, i_len);
 }
 
-void ecmdDataBuffer::queryErrorState(uint32_t & o_errorState)
-{
-   return  ecmdDataBufferBase::queryErrorState(o_errorState);
-}
-
 void ecmdDataBuffer::queryErrorState(uint32_t & o_errorState) const
 {
    return  ecmdDataBufferBase::queryErrorState(o_errorState);

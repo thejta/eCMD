@@ -1306,8 +1306,6 @@ public:
    * @brief This function returns the stored error state that could have been caused by any number of previous operations on the buffer
    * @param o_errorState Stored Error state
    */
-  void queryErrorState(uint32_t & o_errorState);
-
   void queryErrorState(uint32_t & o_errorState) const;
   //@}
 

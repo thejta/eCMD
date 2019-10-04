@@ -77,7 +77,7 @@ std::string allecmds[MAX_NUM_ECMDS];
 //---------------------------------------------------------------------
 
 
-uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit) {
+uint32_t ecmdCheckExpected (const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit) {
 
   uint32_t wordCounter = 0;
   uint32_t maxBits = 32;
@@ -137,7 +137,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
         
 }
 
-uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
+uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, const ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 
@@ -237,7 +237,7 @@ uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newD
 
 
 /* STGC01276442 - MKL 03/04/10 */
-uint32_t ecmdCreateDataMaskModifier(ecmdDataBuffer & o_data, ecmdDataBuffer & o_mask, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
+uint32_t ecmdCreateDataMaskModifier(ecmdDataBuffer & o_data, ecmdDataBuffer & o_mask, const ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode) {
   uint32_t rc = ECMD_SUCCESS;
   uint32_t length;
 
@@ -1164,7 +1164,7 @@ std::string  getBestEcmd(std::string i_ecmd)
   return i_ecmd ;
 }
 
-uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName)
+uint32_t ecmdGetProcessingUnit(const ecmdChipTarget & i_target, std::string & o_processingUnitName)
 {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;

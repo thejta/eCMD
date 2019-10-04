@@ -627,7 +627,6 @@ struct ecmdChipTarget {
   ~ecmdChipTarget();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
   uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
@@ -705,12 +704,12 @@ struct ecmdThreadData {
   ~ecmdThreadData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdThreadData& rhs) const; ///< Used to sort Thread entries in an ecmdThreadData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -749,13 +748,13 @@ struct ecmdChipUnitData {
   ~ecmdChipUnitData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Chip Unit entries in an ecmdChipUnitData list.
 #ifndef ECMD_STRIP_DEBUG
 
-  void printStruct(void);
+  void printStruct(void) const;
 
 #endif
 #endif
@@ -826,12 +825,12 @@ struct ecmdChipData {
   ~ecmdChipData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdChipData& rhs) const; ///< Used to sort Chip entries (based on Pos) in an ecmdChipData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -880,12 +879,12 @@ struct ecmdSlotData {
   ~ecmdSlotData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdSlotData& rhs) const; ///< Used to sort Slot entries in an ecmdSlotData list. 
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -926,12 +925,12 @@ struct ecmdNodeData {
   ~ecmdNodeData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdNodeData& rhs) const; ///< Used to sort Node entries in an ecmdNodeData list. 
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -972,12 +971,12 @@ struct ecmdCageData {
   ~ecmdCageData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdCageData& rhs) const;  ///< Used to sort Cage entries in an ecmdCageData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1015,11 +1014,11 @@ struct ecmdQueryData {
   ~ecmdQueryData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1098,11 +1097,11 @@ struct ecmdRingData {
   ~ecmdRingData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1153,11 +1152,11 @@ struct ecmdArrayData {
   ~ecmdArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1209,11 +1208,11 @@ struct ecmdTraceArrayData {
   ~ecmdTraceArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1258,11 +1257,11 @@ struct ecmdFastArrayData {
   ~ecmdFastArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1310,11 +1309,11 @@ struct ecmdScomData {
   ~ecmdScomData();
 
   // Methods
-  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  //uint32_t flattenSize(void);
+  //uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  //void printStruct(void);
+  //void printStruct(void) const;
 #endif
 #endif
 
@@ -1358,7 +1357,7 @@ struct ecmdLatchData {
   ~ecmdLatchData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -1408,11 +1407,11 @@ struct ecmdScomEntry {
   ~ecmdScomEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1449,7 +1448,7 @@ struct ecmdArrayEntry {
   ~ecmdArrayEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -1496,11 +1495,11 @@ struct ecmdNameEntry {
   ~ecmdNameEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1533,11 +1532,11 @@ struct ecmdNameVectorEntry {
   ~ecmdNameVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1571,11 +1570,11 @@ struct ecmdIndexVectorEntry {
   ~ecmdIndexVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1610,11 +1609,11 @@ struct ecmdIndexEntry {
   ~ecmdIndexEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1648,11 +1647,11 @@ struct ecmdLatchEntry {
   ~ecmdLatchEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1698,11 +1697,11 @@ struct ecmdLatchQueryData {
   ~ecmdLatchQueryData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1757,11 +1756,11 @@ struct ecmdProcRegisterInfo {
   ~ecmdProcRegisterInfo();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1803,11 +1802,11 @@ struct ecmdCacheData {
   ~ecmdCacheData();
   
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1869,11 +1868,11 @@ struct ecmdSpyData {
   ~ecmdSpyData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1936,7 +1935,7 @@ struct ecmdI2CCmdEntry {
   ~ecmdI2CCmdEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -1986,11 +1985,11 @@ struct ecmdSimModelInfo {
   ~ecmdSimModelInfo();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -2024,11 +2023,11 @@ struct ecmdConnectionData {
   ~ecmdConnectionData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
