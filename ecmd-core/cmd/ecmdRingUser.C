@@ -424,7 +424,11 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
                   }
 
                   /* If this is a fresh one we need to reset everything */
-                  if ((latchname == "") || (latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('(')))) {
+                  if ((latchname == "") || ((latchname != curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) ||
+                                            /* Might have latch name without bit position, and it could show up multiple times.
+                                             Need that to go down this logic path as well.*/
+                                            ((latchname == curLatchInfo->latchName.substr(0, curLatchInfo->latchName.rfind('('))) && 
+                                             (isMultiBitLatch == ECMD_LATCHTYPE_SINGLEBIT)))) {
                     dataStartBit = dataEndBit = ECMD_UNSET;
                     curBitsToFetch = ECMD_UNSET;
                     curBufferBit = 0;
@@ -2807,32 +2811,52 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
               sprintf(outstr, "checkrings - ecmdDataBuffer::setOr(ignore_mask) failed for ring %s", ringName.c_str());
               ecmdOutputWarning( outstr );
             } else {
-              std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
-              uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
-              uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
-              std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
-              sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+              // Small ring, print the whole thing 
+              if (ignore_mask_data.getBitLength() <= 128)
+              {
+                sprintf(outstr, "checkrings - using ignoremask %s\n", 
+                        ignore_mask_data.genHexLeftStr(0, ignore_mask_data.getBitLength() - 1).c_str());
+              }
+              // Just print the start and end of the ignore mask
+              else
+              {
+                std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
+                uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
+                uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
+                std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
+                sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+              }
               ecmdOutput( outstr );
             }
           }
 
           if (readRingBuffer != ringBuffer) {
             sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %s's\n", ringName.c_str(),
-                    repPattern.c_str());
+                    (pattern) ? passedPattern.genHexLeftStr().c_str() : repPattern.c_str());
             ecmdOutputWarning( outstr );
             if (verbose) {
-              printed = "Offset  Data\n";
+              std::string read_printed;
+              std::string exp_printed;
+              printed = "Offset       Data Miscompares\n";
               printed += "------------------------------------------------------------------------\n";
               ecmdOutput( printed.c_str() );
-              for (uint32_t y=0; y < readRingBuffer.getBitLength();) {
-                printf("%6d ", y);
-                if ( (y+64) > readRingBuffer.getBitLength()) {
-                  printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
+              for (uint32_t y=0; y < ringBuffer.getBitLength();) {
+                if ( (y+64) > ringBuffer.getBitLength()) {                   
+                  exp_printed = ringBuffer.genBinStr(y,(ringBuffer.getBitLength()-y)) + "\n";
+                  read_printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
                 } else {
-                  printed = readRingBuffer.genBinStr(y,64) + "\n";
+                  exp_printed = ringBuffer.genBinStr(y,64) + "\n";
+                  read_printed = readRingBuffer.genBinStr(y,64) + "\n";
+                }
+                if (exp_printed != read_printed)
+                {
+                    printf("%8d IN  ", y);
+                    ecmdOutput( exp_printed.c_str() );
+                    printf("%8d OUT ", y);
+                    ecmdOutput( read_printed.c_str() );
+                    printf("\n");
                 }
                 y += 64;
-                ecmdOutput( printed.c_str() );
               }
             }
             foundProblem = true;
