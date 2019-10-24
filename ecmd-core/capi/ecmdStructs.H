@@ -1070,12 +1070,35 @@ struct ecmdLooperData {
  @brief Used by the get/set configuration functions to return the data
 */
 struct ecmdConfigData {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdConfigData();
+
+  // Destructor
+  ~ecmdConfigData();
+#endif
+
+  // Members
   uint32_t              validMask;  ///< Indicates which of the fields in this structure are valid
   std::string           cdString;   ///< If the output data is a string, will be populated
   uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
   uint64_t              cdUint64;   ///< If the output data is a uint64_t, will be populated
   float                 cdFloat;    ///< If the output data is a float, will be populated
 };
+
+#ifndef DOCUMENTATION
+// ecmdConfigData Constructor
+inline ecmdConfigData::ecmdConfigData():
+validMask(0),
+cdUint32(0),
+cdUint64(0),
+cdFloat(0)
+{
+}
+
+inline ecmdConfigData::~ecmdConfigData() { }
+#endif
 
 /**
  @brief A pair of file names returned by ecmdQueryFileLocation()
