@@ -28,8 +28,9 @@
 #include "adal_scom.h"
 #include "../fsi.h"
 
-static const uint32_t fsirawSize = 3;
-static const char *fsiraw[3] = {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",   // newest
+static const uint32_t fsirawSize = 4;
+static const char *fsiraw[4] = {"/sys/class/fsi-master/fsi0/slave@00:00/raw",            // newest
+                                "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
                                 "/sys/devices/platform/fsi-master/slave@00:00/raw",   
                                 "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"}; // oldest
 
