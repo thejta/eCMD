@@ -206,16 +206,18 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   if(*handle != NULL)
     return rc;
 
-  const uint32_t numPaths = 3;
-  const char * devices[3][3] = {
-    {"", "", ""},
-    {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
+  const uint32_t numPaths = 4;
+  const char * devices[3][4] = {
+    {"", "", "", ""},
+    {"/sys/class/fsi-master/fsi0/slave@00:00/raw",
+     "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/raw",
      "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"},
-    {"/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
+    {"/sys/class/fsi-master/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
+     "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
      "/sys/devices/hub@00/slave@01:00/raw"}};
-  int errnos[3] = { 0, 0, 0 };
+  int errnos[4] = { 0, 0, 0, 0 };
 
   /* We need to open the device*/
   if ((flags & INSTRUCTION_FLAG_DEVSTR) == 0) {
