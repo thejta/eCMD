@@ -2336,8 +2336,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool bsWrite = false;
   std::string bsOriginalState;
   std::string bsModifiedState;
-  std::string svsOriginalState;
-  std::string svsModifiedState;
   uint32_t configNum;
   ecmdConfigValid_t configValid;
   ecmdDataBuffer passedPattern;
@@ -2429,12 +2427,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
     if (bsOriginalState.find("scan") != std::string::npos) {
       ecmdOutputError("checkrings - To use the -bsread/-bswrite options, SIM_BROADSIDE_MODE \"scan\" can't be on to start.\n");
       return ECMD_INVALID_ARGS;
-    }
-    
-    // Check to see if SCAN_VIA_SCOM in on.  If it is, we need to turn it off for the broadside scans.
-    rc = ecmdGetConfiguration(cuTarget, "SCAN_VIA_SCOM", configValid, svsOriginalState, configNum);
-    if (rc) return rc;
-
+    }    
   }
 
   /************************************************************************/
@@ -2698,17 +2691,16 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
              /* Set it */
              rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
              if (rc) return rc;
-
-             // Handle SCAN_VIA_SCOM so that broadside scans take effect
-             if (svsOriginalState == "on") {
-                 svsModifiedState = "off";
-                 rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
-                 if (rc) return rc;
-             }
            }
 
           // Write in my data and get it back out.
           rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+
+          /* If we did a broadside write, restore state */
+          if (bsWrite) {
+            rc |= ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+          }
+
           if (rc) {
             printed = "checkrings - Error occurred performing putring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2721,14 +2713,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
-          /* If we did a broadside write, restore state */
-          if (bsWrite) {
-            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
-            if (rc) return rc;
-            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
-            if (rc) return rc;
-          }
-
           /* If the user wants to force a broadside read, handle that before doing the get below */
           if (bsRead) {
             if (bsOriginalState == "none") {
@@ -2739,15 +2723,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             /* Set it */
             rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
             if (rc) return rc;
-
-            // Handle SCAN_VIA_SCOM so that broadside scans take effect
-            if (svsOriginalState == "on") {
-                svsModifiedState = "off";
-                rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsModifiedState, configNum);
-                if (rc) return rc;
-            }
           }
-  
+
           if(pattern)
           {
             printed = "Performing  " + passedPattern.genHexLeftStr() + "'s test on " + ringName + " ...\n";
@@ -2758,6 +2735,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           }
           ecmdOutput(printed.c_str());
           rc = getRingHidden(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
+
+          /* If we did a broadside read, restore state */
+          if (bsRead) {
+            rc |= ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+          }
+
           if (rc) {
             printed = "checkrings - Error occurred performing getring on ";
             printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2765,14 +2748,6 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             foundProblem = true;
             coeRc = rc;
             continue;
-          }
-
-          /* If we did a broadside read, restore state */
-          if (bsRead) {
-            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
-            if (rc) return rc;
-            rc = ecmdSetConfiguration(cuTarget, "SCAN_VIA_SCOM", ECMD_CONFIG_VALID_FIELD_ALPHA, svsOriginalState, configNum);
-            if (rc) return rc;
           }
 
           /******* Check our results *******/
