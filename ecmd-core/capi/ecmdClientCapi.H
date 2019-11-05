@@ -517,6 +517,8 @@ uint32_t ecmdQueryScom(const ecmdChipTarget & i_target, std::list<ecmdScomData> 
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 #ifndef ECMD_REMOVE_TRACEARRAY_FUNCTIONS
+/** @name Query Functions  */
+//@{
 /**
  @brief Query Trace Array information from the DLL
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
@@ -532,6 +534,7 @@ uint32_t ecmdQueryScom(const ecmdChipTarget & i_target, std::list<ecmdScomData> 
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryTraceArray(const ecmdChipTarget & i_target, std::list<ecmdTraceArrayData> & o_queryData, const char * i_traceArrayName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+//@}
 #endif // ECMD_REMOVE_TRACEARRAY_FUNCTIONS
 
 /** @name Query Functions  */
@@ -551,7 +554,6 @@ uint32_t ecmdQueryTraceArray(const ecmdChipTarget & i_target, std::list<ecmdTrac
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version);
-//@}
 
 /**
  @brief Query if a particular target is configured in the system
@@ -4347,6 +4349,8 @@ void ecmdSetCurrentCmdline(int argc, char* argv[]);
 #endif
 
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
+/** @name Scan Functions  */
+//@{
 /**
  @brief Reads the selected latches into the data buffer
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
@@ -4576,8 +4580,9 @@ uint32_t putLatchImageOpt(const ecmdChipTarget & i_target, const ecmdDataBuffer 
  NOTE : If passing in a value for i_startBit or i_numBits, both values need to be set.  
 */
 uint32_t createSparseMaskFromLatchOpt(const ecmdChipTarget & i_target, const std::list<ecmdLatchEntry> & i_scandefLatchInfo, ecmdDataBuffer & io_mask, uint32_t i_startBit = ECMD_UNSET, uint32_t i_numBits = ECMD_UNSET); 
-#endif // ECMD_REMOVE_LATCH_FUNCTIONS
 //@}
+#endif // ECMD_REMOVE_LATCH_FUNCTIONS
+
 
 #ifndef ECMD_REMOVE_PNOR_FUNCTIONS
 /** @name PNOR Functions  */
