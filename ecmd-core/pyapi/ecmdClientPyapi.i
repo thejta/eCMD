@@ -112,6 +112,23 @@
 %copyctor ecmdLooperData;
 /*********** End Copy Constructors ***********/
 
+/*********** Start Extend ***********/
+// Add a hash function to the ecmdChipTarget
+// This allows it to be used as a dict key, etc..
+// Use all the values of the ecmdChipTarget in the hash generation for uniqueness
+%extend ecmdChipTarget {
+%pythoncode %{
+def __hash__(self):
+    return hash((self.cage, self.cageState, self.node, self.nodeState,
+                 self.slot, self.slotState,
+                 self.pos, self.posState, self.chipType, self.chipTypeState,
+                 self.chipUnitNum, self.chipUnitNumState,
+                 self.chipUnitType, self.chipUnitTypeState,
+                 self.thread, self.threadState))
+%}
+}
+/*********** End Extend ***********/
+
 /*********** Start Map to Bytearray ***********/
 // These apply the insert/extract/memCopyIn/memCopyOut functions in the edb
 %pybuffer_mutable_string(uint8_t * o_data);

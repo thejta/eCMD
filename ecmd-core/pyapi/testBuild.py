@@ -126,6 +126,20 @@ if (rc):
 else:
     print("Unit Id Version: %08x" % unitIdVer)
 
+# Make sure target hashing is working
+# If it is working, we can setup two different targets with the same states
+# The 2nd target should be able to access what was loaded for the 1st target
+# If it breaks, the target2 access will throw a key error
+target1 = ecmd.ecmdChipTarget()
+target2 = ecmd.ecmdChipTarget()
+target1.cageState = ecmd.ECMD_TARGET_FIELD_VALID
+target2.cageState = ecmd.ECMD_TARGET_FIELD_VALID
+targets = dict()
+targets[target1] = "hi"
+
+if (targets[target2] != "hi"):
+    print("ERROR: target hashing broke!")
+
 # Pulling this test for now
 # It breaks builds where ring support isn't included, so some smarts would need to be put into it
 # JTA 11/11/2014
