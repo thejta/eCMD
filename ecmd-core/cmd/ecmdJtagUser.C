@@ -17,7 +17,6 @@
  */
 //IBM_PROLOG_END_TAG
 
-#ifndef ECMD_REMOVE_JTAG_FUNCTIONS
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
@@ -55,6 +54,7 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
+#ifndef ECMD_REMOVE_JTAG_FUNCTIONS
 
 uint32_t ecmdSendCmdUser(int argc, char * argv[]) {
   uint32_t rc = ECMD_SUCCESS;
