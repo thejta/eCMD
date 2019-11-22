@@ -2,6 +2,7 @@
 import ecmd
 import os
 import sys
+import copy
 
 # Create our test number variable
 # It will be incremented after each test that executes
@@ -139,6 +140,13 @@ targets[target1] = "hi"
 
 if (targets[target2] != "hi"):
     print("ERROR: target hashing broke!")
+
+# A couple deepcopy tests to make sure the defined __deepcopy__ functions work
+# If not, we'll take a traceback and the test will fail
+edborig = ecmd.ecmdDataBuffer()
+targetorig = ecmd.ecmdChipTarget()
+edbcopy = copy.deepcopy(edborig)
+targetcopy = copy.deepcopy(targetorig)
 
 # Pulling this test for now
 # It breaks builds where ring support isn't included, so some smarts would need to be put into it
