@@ -2112,6 +2112,11 @@ std::string ecmdGetSharedLibVersion();
 #define ECMD_STOP_CLOCK_MODE_ASYNC          0x00000002
 
 /**
+ Defines for SPI access
+*/
+#define ECMD_SPI_ECC_ENABLE     0x00000001
+
+/**
 @brief Used in ecmdReadDigitalThermalSensor function to get the dts readings for an ex target
 */
 struct ecmdDTSData{
