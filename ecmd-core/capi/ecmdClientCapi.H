@@ -4630,7 +4630,7 @@ uint32_t ecmdPutPnor(const ecmdChipTarget & i_target, std::string i_partitionNam
 /**
  @brief Read data from a SPI device at the given address
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_engineId SPI engine to use
+ @param i_engine SPI engine to use
  @param i_select SPI select to use
  @param i_address Address to read from on the device
  @param i_bytes Byte length to read
@@ -4650,7 +4650,7 @@ uint32_t spiRead(const ecmdChipTarget & i_target, uint32_t i_engine, uint32_t i_
 /**
  @brief Write the provided data into the SPI device at the given address
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_engineId SPI engine to use
+ @param i_engine SPI engine to use
  @param i_select SPI select to use
  @param i_address Address to write to on the device
  @param i_mode Options to control behavior
