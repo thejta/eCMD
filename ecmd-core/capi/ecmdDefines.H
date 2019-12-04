@@ -96,6 +96,9 @@
 /* Removes I2C interfaces from api and cmdline code */
 //#define ECMD_REMOVE_I2C_FUNCTIONS
 
+/* Removes SPI interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SPI_FUNCTIONS
+
 /* Removes GPIO interfaces from api and cmdline code */
 //#define ECMD_REMOVE_GPIO_FUNCTIONS
 
