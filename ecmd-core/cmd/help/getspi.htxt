@@ -1,0 +1,38 @@
+
+Syntax: 
+        getspi <Chip> <EngineId> <Select> <Address> <Bytes> [-o<format> | -f<filename>] [-ecc]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Read SPI data from the specified engine/select for the 
+                        specified number of bytes.
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.  
+
+        EngineId        Engine number to operate on in decimal
+
+        Select          Select number to operate on in decimal
+
+        Address         Address into device in hex
+
+        Bytes           Bytes to read from device
+
+        -ecc [opt]      Specifies if ecc should be removed from data
+
+        -o<format>[opt] Specifies the format type of the output : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -f<filename>[o] Specifies the filename that the data should be written to
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+                        Incase multiple chip positions are specified the target string will
+                        be postfixed. E.g. filename "datafile" becomes "datafile.k0n0s0p0"
+			
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > getspi pu 0 1 A000 16 -ecc
+                        > getspi pu 0 1 A000 18 -foutput
