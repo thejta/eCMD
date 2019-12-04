@@ -229,22 +229,12 @@ def __deepcopy__(self, memo):
 %}
 }
 %copyctor ecmdLatchQueryData;
-<<<<<<< HEAD
-=======
 %extend ecmdLatchQueryData {
 %pythoncode %{
 def __deepcopy__(self, memo):
     return self.__init__(self)
 %}
 }
-%copyctor ecmdLatchQueryDataHidden;
-%extend ecmdLatchQueryDataHidden {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return self.__init__(self)
-%}
-}
->>>>>>> 6d349a26... Defined __deepcopy__ functions on classes
 %copyctor ecmdProcRegisterInfo;
 %extend ecmdProcRegisterInfo {
 %pythoncode %{
