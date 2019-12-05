@@ -291,6 +291,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "getpnor")) {
           rc = ecmdGetPnorUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_PNOR_FUNCTIONS
+#ifndef ECMD_REMOVE_SPI_FUNCTIONS
+        } else if (!strcmp(argv[0], "getspi")) {
+          rc = ecmdGetSpiUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SPI_FUNCTIONS
         } 
         else {
           /* We don't understand this function, let's let the caller know */
@@ -447,6 +451,10 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
         } else if (!strcmp(argv[0], "putpnor")) {
           rc = ecmdPutPnorUser(argc - 1, argv + 1);
 #endif // ECMD_REMOVE_PNOR_FUNCTIONS
+#ifndef ECMD_REMOVE_SPI_FUNCTIONS
+        } else if (!strcmp(argv[0], "putspi")) {
+          rc = ecmdPutSpiUser(argc - 1, argv + 1);
+#endif // ECMD_REMOVE_SPI_FUNCTIONS
         } else {
           /* We don't understand this function, let's let the caller know */
           rc = ECMD_INT_UNKNOWN_COMMAND;

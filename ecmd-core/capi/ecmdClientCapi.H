@@ -4624,6 +4624,51 @@ uint32_t ecmdPutPnor(const ecmdChipTarget & i_target, std::string i_partitionNam
 //@}
 #endif // ECMD_REMOVE_PNOR_FUNCTIONS
 
+/** @name SPI Functions */
+//@{
+#ifndef ECMD_REMOVE_SPI_FUNCTIONS
+/**
+ @brief Read data from a SPI device at the given address
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engine SPI engine to use
+ @param i_select SPI select to use
+ @param i_address Address to read from on the device
+ @param i_bytes Byte length to read
+ @param i_mode Options to control behavior
+ @param o_data Data read from device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support SPI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t spiRead(const ecmdChipTarget & i_target, uint32_t i_engine, uint32_t i_select, uint64_t i_address, uint32_t i_bytes, uint32_t i_mode, ecmdDataBuffer & o_data);
+
+/**
+ @brief Write the provided data into the SPI device at the given address
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engine SPI engine to use
+ @param i_select SPI select to use
+ @param i_address Address to write to on the device
+ @param i_mode Options to control behavior
+ @param i_data Data to write to device
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support SPI
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t spiWrite(const ecmdChipTarget & i_target, uint32_t i_engine, uint32_t i_select, uint64_t i_address, uint32_t i_mode, const ecmdDataBuffer & i_data);
+
+#endif /* ifndef ECMD_REMOVE_SPI_FUNCTIONS (this comment has to be here for makedll.pl to work */
+//@}
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

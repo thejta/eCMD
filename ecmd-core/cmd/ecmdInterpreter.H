@@ -202,6 +202,10 @@ uint32_t ecmdGpioConfigUser(int argc, char* argv[]);
 uint32_t ecmdGetGpioRegUser(int argc, char* argv[]);
 uint32_t ecmdPutGpioRegUser(int argc, char* argv[]);
 
+/* ecmdSpiUser.C */
+uint32_t ecmdPutSpiUser(int argc, char* argv[]);
+uint32_t ecmdGetSpiUser(int argc, char* argv[]);
+
 /* ecmdPowerUser.C */
 uint32_t ecmdSystemPowerUser(int argc, char * argv[]);
 uint32_t ecmdFruPowerUser(int argc, char * argv[]);
