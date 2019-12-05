@@ -136,7 +136,7 @@ std::string ecmdBitsHeader(int i_initCharOffset, int i_blockSize, int i_numCols,
 */
 uint32_t ecmdDisplayDllInfo();
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT      
+ #if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))     
 /**
  @brief Display the Scom data with the bit descriptions.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
@@ -198,6 +198,7 @@ void ecmdResetExtensionInitState();
 
 #endif
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 /**
  @brief opens the groupscomdef parses the file
  @param i_filename file to open
@@ -207,6 +208,7 @@ void ecmdResetExtensionInitState();
 
  */
 uint32_t parse_groupscomdef_file(const std::string i_filename, std::list<scomGroupRecord_t> &o_total_scomGroupRecord, bool use_filepos = false, uint32_t uniqueFilepos = 0 );
+#endif
 
 /***** END INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
 

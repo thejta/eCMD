@@ -598,7 +598,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
       if ((verbosePtr != NULL) && !expectFlag) {
       //even if rc returned is non-zero we want to continue to the next chip
-#ifndef ECMD_REMOVE_SEDC_SUPPORT
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined(ECMD_REMOVE_SCOM_FUNCTIONS))
         ecmdScomData scomData;   ///< Scom data 
         scomData.address = address;
         ecmdDisplayScomData(target, scomData, buffer, verbosePtr);

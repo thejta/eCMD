@@ -2556,6 +2556,8 @@ uint32_t syncIplMode(int i_unused);
 */
 uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
 
+
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 /**
    @brief  Converts zero chip unit address into chip unit address that is being passed
    @retval returns ECMD_SUCCESS if successful
@@ -2566,7 +2568,7 @@ uint32_t ecmdChipCleanup(ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_
    @param  o_address contains the corresponding address of the chip unit
 */
 uint32_t ecmdCreateChipUnitScomAddress(ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
-
+#endif // ECMD_REMOVE_SCOM_FUNCTIONS
 
 //@}
 
