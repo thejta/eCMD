@@ -136,7 +136,7 @@ std::string ecmdBitsHeader(int i_initCharOffset, int i_blockSize, int i_numCols,
 */
 uint32_t ecmdDisplayDllInfo();
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT      
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
 /**
  @brief Display the Scom data with the bit descriptions.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
