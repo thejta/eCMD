@@ -569,6 +569,7 @@ CXXFLAGS += " -g -I."
 
 # If the option was given, make sure the given path is
 # at the front of the list
+SWIGFLAGS = None
 if (args.firstinc):
     firstinc = " -I%s" % args.firstinc
     CXXFLAGS += firstinc
