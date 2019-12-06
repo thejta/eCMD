@@ -40,7 +40,7 @@
 #include <ecmdClientCapi.H>
 #include <ecmdReturnCodes.H>
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
 # include <sedcScomdefParser.H>
 # include <sedcScomdefClasses.H>
 #endif
@@ -96,7 +96,7 @@ void printEcmdDataBuffer(std::string variableType, std::string variableName, con
 void debugFunctionOuput(const char* outbuf);
 #endif
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
 /**
  @brief Read in the scomdef file and find the start of the specified entry.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
@@ -741,7 +741,7 @@ uint32_t ecmdDisplayDllInfo() {
   return rc;
 }
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
 uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdFileLocation> l_fileLocs;       ///< List of scomdefs - hashFile isn't used for scomdefs
@@ -908,9 +908,7 @@ uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData
   }// end for
   return rc;
 }
-#endif
 
-#ifndef ECMD_REMOVE_SEDC_SUPPORT
 uint32_t readScomDefFile(uint64_t address, std::ifstream &scomdefFile) {
   uint32_t rc = ECMD_SUCCESS;
   std::string scomdefFileStr;                      ///< Full path to scomdef file

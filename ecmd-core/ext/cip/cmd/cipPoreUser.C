@@ -40,6 +40,7 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 #ifndef CIP_REMOVE_PORE_FUNCTIONS
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 uint32_t cipPorePutScomUser(int argc, char* argv[]) {
 
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
@@ -352,7 +353,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
 
   return rc;
 }
-
+#endif //ECMD_REMOVE_SCOM_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t cipPorePutSpyUser(int argc, char * argv[]) {

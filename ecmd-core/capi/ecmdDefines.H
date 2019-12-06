@@ -72,6 +72,9 @@
 /* Removes Spy  interfaces from api and cmdline code */
 //#define ECMD_REMOVE_SPY_FUNCTIONS
 
+/* Removes Scom  interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SCOM_FUNCTIONS
+
 /* Removes Array interfaces from api and cmdline code */
 //#define ECMD_REMOVE_ARRAY_FUNCTIONS
 

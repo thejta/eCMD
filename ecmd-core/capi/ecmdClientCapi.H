@@ -907,6 +907,18 @@ uint32_t putScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address, c
 */
 uint32_t doScomMultiple(const ecmdChipTarget & i_target, std::list<ecmdScomEntry> & io_entries);
 
+/**
+   @brief  Converts zero chip unit address into chip unit address that is being passed
+   @retval returns ECMD_SUCCESS if successful
+   @retval returns ECMD_FUNCTION_NOT_SUPPORTED if it is no supported
+   @retval nonzero if unsuccessful
+   @param  i_target Struct that contains cage information
+   @param  i_address conains zero chip unit address
+   @param  o_address contains the corresponding address of the chip unit
+*/
+uint32_t ecmdCreateChipUnitScomAddress(const ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
+
+
 //@}
 /* End Scom Functions */
 #endif // ECMD_REMOVE_SCOM_FUNCTIONS
@@ -2647,18 +2659,6 @@ uint32_t syncIplMode(int i_unused);
 
 */
 uint32_t ecmdChipCleanup(const ecmdChipTarget & i_target, uint32_t i_mode = ECMD_CHIP_CLEANUP_MEMDA);
-
-/**
-   @brief  Converts zero chip unit address into chip unit address that is being passed
-   @retval returns ECMD_SUCCESS if successful
-   @retval returns ECMD_FUNCTION_NOT_SUPPORTED if it is no supported
-   @retval nonzero if unsuccessful
-   @param  i_target Struct that contains cage information
-   @param  i_address conains zero chip unit address
-   @param  o_address contains the corresponding address of the chip unit
-*/
-uint32_t ecmdCreateChipUnitScomAddress(const ecmdChipTarget & i_target, uint64_t i_address, uint64_t & o_address);
-
 
 //@}
 
