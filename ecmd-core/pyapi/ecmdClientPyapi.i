@@ -29,6 +29,7 @@
 // Insert C code into the file swig generates
 %{
 #define SWIG_FILE_WITH_INIT
+#define SWIG_PYTHON_EXTRA_NATIVE_CONTAINERS
 #include "ecmdDefines.H"
 #include "ecmdClientCapi.H"
 #include "ecmdClientPyapi.H"
@@ -56,6 +57,7 @@
 %template(stringList)                std::list<std::string>;
 %template(ecmdDataBufferBaseVector)  std::vector<ecmdDataBufferBase>;
 %template(ecmdDataBufferVector)      std::vector<ecmdDataBuffer>;
+%template(ecmdDataBufferVectorVector) std::vector<std::vector<ecmdDataBuffer>>;
 %template(ecmdMemoryEntryList)       std::list<ecmdMemoryEntry>;
 %template(ecmdRingDataList)          std::list<ecmdRingData>;
 %template(ecmdLatchDataList)         std::list<ecmdLatchData>;
