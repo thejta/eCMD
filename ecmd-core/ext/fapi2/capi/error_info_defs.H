@@ -273,7 +273,7 @@ enum CollectTrace
 }
 
 ///
-/// @enum gardType
+/// @enum GardType
 ///
 /// This enumeration defines the possible gard types
 /// NOTE:This gardType is same as the gard types defined in HWAS
