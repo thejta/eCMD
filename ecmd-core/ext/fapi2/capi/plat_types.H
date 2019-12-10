@@ -27,10 +27,10 @@
 namespace fapi2
 {
 ///
-/// @enum fapi::PlatformType
+/// @enum fapi2::PlatformType
 /// @brief Platform types a FAPI procedure might be compiled for
 /// @note can be used for conditionally compiled code depending on platform
-///       instead of using #ifdefs
+///       instead of using ifdefs
 ///
 
 enum PlatformType
