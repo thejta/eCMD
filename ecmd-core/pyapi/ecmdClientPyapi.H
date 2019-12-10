@@ -235,7 +235,7 @@ Python functions use the same ecmdChipTarget structure as the C-Api.
   target.node = 0
   target.slot = 0
   target.pos = 1
-  target.core = 0
+  target.chipUnitNum = 0
 
   rc = ecmd.putRing(target, "idreg", data)
 
