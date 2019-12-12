@@ -5345,7 +5345,7 @@ uint32_t spiWrite(const ecmdChipTarget & i_target, uint32_t i_engine, uint32_t i
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused<br>
 */
-uint32_t ecmdQuerySpyRings(ecmdChipTarget & i_target, const char * i_spyName, std::list<std::string> & o_ringNames);
+uint32_t ecmdQuerySpyRings(const ecmdChipTarget & i_target, const char * i_spyName, std::list<std::string> & o_ringNames);
 //@}
 
 /** @name Spy Functions  */
@@ -5372,7 +5372,7 @@ uint32_t ecmdQuerySpyRings(ecmdChipTarget & i_target, const char * i_spyName, st
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyImages(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, std::map<std::string, ecmdDataBuffer> & io_ringImages);
+uint32_t putSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, std::map<std::string, ecmdDataBuffer> & io_ringImages);
 
 /**
  @brief Writes the enum into the selected spy within the provided ring images
@@ -5395,7 +5395,7 @@ uint32_t putSpyImages(ecmdChipTarget & i_target, const char * i_spyName, ecmdDat
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyEnumImages(ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, std::map<std::string, ecmdDataBuffer> & io_ringImages);
+uint32_t putSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, std::map<std::string, ecmdDataBuffer> & io_ringImages);
 
 /**
  @brief Reads the selected spy into the data buffer from provided ring images
@@ -5419,7 +5419,7 @@ uint32_t putSpyEnumImages(ecmdChipTarget & i_target, const char * i_spyName, con
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyImages(ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, ecmdDataBuffer & o_data);
+uint32_t getSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, ecmdDataBuffer & o_data);
 
 /**
  @brief Reads the selected spy and returns it's assocaiated enum from provided ring images
@@ -5444,7 +5444,7 @@ uint32_t getSpyImages(ecmdChipTarget & i_target, const char * i_spyName, const s
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSpyEnumImages(ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, std::string & o_enumValue);
+uint32_t getSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, std::string & o_enumValue);
 //@}
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
