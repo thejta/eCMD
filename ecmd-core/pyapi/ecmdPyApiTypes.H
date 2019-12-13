@@ -255,4 +255,10 @@ typedef ecmdFileLocationList ecmdFileLocationList;
  @see List
 */
 typedef uint32_tList uint32_tList;
+
+typedef Map Map;
+/**
+ @brief The python version of the std::map<std::string, ecmdDataBuffer>
+*/
+typedef string_ecmdDataBufferMap string_ecmdDataBufferMap;
 #endif

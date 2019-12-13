@@ -1227,7 +1227,7 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
     while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       if(outputformat == "enum") {
         rc = getSpyEnumImage(cuTarget, spyName.c_str(),ringImage, enumValue);
-        if ( rc ) {
+        if ( rc == ECMD_SPY_NOT_ENUMERATED) {
           rc = getSpyImage(cuTarget, spyName.c_str(),ringImage, spyBuffer);
           if (rc == 0){   // .. printout warning informing that no enum could be found
             printed = "getspyimage - Info: No enum found for Spy \"";
@@ -1242,8 +1242,15 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
         rc = getSpyImage(cuTarget, spyName.c_str(), ringImage,spyBuffer);
       }
       if (rc) {
-        printed = "getspyimage - Error occured performing getspyimage on ";
-        printed += ecmdWriteTarget(cuTarget) + "\n";
+        if (rc == ECMD_MULTIPLE_RING_IMAGE_SPY)
+        {
+            printed = "getspyimage - Command line support for multiple ring images is not supported.  You must use the APIs.\n";
+        }
+        else
+        {
+            printed = "getspyimage - Error occured performing getspyimage on ";
+            printed += ecmdWriteTarget(cuTarget) + "\n";
+        }
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -1494,8 +1501,15 @@ if (argc < 4 ) {  //chip + spy + ringimage +data
         rc = putSpyImage(cuTarget, spyName.c_str(),buffer, ringImage);
         }
         if (rc) {
-          printed = "putspyimage - Error occured performing putspyimage on ";
-          printed += ecmdWriteTarget(cuTarget) + "\n";
+          if (rc == ECMD_MULTIPLE_RING_IMAGE_SPY)
+          {
+              printed = "putspyimage - Command line support for multiple ring images is not supported.  You must use the APIs.\n";
+          }
+          else
+          {
+              printed = "putspyimage - Error occured performing putspyimage on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+          }
           ecmdOutputError( printed.c_str() );
           coeRc = rc;
           continue;

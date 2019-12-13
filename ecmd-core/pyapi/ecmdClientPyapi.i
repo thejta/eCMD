@@ -16,6 +16,7 @@
 %include stdint.i
 %include ecmdCommon.i
 %include ecmdConst.i
+%include std_map.i
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/
@@ -78,7 +79,8 @@
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;
 %template(ecmdFileLocationList)      std::list<ecmdFileLocation>;
 %template(uint32_tList)              std::list<uint32_t>;
-/*********** End Templates ***********/
+// Template for maps
+%template(string_ecmdDataBufferMap)  std::map<std::string, ecmdDataBuffer>;
 
 /*********** Start Copy Constructors ***********/
 // We also define __deepcopy__ for each class here since
