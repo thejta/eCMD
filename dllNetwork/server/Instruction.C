@@ -277,6 +277,12 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "BRKPT_GET";
     case Instruction::BRKPT_WAIT:
       return "BRKPT_WAIT";
+    case Instruction::BRKPT_INSTR_START:
+      return "BRKPT_INSTR_START";
+    case Instruction::BRKPT_INSTR_STOP:
+      return "BRKPT_INSTR_STOP";
+    case Instruction::BRKPT_INSTR_STEP:
+      return "BRKPT_INSTR_STEP";
   }
   return "";
 }
