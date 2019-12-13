@@ -72,6 +72,14 @@ class BrkptInstruction : public Instruction {
      * @post flag has INSTRUCTION_FLAG_DEVSTR set
      */
     virtual uint32_t setup(InstructionCommand i_command, uint32_t i_timeout, uint32_t i_flags);
+    /**
+     * @brief Used as alternate way to set variables normally set on construction
+     * @retval ECMD_SUCCESS on success
+     * @retval nonzero on failure
+     * @post command, timeout, and flags are set
+     * @post flag has INSTRUCTION_FLAG_DEVSTR set
+     */
+    virtual uint32_t setup(InstructionCommand i_command, const ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_flags);
     //@}
 
     /** @name Execution Function */
@@ -176,6 +184,7 @@ class BrkptInstruction : public Instruction {
     ecmdDataBuffer address;
     cipXlateVariables xlateVars;
     uint32_t timeout;
+    uint32_t steps;
 
     virtual uint32_t brkpt_general(Handle * i_handle,
                                    InstructionStatus & o_status, 
@@ -185,6 +194,9 @@ class BrkptInstruction : public Instruction {
     virtual uint32_t brkpt_wait(Handle * i_handle,
                                 InstructionStatus & o_status, 
                                 std::list<cipSoftwareEvent_t> & o_events)
+    { return 1; }
+    virtual uint32_t brkpt_instr_general(Handle * i_handle,
+                                         InstructionStatus & o_status)
     { return 1; }
 };
 

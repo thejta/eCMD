@@ -227,6 +227,9 @@ class Instruction{
         BRKPT_CLEAR,
         BRKPT_GET,
         BRKPT_WAIT,
+        BRKPT_INSTR_START,
+        BRKPT_INSTR_STOP,
+        BRKPT_INSTR_STEP,
     } InstructionCommand;
 
     /** @name Instruction Constructor */

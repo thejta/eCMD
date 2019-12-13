@@ -120,7 +120,7 @@ TGT_SOURCE_C_OBJS := $(addsuffix .o, ${TGT_SOURCE_C_OBJS})
 # *****************************************************************************
 ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} -std=c++11 $< -o $@ ${DEFINES}
 
 ${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
 	@echo Compiling $<

@@ -47,7 +47,8 @@ static void packReturnData(const std::list<cipSoftwareEvent_t> & i_events,
 /* BrkptInstruction Implementation *******************************************/
 /*****************************************************************************/
 BrkptInstruction::BrkptInstruction(void) : Instruction(),
-    timeout(0)
+    timeout(0),
+    steps(0)
 {
     version = 0x1;
     type = BRKPT;
@@ -72,6 +73,15 @@ uint32_t BrkptInstruction::setup(InstructionCommand i_command, uint32_t i_timeou
 {
     timeout = i_timeout;
     command = i_command;
+    flags = i_flags;
+    return 0;
+}
+
+uint32_t BrkptInstruction::setup(InstructionCommand i_command, const ecmdChipTarget & i_target, uint32_t i_steps, uint32_t i_flags)
+{
+    target = i_target;
+    command = i_command;
+    steps = i_steps;
     flags = i_flags;
     return 0;
 }
@@ -122,7 +132,17 @@ uint32_t BrkptInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & 
                 o_status.rc = rc;
         }
         break;
+        case BRKPT_INSTR_START:
+        case BRKPT_INSTR_STOP:
+        case BRKPT_INSTR_STEP:
+            rc = brkpt_instr_general(*io_handle, o_status);
+            if (rc == 0)
+                rc = o_status.rc = SERVER_COMMAND_COMPLETE;
+            else
+                o_status.rc = rc;
+        break;
         default:
+            rc = o_status.rc = SERVER_COMMAND_NOT_SUPPORTED;
         break;
     }
 
@@ -150,7 +170,9 @@ uint32_t BrkptInstruction::flatten(uint8_t * o_data, uint32_t i_len) const
         {
             o_ptr[3] = htonl(timeout);
         }
-        else
+        else if ((command == BRKPT_SET) ||
+                 (command == BRKPT_CLEAR) ||
+                 (command == BRKPT_GET))
         {
             uint32_t deviceStringSize = deviceString.size() + 1;
             if (deviceStringSize % sizeof(uint32_t))
@@ -172,6 +194,16 @@ uint32_t BrkptInstruction::flatten(uint8_t * o_data, uint32_t i_len) const
             offset += addressSize / sizeof(uint32_t);
             xlateVars.flatten((uint8_t *) (o_ptr + offset), xlateVarsSize);
         }
+        else if ((command == BRKPT_INSTR_START) ||
+                 (command == BRKPT_INSTR_STOP) ||
+                 (command == BRKPT_INSTR_STEP))
+        {
+            o_ptr[3] = htonl(steps);
+            uint32_t targetSize = target.flattenSize();
+            o_ptr[4] = htonl(targetSize);
+            uint32_t offset = 5;
+            target.flatten((uint8_t *) (o_ptr + offset), targetSize);
+        }
     }
     return rc;
 }
@@ -190,7 +222,9 @@ uint32_t BrkptInstruction::unflatten(const uint8_t * i_data, uint32_t i_len)
         {
             timeout = ntohl(i_ptr[3]);
         }
-        else
+        else if ((command == BRKPT_SET) ||
+                 (command == BRKPT_CLEAR) ||
+                 (command == BRKPT_GET))
         {
             uint32_t deviceStringSize = ntohl(i_ptr[3]);
             uint32_t targetSize = ntohl(i_ptr[4]);
@@ -209,6 +243,16 @@ uint32_t BrkptInstruction::unflatten(const uint8_t * i_data, uint32_t i_len)
             rc = xlateVars.unflatten((uint8_t *) (i_ptr + offset), xlateVarsSize);
             if (rc) { error = rc; }
         }
+        else if ((command == BRKPT_INSTR_START) ||
+                 (command == BRKPT_INSTR_STOP) ||
+                 (command == BRKPT_INSTR_STEP))
+        {
+            steps = ntohl(i_ptr[3]);
+            uint32_t targetSize = ntohl(i_ptr[4]);
+            uint32_t offset = 5;
+            rc = target.unflatten((uint8_t *) (i_ptr + offset), targetSize);
+            if (rc) { error = rc; }
+        }
     }
     else
     {
@@ -224,7 +268,9 @@ uint32_t BrkptInstruction::flattenSize(void) const
     {
         size += sizeof(uint32_t); // timeout
     }
-    else
+    else if ((command == BRKPT_SET) ||
+             (command == BRKPT_CLEAR) ||
+             (command == BRKPT_GET))
     {
         size += 4 * sizeof(uint32_t); // sizes of flattened objects
         uint32_t deviceStringSize = deviceString.size() + 1;
@@ -234,6 +280,14 @@ uint32_t BrkptInstruction::flattenSize(void) const
         size += target.flattenSize(); // target
         size += address.flattenSize(); // address
         size += xlateVars.flattenSize(); // xlateVars
+    }
+    else if ((command == BRKPT_INSTR_START) ||
+             (command == BRKPT_INSTR_STOP) ||
+             (command == BRKPT_INSTR_STEP))
+    {
+        size += sizeof(uint32_t); // steps
+        size += sizeof(uint32_t); // target size
+        size += target.flattenSize(); // target
     }
 
     return size;
@@ -247,16 +301,27 @@ std::string BrkptInstruction::dumpInstruction(void) const
     oss << "command       : " << InstructionCommandToString(command) << std::endl;
     oss << "type          : " << InstructionTypeToString(type) << std::endl;
     oss << "flags         : " << InstructionFlagToString(flags) << std::endl;
-    oss << "deviceString  : " << deviceString << std::endl;
-    oss << "timeout       : " << timeout << std::endl;
-    oss << "target        : " << ecmdWriteTarget(target, ECMD_DISPLAY_TARGET_HYBRID) << std::endl;
-    oss << "address       : " << ((address.getBitLength() > 0) ? address.genHexLeftStr() : "" ) << std::endl;
-    oss << "xlateVars.tagsActive  : " << (xlateVars.tagsActive ? "true" : "false") << std::endl;
-    oss << "xlateVars.mode32bit   : " << (xlateVars.mode32bit ? "true" : "false") << std::endl;
-    oss << "xlateVars.writeECC    : " << (xlateVars.writeECC ? "true" : "false") << std::endl;
-    oss << "xlateVars.manualXlateFlag : " << (xlateVars.manualXlateFlag ? "true" : "false") << std::endl;
-    oss << "xlateVars.addrType    : " << xlateVars.addrType << std::endl;
-    oss << "xlateVars.partitionId : " << xlateVars.partitionId << std::endl;
+    if (command == BRKPT_WAIT)
+        oss << "timeout       : " << timeout << std::endl;
+    else
+        oss << "target        : " << ecmdWriteTarget(target, ECMD_DISPLAY_TARGET_HYBRID) << std::endl;
+    if ((command == BRKPT_SET) ||
+        (command == BRKPT_CLEAR) ||
+        (command == BRKPT_GET))
+    {
+        oss << "deviceString  : " << deviceString << std::endl;
+        oss << "address       : " << ((address.getBitLength() > 0) ? address.genHexLeftStr() : "" ) << std::endl;
+        oss << "xlateVars.tagsActive  : " << (xlateVars.tagsActive ? "true" : "false") << std::endl;
+        oss << "xlateVars.mode32bit   : " << (xlateVars.mode32bit ? "true" : "false") << std::endl;
+        oss << "xlateVars.writeECC    : " << (xlateVars.writeECC ? "true" : "false") << std::endl;
+        oss << "xlateVars.manualXlateFlag : " << (xlateVars.manualXlateFlag ? "true" : "false") << std::endl;
+        oss << "xlateVars.addrType    : " << xlateVars.addrType << std::endl;
+        oss << "xlateVars.partitionId : " << xlateVars.partitionId << std::endl;
+    }
+    if ((command == BRKPT_INSTR_START) ||
+        (command == BRKPT_INSTR_STOP) ||
+        (command == BRKPT_INSTR_STEP))
+        oss << "steps         : " << steps << std::endl;
     return oss.str();
 }
 
