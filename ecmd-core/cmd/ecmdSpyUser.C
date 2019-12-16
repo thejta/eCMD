@@ -1227,7 +1227,7 @@ uint32_t ecmdGetSpyImageUser(int argc, char * argv[]) {
     while ((spyData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
       if(outputformat == "enum") {
         rc = getSpyEnumImage(cuTarget, spyName.c_str(),ringImage, enumValue);
-        if ( rc == ECMD_SPY_NOT_ENUMERATED) {
+        if ( rc ) {
           rc = getSpyImage(cuTarget, spyName.c_str(),ringImage, spyBuffer);
           if (rc == 0){   // .. printout warning informing that no enum could be found
             printed = "getspyimage - Info: No enum found for Spy \"";
