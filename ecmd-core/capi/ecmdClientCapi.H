@@ -492,6 +492,21 @@ uint32_t ecmdQueryArray(const ecmdChipTarget & i_target, std::list<ecmdArrayData
  TARGET STATES : Unused<br>
 */
 uint32_t ecmdQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o_queryData, const char * i_spyName = NULL, ecmdQueryDetail_t i_detail = ECMD_QUERY_DETAIL_HIGH);
+
+/**
+ @brief Determine all rings associated with spy - including any rings from associated parity checkers
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to get associated ring names for 
+ @param o_ringNames Returned list of rings associated with spy 
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY if spy name is not valid for target
+ @retval nonzero on failure
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused<br>
+*/
+uint32_t ecmdQuerySpyRings(const ecmdChipTarget & i_target, const char * i_spyName, std::list<std::string> & o_ringNames);
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 #ifndef ECMD_REMOVE_SCOM_FUNCTIONS
@@ -1210,6 +1225,55 @@ uint32_t getSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, co
 uint32_t getSpyEnumImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_ringImage, std::string & o_enumValue);
 
 /**
+ @brief Reads the selected spy into the data buffer from provided ring images
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use getSpyEnum
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_MULTIPLE_RING_IMAGE_SPY Spy spans multiple rings and not enough or incorrect ring images were input
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param i_ringImages Map of ring names and corresponding DataBuffer objects that hold the ring images used by the requested spy (Buffer must be of the correct length).
+ @param o_data DataBuffer object that holds data read from spy
+
+ NOTE : This function is ring cache enabled<br>
+ NOTE : The rings associated with the spy can be retrieved by calling ecmdQuerySpyRings.<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, ecmdDataBuffer & o_data);
+
+/**
+ @brief Reads the selected spy and returns it's assocaiated enum from provided ring images
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SPY_FAILED_ECC_CHECK if invalid ECC detected on Spy read - valid Spy Data still returned
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_INVALID_SPY_ENUM if value in hardware doesn't map to a valid enum
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use getSpy
+ @retval ECMD_SPY_GROUP_MISMATCH A mismatch was found reading a group spy not all groups set the same
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_MULTIPLE_RING_IMAGE_SPY Spy spans multiple rings and not enough or incorrect ring images were input
+ @retval ECMD_SUCCESS if successful read
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to read from
+ @param i_ringImages Map of ring names and corresponding DataBuffer objects that hold the ring images used by the requested spy (Buffer must be of the correct length).
+ @param o_enumValue Enum value read from the spy
+
+ NOTE : This function is ring cache enabled<br>
+ NOTE : The rings associated with the spy can be retrieved by calling ecmdQuerySpyRings.<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t getSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, std::string & o_enumValue);
+
+/**
  @brief Writes the data buffer into the selected spy within the provided ring image
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
@@ -1236,7 +1300,7 @@ uint32_t putSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, co
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_SUCCESS if successful
  @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
- 2retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
  @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
@@ -1250,7 +1314,55 @@ uint32_t putSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, co
  TARGET STATES : Unused<br>
 
 */
+
 uint32_t putSpyEnumImage(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, ecmdDataBuffer & io_ringImage);
+
+/**
+ @brief Writes the data buffer into the selected spy within the provided ring images
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_DATA_OVERFLOW Too much data was provided for a write
+ @retval ECMD_DATA_UNDERFLOW  Too little data was provided to a write function
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_SPY_IS_EDIAL Spy is an edial have to use putSpyEnum
+ @retval ECMD_MULTIPLE_RING_IMAGE_SPY Spy spans multiple rings and not enough or incorrect ring images were input
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_data DataBuffer object that holds data to write into spy
+ @param io_ringImages Map of ring names and cooresponding DataBuffer objects that hold the ring images used by the requested spy (Buffer must be of the correct length).
+
+ NOTE : This function is ring cache enabled<br>
+ NOTE : The rings associated with the spy can be retrieved by calling ecmdQuerySpyRings.<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, std::map<std::string, ecmdDataBuffer> & io_ringImages);
+
+/**
+ @brief Writes the enum into the selected spy within the provided ring images
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_SUCCESS if successful
+ @retval ECMD_INVALID_SPY Spy name is invalid or Spy is an ECC Grouping
+ @retval ECMD_SPY_NOT_ENUMERATED Spy is not enumerated must use putSpy
+ @retval ECMD_INVALID_SPY_ENUM if enum value specified is not valid
+ @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
+ @retval ECMD_MULTIPLE_RING_IMAGE_SPY Spy spans multiple rings and not enough or incorrect ring images were input
+ @retval nonzero if unsuccessful
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_spyName Name of spy to write to
+ @param i_enumValue String enum value to load into the spy
+ @param io_ringImages Map of ring names and corresponding DataBuffer objects that hold the ring images used by the requested spy (Buffer must be of the correct length).
+
+ NOTE : This function is ring cache enabled<br>
+ NOTE : The rings associated with the spy can be retrieved by calling ecmdQuerySpyRings.<br>
+ TARGET DEPTH  : pos, chipUnit<br>
+ TARGET STATES : Unused<br>
+
+*/
+uint32_t putSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, std::map<std::string, ecmdDataBuffer> & io_ringImages);
 
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 //@}

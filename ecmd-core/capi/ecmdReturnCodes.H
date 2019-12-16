@@ -54,6 +54,7 @@
 #define ECMD_UNKNOWN_HELP_FILE                  (ECMD_ERR_ECMD | 0x1014) ///< Helpfile could not be read
 #define ECMD_INVALID_ARGS                       (ECMD_ERR_ECMD | 0x1015) ///< Not enough arguments provided to the function
 #define ECMD_INVALID_SPY_ENUM                   (ECMD_ERR_ECMD | 0x1017) ///< getSpyEnum or putSpyEnum used an invalid enum
+#define ECMD_MULTIPLE_RING_IMAGE_SPY            (ECMD_ERR_ECMD | 0x1018) ///< Spy spans multiple rings and not enough or incorrect ring images were input
 #define ECMD_SPY_FAILED_ECC_CHECK               (ECMD_ERR_ECMD | 0x1019) ///< getSpy or getSpyEnum failed with invalid ECC detected in the hardware
 #define ECMD_SPY_NOT_ENUMERATED                 (ECMD_ERR_ECMD | 0x101B) ///< getSpyEnum or putSpyEnum was called on a non-enumerated spy
 #define ECMD_SPY_IS_EDIAL                       (ECMD_ERR_ECMD | 0x101D) ///< getSpy or Putspy was called on an edial

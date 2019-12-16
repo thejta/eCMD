@@ -129,9 +129,9 @@ if ($ARGV[1] =~ /ClientPerlapiFunc.C/ || $genAll) {
           my ($type, $funcname) = split(/\s+/, $func);
           my @argnames = split(/,/,$args);
 
-          #join any split std::pair arguments
+          #join any split std::pair or std::map arguments
           foreach my $i (0..$#argnames) {
-            if ($argnames[$i] =~ /std::pair/) {
+            if ($argnames[$i] =~ /std::pair|std::map/) {
               $argnames[$i] = "$argnames[$i], $argnames[$i+1]";
               splice(@argnames, $i+1, 1);
             }
@@ -216,7 +216,7 @@ if ($ARGV[1] =~ /ClientPerlapiIterators.H/ || $genAll) {
     my $codeDataType;
     foreach $fileLine (@fileLines) {
 
-      if (substr($fileLine,0,9) eq "%template") {
+      if ((substr($fileLine,0,9) eq "%template") && ($fileLine =~ /list|vector/))  {
 
         @fileLineArr = split(/\s+/, $fileLine);
         # Get the swig name out of the first half
