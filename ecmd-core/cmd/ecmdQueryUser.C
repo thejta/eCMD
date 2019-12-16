@@ -350,6 +350,62 @@ uint32_t ecmdQueryUser(int argc, char* argv[]) {
       ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
       return ECMD_TARGET_NOT_CONFIGURED;
     }
+
+  } else if (!strcmp(argv[0], "spyrings")) {
+   
+    if (argc < 3) {
+      ecmdOutputError("ecmdquery - Too few arguments specified for spyrings; you need at least query spyrings <chipname> <spyname>.\n");
+      ecmdOutputError("ecmdquery - Type 'ecmdquery -h' for usage.\n");
+      return ECMD_INVALID_ARGS;
+    }
+
+    //Setup the target that will be used to query the system config 
+    ecmdChipTarget target;
+    target.chipType = argv[1];
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.threadState = target.chipUnitNumState = target.chipUnitTypeState = ECMD_TARGET_FIELD_UNUSED;
+
+    /************************************************************************/
+    /* Kickoff Looping Stuff                                                */
+    /************************************************************************/
+
+    bool validPosFound = false;
+    rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperData);
+    if (rc) return rc;
+
+    char buf[500];
+    std::list<std::string> l_ringNames;
+    std::list<std::string>::iterator ringIt;
+
+    while (ecmdLooperNext(target, looperData)) {
+
+      rc = ecmdQuerySpyRings(target, argv[2], l_ringNames);
+      if (rc) {
+        printed = "ecmdquery - Error occured performing spy ring query on ";
+        printed += ecmdWriteTarget(target);
+        printed += "\n";
+        ecmdOutputError( printed.c_str() );
+        return rc;
+      }
+      else {
+        validPosFound = true;     
+      }      
+
+      sprintf(buf,"\nAll rings associated with spy %s:\n", argv[2]); ecmdOutput(buf);
+      
+      for (ringIt = l_ringNames.begin(); ringIt != l_ringNames.end(); ringIt++)
+      {
+          printed += *ringIt;
+          printed += "\n";
+      }
+      ecmdOutput(printed.c_str());
+    }
+
+    if (!validPosFound) {
+      ecmdOutputError("ecmdquery - Unable to find a valid chip to execute command on\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+    }      
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
 

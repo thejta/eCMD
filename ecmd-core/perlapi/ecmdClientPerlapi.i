@@ -7,6 +7,7 @@
 %include ecmdList.i
 %include ecmdCommon.i
 %include ecmdConst.i
+%include std_map.i
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/
@@ -82,6 +83,8 @@
 %template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
 %template(listUint32_t)              std::list<uint32_t>;
 %template(vectorString)              std::vector<std::string>;
+// Template for maps
+%template(string_ecmdDataBufferMap)  std::map<std::string, ecmdDataBuffer>;
 /*********** End Templates ***********/
 
 /*********** Start Copy Constructors ***********/

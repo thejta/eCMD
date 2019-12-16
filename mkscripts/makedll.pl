@@ -76,9 +76,9 @@ while (<IN>) {
     my ($type, $funcname) = split(/\s+/, $func);
     my @argnames = split(/,/, $args);
 
-    #join any split std::pair arguments
+    #join any split std::pair and std::map arguments
     foreach my $i (0..$#argnames) {
-      if ($argnames[$i] =~ /std::pair/) {
+      if ($argnames[$i] =~ /std::pair|std::map/) {
         $argnames[$i] = "$argnames[$i], $argnames[$i+1]";
         splice(@argnames, $i+1, 1);
       }

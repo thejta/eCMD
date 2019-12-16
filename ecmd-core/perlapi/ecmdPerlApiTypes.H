@@ -243,4 +243,11 @@ typedef ecmdI2CCmdEntryList ecmdI2CCmdEntryList;
  @see Vector
 */
 typedef ecmdDataBufferVector ecmdDataBufferVector;
+
+typedef Map Map;
+/**
+ @brief The perl version of the std::map<std::string, ecmdDataBuffer>
+*/
+typedef string_ecmdDataBufferMap string_ecmdDataBufferMap;
+
 #endif
