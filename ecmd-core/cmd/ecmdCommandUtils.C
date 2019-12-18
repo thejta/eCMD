@@ -1174,7 +1174,7 @@ uint32_t ecmdGetProcessingUnit(const ecmdChipTarget & i_target, std::string & o_
   o_processingUnitName = "core";  //p7 and prior processors
   if ( (chipData.chipType == "p8") || (chipData.chipType == "s1") || (chipData.chipType == "n1") ) {
     o_processingUnitName = "ex"; // we use ex
-  } else if ( (chipData.chipType == "p9c") || (chipData.chipType == "p9n") ) {
+  } else if ( (chipData.chipType == "p9c") || (chipData.chipType == "p9n") || (chipData.chipType == "p9a") ) {
     o_processingUnitName = "c"; // we use core
   }
 
