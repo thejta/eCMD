@@ -250,7 +250,6 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
 
         threadFound = false;
         firstThreadLoop = true;
-        /* Added hack for occ chipunit for p8 - MKL 04/10/2012 */
         /* On some chips, we have to start the threads in reverse order to keep the chip in the proper SMT mode */
         /* This code will accomplish that by looping over cores in order above, but threads in reverse below */
         if (target.chipUnitType == "occ") {
@@ -1539,6 +1538,16 @@ uint32_t cipPutMemPbaUser(int argc, char * argv[]) {
    memEntry.address = address;
    memEntry.data = inputData;
    memdata.push_back(memEntry);
+  }
+
+  if (pbaMode == PBA_MODE_LCO) {
+    // pad with zeros to fill cache lines -- 128 byte cache line
+    rc = ecmdPadAndMerge(memdata, 128);
+    if (rc) {
+      printLine = cmdlineName + " - Problems occurred padding and merging data\n";
+      ecmdOutputError(printLine.c_str());
+      return rc;
+    }
   }
 
   /************************************************************************/
@@ -4052,8 +4061,13 @@ uint32_t cipGetMemProcVarUser(int argc, char * argv[])
          printed=ecmdWriteTarget(target); printed+="\n"; ecmdOutput(printed.c_str());
          printed= "Address Req          Bytes Req Mem Tags Mem ECC Err\n"; ecmdOutput(printed.c_str());
          printed= "==================== ========= ======== ===========\n"; ecmdOutput(printed.c_str());
+         const char * l_ecc = "";
+         if (l_bufErr.getBitLength())
+         {
+            l_ecc = l_bufErr.genHexLeftStr().c_str();
+         }
          sprintf(buf,"%-20s %9d %-8s %-11s\n",ll_address_80.genHexLeftStr().c_str(),l_bytes,
-                      l_bufTags.genHexLeftStr().c_str(),l_bufErr.genHexLeftStr().c_str());
+                      l_bufTags.genHexLeftStr().c_str(),l_ecc);
          ecmdOutput(buf);
          // now display the  data
          ecmdOutput("GETMEM DATA READ\n");
@@ -4063,7 +4077,7 @@ uint32_t cipGetMemProcVarUser(int argc, char * argv[])
          // ECC varies depending on the size of data, so display it at the end
          ecmdOutput("Memory ECC\n");
          ecmdOutput("==========\n");
-         sprintf(buf,"%-32s\n",l_bufECC.genHexLeftStr().c_str());
+         sprintf(buf,"%-32s\n",l_ecc);
          ecmdOutput(buf);
        }
 

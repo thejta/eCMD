@@ -40,7 +40,7 @@
 namespace fapi2plat
 {
     // dlopens a shared library and returns the handle
-    int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
+    int openSharedLib(const std::string & i_libName, void * & o_pLibHandle, int flag)
     {
         uint32_t rc = fapi2::FAPI2_RC_SUCCESS;
         std::string sharedLibPath;
@@ -78,7 +78,7 @@ namespace fapi2plat
             return rc;
         }
     
-        o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY);
+        o_pLibHandle = dlopen(sharedLibPath.c_str(), RTLD_LAZY | flag);
         if (o_pLibHandle == NULL)
         {
             FAPI_ERR("dlopen error '%s'\n", dlerror());
@@ -86,6 +86,11 @@ namespace fapi2plat
         }
 
         return rc;
+    }
+
+    int openSharedLib(const std::string & i_libName, void * & o_pLibHandle)
+    {
+        return openSharedLib(i_libName, o_pLibHandle, 0);
     }
 
     // Gets a function symbol address from a dlopened shared library

@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fstream>
+#include <map>
 
 #include <ecmdSharedUtils.H>
 #include <ecmdStructs.H>
@@ -1011,6 +1012,148 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
   
   
   return rc;
+}
+
+uint32_t ecmdPadAndMerge(std::list<ecmdMemoryEntry> &io_data, uint32_t i_size)
+{
+    uint32_t rc = 0;
+
+    // mask values for address checking based on cache line size
+    uint64_t blockalignmask = i_size - 1;
+    uint64_t blockstartmask = ~blockalignmask;
+
+    // create map of input data
+    std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator> representation;
+    std::list<ecmdMemoryEntry>::iterator io_dataIter;
+    for (io_dataIter = io_data.begin(); io_dataIter != io_data.end(); io_dataIter++)
+    {
+        representation[io_dataIter->address] = io_dataIter;
+    }
+
+    std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator>::iterator repIter = representation.begin();
+    while(repIter != representation.end())
+    {
+#ifdef DEBUG_MEM_MERGE
+#ifndef UINT64_HEX_FORMAT
+  #define UINT64_HEX_FORMAT "%lX"
+#endif
+        printf("block " UINT64_HEX_FORMAT ",%X %s\n",
+            repIter->first, repIter->second->data.getByteLength(),
+            repIter->second->data.genHexLeftStr().c_str());
+#endif
+        uint64_t blockstart = repIter->first & blockstartmask;
+        if (blockstart != repIter->first)
+        {
+            // extend current iter forward
+            uint64_t prepend = repIter->first - blockstart;
+#ifdef DEBUG_MEM_MERGE
+            uint64_t newlength = repIter->second->data.getByteLength() + prepend;
+            printf("prepend change " UINT64_HEX_FORMAT ",%X to " UINT64_HEX_FORMAT "," UINT64_HEX_FORMAT "\n",
+                repIter->first, repIter->second->data.getByteLength(), blockstart, newlength);
+#endif
+            // record change
+            rc = repIter->second->data.shiftRightAndResize(prepend * 8);
+            if (rc) return rc;
+            repIter->second->address = blockstart;
+            std::pair<std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator>::iterator, bool> insertresult =
+                representation.insert(std::pair<uint64_t, std::list<ecmdMemoryEntry>::iterator>(blockstart, repIter->second));
+            representation.erase(repIter);
+            repIter = insertresult.first;
+
+            // check if previous block is now adjacent
+            if (repIter != representation.begin())
+            {
+                std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator>::iterator prevIter = repIter;
+                prevIter--;
+                if ((prevIter->first + prevIter->second->data.getByteLength()) == repIter->first)
+                {
+                    // switch back to previous block and continue
+                    repIter = prevIter;
+#ifdef DEBUG_MEM_MERGE
+                    printf("rewinding\n");
+#endif
+                    continue;
+                }
+            }
+        }
+
+        // check if ends on cache line
+        if (repIter->second->data.getByteLength() & blockalignmask)
+        {
+            // does not end on cache line
+            uint64_t curstop = blockstart + repIter->second->data.getByteLength();
+            uint64_t blockstop = (curstop & 0xFFFFFFFFFFFFFF80ull) + 0x80ull;
+            // check if next entry is inside current data cache line
+            std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator>::iterator nextIter = repIter;
+            nextIter++;
+            if (nextIter != representation.end())
+            {
+                if (nextIter->first < blockstop)
+                {
+                    // check what padding is needed between blocks
+                    uint64_t paddingsize = nextIter->first - curstop;
+#ifdef DEBUG_MEM_MERGE
+                    printf("merge " UINT64_HEX_FORMAT ",%X %s with " UINT64_HEX_FORMAT ",%X %s\n",
+                        repIter->first, repIter->second->data.getByteLength(), repIter->second->data.genHexLeftStr().c_str(),
+                        nextIter->first, nextIter->second->data.getByteLength(), nextIter->second->data.genHexLeftStr().c_str());
+#endif
+                    // merge this block with next
+                    uint32_t originallength = repIter->second->data.getBitLength();
+                    rc = repIter->second->data.growBitLength(originallength + (8 * paddingsize) + nextIter->second->data.getBitLength());
+                    if (rc) return rc;
+                    rc = repIter->second->data.insert(nextIter->second->data, originallength + (8 * paddingsize), nextIter->second->data.getBitLength());
+                    if (rc) return rc;
+                    io_data.erase(nextIter->second);
+                    representation.erase(nextIter);
+                    continue; // recheck current block after merge
+                }
+            }
+
+            // otherwise extend block to end of cache line
+            uint64_t postpend = blockstop - curstop;
+            uint64_t newlength = repIter->second->data.getByteLength() + postpend;
+#ifdef DEBUG_MEM_MERGE
+            printf("postpend change " UINT64_HEX_FORMAT ",%X to " UINT64_HEX_FORMAT "," UINT64_HEX_FORMAT "\n",
+                repIter->first, repIter->second->data.getByteLength(), repIter->first, newlength);
+#endif
+            repIter->second->data.growBitLength(8 * newlength);
+        }
+
+        // check if next block is adjacent
+        std::map<uint64_t, std::list<ecmdMemoryEntry>::iterator>::iterator nextIter = repIter;
+        nextIter++;
+        if (nextIter != representation.end())
+        {
+            if ((repIter->first + repIter->second->data.getByteLength()) == nextIter->first)
+            {
+#ifdef DEBUG_MEM_MERGE
+                printf("merge " UINT64_HEX_FORMAT ",%X %s with " UINT64_HEX_FORMAT ",%X %s\n",
+                    repIter->first, repIter->second->data.getByteLength(), repIter->second->data.genHexLeftStr().c_str(),
+                    nextIter->first, nextIter->second->data.getByteLength(), nextIter->second->data.genHexLeftStr().c_str());
+#endif
+                // merge this block with next
+                uint32_t originallength = repIter->second->data.getBitLength();
+                rc = repIter->second->data.growBitLength(originallength + nextIter->second->data.getBitLength());
+                if (rc) return rc;
+                rc = repIter->second->data.insert(nextIter->second->data, originallength, nextIter->second->data.getBitLength());
+                if (rc) return rc;
+                io_data.erase(nextIter->second);
+                representation.erase(nextIter);
+                continue; // recheck current block after merge
+            }
+        }
+        repIter++;
+    }
+
+#ifdef DEBUG_MEM_MERGE
+    for (io_dataIter = io_data.begin(); io_dataIter != io_data.end(); io_dataIter++)
+    {
+        printf("resulting block " UINT64_HEX_FORMAT ",%X\n",
+            io_dataIter->address, io_dataIter->data.getByteLength());
+    }
+#endif
+
+    return rc;
 }
 
 uint32_t ecmdGenB32FromHex (uint32_t * o_numPtr, const char * i_hexChars, int startPos) {

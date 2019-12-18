@@ -92,6 +92,23 @@ struct ecmdLatchCacheEntry {
 
 /* @brief Used by get/putlatch to buffer scandef entries in memory to improve performance */
 std::list<ecmdLatchCacheEntry> latchCache;
+pthread_mutex_t latchCacheMutex = PTHREAD_MUTEX_INITIALIZER;
+
+class LockGuard
+{
+    public:
+    LockGuard(pthread_mutex_t * i_mutex) : iv_mutex(i_mutex)
+    {
+        pthread_mutex_lock(iv_mutex);
+    }
+    ~LockGuard()
+    {
+        pthread_mutex_unlock(iv_mutex);
+    }
+    private:
+    pthread_mutex_t * iv_mutex;
+};
+
 
 /** @brief Used to sort latch entries from the scandef */
 bool operator<(const ecmdLatchEntry & lhs, const ecmdLatchEntry & rhs) {
@@ -438,10 +455,10 @@ uint32_t dllLooperInit(ecmdChipTarget & io_target, ecmdLoopType_t i_looptype, ec
     }
     if (rc) return rc;
 
+    /* Standard physical targets */
   } else {
 #endif // ECMD_REMOVE_UNITID_FUNCTIONS
 
-    /* Standard physical targets */
     io_state.ecmdUseUnitid = false;
 
     queryTarget = io_target;
@@ -5438,6 +5455,7 @@ uint32_t readScandef(ecmdChipTarget & target, const char* i_ringName, const char
       return rc;
     }
 
+    LockGuard lg(&latchCacheMutex);
     if (findLatchInCache(l_fileLocs, latchHashKey64, ringName, o_latchdata))
     {
         /* We're done, get out of here */
@@ -5875,6 +5893,7 @@ uint32_t readScandefHash(ecmdChipTarget & target, const char* i_ringName, const 
         return rc;
     }
 
+    LockGuard lg(&latchCacheMutex);
     if (findLatchInCache(l_fileLocs, latchHashKey64, ringName, o_latchdata))
     {
         /* We're done, get out of here */
@@ -6352,6 +6371,7 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
 
   // Assume for now we only have one helptext path returned
   filePath = paths.begin()->textFile;
+
   if (rc || (filePath.length()==0)) {
     ret = "ERROR FINDING DECODE FILE";
     return ret;
