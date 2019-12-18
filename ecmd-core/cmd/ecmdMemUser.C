@@ -1328,6 +1328,16 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
    memdata.push_back(memEntry);
   }
 
+  if (pbaMode == PBA_MODE_LCO) {
+    // pad with zeros to fill cache lines -- 128 byte cache line
+    rc = ecmdPadAndMerge(memdata, 128);
+    if (rc) {
+      printLine = cmdlineName + " - Problems occurred padding and merging data\n";
+      ecmdOutputError(printLine.c_str());
+      return rc;
+    }
+  }
+
   /************************************************************************/
   /* Kickoff Looping Stuff                                                */
   /************************************************************************/
