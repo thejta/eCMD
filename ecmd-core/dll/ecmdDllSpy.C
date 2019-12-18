@@ -46,7 +46,7 @@
 #include <sedcSpyParser.H>
 #include <sedcCommonParser.H>
 
-#ifndef AIX
+#ifndef _AIX
   #include <byteswap.h>
   #ifndef htonll
     #if BYTE_ORDER == BIG_ENDIAN
