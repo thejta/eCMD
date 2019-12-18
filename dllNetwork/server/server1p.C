@@ -86,13 +86,9 @@ enum socketState { SOCKET_RUNNING, SOCKET_ENDING};
 /* clientThread thread function                                             */
 /****************************************************************************/
 
-void processClient(int socket, enum socketState & state)
+void processClient(int socket, enum socketState & state, bool & keyValid, uint32_t & key)
 {
     int rc = 0;
-
-    /* authorization values */
-    bool keyValid = false;
-    uint32_t key = 0x0;
 
     /* initialize ServerControls structure */
     ServerControls controls;
@@ -700,6 +696,9 @@ int main (int argc, char **argv)
     {
         clients[client].fd = -1;
     }
+    std::map<uint32_t, bool> keyValidMap;
+    std::map<uint32_t, uint32_t> keyMap;
+
     int maxClient = 0;
 
     printf(" --- Cronus Socket Deamon Initialized ...\n");
@@ -754,6 +753,8 @@ int main (int argc, char **argv)
                 {
                     clients[client].fd = new_sock;
                     clients[client].events = POLLRDNORM;
+                    keyValidMap[client] = false;
+                    keyMap[client] = 0x0;
                     break;
                 }
             }
@@ -792,7 +793,7 @@ int main (int argc, char **argv)
             if (clientRef.revents & (POLLRDNORM | POLLERR))
             {
                 enum socketState state = SOCKET_RUNNING;
-                processClient(clientRef.fd, state);
+                processClient(clientRef.fd, state, keyValidMap[client], keyMap[client]);
 
                 if (state != SOCKET_RUNNING)
                 {
