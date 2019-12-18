@@ -207,6 +207,15 @@ uint32_t ecmdSetTargetDepth(ecmdChipTarget & io_target, ecmdTargetDepth_t i_dept
 uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_data, uint64_t i_addressOffset = 0);
 
 /**
+ *  @brief Pads and Merges Fields of ecmdMemoryEntry_t
+ *  @param io_data list to be merged and padded
+ *  @param i_size byte size to align and pad to
+ *  @retval ECMD_SUCCESS if setting successful
+ *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
+ */
+uint32_t ecmdPadAndMerge(std::list<ecmdMemoryEntry> &io_data, uint32_t i_size);
+
+/**
  @brief Returns a formatted string containing the data in the given ecmdChipTarget
  @return String with formatted target data
  @param i_target ecmdChipTarget containing data to format into string

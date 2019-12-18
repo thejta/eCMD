@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* IBM_PROLOG_END_TAG                                                     */
+/* IBM_PROLOG_END_TAG                                                    */
 #ifndef FAPI2_COLLECT_REG_FFDC_H_
 #define FAPI2_COLLECT_REG_FFDC_H_
 #include <stdint.h>
@@ -376,6 +376,12 @@ ReturnCode collectRegisterData(std::vector<T>& i_addresses, U& i_reader,
         if(l_rc)
         {
             l_data = 0xbaddbadd;
+
+#ifdef __DELETE_PLATFORMDATA_SUPPORTED
+            // delete the platform log if it exits
+            deletePlatformDataPointer(l_rc);
+#endif
+
         }
         else
         {
@@ -397,6 +403,7 @@ ReturnCode collectRegisterAndAddressData(std::vector<T>& i_addresses, U& i_reade
     FAPI_DBG("collectRegisterAndAddressData -> address count: 0x%lx", i_addresses.size());
 
     T l_data = 0;
+    uint32_t l_addr = 0;
 
     ReturnCode l_rc = FAPI2_RC_SUCCESS;
 
@@ -404,27 +411,29 @@ ReturnCode collectRegisterAndAddressData(std::vector<T>& i_addresses, U& i_reade
     {
         fapi2::buffer<T> l_buf;
 
-        T l_address = address + i_offset;
+        l_addr  =   address + i_offset;
 
-        l_rc = i_reader.read_register(l_address, l_buf);
+        l_rc    =   i_reader.read_register(l_addr, l_buf);
 
         if(l_rc)
         {
             l_data = 0xbaddbadd;
+#ifdef __DELETE_PLATFORMDATA_SUPPORTED
+            // delete the platform data pointer if it exists
+            deletePlatformDataPointer(l_rc);
+#endif
         }
         else
         {
             l_data = l_buf();
         }
 
-        l_address = htobe32(l_address);
-        l_data = htobe64(l_data);
+        l_data    =     htobe64(l_data);
 
-        memcpy(o_pData, &l_address, sizeof(uint32_t));
+        memcpy(o_pData, &l_addr, sizeof(uint32_t));
         o_pData += sizeof(uint32_t);
 
         memcpy(o_pData, &l_data, sizeof(T));
-
         o_pData += sizeof(T);
 
     }
