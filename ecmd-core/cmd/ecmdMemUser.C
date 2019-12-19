@@ -1256,8 +1256,22 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Get a chip target to find chipunit needed
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
   std::string  pbaUnitName;
-  rc = ecmdGetPbaUnit(target,pbaUnitName);
+  if (ecmdLooperNext(target, looperdata))
+  {
+    rc = ecmdGetPbaUnit(target,pbaUnitName);
+    if (rc) return rc;
+  }
+
   if (pbaUnitName.empty()) {
     ecmdOutputError(" - unable to find chipunit type for this command\n");
     return ECMD_INVALID_ARGS;
