@@ -497,6 +497,7 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   print OUT "extern bool ecmdDebugOutput;\n";
   print OUT "#endif\n\n\n";
 
+  print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
   print OUT "void loadSymbol($ARGV[0]FunctionIndex_t enumname, const char * funcname) {\n";
   print OUT "  if (" . $DllFnTable . "[enumname] == NULL) {\n";
   print OUT "   " . $DllFnTable . "[enumname] = (void*)dlsym(dlHandle, funcname);\n";
@@ -507,6 +508,7 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   print OUT "   }\n";
   print OUT "  }\n";
   print OUT "}\n";
+  print OUT "#endif\n\n";
 
   print OUT $printout;
 
