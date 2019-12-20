@@ -41,13 +41,12 @@ test:
   # Do nothing
 
 install:
-	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
-	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter to ${INSTALL_PATH} ..."
 	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter headers to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/ ..."
-	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
-	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
-	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/ext/${EXTENSION_NAME}/cmd/.
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Extension Command Interpreter headers to ${INSTALL_PATH}/include ..."
+	@cp ${EXTENSION_NAME}Interpreter.H ${INSTALL_PATH}/include/.
+	@cp ../capi/${EXTENSION_NAME}Structs.H ${INSTALL_PATH}/include/.
+	@cp ../capi/${EXTENSION_NAME}ClientCapi.H ${INSTALL_PATH}/include/.
 
 doxygen-capi:
   # Do nothing

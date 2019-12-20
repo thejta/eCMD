@@ -196,6 +196,10 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/bin
 	@echo " "
 
+	@echo "Creating include dir ..."
+	@mkdir -p ${INSTALL_PATH}/include
+	@echo " "
+
 	@echo "Creating ${TARGET_ARCH}/lib dir ..."
 	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/lib
 	@echo " "
