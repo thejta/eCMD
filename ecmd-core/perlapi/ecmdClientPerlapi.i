@@ -114,7 +114,6 @@
 %copyctor ecmdCacheData;
 %copyctor ecmdSpyData;
 %copyctor ecmdI2CCmdEntry;
-%copyctor ecmdSimModelInfo;
 %copyctor ecmdConnectionData;
 %copyctor ecmdPnorListEntryData;
 %copyctor ecmdPnorListData;

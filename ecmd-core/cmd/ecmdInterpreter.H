@@ -114,40 +114,6 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]);
 /* ecmdQueryUser.C */
 uint32_t ecmdQueryUser(int argc, char* argv[]);
 
-/* ecmdSimUser.C */
-#ifndef REMOVE_SIM
-uint32_t ecmdSimaetUser(int argc, char * argv[]);
-uint32_t ecmdSimCallFusionCommandUser(int argc, char * argv[]);
-uint32_t ecmdSimcheckpointUser(int argc, char * argv[]);
-uint32_t ecmdSimclockUser(int argc, char * argv[]);
-uint32_t ecmdSimechoUser(int argc, char * argv[]);
-uint32_t ecmdSimexitUser(int argc, char * argv[]);
-uint32_t ecmdSimEXPECTFACUser(int argc, char * argv[]);
-uint32_t ecmdSimexpecttcfacUser(int argc, char * argv[]);
-uint32_t ecmdSimGETFACUser(int argc, char * argv[]);
-uint32_t ecmdSimGETFACXUser(int argc, char * argv[]);
-uint32_t ecmdSimGetFullFacNameUser(int argc, char * argv[]);
-uint32_t ecmdSimgettcfacUser(int argc, char * argv[]);
-uint32_t ecmdSimgetcurrentcycleUser(int argc, char * argv[]);
-uint32_t ecmdSiminitUser(int argc, char * argv[]);
-uint32_t ecmdSimOutputFusionMessageUser(int argc, char * argv[]);
-uint32_t ecmdSimPUTFACUser(int argc, char * argv[]);
-uint32_t ecmdSimPUTFACXUser(int argc, char * argv[]);
-uint32_t ecmdSimputtcfacUser(int argc, char * argv[]);
-uint32_t ecmdSimrestartUser(int argc, char * argv[]);
-uint32_t ecmdSimSTKFACUser(int argc, char * argv[]);
-uint32_t ecmdSimSTKFACXUser(int argc, char * argv[]);
-uint32_t ecmdSimstktcfacUser(int argc, char * argv[]);
-uint32_t ecmdSimSUBCMDUser(int argc, char * argv[]);
-uint32_t ecmdSimTckIntervalUser(int argc, char * argv[]);
-uint32_t ecmdSimUNSTICKUser(int argc, char * argv[]);
-uint32_t ecmdSimunsticktcfacUser(int argc, char * argv[]);
-uint32_t ecmdSimGetHierarchyUser(int argc, char * argv[]);
-uint32_t ecmdSimGetDialUser(int argc, char * argv[]);
-uint32_t ecmdSimPutDialUser(int argc, char * argv[]);
-uint32_t ecmdSimRunTestcase(int argc, char * argv[]);
-#endif  //REMOVE_SIM
-
 /* ecmdProcUser.C */
 uint32_t ecmdGetSprUser(int argc, char * argv[]);
 uint32_t ecmdPutSprUser(int argc, char * argv[]);

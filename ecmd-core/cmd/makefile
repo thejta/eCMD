@@ -12,7 +12,7 @@ INT_INCLUDES := ecmdInterpreter.H ecmdExtInterpreter.H ecmdCommandUtils.H
 ### Source
 SOURCE := ecmdInterpreter.C ecmdCommandUtils.C 
 SOURCE := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C 
-SOURCE := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
+SOURCE := ${SOURCE} ecmdSpyUser.C ecmdArrayUser.C ecmdJtagUser.C 
 SOURCE := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
 SOURCE := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
 SOURCE := ${SOURCE} ecmdPnorUser.C ecmdSpiUser.C

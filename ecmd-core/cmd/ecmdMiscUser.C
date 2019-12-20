@@ -1580,7 +1580,7 @@ uint32_t ecmdEchoUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 1) {
-    ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
+    ecmdOutputError("ecmdecho - At least one argument (a message to print) is required for ecmdecho.\n");
     return ECMD_INVALID_ARGS;
   }
   for (int idx = 0; idx < argc; idx ++) {
