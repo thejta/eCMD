@@ -57,17 +57,14 @@ test:
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH} ..."
-	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/
 	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
         ifneq (${SLIB},)
 	  cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
         endif
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Includes to ${INSTALL_PATH}/include ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
-	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Scripts to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts ..."
-	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts
-	cp ${SCRIPTS} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts/.
-	@chmod 775 ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/scripts/*
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Scripts to ${INSTALL_PATH}/bin ..."
+	cp ${SCRIPTS} ${INSTALL_PATH}/bin/.
 
 doxygen-capi:
 	@cp ${CAPI_INCLUDES} ${DOXYGEN_CAPI_PATH}/.
