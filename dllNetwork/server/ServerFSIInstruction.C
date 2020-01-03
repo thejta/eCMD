@@ -213,7 +213,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
      "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/raw",
      "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"},
-    {"/sys/class/fsi-master/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
+    {"/sys/class/fsi-master/fsi0/slave@00:00/00:00:00:0a/fsi-master/fsi1/slave@01:00/raw",
      "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
      "/sys/devices/hub@00/slave@01:00/raw"}};
