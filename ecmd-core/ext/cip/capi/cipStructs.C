@@ -57,7 +57,7 @@ uint32_t cipXlateVariables::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (this->flattenSize() > i_len)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC2("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipXlateVariables::flatten(), "
              "structure size = %d; input length = %d",
              this->flattenSize(), i_len);
@@ -92,7 +92,7 @@ uint32_t cipXlateVariables::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipSoftwareEvent_t::flatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);
@@ -139,7 +139,7 @@ uint32_t cipXlateVariables::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipSoftwareEvent_t::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);
@@ -193,7 +193,7 @@ uint32_t cipSoftwareEvent_t::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (this->flattenSize() > i_len)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC2("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipSoftwareEvent_t::flatten(), "
              "structure size = %d; input length = %d",
              this->flattenSize(), i_len);
@@ -235,7 +235,7 @@ uint32_t cipSoftwareEvent_t::flatten(uint8_t *o_buf, uint32_t &i_len) const
     // If the flatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to flatten ecmdChipTarget in "
+      ETRAC("ECMD: Fail to flatten ecmdChipTarget in "
              "cipSoftwareEvent_t::flatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -252,7 +252,7 @@ uint32_t cipSoftwareEvent_t::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipSoftwareEvent_t::flatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);
@@ -311,7 +311,7 @@ uint32_t cipSoftwareEvent_t::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     // If the unflatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to unflatten ecmdChipTarget in "
+      ETRAC("ECMD: Fail to unflatten ecmdChipTarget in "
              "cipSoftwareEvent_t::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -328,7 +328,7 @@ uint32_t cipSoftwareEvent_t::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipSoftwareEvent_t::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);
@@ -387,7 +387,7 @@ uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (this->flattenSize() > i_len)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC2("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipBrkptTableEntry::flatten(), "
              "structure size = %d; input length = %d",
              this->flattenSize(), i_len);
@@ -411,7 +411,7 @@ uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len) const
     // If the flatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to flatten ecmdDataBuffer Address in "
+      ETRAC("ECMD: Fail to flatten ecmdDataBuffer Address in "
              "cipBrkptTableEntry::flatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -439,7 +439,7 @@ uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len) const
     // If the flatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to flatten ecmdDataBuffer Original_Instruction in "
+      ETRAC("ECMD: Fail to flatten ecmdDataBuffer Original_Instruction in "
              "cipBrkptTableEntry::flatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -483,7 +483,7 @@ uint32_t cipBrkptTableEntry::flatten(uint8_t *o_buf, uint32_t &i_len) const
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipBrkptTableEntry::flatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);
@@ -523,7 +523,7 @@ uint32_t cipBrkptTableEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     // If the unflatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to unflatten ecmdDataBuffer Address in "
+      ETRAC("ECMD: Fail to unflatten ecmdDataBuffer Address in "
              "cipBrkptTableEntry::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -549,7 +549,7 @@ uint32_t cipBrkptTableEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     // If the unflatten failed, exit now with an error
     if ( l_rc != ECMD_DBUF_SUCCESS )
     {
-      ETRAC4("ECMD: Fail to unflatten ecmdDataBuffer Original_Instruction in "
+      ETRAC("ECMD: Fail to unflatten ecmdDataBuffer Original_Instruction in "
              "cipBrkptTableEntry::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d, l_tgt_size=%d\n",
              this->flattenSize(), i_len, l_len, l_tgtSize);
@@ -592,7 +592,7 @@ uint32_t cipBrkptTableEntry::unflatten(const uint8_t *i_buf, uint32_t &i_len)
     if (l_len != 0)
     {
       // Generate an error for buffer overflow conditions.
-      ETRAC3("ECMD: Buffer overflow occurred in "
+      ETRAC("ECMD: Buffer overflow occurred in "
              "cipBrkptTableEntry::unflatten(), struct size= %d; "
              "input length= %d; remainder= %d\n",
              this->flattenSize(), i_len, l_len);

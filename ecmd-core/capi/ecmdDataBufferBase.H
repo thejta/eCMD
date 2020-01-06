@@ -106,13 +106,13 @@
 #ifdef _AIX
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
-    ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \
+    ETRAC("Argument %s is NULL", #ptr); \
     return ECMD_DBUF_NULL_POINTER; \
   };
 #else
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
-    ETRAC2("**** ERROR : %s : Argument %s is NULL", __PRETTY_FUNCTION__, #ptr); \
+    ETRAC("Argument %s is NULL", #ptr); \
     return ECMD_DBUF_NULL_POINTER; \
   };
 #endif

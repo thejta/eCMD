@@ -208,7 +208,7 @@ uint32_t ecmdChipTarget::flatten(uint8_t *o_buf, uint32_t i_len) const {
 			memset(o_buf, 0, i_len);
 		} else {
 			// Handle the error case for buffer overflow.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
 			       "ecmdChipTarget::flatten() "
 			       "structure size = %d; input length = %d", 
 			       this->flattenSize(), i_len);
@@ -372,7 +372,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
 		if (l_byteCount > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdChipTarget::unflatten() "
                                "estimated structure size = %d; "
 			       "input length = %d",
@@ -471,7 +471,7 @@ uint32_t ecmdChipTarget::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 
 		// Check for buffer underflow conditions.
 		if (l_len > 0) {
-			ETRAC2("Buffer underflow occured in "
+			ETRAC("Buffer underflow occured in "
                                "ecmdChipTarget::unflatten() "
                                "estimated structure size = %d; "
                                "input length = %d",
@@ -549,7 +549,7 @@ uint32_t ecmdThreadData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 		// Check for buffer overflown conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdThreadData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -596,7 +596,7 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		// Check for buffer overflown conditions. 
 		if (this->flattenSize() > i_len) {                //@01c
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdThreadData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -612,7 +612,7 @@ uint32_t ecmdThreadData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (THREAD_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
 			       "ecmdThreadData::unflatten(): "
 			       "Struct header: 0x%08x; read from buffer as: "
 			       "0x%08x", THREAD_HDR_MAGIC, hdrCheck);
@@ -714,7 +714,7 @@ uint32_t ecmdChipUnitData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
         // Check for buffer overflow conditions.
         if (this->flattenSize() > i_len) {
             // Generate an error for buffer overflow conditions.
-            ETRAC2("Buffer overflow occured in "
+            ETRAC("Buffer overflow occured in "
                                "ecmdChipUnitData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -809,7 +809,7 @@ uint32_t ecmdChipUnitData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
         // Check for buffer overflow conditions.
         if (this->flattenSize() > i_len) {
             // Generate an error for buffer overflow conditions.
-            ETRAC2("Buffer overflow occured in "
+            ETRAC("Buffer overflow occured in "
                                "ecmdChipUnitData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -826,7 +826,7 @@ uint32_t ecmdChipUnitData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
         if (CHIPUNIT_HDR_MAGIC != hdrCheck) {
 
-            ETRAC2("Buffer header does not match struct header in "
+            ETRAC("Buffer header does not match struct header in "
                                "ecmdChipUnitData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", CHIPUNIT_HDR_MAGIC, hdrCheck);
@@ -999,7 +999,7 @@ uint32_t ecmdChipData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 		// Check for buffer overflow conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdChipData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1118,7 +1118,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (CHIP_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
                                "ecmdChipData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", CHIP_HDR_MAGIC, hdrCheck);
@@ -1147,7 +1147,7 @@ uint32_t ecmdChipData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		if (l_byteCount > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdChipData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1354,7 +1354,7 @@ uint32_t ecmdSlotData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 		// Check for buffer overflow conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdSlotData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1435,7 +1435,7 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		// Check for buffer overflow conditions.		
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdSlotData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1451,7 +1451,7 @@ uint32_t ecmdSlotData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (SLOT_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
                                "ecmdSlotData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", SLOT_HDR_MAGIC, hdrCheck);
@@ -1622,7 +1622,7 @@ uint32_t ecmdNodeData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 		// Check for buffer overflow conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdNodeData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1707,7 +1707,7 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		// Check for buffer overflow conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdNodeData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1723,7 +1723,7 @@ uint32_t ecmdNodeData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (NODE_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
                                "ecmdNodeData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", NODE_HDR_MAGIC, hdrCheck);
@@ -1894,7 +1894,7 @@ uint32_t ecmdCageData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdCageData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1979,7 +1979,7 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		// Check for buffer overflow conditions.
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdCageData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -1995,7 +1995,7 @@ uint32_t ecmdCageData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (CAGE_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
                                "ecmdCageData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", CAGE_HDR_MAGIC, hdrCheck);
@@ -2166,7 +2166,7 @@ uint32_t ecmdQueryData::flatten(uint8_t *o_buf, uint32_t &i_len) const{
 
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdQueryData::flatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -2237,7 +2237,7 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 
 		if (this->flattenSize() > i_len) {
 			// Generate an error for buffer overflow conditions.
-			ETRAC2("Buffer overflow occured in "
+			ETRAC("Buffer overflow occured in "
                                "ecmdQueryData::unflatten() "
                                "structure size = %d; "
                                "input length = %d",
@@ -2253,7 +2253,7 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		i_len -= sizeof(hdrCheck);
 
 		if (QD_HDR_MAGIC != hdrCheck) {
-			ETRAC2("Buffer header does not match struct header in "
+			ETRAC("Buffer header does not match struct header in "
                                "ecmdQueryDataData::unflatten(): "
                                "Struct header: 0x%08x; read from buffer as: "
                                "0x%08x", QD_HDR_MAGIC, hdrCheck);
@@ -2316,7 +2316,7 @@ uint32_t ecmdQueryData::unflatten(const uint8_t *i_buf, uint32_t &i_len) {
 		    // Either the calculation of the buffer size needed is
 		    // wrong (to big) or there was an error during the unflatten
 		    // and not all the data was restored.
-		    ETRAC2("Buffer underflow occured in "
+		    ETRAC("Buffer underflow occured in "
 			   "ecmdQueryData::unflatten() "
 			   "input length = %d, "
 			   "length left over = %d ",
@@ -2429,7 +2429,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
 	    if (this->flattenSize() > i_len) {
 		// Generate an error for buffer overflow conditions.
-		ETRAC2("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdSpyData::flatten() "
 		       "structure size = %d; "
 		       "input length = %d",
@@ -2552,7 +2552,7 @@ uint32_t ecmdSpyData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 	    // Do final check
 	    if (i_len != 0)
 	    {
-		ETRAC2("Buffer size mismacth occured in "
+		ETRAC("Buffer size mismacth occured in "
 		       "ecmdSpyData::flatten() "
 		       "structure size = %d; "
 		       "leftover length = %d",
@@ -2690,7 +2690,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left < 0)
 	    {	
 		// Generate an error for buffer overflow conditions.
-		ETRAC3("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdSpyData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -2702,7 +2702,7 @@ uint32_t ecmdSpyData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left > 0)
 	    {	
 		// Generate an error for buffer underflow conditions.
-		ETRAC3("Buffer underflow occured in "
+		ETRAC("Buffer underflow occured in "
 		       "ecmdSpyData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -2854,7 +2854,7 @@ uint32_t ecmdArrayEntry::flatten(uint8_t * o_buf, uint32_t i_len) const{
 
         // Check for buffer size mismatch (overflow or underflow)
         if ( this->flattenSize() != i_len ) {
-	    ETRAC2("Buffer overflow occurred in ecmdArrayEntry::flatten() "
+	    ETRAC("Buffer overflow occurred in ecmdArrayEntry::flatten() "
                    "structure size = %d; input length = %d",
                    this->flattenSize(), i_len );
 	    l_rc = ECMD_DATA_OVERFLOW;
@@ -2903,7 +2903,7 @@ uint32_t ecmdArrayEntry::flatten(uint8_t * o_buf, uint32_t i_len) const{
 
         // If the length has not decremented to 0, something is wrong
         if ( i_len != 0 ) {
-	    ETRAC1("Buffer overflow occurred in ecmdArrayEntry::flatten() "
+	    ETRAC("Buffer overflow occurred in ecmdArrayEntry::flatten() "
                    "leftover data bytes = %d", i_len );
            l_rc = ECMD_DATA_OVERFLOW;
            break;
@@ -2965,7 +2965,7 @@ uint32_t ecmdArrayEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         // If the length has not decremented to 0, something is wrong
         if ( i_len != 0 )
         {
-          ETRAC1("Buffer overflow occurred in ecmdArrayEntry::unflatten() "
+          ETRAC("Buffer overflow occurred in ecmdArrayEntry::unflatten() "
                  "leftover data bytes = %d", i_len );
           l_rc = ECMD_DATA_OVERFLOW;
           break;
@@ -3051,7 +3051,7 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
 	    if (this->flattenSize() > i_len) {
 		// Generate an error for buffer overflow conditions.
-		ETRAC2("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdRingData::flatten() "
 		       "structure size = %d; "
 		       "input length = %d",
@@ -3164,7 +3164,7 @@ uint32_t ecmdRingData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 	    // Do final check
 	    if (i_len != 0)
 	    {
-		ETRAC2("Buffer size mismatch occured in "
+		ETRAC("Buffer size mismatch occured in "
 		       "ecmdRingData::flatten() "
 		       "structure size = %d; "
 		       "leftover length = %d",
@@ -3301,7 +3301,7 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left < 0)
 	    {	
 		// Generate an error for buffer overflow conditions.
-		ETRAC3("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdRingData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -3313,7 +3313,7 @@ uint32_t ecmdRingData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left > 0)
 	    {	
 		// Generate an error for buffer underflow conditions.
-		ETRAC3("Buffer underflow occured in "
+		ETRAC("Buffer underflow occured in "
 		       "ecmdRingData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -3462,7 +3462,7 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 
 	    if (this->flattenSize() > i_len) {
 		// Generate an error for buffer overflow conditions.
-		ETRAC2("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdArrayData::flatten() "
 		       "structure size = %d; "
 		       "input length = %d",
@@ -3551,7 +3551,7 @@ uint32_t ecmdArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const{
 	    // Do final check
 	    if (i_len != 0)
 	    {
-		ETRAC2("Buffer size mismacth occured in "
+		ETRAC("Buffer size mismacth occured in "
 		       "ecmdArrayData::flatten() "
 		       "structure size = %d; "
 		       "leftover length = %d",
@@ -3667,7 +3667,7 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left < 0)
 	    {	
 		// Generate an error for buffer overflow conditions.
-		ETRAC3("Buffer overflow occured in "
+		ETRAC("Buffer overflow occured in "
 		       "ecmdArrayData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -3679,7 +3679,7 @@ uint32_t ecmdArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	    if (l_left > 0)
 	    {	
 		// Generate an error for buffer underflow conditions.
-		ETRAC3("Buffer underflow occured in "
+		ETRAC("Buffer underflow occured in "
 		       "ecmdArrayData::unflatten() "
 		       "structure size = %d; "
 		       "input length = %x; "
@@ -3761,7 +3761,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 
         // Check for buffer size mismatch (overflow or underflow)
         if ( this->flattenSize() != i_len ) {
-	    ETRAC2("Buffer overflow/mismatch occurred in ecmdIndexEntry::flatten() "
+	    ETRAC("Buffer overflow/mismatch occurred in ecmdIndexEntry::flatten() "
                    "structure size = %d; input length = %d",
                    this->flattenSize(), i_len );
 	    l_rc = ECMD_DATA_OVERFLOW;
@@ -3801,7 +3801,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 	if (l_left < 0)
 	{	
 	    // Generate an error for buffer overflow conditions.
-	    ETRAC3("Buffer overflow occured in "
+	    ETRAC("Buffer overflow occured in "
 		   "ecmdIndexEntry::flatten() "
 		   "structure size = %d; "
 		   "input length = %x; "
@@ -3813,7 +3813,7 @@ uint32_t ecmdIndexEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 	if (l_left > 0)
 	{	
 	    // Generate an error for buffer underflow conditions.
-	    ETRAC3("Buffer underflow occured in "
+	    ETRAC("Buffer underflow occured in "
 		   "ecmdIndexEntry::flatten() "
 		   "structure size = %d; "
 		   "input length = %x; "
@@ -3871,7 +3871,7 @@ uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
 	if (l_left < 0)
 	{	
 	    // Generate an error for buffer overflow conditions.
-	    ETRAC3("Buffer overflow occured in "
+	    ETRAC("Buffer overflow occured in "
 		   "ecmdIndexEntry::unflatten() "
 		   "structure size = %d; "
 		   "input length = %x; "
@@ -3883,7 +3883,7 @@ uint32_t ecmdIndexEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
 	if (l_left > 0)
 	{	
 	    // Generate an error for buffer underflow conditions.
-	    ETRAC3("Buffer underflow occured in "
+	    ETRAC("Buffer underflow occured in "
 		   "ecmdIndexEntry::unflatten() "
 		   "structure size = %d; "
 		   "input length = %x; "
@@ -3955,7 +3955,7 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdTraceArrayData::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -4021,7 +4021,7 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdTraceArrayData::flatten(), struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4032,7 +4032,7 @@ uint32_t ecmdTraceArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdTraceArrayData::flatten() struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4116,7 +4116,7 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdTraceArrayData::unflatten(), struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4127,7 +4127,7 @@ uint32_t ecmdTraceArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdTraceArrayData::unflatten() struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4204,7 +4204,7 @@ uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdTraceArrayData::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -4270,7 +4270,7 @@ uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdTraceArrayData::flatten(), struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4281,7 +4281,7 @@ uint32_t ecmdFastArrayData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdTraceArrayData::flatten() struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4365,7 +4365,7 @@ uint32_t ecmdFastArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdTraceArrayData::unflatten(), struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4376,7 +4376,7 @@ uint32_t ecmdFastArrayData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdTraceArrayData::unflatten() struct size= %d; "
                       "input length= %x; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4474,7 +4474,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdScomData::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -4560,7 +4560,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdScomData::flatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4571,7 +4571,7 @@ uint32_t ecmdScomData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdScomData::flatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4676,7 +4676,7 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdScomData::unflatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4687,7 +4687,7 @@ uint32_t ecmdScomData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdScomData::unflatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4782,7 +4782,7 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdLatchData::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -4854,7 +4854,7 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdLatchData::flatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4865,7 +4865,7 @@ uint32_t ecmdLatchData::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdLatchData::flatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4954,7 +4954,7 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdLatchData::unflatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -4965,7 +4965,7 @@ uint32_t ecmdLatchData::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdLatchData::unflatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -5039,7 +5039,7 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdI2CCmdEntry::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -5124,7 +5124,7 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdI2CCmdEntry::flatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -5135,7 +5135,7 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdI2CCmdEntry::flatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -5236,7 +5236,7 @@ uint32_t ecmdI2CCmdEntry::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len < 0)
             {	
                // Generate an error for buffer overflow conditions.
-               ETRAC3("ECMD: Buffer overflow occurred in "
+               ETRAC("ECMD: Buffer overflow occurred in "
                       "ecmdI2CCmdEntry::unflatten(), struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -5247,7 +5247,7 @@ uint32_t ecmdI2CCmdEntry::unflatten(const uint8_t *i_buf, uint32_t i_len)
             if (l_len > 0)
             {	
                // Generate an error for buffer underflow conditions.
-               ETRAC3("ECMD: Buffer underflow occurred in "
+               ETRAC("ECMD: Buffer underflow occurred in "
                       "ecmdI2CCmdEntry::unflatten() struct size= %d; "
                       "input length= %d; remainder= %d\n",
                       this->flattenSize(), i_len, l_len);
@@ -5385,7 +5385,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             if (this->flattenSize() > i_len) 
             {
                 // Generate an error for buffer overflow conditions.
-                ETRAC2("ECMD: Buffer overflow occurred in "
+                ETRAC("ECMD: Buffer overflow occurred in "
                        "ecmdIndexVectorEntry::flatten(), "
                        "structure size = %d; input length = %d",
                        this->flattenSize(), i_len);
@@ -5430,7 +5430,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             // Error checking - if there was a flatten error, report it
             if ( l_rc != ECMD_DBUF_SUCCESS )
             {
-                ETRAC1("ECMD: flatten error occurred in "
+                ETRAC("ECMD: flatten error occurred in "
                        "ecmdIndexVectorEntry::flatten(), rc= 0x%x", l_rc );
                 break;
             }
@@ -5440,7 +5440,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
                if (l_len < 0)
                {	
                   // Generate an error for buffer overflow conditions.
-                  ETRAC3("ECMD: Buffer overflow occurred in "
+                  ETRAC("ECMD: Buffer overflow occurred in "
                          "ecmdIndexVectorEntry::flatten(), struct size= %d; "
                          "input length= %x; remainder= %d\n",
                          this->flattenSize(), i_len, l_len);
@@ -5451,7 +5451,7 @@ uint32_t ecmdIndexVectorEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
                if (l_len > 0)
                {	
                   // Generate an error for buffer underflow conditions.
-                  ETRAC3("ECMD: Buffer underflow occurred in "
+                  ETRAC("ECMD: Buffer underflow occurred in "
                          "ecmdIndexVectorEntry::flatten() struct size= %d; "
                          "input length= %x; remainder= %d\n",
                          this->flattenSize(), i_len, l_len);
@@ -5518,7 +5518,7 @@ uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
             // Error checking - if there was an unflatten error, report it
             if ( l_rc != ECMD_DBUF_SUCCESS )
             {
-                ETRAC1("ECMD: unflatten error occurred in "
+                ETRAC("ECMD: unflatten error occurred in "
                        "ecmdIndexVectorEntry::unflatten(), rc= 0x%x", l_rc );
                 break;
             }
@@ -5528,7 +5528,7 @@ uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
                if (l_len < 0)
                {	
                   // Generate an error for buffer overflow conditions.
-                  ETRAC3("ECMD: Buffer overflow occurred in "
+                  ETRAC("ECMD: Buffer overflow occurred in "
                          "ecmdIndexVectorEntry::unflatten(), struct size= %d; "
                          "input length= %x; remainder= %d\n",
                          this->flattenSize(), i_len, l_len);
@@ -5539,7 +5539,7 @@ uint32_t ecmdIndexVectorEntry::unflatten(const uint8_t *i_buf, uint32_t i_len) {
                if (l_len > 0)
                {	
                   // Generate an error for buffer underflow conditions.
-                  ETRAC3("ECMD: Buffer underflow occurred in "
+                  ETRAC("ECMD: Buffer underflow occurred in "
                          "ecmdIndexVectorEntry::unflatten() struct size= %d; "
                          "input length= %x; remainder= %d\n",
                          this->flattenSize(), i_len, l_len);
@@ -5682,7 +5682,7 @@ uint32_t ecmdProcRegisterInfo::flatten(uint8_t *o_buf, uint32_t i_len) const
       if (this->flattenSize() > i_len)
       {
          // Generate an error for buffer overflow conditions.
-         ETRAC2("Buffer overflow occured in "
+         ETRAC("Buffer overflow occured in "
                 "ecmdProcRegisterInfo::flatten() "
                 "structure size = %d; "
                 "input length = %d",
@@ -5737,7 +5737,7 @@ uint32_t ecmdProcRegisterInfo::unflatten(const uint8_t *i_buf, uint32_t i_len)
       // Check for buffer overflown conditions. 
       if (this->flattenSize() > i_len) {                //@01c
          // Generate an error for buffer overflow conditions.
-         ETRAC2("Buffer overflow occured in "
+         ETRAC("Buffer overflow occured in "
                 "ecmdProcRegisterInfo::unflatten() "
                 "structure size = %d; "
                 "input length = %d",
@@ -5843,7 +5843,7 @@ uint32_t ecmdCacheData::flatten(uint8_t *o_buf, uint32_t i_len) const
       if (this->flattenSize() > i_len)
       {
          // Generate an error for buffer overflow conditions.
-         ETRAC2("Buffer overflow occured in "
+         ETRAC("Buffer overflow occured in "
                 "ecmdCacheData::flatten() "
                 "structure size = %d; "
                 "input length = %d",
@@ -5886,7 +5886,7 @@ uint32_t ecmdCacheData::unflatten(const uint8_t *i_buf, uint32_t i_len)
       // Check for buffer overflown conditions. 
       if (this->flattenSize() > i_len) {                //@01c
          // Generate an error for buffer overflow conditions.
-         ETRAC2("Buffer overflow occured in "
+         ETRAC("Buffer overflow occured in "
                 "ecmdCacheData::unflatten() "
                 "structure size = %d; "
                 "input length = %d",
@@ -5959,7 +5959,7 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 
         // Check for buffer size mismatch (overflow or underflow)
         if ( this->flattenSize() != i_len ) {
-        ETRAC2("Buffer overflow occurred in ecmdScomEntry::flatten() "
+        ETRAC("Buffer overflow occurred in ecmdScomEntry::flatten() "
                    "structure size = %d; input length = %d",
                    this->flattenSize(), i_len );
         l_rc = ECMD_DATA_OVERFLOW;
@@ -6027,7 +6027,7 @@ uint32_t ecmdScomEntry::flatten(uint8_t * o_buf, uint32_t i_len) const {
 
         // If the length has not decremented to 0, something is wrong
         if ( i_len != 0 ) {
-        ETRAC1("Buffer overflow occurred in ecmdScomEntry::flatten() "
+        ETRAC("Buffer overflow occurred in ecmdScomEntry::flatten() "
                    "leftover data bytes = %d", i_len );
            l_rc = ECMD_DATA_OVERFLOW;
            break;
@@ -6112,7 +6112,7 @@ uint32_t ecmdScomEntry::unflatten(const uint8_t * i_buf, uint32_t i_len) {
         // If the length has not decremented to 0, something is wrong
         if ( i_len != 0 )
         {
-          ETRAC1("Buffer overflow occurred in ecmdScomEntry::unflatten() "
+          ETRAC("Buffer overflow occurred in ecmdScomEntry::unflatten() "
                  "leftover data bytes = %d", i_len );
           l_rc = ECMD_DATA_OVERFLOW;
           break;
@@ -6218,7 +6218,7 @@ uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) const {
       if (this->flattenSize() > i_len)
       {
         // Generate an error for buffer overflow conditions.
-	ETRAC2("ECMD: Buffer overflow occurred in "
+	ETRAC("ECMD: Buffer overflow occurred in "
 		      "ecmdConnectionData::flatten(), "
 		      "structure size = %d; input length = %d",
 		      this->flattenSize(), i_len);
@@ -6281,7 +6281,7 @@ uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) const {
       if (l_len < 0)
       {
          // Generate an error for buffer overflow conditions.
-	 ETRAC3("ECMD: Buffer overflow occurred in "
+	 ETRAC("ECMD: Buffer overflow occurred in "
 		      "ecmdConnectionData::flatten(), struct size= %d; "
 		      "input length= %d; over-length size= %d\n",
 		      this->flattenSize(), i_len, l_len);
@@ -6292,7 +6292,7 @@ uint32_t ecmdConnectionData::flatten(uint8_t *o_buf, uint32_t i_len) const {
       if (l_len > 0)
       {
 	  // Generate an error for buffer underflow conditions.
-	  ETRAC3("ECMD: Buffer underflow occurred in "
+	  ETRAC("ECMD: Buffer underflow occurred in "
 		      "ecmdConnectionData::flatten() struct size= %d; "
 		      "input length= %d; remainder= %d\n",
 		      this->flattenSize(), i_len, l_len);
@@ -6367,7 +6367,7 @@ uint32_t ecmdConnectionData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	if (l_len < 0)
 	{
 	   // Generate an error for buffer overflow conditions.
-	   ETRAC3("ECMD: Buffer overflow occurred in "
+	   ETRAC("ECMD: Buffer overflow occurred in "
 			   "ecmdConnectionData::unflatten(), struct size= %d; "
 			   "input length= %d; over-length size= %d\n",
 			   this->flattenSize(), i_len, l_len);
@@ -6377,7 +6377,7 @@ uint32_t ecmdConnectionData::unflatten(const uint8_t *i_buf, uint32_t i_len) {
 	if (l_len > 0)
 	{
 	   // Generate an error for buffer underflow conditions.
-	   ETRAC3("ECMD: Buffer underflow occurred in "
+	   ETRAC("ECMD: Buffer underflow occurred in "
 			   "ecmdConnectionData::unflatten() struct size= %d; "
 			   "input length= %d; remainder= %d\n",
 			   this->flattenSize(), i_len, l_len);

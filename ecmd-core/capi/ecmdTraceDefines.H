@@ -20,6 +20,12 @@
 #ifndef ecmdTraceDefines_H 
 #define ecmdTraceDefines_H
 
+//--------------------------------------------------------------------
+// Includes
+//--------------------------------------------------------------------
+#include <stdarg.h>
+#include <string>
+
 /**
  * @file ecmdTraceDefines.H
  * @brief Provides a defined set of trace functions for ecmdDataBuffer
@@ -28,63 +34,29 @@
  * It can be overridden by any plugin to fit their environment
 */
 
-#define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
-#define ETRAC1(fmt, arg1) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1);
-#define ETRAC2(fmt, arg1, arg2) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2);
-#define ETRAC3(fmt, arg1, arg2, arg3) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3);
-#define ETRAC4(fmt, arg1, arg2, arg3, arg4) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4);
-#define ETRAC5(fmt, arg1, arg2, arg3, arg4, arg5) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5);
-#define ETRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6);
-#define ETRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-#define ETRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-#define ETRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) printf( "%s> ETRC: " fmt "\n", __FUNCTION__, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+// The __PRETTY_FUNCTION__ macro isn't all that pretty
+// This inline function cleans it up into the class::function desired format
+// If not called from a class, it also handles that and gives just the function
+//std::string methodName(const std::string & prettyFunction) {
+//  size_t begin, end;
+//  size_t colons = prettyFunction.find("::");
+//  if (colons == std::string::npos) {
+//    begin = prettyFunction.find(" ") + 1;
+//    end = prettyFunction.find("(") - begin;
+//  } else {
+//    begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+//    end = prettyFunction.rfind("(") - begin;
+//  }
+//
+//  return prettyFunction.substr(begin,end);
+//}
 
-#define PTRAC0(fmt) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__); \
-  ecmdOutput(buffer);}
-#define PTRAC1(fmt, arg1) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1); \
-  ecmdOutput(buffer);}
-#define PTRAC2(fmt, arg1, arg2) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2); \
-  ecmdOutput(buffer);}
-#define PTRAC3(fmt, arg1, arg2, arg3) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3); \
-  ecmdOutput(buffer);}
-#define PTRAC4(fmt, arg1, arg2, arg3, arg4) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, \
-  arg4); \
-  ecmdOutput(buffer);}
-#define PTRAC5(fmt, arg1, arg2, arg3, arg4, arg5) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5); \
-  ecmdOutput(buffer);}
-#define PTRAC6(fmt, arg1, arg2, arg3, arg4, arg5, arg6) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6); \
-  ecmdOutput(buffer);}
-#define PTRAC7(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7); \
-  ecmdOutput(buffer);}
-#define PTRAC8(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7, arg8); \
-  ecmdOutput(buffer);}
-#define PTRAC9(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) \
-  {char buffer [255]; \
-  snprintf( buffer, 255, "%s> PTRC: " fmt, __FUNCTION__, arg1, arg2, arg3, arg4, \
-  arg5, arg6, arg7, arg8, arg9); \
-  ecmdOutput(buffer);}
+//#define FUNCNAME methodName(__PRETTY_FUNCTION__).c_str()
 
+//#define ETRAC(...) printf(__VA_ARGS__);
+//#define ETRAC(errmsg, ...) printf((std::string("ERROR: (%s): ") + errmsg).c_str(), __FUNCTION__, ##__VA_ARGS__);
+#define ETRAC(errmsg, ...) printf("ERROR: (%s): " errmsg, __PRETTY_FUNCTION__, ##__VA_ARGS__);
+
+//#define ETRAC0(fmt) printf( "%s> ETRC: " fmt "\n", __FUNCTION__);
 
 #endif
