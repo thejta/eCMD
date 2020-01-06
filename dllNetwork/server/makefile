@@ -133,7 +133,7 @@ git_version.C: ../../.git/HEAD ../../.git/index
 # *****************************************************************************
 ${TARGET}: ${TGT_SOURCE_OBJS} ${TGT_SOURCE_C_OBJS}
 	@echo Linking $@
-	${VERBOSE}${LD} ${LDFLAGS} -o ${OUTLIB}/${TARGET} $^
+	${VERBOSE}${LD} -o ${OUTLIB}/${TARGET} $^ ${LDFLAGS}
 
 # *****************************************************************************
 # Include any global default rules
