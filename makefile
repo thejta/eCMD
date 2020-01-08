@@ -241,6 +241,12 @@ install_finish: install_setup ${BUILD_TARGETS}
 	@$(foreach util, ${ECMD_REPOS_UTILS}, ${MAKE} -C ${util}/utils/ ${MAKECMDGOALS} ${MAKEFLAGS};)
 	@echo " "
 
+	@echo "Fixing include dir file permissions ..."
+	@chmod 644 ${INSTALL_PATH}/include/*
+
+	@echo "Fixing help dir file permissions ..."
+	@chmod 644 ${INSTALL_PATH}/help/*
+
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*
 
