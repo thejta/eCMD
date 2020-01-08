@@ -52,14 +52,13 @@ test:
   # Do nothing
 
 install:
-	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
-	@mkdir -p ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH} ..."
 	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
         ifneq (${SLIB},)
 	  cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
         endif
-	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension includes to ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/ ..."
-	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/ext/${EXTENSION_NAME}/capi/.
+	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension includes to ${INSTALL_PATH}/includes ..."
+	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
 
 doxygen-capi:
 	@cp ${CAPI_INCLUDES} ${DOXYGEN_CAPI_PATH}/.

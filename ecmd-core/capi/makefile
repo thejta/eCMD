@@ -80,12 +80,11 @@ test:
   # Do nothing
 
 install:
-	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
-	@mkdir -p ${INSTALL_PATH}/capi/
+	@echo "Installing eCMD Client API to ${INSTALL_PATH} ..."
 	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
-	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
-	chmod 644 ${INSTALL_PATH}/capi/*
+	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
+	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/include/.
+	chmod 644 ${INSTALL_PATH}/include/*
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
