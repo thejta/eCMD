@@ -34,6 +34,12 @@ my $check_ring_cache_state_valid = "startClocks|stopClocks";
  
 my $printout;
 my $DllFnTable;
+if ($ARGV[0] ne "ecmd") {
+  $DllFnTable = "$ARGV[0]DllFnTable";
+} else {
+  $DllFnTable = "DllFnTable";
+}
+
 my @enumtable;
 my $dllCapiOut;
 my $functionListOut;
@@ -284,28 +290,7 @@ while (<IN>) {
     $printout .= "#else\n";
 
 
-
-
-    if ($ARGV[0] ne "ecmd") {
-      $DllFnTable = "$ARGV[0]DllFnTable";
-    } else {
-      $DllFnTable = "DllFnTable";
-    }
-
-    $printout .= "  if (".$DllFnTable."[$enumname] == NULL) {\n";
-    $printout .= "     ".$DllFnTable."[$enumname] = (void*)dlsym(dlHandle, \"$funcname\");\n";
-
-    $printout .= "     if (".$DllFnTable."[$enumname] == NULL) {\n";
-
-    $printout .= "       fprintf(stderr,\"$funcname\%s\",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); \n";
-    # Defect 20342, display dll info in case of invalid symbol
-    $printout .= "       ecmdDisplayDllInfo();\n";
-
-    $printout .= "       exit(ECMD_DLL_INVALID);\n";
-
-    $printout .= "     }\n";
-
-    $printout .= "  }\n\n";
+    $printout .= "  loadSymbol($enumname, \"$funcname\");\n";
 
     $printout .= "  $type (*Function)($typestring) = \n";
     $printout .= "      ($type(*)($typestring))".$DllFnTable."[$enumname];\n";
@@ -481,15 +466,15 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   #JFDEBUG print OUT "\n #include <dlfcn.h>\n\n";
   if ($ARGV[0] eq "ecmd") {
     print OUT " void * dlHandle = NULL;\n";
-    print OUT " void * DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+    print OUT " void * " . $DllFnTable . "[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
   } else {
     print OUT "/* This is from ecmdClientCapiFunc.C */\n";
     print OUT " extern void * dlHandle;\n";
     # If enumtable only has one entry this means this extension doesn't have any functions in it
     if ($#enumtable == 0) {
-      print OUT " void * $ARGV[0]DllFnTable[1 /* NO FUNCTIONS DEFAULT TO 1 - ".uc($ARGV[0])."_NUMFUNCTIONS */];\n";
+      print OUT " void * " . $DllFnTable . "[1 /* NO FUNCTIONS DEFAULT TO 1 - ".uc($ARGV[0])."_NUMFUNCTIONS */];\n";
     } else {
-      print OUT " void * $ARGV[0]DllFnTable[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
+      print OUT " void * " . $DllFnTable . "[".uc($ARGV[0])."_NUMFUNCTIONS];\n";
     }
 
   }       
@@ -511,6 +496,19 @@ if ($ARGV[1] =~ /ClientCapiFunc.C/ || $genAll) {
   print OUT "extern int fppCallCount;\n";
   print OUT "extern bool ecmdDebugOutput;\n";
   print OUT "#endif\n\n\n";
+
+  print OUT "#ifndef ECMD_STATIC_FUNCTIONS\n";
+  print OUT "void loadSymbol($ARGV[0]FunctionIndex_t enumname, const char * funcname) {\n";
+  print OUT "  if (" . $DllFnTable . "[enumname] == NULL) {\n";
+  print OUT "   " . $DllFnTable . "[enumname] = (void*)dlsym(dlHandle, funcname);\n";
+  print OUT "   if (" . $DllFnTable . "[enumname] == NULL) {\n";
+  print OUT "     fprintf(stderr,\"%s%s\",funcname,ECMD_UNABLE_TO_FIND_FUNCTION_ERROR);\n";
+  print OUT "     ecmdDisplayDllInfo();\n";
+  print OUT "     exit(ECMD_DLL_INVALID);\n";
+  print OUT "   }\n";
+  print OUT "  }\n";
+  print OUT "}\n";
+  print OUT "#endif\n\n";
 
   print OUT $printout;
 
