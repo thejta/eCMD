@@ -267,13 +267,6 @@ def __deepcopy__(self, memo):
     return self.__init__(self)
 %}
 }
-%copyctor ecmdSimModelInfo;
-%extend ecmdSimModelInfo {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return self.__init__(self)
-%}
-}
 %copyctor ecmdConnectionData;
 %extend ecmdConnectionData {
 %pythoncode %{

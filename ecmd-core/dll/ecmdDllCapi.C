@@ -6094,52 +6094,6 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
 }
 #endif // ECMD_REMOVE_LATCH_FUNCTIONS
 
-#ifndef REMOVE_SIM
-uint32_t dllSimPOLLFAC(const char* i_facname, uint32_t i_bitlength, const ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_offset, uint32_t i_maxcycles, uint32_t i_pollinterval) {
-
-  uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
-  ecmdDataBuffer actual_data;
-
-  while (curcycles < i_maxcycles) {
-    rc = dllSimGETFAC(i_facname,i_bitlength,actual_data,i_row,i_offset);
-    if (rc) return rc;
-
-    /* We found what we expected */
-    if (i_expect == actual_data) {
-      return rc;
-    }
-
-    dllSimclock(i_pollinterval);
-    curcycles += i_pollinterval;
-  }
-
-  /* We must have timed out */
-  return ECMD_POLLING_FAILURE;
-}
-
-uint32_t dllSimpolltcfac(const char* i_tcfacname, const ecmdDataBuffer & i_expect, uint64_t i_row, uint32_t i_startbit, uint32_t i_bitlength, uint32_t i_maxcycles, uint32_t i_pollinterval) {
-
-  uint32_t curcycles = 0 , rc = ECMD_SUCCESS;
-  ecmdDataBuffer actual_data;
-
-  while (curcycles < i_maxcycles) {
-    rc = dllSimgettcfac(i_tcfacname,actual_data,i_row,i_startbit,i_bitlength);
-    if (rc) return rc;
-
-    /* We found what we expected */
-    if (i_expect == actual_data) {
-      return rc;
-    }
-
-    dllSimclock(i_pollinterval);
-    curcycles += i_pollinterval;
-  }
-
-  /* We must have timed out */
-  return ECMD_POLLING_FAILURE;
-}
-#endif /* REMOVE_SIM */
-
 std::string dllParseReturnCode(uint32_t i_returnCode) {
   std::string ret = "";
 

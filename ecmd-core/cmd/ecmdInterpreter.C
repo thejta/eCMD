@@ -512,68 +512,6 @@ uint32_t ecmdCommandInterpreter(int argc, char* argv[]) {
 #endif // ECMD_REMOVE_REFCLOCK_FUNCTIONS
         } else if (!strcmp(argv[0], "setconfig")) {
           rc = ecmdSetConfigUser(argc - 1, argv + 1);
-#ifndef REMOVE_SIM
-        } else if (!strcmp(argv[0], "simaet")) {
-          rc = ecmdSimaetUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simcallfusioncommand")) {
-          rc = ecmdSimCallFusionCommandUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simcheckpoint")) {
-          rc = ecmdSimcheckpointUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simclock")) {
-          rc = ecmdSimclockUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simecho")) {
-          rc = ecmdSimechoUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simexit")) {
-          rc = ecmdSimexitUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simEXPECTFAC")) {
-          rc = ecmdSimEXPECTFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simexpecttcfac")) {
-          rc = ecmdSimexpecttcfacUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simGETFAC")) {
-          rc = ecmdSimGETFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simGETFACX")) {
-          rc = ecmdSimGETFACXUser(argc - 1, argv + 1);
-	} else if (!strcmp(argv[0], "simgetfullfacname")) {
-          rc = ecmdSimGetFullFacNameUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simgettcfac")) {
-          rc = ecmdSimgettcfacUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simgetcurrentcycle")) {
-          rc = ecmdSimgetcurrentcycleUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "siminit")) {
-          rc = ecmdSiminitUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simoutputfusionmessage")) {
-          rc = ecmdSimOutputFusionMessageUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simPUTFAC")) {
-          rc = ecmdSimPUTFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simPUTFACX")) {
-          rc = ecmdSimPUTFACXUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simputtcfac")) {
-          rc = ecmdSimputtcfacUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simrestart")) {
-          rc = ecmdSimrestartUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simSTKFAC")) {
-          rc = ecmdSimSTKFACUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simSTKFACX")) {
-          rc = ecmdSimSTKFACXUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simstktcfac")) {
-          rc = ecmdSimstktcfacUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simSUBCMD")) {
-          rc = ecmdSimSUBCMDUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simtckinterval")) {
-          rc = ecmdSimTckIntervalUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simUNSTICK")) {
-          rc = ecmdSimUNSTICKUser(argc - 1, argv + 1);
-        } else if (!strcmp(argv[0], "simunsticktcfac")) {
-          rc = ecmdSimunsticktcfacUser(argc - 1, argv + 1);
-	} else if (!strcmp(argv[0], "simgethierarchy")) {
-          rc = ecmdSimGetHierarchyUser(argc - 1, argv + 1);
-	} else if (!strcmp(argv[0], "simgetdial")) {
-          rc = ecmdSimGetDialUser(argc - 1, argv + 1);
-	} else if (!strcmp(argv[0], "simputdial")) {
-          rc = ecmdSimPutDialUser(argc - 1, argv + 1);
-	} else if (!strcmp(argv[0], "simruntestcase")) {
-          rc = ecmdSimRunTestcase(argc - 1, argv + 1);
-#endif // REMOVE_SIM
 #ifndef ECMD_REMOVE_CLOCK_FUNCTIONS
 	} else if (!strcmp(argv[0], "startclocks")) {
           rc = ecmdStartClocksUser(argc - 1, argv + 1);

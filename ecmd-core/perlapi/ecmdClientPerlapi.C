@@ -89,16 +89,6 @@ uint32_t ECMDPERLAPI::ecmdCommandArgs(char** i_argv) {
   return rc;
 }
 
-#ifndef REMOVE_SIM
-/* This is overwritten to handle passing in NULL for i_fusionRandObject */
-uint32_t ECMDPERLAPI::simFusionRand32(uint32_t i_min , uint32_t i_max , const char* i_fusionRandObject ) { 
-  return ::simFusionRand32(i_min, i_max, i_fusionRandObject);
-}
-uint64_t ECMDPERLAPI::simFusionRand64(uint64_t i_min , uint64_t i_max , const char* i_fusionRandObject ) { 
-  return ::simFusionRand64(i_min, i_max, i_fusionRandObject);
-}
-#endif
-
 #ifndef ECMD_REMOVE_LATCH_FUNCTIONS
 /* This is overwritten to handle passing in NULL for ringName */
 uint32_t ECMDPERLAPI::getLatch(const ecmdChipTarget & i_target, const char* i_ringName, const char * i_latchName, std::list<ecmdLatchEntry> & o_data, ecmdLatchMode_t i_mode, uint32_t i_ring_mode) { 

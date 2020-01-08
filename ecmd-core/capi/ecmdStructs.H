@@ -299,34 +299,6 @@ typedef enum {
 } ecmdFileType_t;
 
 /**
- @brief Used by simOutputFusionMessage function to specify message type
- Values copied from globals.h of SimDispatcher delivery 
-*/
-typedef enum {
-  ECMD_SIM_MSG_UNKNOWN,    ///< Default for not initialized
-  ECMD_SIM_MSG_EXCEPTION = 1,
-  ECMD_SIM_MSG_TESTCASE = 2,
-  ECMD_SIM_MSG_CMD_RS = 4,       // command receive / response send
-  ECMD_SIM_MSG_CMD_EXE = 8,      // command execution details (e.g. subcommands)
-  ECMD_SIM_MSG_DEBUG = 16,
-  ECMD_SIM_MSG_BROADSIDE = 32,
-  ECMD_SIM_MSG_END_SD_MSGS = 0x000000ff,
-  ECMD_SIM_MSG_ALWAYS = 0xff
-} ecmdFusionMessageType_t;
-
-/**
- @brief Used by simOutputFusionMessage function to specify message severity
- Values copied from globals.h of SimDispatcher delivery 
-*/
-typedef enum {
-  ECMD_SIM_UNKNOWN,    ///< Default for not initialized
-  ECMD_SIM_ERROR = 0x1,
-  ECMD_SIM_WARNING = 0x2,
-  ECMD_SIM_INFO = 0x3,
-  ECMD_SIM_PLAIN = ~0
-} ecmdFusionSeverity_t;
-
-/**
  @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
 */
 typedef enum {
@@ -1995,43 +1967,6 @@ readByteLength(0)                            //fix beam error
 
 // ecmdI2CCmdEntry Destructor
 inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
-#endif
-
-/**
- @brief Used by simGetModelInfo
-*/
-struct ecmdSimModelInfo {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdSimModelInfo();
-
-  // Destructor
-  ~ecmdSimModelInfo();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void) const;
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void) const;
-#endif
-#endif
-
-  char modelname[255];
-  char modeldate[255];
-  char modeltime[255];
-  char multivalue;  ///<   !=0  multivalue, ==0  2-state
-};
-
-//@01a Tell beam to ignore error w/uninitialized memember comment.
-#ifndef DOCUMENTATION
-// ecmdSimModelInfo Constructor
-inline ecmdSimModelInfo::ecmdSimModelInfo()
-{
-} /*uninitialized member*/
-
-// ecmdSimModelInfo Destructor
-inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
 #endif
 
 /**
