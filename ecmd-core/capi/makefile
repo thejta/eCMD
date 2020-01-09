@@ -84,7 +84,6 @@ install:
 	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
 	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/include/.
-	chmod 644 ${INSTALL_PATH}/include/*
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
