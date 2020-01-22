@@ -40,7 +40,7 @@ VPATH  := ${VPATH}$(foreach ext, ${EXT_CMD},:${EXT_${ext}_PATH}/cmd/:${EXT_${ext
 VPATH  := ${VPATH}:${OBJPATH}:${SRCPATH}:${ECMD_CORE}/capi
 
 CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
-CXXFLAGS := ${CXXFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS := ${CXXFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi)
 
 # *****************************************************************************
 # Define our output files

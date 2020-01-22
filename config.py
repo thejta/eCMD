@@ -86,6 +86,10 @@ optgroup.add_argument("--cxxflags", help="Any CXXFLAGS to use in the build\n"
 optgroup.add_argument("--firstinc", help="Set the first include path (-I) to be defined\n"
                                          "in CXXFLAGS and SWIGFLAGS")
 
+# --header-defines
+optgroup.add_argument("--header-defines", action='store_true',
+                      help="Rely on ecmdDefines.H to set extension defines")
+
 # --ld
 optgroup.add_argument("--ld", help="The linker to use\n"
                                    "LD from the environment")
@@ -605,6 +609,11 @@ elif (TARGET_BARCH == "arm"):
 # See if REMOVE_SIM is enabled from the cmdline
 if (args.remove_sim):
     DEFINES += " -DREMOVE_SIM"
+
+# Added the extension defines if not using the header
+if (not args.header_defines):
+    for ext in sorted(EXTENSIONS.split()):
+        DEFINES += " -DECMD_" + ext.upper() + "_EXTENSION_SUPPORT"
     
 # Export everything we defined
 buildvars["DEFINES"] = DEFINES
