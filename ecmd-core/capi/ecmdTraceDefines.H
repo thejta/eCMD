@@ -24,7 +24,6 @@
 // Includes
 //--------------------------------------------------------------------
 #include <stdarg.h>
-#include <string>
 
 /**
  * @file ecmdTraceDefines.H
