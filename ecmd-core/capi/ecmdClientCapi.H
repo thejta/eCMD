@@ -1339,7 +1339,7 @@ uint32_t putSpyEnumImage(const ecmdChipTarget & i_target, const char * i_spyName
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, std::map<std::string, ecmdDataBuffer> & io_ringImages);
+uint32_t putSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & i_data, std::map<std::string, ecmdDataBuffer> & io_ringImages);
 
 /**
  @brief Writes the enum into the selected spy within the provided ring images
