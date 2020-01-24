@@ -2334,7 +2334,7 @@ uint32_t putMemMemCtrl(const ecmdChipTarget & i_target, uint64_t i_address, uint
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_channel channel number
+ @param i_mode Mask to specify api information
  @param i_address Starting address to read from
  @param i_bytes Number of bytes to write
  @param o_data DataBuffer object that holds data read from memory
@@ -2343,7 +2343,7 @@ uint32_t putMemMemCtrl(const ecmdChipTarget & i_target, uint64_t i_address, uint
  TARGET STATES : Unused<br>
 
 */
-uint32_t getSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t getSram(const ecmdChipTarget & i_target, uint32_t i_mode, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
 
 /**
@@ -2355,7 +2355,7 @@ uint32_t getSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval nonzero if unsuccessful
  @param i_target Struct that specifies the target to operate on (see target depth and states below)
- @param i_channel channel number
+ @param i_mode Mask to specify api information
  @param i_address Starting address to write to
  @param i_bytes Number of bytes to write
  @param i_data DataBuffer object that holds data to write into memory
@@ -2364,7 +2364,7 @@ uint32_t getSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i
  TARGET STATES : Unused<br>
 
 */
-uint32_t putSram(const ecmdChipTarget & i_target, uint32_t i_channel, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data);
+uint32_t putSram(const ecmdChipTarget & i_target, uint32_t i_mode, uint64_t i_address, uint32_t i_bytes, const ecmdDataBuffer & i_data);
 
 /**
  @brief Query information about the cache levels
