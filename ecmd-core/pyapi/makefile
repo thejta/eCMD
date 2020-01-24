@@ -35,8 +35,8 @@ SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.C ${ext}Cli
 # Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
 SOURCE    := $(subst fapi2ClientCapi.C,,${SOURCE})
 SOURCE    := $(subst fapiClientCapi.C,,${SOURCE})
-CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
+SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/pyapi)
 
 ### Setup all of the additional objects to link

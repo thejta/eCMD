@@ -47,8 +47,8 @@ SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientPerlapi.C ${ext}
 # Remove the fapiClientPerlapiFunc.C from the build, only will use fapiClientPerlapi.C which has the init extension
 SOURCE    := $(subst fapi2ClientPerlapiFunc.C,,${SOURCE})
 SOURCE    := $(subst fapiClientPerlapiFunc.C,,${SOURCE})
-CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/perlapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/perlapi -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/perlapi)
+SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/perlapi -I${EXT_${ext}_PATH}/capi)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/perlapi)
 
 ### Setup all of the additional objects to link
