@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2017 IBM International Business Machines Corp.
+ * Copyright 2017,2020 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,7 @@ enum MvpdKeyword
     MVPD_KEYWORD_CI  = 0x2e,
     MVPD_KEYWORD_LAST, //useful for testcases
     MVPD_KEYWORD_FIRST = MVPD_KEYWORD_VD, //useful for testcases
+    MVPD_KEYWORD_UNDEFINED = 0xff,
 };
 }
 
