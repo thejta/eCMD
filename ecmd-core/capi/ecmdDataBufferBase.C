@@ -220,7 +220,7 @@ uint32_t ecmdDataBufferBase::clear() {
   if(!iv_UserOwned)  // If this buffer is shared
   {
       if (!isBufferOptimizable()) { // If the buffer is not optimizable, error
-        ETRAC0("**** ERROR (ecmdDataBufferBase) : Attempt to modify non user owned buffer size.");
+        //ETRAC("**** ERROR (ecmdDataBufferBase) : Attempt to modify non user owned buffer size.");
         RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
       }
       else {  // It's a shared/optimizable buffer, don't flag error
@@ -233,9 +233,9 @@ uint32_t ecmdDataBufferBase::clear() {
     /* Let's check our header,footer info */
     if (iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE] != EDB_RANDNUM) {
       /* Ok, something is wrong here */
-      ETRAC2("**** SEVERE ERROR (ecmdDataBufferBase) : iv_RealData[0]: %X, getWordLength(): %X",iv_RealData[EDB_RETURN_CODE],getWordLength());
-      ETRAC1("**** SEVERE ERROR (ecmdDataBufferBase) : iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]);
-      ETRAC0("**** SEVERE ERROR (ecmdDataBufferBase) : PROBLEM WITH DATABUFFER - INVALID HEADER/FOOTER");
+      ETRAC("**** SEVERE ERROR **** : iv_RealData[0]: %X, getWordLength(): %X",iv_RealData[EDB_RETURN_CODE],getWordLength());
+      ETRAC("**** SEVERE ERROR **** : iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]: %X",iv_RealData[getWordLength() + EDB_ADMIN_HEADER_SIZE]);
+      ETRAC("**** SEVERE ERROR **** : PROBLEM WITH DATABUFFER - INVALID HEADER/FOOTER");
 #ifdef __HOSTBOOT_MODULE
       fapiAssert(false);
 #else
@@ -301,7 +301,7 @@ uint32_t ecmdDataBufferBase::setCapacity(uint32_t i_newCapacity) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if(!iv_UserOwned) {
-    ETRAC0("**** ERROR (ecmdDataBufferBase) : Attempt to modify non user owned buffer size.");
+    ETRAC("Attempt to modify non user owned buffer size.");
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
@@ -329,7 +329,7 @@ uint32_t ecmdDataBufferBase::setCapacity(uint32_t i_newCapacity) {
 
       iv_RealData = new uint32_t[iv_Capacity + EDB_ADMIN_TOTAL_SIZE]; 
       if (iv_RealData == NULL) {
-        ETRAC0("**** ERROR : ecmdDataBufferBase::setCapacity : Unable to allocate memory for new databuffer");
+        ETRAC("Unable to allocate memory for new databuffer");
         RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
       }
     }
@@ -356,12 +356,12 @@ uint32_t ecmdDataBufferBase::shrinkBitLength(uint32_t i_newNumBits) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if(!iv_UserOwned) {
-    ETRAC0("**** ERROR (ecmdDataBufferBase::shrinkBitLength) : Attempt to modify non user owned buffer size.");
+    ETRAC("Attempt to modify non user owned buffer size.");
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
   if (i_newNumBits > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::shrinkBitLength: New Bit Length (%d) > current NumBits (%d)", i_newNumBits, iv_NumBits);
+    ETRAC("New Bit Length (%d) > current NumBits (%d)", i_newNumBits, iv_NumBits);
     rc = ECMD_DBUF_BUFFER_OVERFLOW;
     RETURN_ERROR(rc);
   }
@@ -374,7 +374,7 @@ uint32_t ecmdDataBufferBase::shrinkBitLength(uint32_t i_newNumBits) {
   // before shrinking, clear all data that is going to now be invalid
   this->clearBit(i_newNumBits, (iv_NumBits-i_newNumBits));
   if (rc != ECMD_DBUF_SUCCESS) { 
-    ETRAC3("**** ERROR : ecmdDataBufferBase::shrinkBitLength: Error Back from clearBit(%d, %d). rc=0x%x", i_newNumBits, (iv_NumBits-i_newNumBits), rc); 
+    ETRAC("Error Back from clearBit(%d, %d). rc=0x%x", i_newNumBits, (iv_NumBits-i_newNumBits), rc); 
     RETURN_ERROR(rc);  
   }
 
@@ -392,7 +392,7 @@ uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
   uint32_t prevbitsize;
 
   if(!iv_UserOwned) {
-    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempt to modify non user owned buffer size.");
+    ETRAC("Attempt to modify non user owned buffer size.");
     RETURN_ERROR(ECMD_DBUF_NOT_OWNER);
   }
 
@@ -401,7 +401,7 @@ uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
     return rc;
   } else if (i_newNumBits < iv_NumBits) {
     /* You can't grow smaller, use shrink */
-    ETRAC0("**** ERROR (ecmdDataBufferBase::growBitLength) : Attempted to grow to a smaller size than current buffer size.");
+    ETRAC("Attempted to grow to a smaller size than current buffer size.");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS);
   }
 
@@ -414,7 +414,7 @@ uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
     /* UhOh we are out of room, have to resize */
     uint32_t * tempBuf = new uint32_t[prevwordsize];
     if (tempBuf == NULL) {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::growBitLength : Unable to allocate temp buffer");
+      ETRAC("Unable to allocate temp buffer");
       RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
     }
     memcpy(tempBuf, iv_Data, prevwordsize * 4);
@@ -462,7 +462,7 @@ bool ecmdDataBufferBase::getBit(uint32_t i_bit) const {
 uint32_t ecmdDataBufferBase::setBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
+    ETRAC("bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -476,7 +476,7 @@ uint32_t ecmdDataBufferBase::setBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::setBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -503,7 +503,7 @@ uint32_t ecmdDataBufferBase::setWord(uint32_t i_wordOffset, uint32_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_wordOffset >= getWordLength()) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setWord: wordoffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
+    ETRAC("wordoffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -515,7 +515,7 @@ uint32_t ecmdDataBufferBase::setWord(uint32_t i_wordOffset, uint32_t i_value) {
     bitMask <<= ((32 * getWordLength()) - iv_NumBits);
     
     if ( (i_value & ~bitMask) != 0 ) {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::setWord: non zero data being cleared prior to set");
+      ETRAC("non zero data being cleared prior to set");
     }
 
     /* Clear the unused bits */
@@ -531,7 +531,7 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_byteOffset >= getByteLength()) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setByte: byteOffset %d >= NumBytes (%d)", i_byteOffset, getByteLength());
+    ETRAC("byteOffset %d >= NumBytes (%d)", i_byteOffset, getByteLength());
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -543,7 +543,7 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
     bitMask <<= ((8 * getByteLength()) - iv_NumBits);
 
     if ( (i_value & ~bitMask) != 0 ) {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::setByte: non zero data being cleared prior to set");
+      ETRAC("non zero data being cleared prior to set");
     }
 
     /* Clear the unused bits */
@@ -561,7 +561,7 @@ uint32_t ecmdDataBufferBase::setByte(uint32_t i_byteOffset, uint8_t i_value) {
 
 uint8_t ecmdDataBufferBase::getByte(uint32_t i_byteOffset) const {
   if (i_byteOffset >= getByteLength()) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::getByte: byteOffset %d >= NumBytes (%d)", i_byteOffset, getByteLength());
+    ETRAC("byteOffset %d >= NumBytes (%d)", i_byteOffset, getByteLength());
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -577,7 +577,7 @@ uint32_t ecmdDataBufferBase::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_v
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_halfwordoffset >= ((getByteLength()+1)/2)) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, ((getByteLength()+1)/2));
+    ETRAC("halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, ((getByteLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -589,7 +589,7 @@ uint32_t ecmdDataBufferBase::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_v
     bitMask <<= ((16 * ((getByteLength()+1)/2)) - iv_NumBits);
     
     if ( (i_value & ~bitMask) != 0 ) {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::setHalfWord: non zero data being cleared prior to set");
+      ETRAC("non zero data being cleared prior to set");
     }
 
     /* Clear the unused bits */
@@ -609,7 +609,7 @@ uint32_t ecmdDataBufferBase::setHalfWord(uint32_t i_halfwordoffset, uint16_t i_v
 
 uint16_t ecmdDataBufferBase::getHalfWord(uint32_t i_halfwordoffset) const {
   if (i_halfwordoffset >= ((getByteLength()+1)/2)) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::getHalfWord: halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, ((getByteLength()+1)/2));
+    ETRAC("halfWordOffset %d >= NumHalfWords (%d)", i_halfwordoffset, ((getByteLength()+1)/2));
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -625,8 +625,7 @@ uint32_t ecmdDataBufferBase::setDoubleWord(uint32_t i_doublewordoffset, uint64_t
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)"
-       , i_doublewordoffset, ((getWordLength()+1)/2));
+    ETRAC("doubleWordOffset %d >= NumDoubleWords (%d)", i_doublewordoffset, ((getWordLength()+1)/2));
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -642,7 +641,7 @@ uint32_t ecmdDataBufferBase::setDoubleWord(uint32_t i_doublewordoffset, uint64_t
     bitMask <<= ((64 * ((getWordLength()+1)/2)) - iv_NumBits);
     
     if ( (i_value & ~bitMask) != 0 ) {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::setDoubleWord: non zero data being cleared prior to set");
+      ETRAC("non zero data being cleared prior to set");
     }
 
     /* Clear the unused bits */
@@ -669,7 +668,7 @@ uint32_t ecmdDataBufferBase::setDoubleWord(uint32_t i_doublewordoffset, uint64_t
 uint64_t ecmdDataBufferBase::getDoubleWord(uint32_t i_doublewordoffset) const {
   // Round up to the next word and check length
   if (i_doublewordoffset >= ((getWordLength()+1)/2)) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::getDoubleWord: doubleWordOffset %d >= NumDoubleWords (%d)", 
+    ETRAC("doubleWordOffset %d >= NumDoubleWords (%d)", 
        i_doublewordoffset, ((getWordLength()+1)/2));
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
@@ -686,7 +685,7 @@ uint64_t ecmdDataBufferBase::getDoubleWord(uint32_t i_doublewordoffset) const {
 uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::clearBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
+    ETRAC("bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -699,7 +698,7 @@ uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit) {
 uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::clearBit: bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("bit %d + len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // The following code will call recursively
@@ -739,7 +738,7 @@ uint32_t ecmdDataBufferBase::clearBit(uint32_t i_bit, uint32_t i_len) {
 uint32_t ecmdDataBufferBase::flipBit(uint32_t i_bit) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::flipBit: bit %d >= NumBits (%d)", i_bit, iv_NumBits);
+    ETRAC("i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -755,7 +754,7 @@ uint32_t ecmdDataBufferBase::flipBit(uint32_t i_bit) {
 uint32_t ecmdDataBufferBase::flipBit(uint32_t i_bit, uint32_t i_len) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::flipBit: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -768,7 +767,7 @@ uint32_t ecmdDataBufferBase::flipBit(uint32_t i_bit, uint32_t i_len) {
 
 bool   ecmdDataBufferBase::isBitSet(uint32_t i_bit) const {
   if (i_bit >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::isBitSet: i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
+    ETRAC("i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
   }
@@ -779,7 +778,7 @@ bool   ecmdDataBufferBase::isBitSet(uint32_t i_bit) const {
 
 bool   ecmdDataBufferBase::isBitSet(uint32_t i_bit, uint32_t i_len) const {
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::isBitSet: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
   }
@@ -796,7 +795,7 @@ bool   ecmdDataBufferBase::isBitSet(uint32_t i_bit, uint32_t i_len) const {
 
 bool   ecmdDataBufferBase::isBitClear(uint32_t i_bit) const {
   if (i_bit >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::isBitClear: i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
+    ETRAC("i_bit %d >= NumBits (%d)", i_bit, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
   }
@@ -808,7 +807,7 @@ bool   ecmdDataBufferBase::isBitClear(uint32_t i_bit) const {
 bool ecmdDataBufferBase::isBitClear(uint32_t i_bit, uint32_t i_len) const
 {
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::isBitClear: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return false;
   }
@@ -826,7 +825,7 @@ bool ecmdDataBufferBase::isBitClear(uint32_t i_bit, uint32_t i_len) const
 
 uint32_t ecmdDataBufferBase::getNumBitsSet(uint32_t i_bit, uint32_t i_len) const {
   if (i_bit+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::getNumBitsSet: i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > NumBits (%d)", i_bit, i_len, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -883,11 +882,11 @@ uint32_t ecmdDataBufferBase::shiftRight(uint32_t i_shiftNum, uint32_t i_offset) 
 
   /* Error check */
   if (i_offset > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    ETRAC("i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   if (i_shiftNum+i_offset > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::shiftRight: i_offset %d + i_shiftNum %d > NumBits (%d)", i_offset, i_shiftNum, iv_NumBits);
+    ETRAC("i_offset %d + i_shiftNum %d > NumBits (%d)", i_offset, i_shiftNum, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -919,11 +918,11 @@ uint32_t ecmdDataBufferBase::shiftLeft(uint32_t i_shiftNum, uint32_t i_offset) {
 
   /* Error check */
   if (i_offset > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
+    ETRAC("i_offset %d > NumBits (%d)", i_offset, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   if (i_offset < i_shiftNum) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::shiftLeft: i_offset %d < i_shiftNum (%d)", i_offset, i_shiftNum);
+    ETRAC("i_offset %d < i_shiftNum (%d)", i_offset, i_shiftNum);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -1192,16 +1191,13 @@ uint32_t ecmdDataBufferBase::insert(const ecmdDataBufferBase &i_bufferIn, uint32
   uint32_t rc = ECMD_DBUF_SUCCESS;    
 
   if (i_targetStart+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)",
-           i_targetStart, i_len, iv_NumBits);
+    ETRAC("i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_targetStart >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d >= iv_NumBits (%d)",
-           i_targetStart, iv_NumBits);
+    ETRAC("i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_len %d > iv_NumBits (%d)",
-           i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -1217,13 +1213,13 @@ uint32_t ecmdDataBufferBase::insert(const uint32_t * i_data, uint32_t i_targetSt
   uint32_t rc = ECMD_DBUF_SUCCESS;
     
   if (i_targetStart+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+    ETRAC("i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_targetStart >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
+    ETRAC("i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
     
@@ -1237,13 +1233,13 @@ uint32_t ecmdDataBufferBase::insert(uint32_t i_data, uint32_t i_targetStart, uin
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ( i_sourceStart + i_len > 32 ) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d + i_len %d > sizeof i_data (32)\n", i_sourceStart, i_len );
+    ETRAC("i_sourceStart %d + i_len %d > sizeof i_data (32)\n", i_sourceStart, i_len );
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_sourceStart >= 32) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d >= sizeof i_data (32)", i_sourceStart);
+    ETRAC("i_sourceStart %d >= sizeof i_data (32)", i_sourceStart);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > 32) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_len %d > sizeof i_data (32)", i_len);
+    ETRAC("i_len %d > sizeof i_data (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks are perfomred in the insert function called below
@@ -1267,7 +1263,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint32_t * i_data, uint32_t i
   }  
 
   if (i_start+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
+    ETRAC("start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks happen below in setBit and clearBit
@@ -1294,7 +1290,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint32_t * i_data, uint32_t i
 uint32_t ecmdDataBufferBase::insertFromRight(uint32_t i_data, uint32_t i_start, uint32_t i_len) {
 
   if (i_len > 32) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insertFromRight: i_len %d > sizeof i_data (32)", i_len);
+    ETRAC("i_len %d > sizeof i_data (32)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks are perfomred in the insertFromRight function called below
   }
@@ -1308,13 +1304,13 @@ uint32_t ecmdDataBufferBase::insert(const uint16_t * i_data, uint32_t i_targetSt
   uint32_t rc = ECMD_DBUF_SUCCESS;
     
   if (i_targetStart+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+    ETRAC("i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_targetStart >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
+    ETRAC("i_targetStart %d >= iv_NumBits (%d)", i_targetStart, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
     
@@ -1336,13 +1332,13 @@ uint32_t ecmdDataBufferBase::insert(uint16_t i_data, uint32_t i_targetStart, uin
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ( i_sourceStart + i_len > 16) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d + i_len %d > sizeof i_data (16)\n", i_sourceStart, i_len );
+    ETRAC("i_sourceStart %d + i_len %d > sizeof i_data (16)\n", i_sourceStart, i_len );
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_sourceStart >= 16) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d >= sizeof i_data (16)", i_sourceStart);
+    ETRAC("i_sourceStart %d >= sizeof i_data (16)", i_sourceStart);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > 16) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_len %d > sizeof i_data (16)", i_len);
+    ETRAC("i_len %d > sizeof i_data (16)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks are perfomred in the insert function called below
@@ -1359,7 +1355,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint16_t * i_data, uint32_t i
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_start+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
+    ETRAC("i_start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks happen below in setBit and clearBit
@@ -1393,7 +1389,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint16_t * i_data, uint32_t i
 uint32_t ecmdDataBufferBase::insertFromRight(uint16_t i_data, uint32_t i_start, uint32_t i_len) {
 
   if (i_len > 16) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insertFromRight: i_len %d > sizeof i_data (16)", i_len);
+    ETRAC("i_len %d > sizeof i_data (16)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks are perfomred in the insertFromRight function called below
   }
@@ -1408,7 +1404,7 @@ uint32_t ecmdDataBufferBase::insert(const uint8_t *i_data, uint32_t i_targetStar
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_targetStart+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insert: i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
+    ETRAC("i_targetStart %d + i_len %d > iv_NumBits (%d)", i_targetStart, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks are perfomred in the setBit(), clearBit() functions called below
   }
@@ -1431,13 +1427,13 @@ uint32_t ecmdDataBufferBase::insert(uint8_t i_data, uint32_t i_targetStart, uint
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if ( i_sourceStart + i_len > 8) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d + i_len %d > sizeof i_data (8)\n", i_sourceStart, i_len );
+    ETRAC("i_sourceStart %d + i_len %d > sizeof i_data (8)\n", i_sourceStart, i_len );
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_sourceStart >= 8) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_sourceStart %d >= sizeof i_data (8)", i_sourceStart);
+    ETRAC("i_sourceStart %d >= sizeof i_data (8)", i_sourceStart);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > 8) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insert: i_len %d > sizeof i_data (8)", i_len);
+    ETRAC("i_len %d > sizeof i_data (8)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks are perfomred in the insert function called below
@@ -1461,7 +1457,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint8_t *i_data, uint32_t i_s
   }  
 
   if (i_start+i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::insertFromRight: start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
+    ETRAC("start %d + len %d > iv_NumBits (%d)", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks happen below in setBit and clearBit
@@ -1488,7 +1484,7 @@ uint32_t ecmdDataBufferBase::insertFromRight(const uint8_t *i_data, uint32_t i_s
 uint32_t ecmdDataBufferBase::insertFromRight(uint8_t i_data, uint32_t i_start, uint32_t i_len) {
 
   if (i_len > 8) {
-    ETRAC1("**** ERROR : ecmdDataBufferBase::insertFromRight: i_len %d > sizeof i_data (8)", i_len);
+    ETRAC("i_len %d > sizeof i_data (8)", i_len);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks are perfomred in the insertFromRight function called below
   }
@@ -1501,13 +1497,13 @@ uint32_t ecmdDataBufferBase::extract(ecmdDataBufferBase& o_bufferOut, uint32_t i
 
   // ecmdExtract can't make good input checks, so we have to do that here
   if (i_start + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::extract: start %d + len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
+    ETRAC("i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: start %d >= iv_NumBits (%d)\n", i_start, iv_NumBits);
+    ETRAC("i_start %d >= iv_NumBits (%d)\n", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: len %d > iv_NumBits (%d)\n", i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)\n", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -1528,13 +1524,13 @@ uint32_t ecmdDataBufferBase::extract(uint32_t *o_data, uint32_t i_start, uint32_
 
   // ecmdExtract can't make good input checks, so we have to do that here
   if (i_start + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::extract: i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
+    ETRAC("i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
+    ETRAC("i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len == 0) {
     return ECMD_DBUF_SUCCESS;
@@ -1556,13 +1552,13 @@ uint32_t ecmdDataBufferBase::extract(uint16_t *o_data, uint32_t i_start, uint32_
 
   // ecmdExtract can't make good input checks, so we have to do that here
   if (i_start + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::extract: i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
+    ETRAC("i_start %d + i_len %d > iv_NumBits (%d)\n", i_start, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
+    ETRAC("i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits (%d)", i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_len == 0) {
     return ECMD_DBUF_SUCCESS;
@@ -1593,13 +1589,13 @@ uint32_t ecmdDataBufferBase::extract(uint8_t * o_data, uint32_t i_start, uint32_
 
   // Error checking
   if (i_start + i_bitLen > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::extract: i_start %d + i_bitLen %d > iv_NumBits (%d)\n", i_start, i_bitLen, iv_NumBits);
+    ETRAC("i_start %d + i_bitLen %d > iv_NumBits (%d)\n", i_start, i_bitLen, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
+    ETRAC("i_start %d >= iv_NumBits (%d)", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_bitLen > iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::extract: i_bitLen %d > iv_NumBits (%d)", i_bitLen, iv_NumBits);
+    ETRAC("i_bitLen %d > iv_NumBits (%d)", i_bitLen, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_bitLen == 0) {
     return ECMD_DBUF_SUCCESS;
@@ -1644,13 +1640,13 @@ uint32_t ecmdDataBufferBase::extractPreserve(uint32_t *o_outBuffer, uint32_t i_s
   ecmdDataBufferBase *tempBuf = new ecmdDataBufferBase;
 
   if ( NULL == tempBuf ) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : Unable to allocate memory for new databuffer\n");
+    ETRAC("Unable to allocate memory for new databuffer\n");
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
 
   if(o_outBuffer == NULL)
   {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : o_outBuffer of type uint32_t * is not initialized. NULL buffer passed.");
+      ETRAC("o_outBuffer of type uint32_t * is not initialized. NULL buffer passed.");
       delete tempBuf;
       tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1684,13 +1680,13 @@ uint32_t ecmdDataBufferBase::extractPreserve(uint16_t *o_outBuffer, uint32_t i_s
   ecmdDataBufferBase *tempBuf = new ecmdDataBufferBase;
 
   if ( NULL == tempBuf ) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : Unable to allocate memory for new databuffer\n");
+    ETRAC("Unable to allocate memory for new databuffer\n");
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
 
   if(o_outBuffer == NULL)
   {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : o_outBuffer of type uint16_t * is not initialized. NULL buffer passed.");
+      ETRAC("o_outBuffer of type uint16_t * is not initialized. NULL buffer passed.");
       delete tempBuf;
       tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1721,13 +1717,13 @@ uint32_t ecmdDataBufferBase::extractPreserve(uint8_t * o_data, uint32_t i_start,
   ecmdDataBufferBase *tempBuf = new ecmdDataBufferBase;
 
   if ( NULL == tempBuf ) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : Unable to allocate memory for new databuffer\n");
+    ETRAC("Unable to allocate memory for new databuffer\n");
     RETURN_ERROR(ECMD_DBUF_INIT_FAIL);
   } 
 
   if(o_data == NULL)
   {
-      ETRAC0("**** ERROR : ecmdDataBufferBase::extractPreserve : o_data of type uint8_t * is not initialized. NULL buffer passed.");
+      ETRAC("o_data of type uint8_t * is not initialized. NULL buffer passed.");
       delete tempBuf;
       tempBuf = NULL;
       RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
@@ -1832,7 +1828,7 @@ uint32_t ecmdDataBufferBase::concat(const std::vector<ecmdDataBufferBase> & i_bu
 
 uint32_t ecmdDataBufferBase::setOr(const ecmdDataBufferBase& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
   if (i_len > i_bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setOr: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   return this->setOr(i_bufferIn.iv_Data, i_startBit, i_len);
@@ -1845,7 +1841,7 @@ uint32_t ecmdDataBufferBase::setOr(const uint32_t * i_data, uint32_t i_startBit,
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::setOr: bit %d + len %d > NumBits (%d)", i_startBit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > iv_NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of setBit()
@@ -1872,7 +1868,7 @@ uint32_t ecmdDataBufferBase::setOr(uint32_t i_data, uint32_t i_startBit, uint32_
 
 uint32_t ecmdDataBufferBase::setXor(const ecmdDataBufferBase& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
   if (i_len > i_bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setXor: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of setXor()
@@ -1886,7 +1882,7 @@ uint32_t ecmdDataBufferBase::setXor(const uint32_t * i_data, uint32_t i_startBit
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::setOr: bit %d + len %d > NumBits (%d)", i_startBit, i_len, iv_NumBits);
+    ETRAC("i_bit %d + i_len %d > iv_NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of writeBit()
@@ -1911,7 +1907,7 @@ uint32_t ecmdDataBufferBase::setXor(uint32_t i_data, uint32_t i_startBit, uint32
 
 uint32_t ecmdDataBufferBase::merge(const ecmdDataBufferBase& i_bufferIn) {
   if (iv_NumBits != i_bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::merge: NumBits in (%d) do not match NumBits (%d)", i_bufferIn.iv_NumBits, iv_NumBits);
+    ETRAC("iv_NumBits in (%d) do not match NumBits (%d)", i_bufferIn.iv_NumBits, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
     return this->setOr(i_bufferIn, 0, iv_NumBits);
@@ -1920,7 +1916,7 @@ uint32_t ecmdDataBufferBase::merge(const ecmdDataBufferBase& i_bufferIn) {
 
 uint32_t ecmdDataBufferBase::setAnd(const ecmdDataBufferBase& i_bufferIn, uint32_t i_startBit, uint32_t i_len) {
   if (i_len > i_bufferIn.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::setAnd: len %d > NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
+    ETRAC("i_len %d > iv_NumBits of incoming buffer (%d)", i_len, i_bufferIn.iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
   // other input checks done as part of setAnd()
@@ -1934,7 +1930,7 @@ uint32_t ecmdDataBufferBase::setAnd(const uint32_t * i_data, uint32_t i_startBit
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   if (i_startBit + i_len > iv_NumBits) {
-    ETRAC3("**** ERROR : ecmdDataBufferBase::setAnd: i_start %d + i_len %d > iv_NumBits (%d)", i_startBit, i_len, iv_NumBits);
+    ETRAC("i_start %d + i_len %d > iv_NumBits (%d)", i_startBit, i_len, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     // other input checks done as part of setClearBit()
   }
@@ -1967,13 +1963,13 @@ uint32_t ecmdDataBufferBase::oddParity(uint32_t i_start, uint32_t i_stop) const 
   uint32_t mask;
 
   if (i_start >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::oddParity: i_start %d >= iv_NumBits (%d)\n", i_start, iv_NumBits);
+    ETRAC("i_start %d >= iv_NumBits (%d)\n", i_start, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_stop >= iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::oddParity: i_stop %d >= iv_NumBits (%d)\n", i_stop, iv_NumBits);
+    ETRAC("i_stop %d >= iv_NumBits (%d)\n", i_stop, iv_NumBits);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (i_start > i_stop) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::oddParity: i_start %d >= i_stop (%d)\n", i_start, i_stop);
+    ETRAC("i_start %d >= i_stop (%d)\n", i_start, i_stop);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
 
@@ -2032,7 +2028,7 @@ uint32_t ecmdDataBufferBase::evenParity(uint32_t i_start, uint32_t i_stop, uint3
 
 uint32_t ecmdDataBufferBase::getWord(uint32_t i_wordOffset) const {
   if (i_wordOffset >= getWordLength()) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::getWord: i_wordOffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
+    ETRAC("i_wordOffset %d >= NumWords (%d)", i_wordOffset, getWordLength());
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
     return 0;
   }
@@ -2079,7 +2075,7 @@ uint32_t ecmdDataBufferBase::memCopyIn(const uint32_t* i_buf, uint32_t i_bytes) 
 
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyIn: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2103,7 +2099,7 @@ uint32_t ecmdDataBufferBase::memCopyOut(uint32_t* o_buf, uint32_t i_bytes) const
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyOut: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2120,7 +2116,7 @@ uint32_t ecmdDataBufferBase::memCopyIn(const uint16_t* i_buf, uint32_t i_bytes) 
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   uint32_t numHalfWords = (cbytes + 1) / 2;
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyIn: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2139,7 +2135,7 @@ uint32_t ecmdDataBufferBase::memCopyOut(uint16_t* o_buf, uint32_t i_bytes) const
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   uint32_t numHalfWords = (cbytes + 1) / 2;
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyOut: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2157,7 +2153,7 @@ uint32_t ecmdDataBufferBase::memCopyIn(const uint8_t* i_buf, uint32_t i_bytes) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyIn: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2175,7 +2171,7 @@ uint32_t ecmdDataBufferBase::memCopyOut(uint8_t* o_buf, uint32_t i_bytes) const 
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t cbytes = i_bytes < getByteLength() ? i_bytes : getByteLength();
   if (cbytes == 0) {
-    ETRAC0("**** ERROR : ecmdDataBufferBase: memCopyIn: Copy performed on buffer with length of 0");
+    ETRAC("Copy performed on buffer with length of 0");
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2195,7 +2191,7 @@ uint32_t ecmdDataBufferBase::flatten(uint8_t * o_data, uint32_t i_len) const {
   uint32_t * o_ptr = (uint32_t *) o_data;
 
   if ((i_len < 8) || (iv_Capacity*32 > ((i_len - 8) * 8))) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::flatten: i_len %d bytes is too small to flatten a capacity of %d words ", i_len, iv_Capacity);
+    ETRAC("i_len %d bytes is too small to flatten a capacity of %d words ", i_len, iv_Capacity);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2221,7 +2217,7 @@ uint32_t ecmdDataBufferBase::flattenMinCap(uint8_t * o_data, uint32_t i_len) con
   uint32_t l_Capacity = (iv_NumBits + 31) / 32;
 
   if ((i_len < 8) || (l_Capacity*32 > ((i_len - 8) * 8))) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::flattenMinCap: i_len %d bytes is too small to flatten a capacity of %d words ", i_len, l_Capacity);
+    ETRAC("i_len %d bytes is too small to flatten a capacity of %d words ", i_len, l_Capacity);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
@@ -2251,17 +2247,17 @@ uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
   newBitLength = ntohl(i_ptr[1]);
 
   if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8))) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: i_len %d bytes is too small to unflatten a capacity of %d words ", i_len, newCapacity);
+    ETRAC("i_len %d bytes is too small to unflatten a capacity of %d words ", i_len, newCapacity);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (newBitLength > newCapacity * 32) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
+    ETRAC("iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
   if (this->getCapacity() != newCapacity) {
     rc = this->setCapacity(newCapacity);
     if (rc != ECMD_DBUF_SUCCESS) {
-      ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
+      ETRAC("this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
       RETURN_ERROR(rc);
     }
   }
@@ -2269,7 +2265,7 @@ uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
   if (this->getBitLength() != newBitLength) {
     rc = this->setBitLength(newBitLength);
     if (rc != ECMD_DBUF_SUCCESS) {
-      ETRAC2("**** ERROR : ecmdDataBufferBase::unflatten: this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
+      ETRAC("this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
       RETURN_ERROR(rc);
     }
   }
@@ -2279,7 +2275,7 @@ uint32_t ecmdDataBufferBase::unflatten(const uint8_t * i_data, uint32_t i_len) {
     for (uint32_t i = 0; i < newWordLength ; i++) {
       rc = setWord(i, ntohl(i_ptr[i+2]));
       if (rc != ECMD_DBUF_SUCCESS) {
-        ETRAC5("**** ERROR : ecmdDataBufferBase::unflatten: this->setWord() Failed. rc=0x%08x  newBitLength = %d bits, newWordLength= %d words, newCapacity = %d words, loop parm i = %d ", rc, newBitLength, newWordLength, newCapacity, i);
+        ETRAC("this->setWord() Failed. rc=0x%08x  newBitLength = %d bits, newWordLength= %d words, newCapacity = %d words, loop parm i = %d ", rc, newBitLength, newWordLength, newCapacity, i);
         RETURN_ERROR(rc);
       }
     }
@@ -2303,17 +2299,17 @@ uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, ui
   newBitLength = ntohl(i_ptr[1]);
 
   if ((i_len < 8) || (newCapacity > ((i_len - 8) * 8))) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: i_len %d bytes is too small to unflatten a capacity of %d words ", i_len, newCapacity);
+    ETRAC("i_len %d bytes is too small to unflatten a capacity of %d words ", i_len, newCapacity);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else if (newBitLength > newCapacity * 32) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
+    ETRAC("iv_NumBits %d cannot be greater than iv_Capacity*32 %d", newBitLength, newCapacity*32);
     RETURN_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   }
 
   if (this->getCapacity() < newCapacity) {
     rc = this->setCapacity(newCapacity);
     if (rc != ECMD_DBUF_SUCCESS) {
-      ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
+      ETRAC("this->setCapacity() Failed. rc=0x%08x, newCapacity = %d words ", rc, newCapacity);
       RETURN_ERROR(rc);
     }
   }
@@ -2321,7 +2317,7 @@ uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, ui
   if (this->getBitLength() != newBitLength) {
     rc = this->setBitLength(newBitLength);
     if (rc != ECMD_DBUF_SUCCESS) {
-      ETRAC2("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
+      ETRAC("this->setBitLength() Failed. rc=0x%08x, newBitLength = %d bits ", rc, newBitLength);
       RETURN_ERROR(rc);
     }
   }
@@ -2331,7 +2327,7 @@ uint32_t ecmdDataBufferBase::unflattenTryKeepCapacity(const uint8_t * i_data, ui
     for (uint32_t i = 0; i < newWordLength ; i++) {
       rc = setWord(i, ntohl(i_ptr[i+2]));
       if (rc != ECMD_DBUF_SUCCESS) {
-        ETRAC5("**** ERROR : ecmdDataBufferBase::unflattenTryKeepCapacity: this->setWord() Failed. rc=0x%08x  newBitLength = %d bits, newWordLength= %d words, newCapacity = %d words, loop parm i = %d ", rc, newBitLength, newWordLength, newCapacity, i);
+        ETRAC("this->setWord() Failed. rc=0x%08x  newBitLength = %d bits, newWordLength= %d words, newCapacity = %d words, loop parm i = %d ", rc, newBitLength, newWordLength, newCapacity, i);
         RETURN_ERROR(rc);
       }
     }
@@ -2403,7 +2399,7 @@ ecmdDataBufferBase ecmdDataBufferBase::operator & (const ecmdDataBufferBase& i_o
   ecmdDataBufferBase newItem = *this;
 
   if (iv_NumBits != i_other.iv_NumBits) {
-    ETRAC2("**** ERROR : ecmdDataBufferBase::operater &: NumBits in (%d) do not match NumBits (%d)", i_other.iv_NumBits, iv_NumBits);
+    ETRAC("iv_NumBits in (%d) do not match iv_NumBits (%d)", i_other.iv_NumBits, iv_NumBits);
     SET_ERROR(ECMD_DBUF_BUFFER_OVERFLOW);
   } else {
     newItem.setAnd(i_other.iv_Data, 0, iv_NumBits);
@@ -2433,7 +2429,7 @@ uint32_t ecmdExtract(uint32_t *i_sourceData, uint32_t i_startBit, uint32_t i_num
 
   // Error check
   if ((i_numBitsToExtract == 0) || (i_sourceData == NULL)){
-    ETRAC0("**** ERROR : ecmdDataBufferBase ecmdExtract: Number of bits to extract = 0");
+    ETRAC("Number of bits to extract = 0");
     o_destData = NULL;
     return ECMD_DBUF_INVALID_ARGS;
   } 
@@ -2619,11 +2615,11 @@ uint32_t ecmdDataBufferBase::compressBuffer(ecmdCompressionMode_t i_mode) {
     // All three of these are zlib compression, so they get the same version
     compressedBuffer.setByte(byteOffset++, 0xF3);
 #else
-    ETRAC0("**** ERROR : zlib support removed!");
+    ETRAC("zlib support removed!");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
 #endif
   } else {
-    ETRAC0("**** ERROR : Unknown compression mode passed in!");
+    ETRAC("Unknown compression mode passed in!");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
   }
 
@@ -2662,7 +2658,7 @@ uint32_t ecmdDataBufferBase::compressBuffer(ecmdCompressionMode_t i_mode) {
     } else if (i_mode == ECMD_COMP_ZLIB_COMPRESSION) {
       level = Z_BEST_COMPRESSION;
     } else {
-      ETRAC0("**** ERROR : Unknown compression mode passed in!");
+      ETRAC("Unknown compression mode passed in!");
       delete[] uncompressedData;
       delete[] compressedData;
       RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
@@ -2674,7 +2670,7 @@ uint32_t ecmdDataBufferBase::compressBuffer(ecmdCompressionMode_t i_mode) {
     /* Do the work */
     uint32_t rc = compress2(compressedData, &l_compressedSize, uncompressedData, uncompressedSize, level);
     if (rc) {
-      ETRAC0("**** ERROR : Error occurred on the zlib compress2 call!");
+      ETRAC("Error occurred on the zlib compress2 call!");
       RETURN_ERROR(rc); 
     }
 
@@ -2707,7 +2703,7 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
   /* See if the compression header is there */
   uint32_t header = this->getWord(0);
   if ((header & 0xFFFFF000) != 0xC2A3F000) {
-    ETRAC1("**** ERROR : Compression header doesn't match.  Found: 0x%X.", header);
+    ETRAC("Compression header doesn't match.  Found: 0x%X.", header);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
   }
   /* Make sure it's a supported version of compression */
@@ -2717,11 +2713,11 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
 #ifndef __HOSTBOOT_MODULE
     mode = ECMD_COMP_ZLIB;
 #else
-    ETRAC0("**** ERROR : zlib support removed!");
+    ETRAC("zlib support removed!");
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
 #endif
   } else {
-    ETRAC1("**** ERROR : Unknown version. Found: 0x%X.", header);
+    ETRAC("Unknown version. Found: 0x%X.", header);
     RETURN_ERROR(ECMD_DBUF_INVALID_ARGS); 
   }
   byteOffset+=3;
@@ -2755,7 +2751,7 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
     /* Do the work */
     uint32_t rc = uncompress(uncompressedData, &l_uncompressedSize, compressedData, compressedSize);
     if (rc) {
-      ETRAC0("**** ERROR : Error occurred on the zlib uncompress call!");
+      ETRAC("Error occurred on the zlib uncompress call!");
       RETURN_ERROR(rc); 
     }
     /* Assign the value back so we can use it below */
@@ -2765,7 +2761,7 @@ uint32_t ecmdDataBufferBase::uncompressBuffer() {
 
   /* Error check the length */
   if (uncompressedBuffer.getByteLength() != uncompressedSize) {
-    ETRAC2("*** ERROR : Expected byte length of %d, got back %zd", uncompressedBuffer.getByteLength(), uncompressedSize);
+    ETRAC("Expected byte length of %d, got back %zd", uncompressedBuffer.getByteLength(), uncompressedSize);
     RETURN_ERROR(ECMD_DBUF_MISMATCH); 
   }
 
