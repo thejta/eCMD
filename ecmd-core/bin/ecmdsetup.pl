@@ -81,7 +81,7 @@ my $release;
 my $prevRelease;
 my $plugin;
 my $product;
-my $bits = 32;
+my $bits = 64;
 my $arch;
 my $temp;
 my $shortcut = 0;
