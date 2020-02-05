@@ -1188,6 +1188,10 @@ inline uint32_t ecmdFastInsert(uint32_t *i_target, const uint32_t * i_data, uint
 
 
 uint32_t ecmdDataBufferBase::insert(const ecmdDataBufferBase &i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
+    return insertBase(i_bufferIn, i_targetStart, i_len, i_sourceStart);
+}
+
+uint32_t ecmdDataBufferBase::insertBase(const ecmdDataBufferBase &i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart) {
   uint32_t rc = ECMD_DBUF_SUCCESS;    
 
   if (i_targetStart+i_len > iv_NumBits) {
@@ -1493,6 +1497,10 @@ uint32_t ecmdDataBufferBase::insertFromRight(uint8_t i_data, uint32_t i_start, u
 }
 
 uint32_t ecmdDataBufferBase::extract(ecmdDataBufferBase& o_bufferOut, uint32_t i_start, uint32_t i_len) const {
+    return extractBase(o_bufferOut, i_start, i_len);
+}
+
+uint32_t ecmdDataBufferBase::extractBase(ecmdDataBufferBase& o_bufferOut, uint32_t i_start, uint32_t i_len) const {
   uint32_t rc = ECMD_DBUF_SUCCESS;
 
   // ecmdExtract can't make good input checks, so we have to do that here
