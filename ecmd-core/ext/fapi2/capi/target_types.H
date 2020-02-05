@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2019 IBM International Business Machines Corp.
+ * Copyright 2020 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ enum TargetType : uint64_t
     TARGET_TYPE_FC            = 0x0000000400000000, ///< Fused Core type
     TARGET_TYPE_PMIC          = 0x0000000800000000, ///< PMIC type
     TARGET_TYPE_PAUC          = 0x0000001000000000, ///< PAUC type
+    TARGET_TYPE_GENERICI2CSLAVE = 0x0000002000000000, ///< GENERICI2CSLAVE type
     TARGET_TYPE_MULTICAST     = 0x8000000000000000, ///< MULTICAST type
     TARGET_TYPE_ALL           = 0x7FFFFFFFFFFFFFFF, ///< Any/All types
     TARGET_TYPE_ALL_MC        = 0xFFFFFFFFFFFFFFFF, ///< Any/All types + Multicast
