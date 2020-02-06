@@ -387,6 +387,10 @@ uint32_t ecmdDataBufferBase::shrinkBitLength(uint32_t i_newNumBits) {
 }
 
 uint32_t ecmdDataBufferBase::growBitLength(uint32_t i_newNumBits) {
+    return growBitLengthInternal(i_newNumBits);
+}
+
+uint32_t ecmdDataBufferBase::growBitLengthInternal(uint32_t i_newNumBits) {
   uint32_t rc = ECMD_DBUF_SUCCESS;
   uint32_t prevwordsize;
   uint32_t prevbitsize;
