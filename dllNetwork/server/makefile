@@ -69,6 +69,8 @@ TGT_SOURCE += ecmdStructs.C
 TGT_SOURCE += ecmdWriteTarget.C
 TGT_SOURCE += server1p.C
 
+GENERATE_FILES := git_version.C
+
 TGT_SOURCE_C := adal_base.c
 TGT_SOURCE_C += adal_scom.c
 TGT_SOURCE_C += adal_scan.c
@@ -92,7 +94,7 @@ LDFLAGS += -ldl -lpthread -lz
 all:
 	${run-all}
 
-generate: git_version.C
+generate: ${GENERATE_FILES}
 
 build: ${TARGET}
 
@@ -120,7 +122,7 @@ TGT_SOURCE_C_OBJS := $(addsuffix .o, ${TGT_SOURCE_C_OBJS})
 # *****************************************************************************
 ${TGT_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES}
 	@echo Compiling $<
-	${VERBOSE}${CXX} -c ${CXXFLAGS} -std=c++11 $< -o $@ ${DEFINES}
+	${VERBOSE}${CXX} -c ${CXXFLAGS} -std=c++17 $< -o $@ ${DEFINES}
 
 ${TGT_SOURCE_C_OBJS}: ${OBJPATH}%.o : %.c ${INCLUDES}
 	@echo Compiling $<
@@ -149,3 +151,5 @@ ${TARGET}: ${TGT_SOURCE_OBJS} ${TGT_SOURCE_C_OBJS}
 # Include any global default rules
 # *****************************************************************************
 include ${ECMD_ROOT}/makefile.rules
+
+-include ${ECMD_ROOT}/*/server_ext/makefile.rules
