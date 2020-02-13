@@ -32,6 +32,7 @@
 #include <list>  /* For STL list */
 #include <vector>
 #include <string>
+#include <map>
 
 #include <ecmdDefines.H>
 #include <ecmdDataBuffer.H>
@@ -44,7 +45,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "14.17"         ///< eCMD API Version
+#define ECMD_CAPI_VERSION "14.19"         ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -1210,12 +1211,35 @@ struct ecmdLooperData {
  @brief Used by the get/set configuration functions to return the data
 */
 struct ecmdConfigData {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdConfigData();
+
+  // Destructor
+  ~ecmdConfigData();
+#endif
+
+  // Members
   uint32_t              validMask;  ///< Indicates which of the fields in this structure are valid
   std::string           cdString;   ///< If the output data is a string, will be populated
   uint32_t              cdUint32;   ///< If the output data is a uint32_t, will be populated
   uint64_t              cdUint64;   ///< If the output data is a uint64_t, will be populated
   float                 cdFloat;    ///< If the output data is a float, will be populated
 };
+
+#ifndef DOCUMENTATION
+// ecmdConfigData Constructor
+inline ecmdConfigData::ecmdConfigData():
+validMask(0),
+cdUint32(0),
+cdUint64(0),
+cdFloat(0)
+{
+}
+
+inline ecmdConfigData::~ecmdConfigData() { }
+#endif
 
 /**
  @brief A pair of file names returned by ecmdQueryFileLocation()
@@ -2333,6 +2357,11 @@ std::string ecmdGetSharedLibVersion();
 */
 #define ECMD_STOP_CLOCK_MODE_SKIP_IOVALID   0x00000001
 #define ECMD_STOP_CLOCK_MODE_ASYNC          0x00000002
+
+/**
+ Defines for SPI access
+*/
+#define ECMD_SPI_ECC_ENABLE     0x00000001
 
 /**
 @brief Used in ecmdReadDigitalThermalSensor function to get the dts readings for an ex target

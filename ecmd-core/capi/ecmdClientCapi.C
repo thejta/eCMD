@@ -597,7 +597,7 @@ uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type) {
   return rc;
 }
 
-
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 //this function will read the hash file and find the groupName passed in and then read the groupscomdef and gather all the entries and scomdata, and return them
 // if a version is passed in it will look for that version of the files
 uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData &o_queryData, std::list<ecmdScomEntry> &o_entries, std::string & io_scomGroupFileVersion) {
@@ -723,7 +723,6 @@ uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_s
   return rc;
 }
 
-#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
 // does the queryScomgroup and the doScomMultiple all in one
 uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion) {
   uint32_t rc = ECMD_SUCCESS;

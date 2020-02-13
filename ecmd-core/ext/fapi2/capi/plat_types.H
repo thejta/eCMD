@@ -16,34 +16,33 @@
  * limitations under the License.
  */
 /* IBM_PROLOG_END_TAG                                                     */
+/**
+ * @file plat_types.H
+ * @brief definitions for fapi2 platform types
+ */
+
+#ifndef __FAPI2_PLAT_TYPES__
+#define __FAPI2_PLAT_TYPES__
+
+namespace fapi2
+{
 ///
-/// @file fapi2.H
-/// @brief top level header for fapi2
+/// @enum fapi2::PlatformType
+/// @brief Platform types a FAPI procedure might be compiled for
+/// @note can be used for conditionally compiled code depending on platform
+///       instead of using ifdefs
 ///
 
-#ifndef __FAPI2_TOP_LEVEL__
-#define __FAPI2_TOP_LEVEL__
+enum PlatformType
+{
+    PLAT_EXAMPLE,    ///< FAPI2 example platform
+    PLAT_CRONUS,     ///< Cronus
+    PLAT_SBE,        ///< Self Boot Engine
+    PLAT_HOSTBOOT,   ///< HostBoot
+    PLAT_HWSV,       ///< FSP Hardware Server
+    PLAT_QME,        ///< Quad Management Engine
+};
 
-#include <target.H>
-#include <return_code.H>
-#include <buffer.H>
-#include <hw_access.H>
-#include <utils.H>
-#include <plat_trace.H>
+}
 
-// In turn includes the needed generated headers (hwp_ffd_classes, etc.)
-#include <error_scope.H>
-#include <set_sbe_error.H>      // Generated file
-
-#include <fapi2_hwp_executor.H>
-#include <fapi2_attribute_service.H>
-#include <fapi2_chip_ec_feature.H>
-
-#include <mvpd_access.H>
-
-// Block of headers not currently in fapi2
-#ifdef FAPI2_MISSING_HEADERS
-    #include <mbvpdAccess.H>
 #endif
-
-#endif // __FAPI2_TOP_LEVEL__

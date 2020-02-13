@@ -1256,8 +1256,22 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Get a chip target to find chipunit needed
+  target.chipType = ECMD_CHIPT_PROCESSOR;
+  target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+  target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
+  target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+
+  rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
+  if (rc) return rc;
+
   std::string  pbaUnitName;
-  rc = ecmdGetPbaUnit(target,pbaUnitName);
+  if (ecmdLooperNext(target, looperdata))
+  {
+    rc = ecmdGetPbaUnit(target,pbaUnitName);
+    if (rc) return rc;
+  }
+
   if (pbaUnitName.empty()) {
     ecmdOutputError(" - unable to find chipunit type for this command\n");
     return ECMD_INVALID_ARGS;
@@ -1326,6 +1340,16 @@ uint32_t ecmdPutMemPbaUser(int argc, char * argv[]) {
    memEntry.address = address;
    memEntry.data = inputData;
    memdata.push_back(memEntry);
+  }
+
+  if (pbaMode == PBA_MODE_LCO) {
+    // pad with zeros to fill cache lines -- 128 byte cache line
+    rc = ecmdPadAndMerge(memdata, 128);
+    if (rc) {
+      printLine = cmdlineName + " - Problems occurred padding and merging data\n";
+      ecmdOutputError(printLine.c_str());
+      return rc;
+    }
   }
 
   /************************************************************************/

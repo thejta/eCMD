@@ -167,7 +167,9 @@ namespace fapi2plat
         fapi2::TARGET_TYPE_MCBIST |
         fapi2::TARGET_TYPE_MC |
         fapi2::TARGET_TYPE_PEC |
-        fapi2::TARGET_TYPE_IOHS;
+        fapi2::TARGET_TYPE_IOHS |
+        fapi2::TARGET_TYPE_PERV |
+        fapi2::TARGET_TYPE_MULTICAST;
 
     template< fapi2::TargetType K, fapi2::TargetType L >
     constexpr void checkValidAccess()
@@ -263,7 +265,18 @@ namespace fapi2plat
         checkValidAccess<K, TARGET_TYPE_SCAN_TARGET>();
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget);
-        return fapi2plat::putRing(ecmdTarget, i_ringID, i_ringMode);
+        fapi2::RingMode l_ringMode = i_ringMode;
+        uint32_t l_mode = static_cast<uint32_t>(l_ringMode);
+        const fapi2::plat_target_handle_t & l_handle = i_target.get();
+
+        if (l_handle.multicast)
+        {
+            // Pass the encoded mcast group and core select within ring mode
+            l_mode |= (static_cast<uint32_t>(0x000000FF & l_handle.multicast_group) << 16);
+            l_mode |= (static_cast<uint32_t>(0x0F000000 & l_handle.multicast_group));           
+            l_ringMode = static_cast<fapi2::RingMode>(l_mode);
+        }
+        return fapi2plat::putRing(ecmdTarget, i_ringID, l_ringMode);
     }
 
     template< fapi2::TargetType K, fapi2::MulticastType M, typename V >

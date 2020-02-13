@@ -58,6 +58,8 @@
 // Member Function Specifications
 //---------------------------------------------------------------------
 
+#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
+
 uint32_t ecmdGetScomUser(int argc, char* argv[]) {
   uint32_t rc = ECMD_SUCCESS, coeRc = ECMD_SUCCESS;
   uint32_t e_rc = ECMD_SUCCESS;                 ///< Expect rc
@@ -1343,3 +1345,4 @@ uint32_t ecmdGetScomgroupUser(int argc, char* argv[]) {
 
   return rc;
 }
+#endif //ECMD_REMOVE_SCOM_FUNCTIONS

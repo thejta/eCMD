@@ -26,6 +26,10 @@ Syntax: ecmdquery <Mode> [Mode Options]
                         spys Chip [spyname] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display all spys available (or the selected spy) for chip
 
+                        spyrings Chip spyname  [-a#] [-k#] [-n#] [-s#] [-p#]
+                            - Display all rings used by selected spy for chip
+                            - Includes rings used by associated in/out parity checkers
+
                         procregs Chip.ChipUnit [procregistername] [-a#] [-k#] [-n#] [-s#] [-p#]
                             - Display information on the proc regs (sprs, gprs, fprs,
                               etc) available for Chip.ChipUnit (ChipUnit required)

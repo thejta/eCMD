@@ -72,6 +72,9 @@
 /* Removes Spy  interfaces from api and cmdline code */
 //#define ECMD_REMOVE_SPY_FUNCTIONS
 
+/* Removes Scom  interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SCOM_FUNCTIONS
+
 /* Removes Array interfaces from api and cmdline code */
 //#define ECMD_REMOVE_ARRAY_FUNCTIONS
 
@@ -95,6 +98,9 @@
 
 /* Removes I2C interfaces from api and cmdline code */
 //#define ECMD_REMOVE_I2C_FUNCTIONS
+
+/* Removes SPI interfaces from api and cmdline code */
+//#define ECMD_REMOVE_SPI_FUNCTIONS
 
 /* Removes GPIO interfaces from api and cmdline code */
 //#define ECMD_REMOVE_GPIO_FUNCTIONS

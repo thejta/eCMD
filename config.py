@@ -566,6 +566,11 @@ CXXFLAGS += " -g -I."
 # If the user passed thru extra defines, grab them
 if "DEFINES" in os.environ:
     DEFINES = os.environ["DEFINES"]
+# linker flags - LDFLAGS, SLDFLAGS
+if ("LDFLAGS" in os.environ):
+    LDFLAGS = os.environ["LDFLAGS"]
+if ("SLDFLAGS" in os.environ):
+    SLDFLAGS = os.environ["SLDFLAGS"]
 
 # Setup common variables across distros
 if (TARGET_BARCH == "x86" or TARGET_BARCH == "ppc"):

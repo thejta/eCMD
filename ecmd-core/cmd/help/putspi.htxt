@@ -1,0 +1,37 @@
+
+Syntax: 
+        putspi <Chip> <EngineId> <Select> <Address> <Data> [-i<format>] [-ecc]
+        [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
+
+        ECMD:           Core Common Function
+
+        Function:       Write SPI data to the specified engine/select
+
+        Parameters:
+        --------------------------------------------------------------------------------
+        Chip            Specifies the chip to operate on.  
+
+        EngineId        Engine number to operate on in decimal
+
+        Port            Engine port number to operate on in decimal
+
+        Select          Select number to operate on in decimal
+
+        Address         Address into device in hex
+
+        Data            Data to write to device
+
+        -ecc [opt]      Specifies if ecc should be added to data
+
+        -i<format>[opt] Specifies the format type of the input : default 'xl'
+                        Run 'ecmdquery formats' to view available formats
+
+        -f<filename>[o] Specifies the filename that the data should be read from
+                        Uses ecmdDataBuffer::ECMD_SAVE_FORMAT_BINARY_DATA format
+        
+                        Run 'ecmdquery options' for a list of the global command line
+                        options and their definitions
+        --------------------------------------------------------------------------------
+
+        Examples:       > putspi pu 0 1 A000 FFAABBCC0022DDEE -ecc
+                        > putspi pu 0 1 A000 -fdata

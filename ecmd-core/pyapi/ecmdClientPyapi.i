@@ -16,6 +16,7 @@
 %include stdint.i
 %include ecmdCommon.i
 %include ecmdConst.i
+%include std_map.i
 /*********** End Typemaps ***********/
 
 /*********** Start Applies ***********/
@@ -29,6 +30,7 @@
 // Insert C code into the file swig generates
 %{
 #define SWIG_FILE_WITH_INIT
+#define SWIG_PYTHON_EXTRA_NATIVE_CONTAINERS
 #include "ecmdDefines.H"
 #include "ecmdClientCapi.H"
 #include "ecmdClientPyapi.H"
@@ -56,6 +58,7 @@
 %template(stringList)                std::list<std::string>;
 %template(ecmdDataBufferBaseVector)  std::vector<ecmdDataBufferBase>;
 %template(ecmdDataBufferVector)      std::vector<ecmdDataBuffer>;
+%template(ecmdDataBufferVectorVector) std::vector<std::vector<ecmdDataBuffer>>;
 %template(ecmdMemoryEntryList)       std::list<ecmdMemoryEntry>;
 %template(ecmdRingDataList)          std::list<ecmdRingData>;
 %template(ecmdLatchDataList)         std::list<ecmdLatchData>;
@@ -76,43 +79,269 @@
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;
 %template(ecmdFileLocationList)      std::list<ecmdFileLocation>;
 %template(uint32_tList)              std::list<uint32_t>;
-/*********** End Templates ***********/
+// Template for maps
+%template(string_ecmdDataBufferMap)  std::map<std::string, ecmdDataBuffer>;
 
 /*********** Start Copy Constructors ***********/
+// We also define __deepcopy__ for each class here since
+// they also rely upon the copy constructors we are defining
 %copyctor ecmdChipTarget;
+%extend ecmdChipTarget {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdThreadData;
+%extend ecmdThreadData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdChipUnitData;
+%extend ecmdChipUnitData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdChipData;
+%extend ecmdChipData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdSlotData;
+%extend ecmdSlotData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdNodeData;
+%extend ecmdNodeData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdCageData;
+%extend ecmdCageData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdQueryData;
+%extend ecmdQueryData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdRingData;
+%extend ecmdRingData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdArrayData;
+%extend ecmdArrayData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdTraceArrayData;
+%extend ecmdTraceArrayData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdFastArrayData;
+%extend ecmdFastArrayData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdScomData;
+%extend ecmdScomData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdScomDataHidden;
+%extend ecmdScomDataHidden {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdLataData;
+%extend ecmdLatchData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdScomEntry;
+%extend ecmdScomEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdArrayEntry;
+%extend ecmdArrayEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdNameEntry;
+%extend ecmdNameEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdNameVectorEntry;
+%extend ecmdNameVectorEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdIndexVectorEntry;
+%extend ecmdIndexVectorEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdIndexEntry;
+%extend ecmdIndexEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdLatchEntry;
+%extend ecmdLatchEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdLatchQueryData;
+%extend ecmdLatchQueryData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdLatchQueryDataHidden;
+%extend ecmdLatchQueryDataHidden {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdProcRegisterInfo;
+%extend ecmdProcRegisterInfo {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdCacheData;
+%extend ecmdCacheData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdSpyData;
+%extend ecmdSpyData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdI2CCmdEntry;
+%extend ecmdI2CCmdEntry {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdSimModelInfo;
+%extend ecmdSimModelInfo {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdConnectionData;
+%extend ecmdConnectionData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdPnorListEntryData;
+%extend ecmdPnorListEntryData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdPnorListData;
+%extend ecmdPnorListData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 %copyctor ecmdLooperData;
+%extend ecmdLooperData {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
 /*********** End Copy Constructors ***********/
+
+/*********** Start Extend ***********/
+// Add a hash function to the ecmdChipTarget
+// This allows it to be used as a dict key, etc..
+// Use all the values of the ecmdChipTarget in the hash generation for uniqueness
+%extend ecmdChipTarget {
+%pythoncode %{
+def __hash__(self):
+    return hash((self.cage, self.cageState, self.node, self.nodeState,
+                 self.slot, self.slotState,
+                 self.pos, self.posState, self.chipType, self.chipTypeState,
+                 self.chipUnitNum, self.chipUnitNumState,
+                 self.chipUnitType, self.chipUnitTypeState,
+                 self.thread, self.threadState))
+%}
+}
+
+// Define a __deepcopy__ for the databuffer using its copy constructor
+%extend ecmdDataBuffer {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return self.__init__(self)
+%}
+}
+/*********** End Extend ***********/
 
 /*********** Start Map to Bytearray ***********/
 // These apply the insert/extract/memCopyIn/memCopyOut functions in the edb
