@@ -50,55 +50,55 @@ namespace fapi2plat
                                        const uint64_t i_address,
                                        const fapi2::buffer<uint64_t> i_data);
 
-    fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
+    fapi2::ReturnCode getScom(const ecmdChipTarget& i_target,
                               const uint64_t i_address,
                               fapi2::buffer<uint64_t>& o_data);
 
-    fapi2::ReturnCode putScom(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putScom(const ecmdChipTarget & i_target,
                               const uint64_t i_address,
                               const fapi2::buffer<uint64_t> i_data);
 
-    fapi2::ReturnCode putScomUnderMask(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putScomUnderMask(const ecmdChipTarget & i_target,
                                        const uint64_t i_address,
                                        const fapi2::buffer<uint64_t> i_data,
                                        const fapi2::buffer<uint64_t> i_mask);
 
-    fapi2::ReturnCode getCfamRegister(ecmdChipTarget& i_target,
+    fapi2::ReturnCode getCfamRegister(const ecmdChipTarget& i_target,
                                       const uint32_t i_address,
                                       fapi2::buffer<uint32_t>& o_data);
 
-    fapi2::ReturnCode putCfamRegister(ecmdChipTarget& i_target,
+    fapi2::ReturnCode putCfamRegister(const ecmdChipTarget& i_target,
                                       const uint32_t i_address,
                                       const fapi2::buffer<uint32_t> i_data);
 
-    fapi2::ReturnCode getRing(ecmdChipTarget & i_target,
+    fapi2::ReturnCode getRing(const ecmdChipTarget & i_target,
                               const scanRingId_t i_address,
                               fapi2::variable_buffer & o_data,
                               const uint32_t i_ringMode);
 
-    fapi2::ReturnCode putRing(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putRing(const ecmdChipTarget & i_target,
                               const RingId_t i_ringID,
                               const fapi2::RingMode i_ringMode);
 
-    fapi2::ReturnCode putRing(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putRing(const ecmdChipTarget & i_target,
                               const scanRingId_t i_address,
                               const fapi2::variable_buffer & i_data,
                               const uint32_t i_ringMode);
 
-    fapi2::ReturnCode getSpy(ecmdChipTarget & i_target,
+    fapi2::ReturnCode getSpy(const ecmdChipTarget & i_target,
                              const char * const i_spyId,
                              fapi2::variable_buffer& o_data);
 
-    fapi2::ReturnCode putSpy(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putSpy(const ecmdChipTarget & i_target,
                              const char * const i_spyId,
                              const fapi2::variable_buffer& i_data);
 
-    fapi2::ReturnCode getSpyImage(ecmdChipTarget & i_target,
+    fapi2::ReturnCode getSpyImage(const ecmdChipTarget & i_target,
                                   const char * const i_spyId,
                                   fapi2::variable_buffer& o_data,
                                   const fapi2::variable_buffer& i_imageData);
 
-    fapi2::ReturnCode putSpyImage(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putSpyImage(const ecmdChipTarget & i_target,
                                   const char* const i_spyId,
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData);
