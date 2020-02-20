@@ -2345,6 +2345,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   uint32_t l_write_mode = 0;
   bool l_cond = false;
   bool l_cond_all = false;
+  bool l_no_ignore = false;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -2366,6 +2367,8 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   l_cond_all = ecmdParseOption(&argc, &argv, "-set_pulse_cond_all");
 
   char * ignore_mask_filename = ecmdParseOptionWithArgs(&argc, &argv, "-ignoremask");
+
+  l_no_ignore = ecmdParseOption(&argc, &argv, "-noignoremask");
 
   if ((l_cond) && (l_cond_all))
   {
@@ -2773,36 +2776,39 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             }
           }
 
-          ecmdDataBuffer ignore_mask_data;
-          if(ignore_mask_filename != NULL) {
-            rc = readInversionFile(ignore_mask_filename, ignore_mask_data, curRingData->ringNames, curRingData->bitLength);
-          } else {
-            rc = ecmdQueryRingIgnoreMask(cuTarget, ringName, ignore_mask_data);
-          }
-          if((rc == 0) && (ignore_mask_data.getBitLength() > 0)) {
-            uint32_t ecmd_rc = readRingBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
-            ecmd_rc |= ringBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
-            if (ecmd_rc) {
-              sprintf(outstr, "checkrings - ecmdDataBuffer::setOr(ignore_mask) failed for ring %s", ringName.c_str());
-              ecmdOutputWarning( outstr );
-            } else {
-              // Small ring, print the whole thing 
-              if (ignore_mask_data.getBitLength() <= 128)
-              {
-                sprintf(outstr, "checkrings - using ignoremask %s\n", 
-                        ignore_mask_data.genHexLeftStr(0, ignore_mask_data.getBitLength() - 1).c_str());
+          if (!l_no_ignore)
+          {
+              ecmdDataBuffer ignore_mask_data;
+              if(ignore_mask_filename != NULL) {
+                  rc = readInversionFile(ignore_mask_filename, ignore_mask_data, curRingData->ringNames, curRingData->bitLength);
+              } else {
+                  rc = ecmdQueryRingIgnoreMask(cuTarget, ringName, ignore_mask_data);
               }
-              // Just print the start and end of the ignore mask
-              else
-              {
-                std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
-                uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
-                uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
-                std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
-                sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+              if((rc == 0) && (ignore_mask_data.getBitLength() > 0)) {
+                  uint32_t ecmd_rc = readRingBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+                  ecmd_rc |= ringBuffer.setOr(ignore_mask_data, 0, curRingData->bitLength);
+                  if (ecmd_rc) {
+                      sprintf(outstr, "checkrings - ecmdDataBuffer::setOr(ignore_mask) failed for ring %s", ringName.c_str());
+                      ecmdOutputWarning( outstr );
+                  } else {
+                      // Small ring, print the whole thing 
+                      if (ignore_mask_data.getBitLength() <= 128)
+                      {
+                          sprintf(outstr, "checkrings - using ignoremask %s\n", 
+                                  ignore_mask_data.genHexLeftStr(0, ignore_mask_data.getBitLength() - 1).c_str());
+                      }
+                      // Just print the start and end of the ignore mask
+                      else
+                      {
+                          std::string start_ignore = ignore_mask_data.genHexLeftStr(0, 96);
+                          uint32_t end_ignore_start = (ignore_mask_data.getWordLength() - 2) * 32;
+                          uint32_t end_ignore_length = ignore_mask_data.getBitLength() - end_ignore_start;
+                          std::string end_ignore = ignore_mask_data.genHexLeftStr(end_ignore_start, end_ignore_length);
+                          sprintf(outstr, "checkrings - using ignoremask %s...%s\n", start_ignore.c_str(), end_ignore.c_str());
+                      }
+                      ecmdOutput( outstr );
+                  }
               }
-              ecmdOutput( outstr );
-            }
           }
 
           if (readRingBuffer != ringBuffer) {
