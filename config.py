@@ -668,7 +668,7 @@ if (CREATE_PYAPI == "yes"):
     elif ("ECMDPYTHONBIN" in os.environ):
         ECMDPYTHONBIN = os.environ["ECMDPYTHONBIN"]
     else:
-        ECMDPYTHONBIN = "/usr/bin/python"
+        ECMDPYTHONBIN = "/usr/bin/python2"
     buildvars["ECMDPYTHONBIN"] = ECMDPYTHONBIN
 
 # Location of the python3 binary
@@ -885,7 +885,7 @@ if (not args.without_swig):
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
                           stdin=subprocess.PIPE).communicate()[0]
-    cmdsplit = cmdout.split('\n')
+    cmdsplit = cmdout.decode('utf-8').split('\n')
 
     for line in cmdsplit:
         if ("SWIG Version" in line):
