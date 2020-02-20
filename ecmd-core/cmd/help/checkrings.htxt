@@ -1,6 +1,6 @@
 
-Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswrite]
-                                                  [-flush0] [-flush1] [-pattern0] [-pattern1] [-set_pulse_cond] [-set_pulse_cond_all]
+Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswrite] [-flush0] [-flush1] [-pattern0]
+                                                  [-pattern1] [-noignoremask] [-set_pulse_cond] [-set_pulse_cond_all]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-c#]
 
         ECMD:           Core Common Function
@@ -40,6 +40,8 @@ Syntax: checkrings <Chip[.ChipUnit]> <RingSelect> [-v] [-nosr] [-bsread] [-bswri
         -pattern1 [opt]         Perform a test with a 1's heavy pattern of 0110101
 
         -pattern  <32-bit hex value> Perform a test with specified pattern
+
+        -noignoremask [opt]     Bypass application of ignore mask to read data for rings that use ignore masks.
 
         -set_pulse_cond [opt]   Uses the ECMD_RING_MODE_SET_PULSE_SL and ECMD_RING_MODE_SET_PULSE_NSL flags for scan conditioning.
 
