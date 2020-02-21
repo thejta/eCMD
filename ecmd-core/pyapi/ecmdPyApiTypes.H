@@ -1,5 +1,5 @@
 //IBM_PROLOG_BEGIN_TAG
-/* 
+/*
  * Copyright 2003,2016 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -145,6 +145,11 @@ typedef ecmdCageDataList ecmdCageDataList;
  @see List
 */
 typedef stringList stringList;
+/**
+ @brief The python version of the string C API std::list
+ @see List
+*/
+typedef stringVector stringVector;
 /**
  @brief The python version of the ecmdDataBufferBase Vector
  @see Vector
