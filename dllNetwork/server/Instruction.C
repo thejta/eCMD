@@ -77,6 +77,8 @@ std::string InstructionTypeToString(Instruction::InstructionType i_type) {
       return "PNOR";
     case Instruction::D2C:
       return "D2C";
+    case Instruction::BRKPT:
+      return "BRKPT";
   }
   return "";
 }
@@ -267,6 +269,20 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "PSI_CMU_REG_WRITE";
     case Instruction::GETFILE:
       return "GETFILE";
+    case Instruction::BRKPT_SET:
+      return "BRKPT_SET";
+    case Instruction::BRKPT_CLEAR:
+      return "BRKPT_CLEAR";
+    case Instruction::BRKPT_GET:
+      return "BRKPT_GET";
+    case Instruction::BRKPT_WAIT:
+      return "BRKPT_WAIT";
+    case Instruction::BRKPT_INSTR_START:
+      return "BRKPT_INSTR_START";
+    case Instruction::BRKPT_INSTR_STOP:
+      return "BRKPT_INSTR_STOP";
+    case Instruction::BRKPT_INSTR_STEP:
+      return "BRKPT_INSTR_STEP";
   }
   return "";
 }

@@ -95,6 +95,7 @@ class Instruction{
         FSIMEMPROC,
         PNOR,
         D2C,
+        BRKPT,
     } InstructionType;
 
     /**
@@ -221,6 +222,14 @@ class Instruction{
         PSI_CMU_REG_WRITE,
 
         GETFILE,
+
+        BRKPT_SET,
+        BRKPT_CLEAR,
+        BRKPT_GET,
+        BRKPT_WAIT,
+        BRKPT_INSTR_START,
+        BRKPT_INSTR_STOP,
+        BRKPT_INSTR_STEP,
     } InstructionCommand;
 
     /** @name Instruction Constructor */
