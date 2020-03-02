@@ -2506,4 +2506,14 @@ inline ecmdPnorListData::~ecmdPnorListData()
 }
 #endif
 
+/* 
+ * Defines for getsram mode
+ */
+#define ECMD_SRAM_MODE_CHANNEL_MASK     0x0000000F
+#define ECMD_SRAM_MODE_CHANNEL_SHIFT    0
+#define ECMD_SRAM_MODE_PECTOP_MASK      0x000000F0
+#define ECMD_SRAM_MODE_PECTOP_SHIFT     4
+#define ECMD_SRAM_MODE_PECPHY_MASK      0x00000F00
+#define ECMD_SRAM_MODE_PECPHY_SHIFT     8
+
 #endif

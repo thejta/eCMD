@@ -2,6 +2,10 @@
 Syntax: getsram <MemAddress> <NumBytes> -ch <Channel> [-o<format> | -f[d|b]<filename>]
         getsram <MemAddress> <NumBytes> -ch <Channel> [-exp <data> [-i<format>] [-mask <data>]]
         getsram <MemAddress> -ch <Channel> [-exp -f[d|b]<filename>]
+        getsram <Chip[.ChipUnit]> <MemAddress> <NumBytes> -ch <Channel> [-o<format> | -f[d|b]<filename>]
+        getsram <Chip[.ChipUnit]> <MemAddress> <NumBytes> -top <pcie top> -phy <pcie phy> [-o<format> | -f[d|b]<filename>]
+        getsram <Chip[.ChipUnit]> <MemAddress> <NumBytes> -mode <mode value> [-o<format> | -f[d|b]<filename>]
+        getsram <Chip[.ChipUnit]> <MemAddress> <NumBytes> [-o<format> | -f[d|b]<filename>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -10,11 +14,27 @@ Syntax: getsram <MemAddress> <NumBytes> -ch <Channel> [-o<format> | -f[d|b]<file
 
         Parameters:
         --------------------------------------------------------------------------------
+        Chip     [opt]  Chip to get SRAM data from
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
         MemAddress      64 Bit address to read from (Hex-Right)
 
         NumBytes        Number of bytes to fetch (Decimal).
 
         -ch <Channel>   Channel to use when accessing SRAM
+                        Requires -phy and -top to not be specified
+
+        -top <PCIe Top> PCIe topology to target
+                        Requires -phy to be specified
+                        Requires -ch to not be specified
+
+        -phy <PCIe Phy> PCIe phy to target 
+                        Requires -top to be specified
+                        Requires -ch to not be specified
+
+        -mode <value>   Specify the mode value, in hex
 
         -o<format>[opt] Specifies the format type of the output : default 'mem'
                         Not valid with -f option.
@@ -45,3 +65,9 @@ Syntax: getsram <MemAddress> <NumBytes> -ch <Channel> [-o<format> | -f[d|b]<file
         Examples:       > getsram 1000 128 -ch 2 -p0
                         > getsram 1000 128 -ch 2 -fb datafile
                         > getsram 1000 -ch 2 -exp -fb datafile
+                        > getsram 1000 128 -mode 1
+                        > getsram pu 1000 128 -ch 2 -p0
+                        > getsram pu.eq 1000 128 -p0 -c0
+                        > getsram pu.pauc 1000 128 -p0 -c0 
+                        > getsram pu.pec 1000 128 -p0 -c0 -top 1 -phy 1
+                        > getsram pu.pec 1000 128 -p0 -c0 -mode 110

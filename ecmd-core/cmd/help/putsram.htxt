@@ -2,6 +2,10 @@
 Syntax: putsram <MemAddress> <Data> -ch <Channel> [-i<format>]
         putsram <MemAddress> -ch <Channel> -fb<filename>
         putsram -ch <Channel> [AddressOffset] -fd<filename>
+        putsram <Chip> <MemAddress> -ch <Channel> -fb<filename>
+        putsram <Chip> <MemAddress> -top <pcie top> -phy <pcie phy> -fb<filename>
+        putsram <Chip> <MemAddress> -mode <mode value> -fb<filename>
+        putsram <Chip> <MemAddress> -fb<filename>
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -10,9 +14,25 @@ Syntax: putsram <MemAddress> <Data> -ch <Channel> [-i<format>]
 
         Parameters:
         --------------------------------------------------------------------------------
+        Chip     [opt]  Chip to put SRAM data to
+        ChipUnit [opt]  If you are using ChipUnits, you also specify your ChipUnit
+                        w/o  ChipUnit: pu
+                        with ChipUnit: pu.mc
+
         MemAddress      64 Bit address to write to (Hex-Right). Not valid with -fd option
 
         -ch <Channel>   Channel to use when accessing SRAM
+                        Requires -phy and -top to not be specified
+
+        -top <PCIe Top> PCIe topology to target
+                        Requires -phy to be specified
+                        Requires -ch to not be specified
+
+        -phy <PCIe Phy> PCIe phy to target 
+                        Requires -top to be specified
+                        Requires -ch to not be specified
+
+        -mode <value>   Specify the mode value, in hex
 
         -fd <filename>  Specify full path and filename to file in D-Card format to load
                         to system
@@ -36,3 +56,5 @@ Syntax: putsram <MemAddress> <Data> -ch <Channel> [-i<format>]
         Examples:       > putsram 10000 deadbeef80000000 -ch 2 -p0,1 
                         > putsram 10000 -ch 2 -fb datafile
                         > putsram -ch 2 -fd dcardfile
+                        > putsram pu 10000 deadbeef80000000 -ch 2 -p0,1
+                        > putsram pu.pec 10000 deadbeef80000000 -top 1 -phy 1 -p0 -c0
