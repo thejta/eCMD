@@ -68,7 +68,10 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdDataBuffer returnData;            ///< Buffer to hold return data from memory
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
-  uint32_t channel = 0xFFFFFFFF;        ///< Channel to use for getsram
+  uint32_t channel = ECMD_UNSET;        ///< Channel to use for getsram
+  uint32_t pcietop = ECMD_UNSET;        ///< PCIe Top to use for getsram
+  uint32_t pciephy = ECMD_UNSET;        ///< PCIe Phy to use for getsram
+  uint32_t sramMode = 0x0;              ///< Mode value that contains data to send to the API
   uint64_t address;                     ///< The address from the command line
   uint32_t numBytes = ECMD_UNSET;       ///< Number of bytes from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
@@ -122,11 +125,63 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
         return ECMD_INVALID_ARGS;
       }
       channel = (uint32_t)atoi(channelPtr);
-    } else {
-      printLine = cmdlineName + " - channel must be specified with -ch option. Please contact plugin owner for correct channel. Cronus/FSP default channel: 2.\n";
+      sramMode |= (channel & (ECMD_SRAM_MODE_CHANNEL_MASK >> ECMD_SRAM_MODE_CHANNEL_SHIFT)) << ECMD_SRAM_MODE_CHANNEL_SHIFT;
+    } 
+
+    char * pectopPtr = ecmdParseOptionWithArgs(&argc, &argv, "-top");
+    if (pectopPtr != NULL) {
+      if (!ecmdIsAllDecimal(pectopPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in top option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      pcietop = (uint32_t)atoi(pectopPtr);
+      sramMode |= (pcietop & (ECMD_SRAM_MODE_PECTOP_MASK >> ECMD_SRAM_MODE_PECTOP_SHIFT)) << ECMD_SRAM_MODE_PECTOP_SHIFT;
+    }
+
+    char * pecphyPtr = ecmdParseOptionWithArgs(&argc, &argv, "-phy");
+    if (pecphyPtr != NULL) {
+      if (!ecmdIsAllDecimal(pecphyPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in phy option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      pciephy = (uint32_t)atoi(pecphyPtr);
+      sramMode |= (pciephy & (ECMD_SRAM_MODE_PECPHY_MASK >> ECMD_SRAM_MODE_PECPHY_SHIFT)) << ECMD_SRAM_MODE_PECPHY_SHIFT;
+    }
+
+    char * modePtr = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+    if (modePtr != NULL) {
+      if (!ecmdIsAllHex(modePtr)) {
+        printLine = cmdlineName + " - Non-hex characters detected in mode option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      match = sscanf(modePtr, "%x", &sramMode);
+      if (match != 1) {
+        ecmdOutputError("Error occurred processing mode value!\n");
+        return ECMD_INVALID_ARGS;
+      }
+      channel = (sramMode & ECMD_SRAM_MODE_CHANNEL_MASK) >> ECMD_SRAM_MODE_CHANNEL_SHIFT;
+    }
+
+    if ( (modePtr != NULL) && ((channelPtr != NULL) || (pectopPtr != NULL) || (pecphyPtr != NULL) ) ) {
+      printLine = cmdlineName + " - mode cannot be specified along with channel, top or phy\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    }
+    } else if ((channelPtr != NULL) && ((pectopPtr != NULL) || (pecphyPtr != NULL))) {
+      printLine = cmdlineName + " - channel cannot be specified along with top or phy\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((pectopPtr != NULL) && (pecphyPtr == NULL)) {
+      printLine = cmdlineName + " - top and phy must be specified together\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((pectopPtr == NULL) && (pecphyPtr != NULL)) {
+      printLine = cmdlineName + " - top and phy must be specified together\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } 
   }
 
   /* Get the filename if -fb is specified */
@@ -177,20 +232,6 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
-
-  //Setup the target that will be used to query the system config
-  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
-  if (memMode == ECMD_MEM_MEMCTRL) {
-    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
-    target.nodeState = target.chipTypeState = target.slotState = 
-      target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || (memMode == ECMD_SRAM)) {
-    target.chipType = ECMD_CHIPT_PROCESSOR;
-    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
-    target.cageState = target.nodeState = target.slotState = 
-      target.posState = ECMD_TARGET_FIELD_WILDCARD;
-    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  }
 
   // Read in the expect data
   if (expectFlag) {
@@ -243,29 +284,43 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /************************************************************************/
   /* Parse Local ARGS here!                                               */
   /************************************************************************/
+  std::string chipType, chipUnitType;
+  int legacyModeArgOffset = 1;
+  if ( argc == 0 )
+  {
+    legacyModeArgOffset = 0;
+  }
+  else
+  {
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc || ecmdIsAllHex(chipType.c_str())) {
+      legacyModeArgOffset = 0;
+    }
+  }
+
   if ((memMode == ECMD_SRAM) && (channel == 1)) {
     // channel 1 for sram commands is access to a circular buffer and does not require an address
-    if ((numBytes == ECMD_UNSET) && (argc != 1)) {  // size
-      printLine = cmdlineName + " - Incorrect arguments specified for channel 1; only number of bytes needed.\n";
+    if ((numBytes == ECMD_UNSET) && (argc != (1 + legacyModeArgOffset)) ) {  // size, optional chip
+      printLine = cmdlineName + " - Incorrect arguments specified for channel 1; only number of bytes needed with optional chip.\n";
       ecmdOutputError(printLine.c_str());
       printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    } else if (argc > 1) {
+    } else if ((argc > (2 + legacyModeArgOffset)) ) {
       printLine = cmdlineName + " - Too many arguments specified for channel 1.\n";
       ecmdOutputError(printLine.c_str());
       printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
     }
-  } else if ((numBytes == ECMD_UNSET) && (argc < 2)) {  //address + size
-    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes.\n";
+  } else if ((numBytes == ECMD_UNSET) && (argc < (2 + legacyModeArgOffset)) ) {  //address + size, optional chip
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address and number of bytes with optional chip.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  } else if (argc < 1) { 
-    printLine = cmdlineName + " - Too few arguments specified; you need at least an address.\n";
+  } else if ((argc < (1 + legacyModeArgOffset))) { 
+    printLine = cmdlineName + " - Too few arguments specified; you need at least an address with optional chip.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
@@ -277,19 +332,19 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     address = 0;
     // Get the number of bytes
     if (numBytes == ECMD_UNSET) {
-      numBytes = (uint32_t)atoi(argv[0]);
+      numBytes = (uint32_t)atoi(argv[0 + legacyModeArgOffset]);
     }
   } else {
     // Get the address
-    if (!ecmdIsAllHex(argv[0])) {
+    if (!ecmdIsAllHex(argv[0 + legacyModeArgOffset])) {
       printLine = cmdlineName + " - Non-hex characters detected in address field\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
     }
 #ifdef _LP64
-    match = sscanf(argv[0], "%lx", &address);
+    match = sscanf(argv[0 + legacyModeArgOffset], "%lx", &address);
 #else
-    match = sscanf(argv[0], "%llx", &address);
+    match = sscanf(argv[0 + legacyModeArgOffset], "%llx", &address);
 #endif
     if (match != 1) {
       ecmdOutputError("Error occurred processing address!\n");
@@ -298,7 +353,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
 
     // Get the number of bytes
     if (numBytes == ECMD_UNSET) {
-      numBytes = (uint32_t)atoi(argv[1]);
+      numBytes = (uint32_t)atoi(argv[1 + legacyModeArgOffset]);
     }
   }
 
@@ -310,6 +365,32 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     return ECMD_INVALID_ARGS;
   }
 
+  //Setup the target that will be used to query the system config
+  // Memctrl DA is on the cage depth and proc/dma are on the processor pos depth
+  if (memMode == ECMD_MEM_MEMCTRL) {
+    target.cageState = ECMD_TARGET_FIELD_WILDCARD;
+    target.nodeState = target.chipTypeState = target.slotState = 
+      target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || ((legacyModeArgOffset == 0) && (memMode == ECMD_SRAM)) ) {
+    target.chipType = ECMD_CHIPT_PROCESSOR;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = 
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_SRAM)) {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = 
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+      target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    }
+    target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  }
 
   rc = ecmdLooperInit(target, ECMD_SELECTED_TARGETS_LOOP, looperdata);
   if (rc) return rc;
@@ -323,7 +404,7 @@ uint32_t ecmdGetMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
     } else if (memMode == ECMD_MEM_PROC) {
       rc = getMemProc(target, address, numBytes, returnData, mode);
     } else if (memMode == ECMD_SRAM) {
-      rc = getSram(target, channel, address, numBytes, returnData);
+      rc = getSram(target, sramMode, address, numBytes, returnData);
     }
 
     if (rc) {
@@ -422,7 +503,10 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   ecmdMemoryEntry memEntry;             ///< to store data from the user
   bool validPosFound = false;           ///< Did the looper find anything?
   ecmdChipTarget target;                ///< Current target being operated on
-  uint32_t channel = 0xFFFFFFFF;        ///< Channel to use for getsram
+  uint32_t channel = ECMD_UNSET;        ///< Channel to use for getsram
+  uint32_t pcietop = ECMD_UNSET;        ///< PCIe Top to use for getsram
+  uint32_t pciephy = ECMD_UNSET;        ///< PCIe Phy to use for getsram
+  uint32_t sramMode = 0x0;              ///< Mode value that contains data to send to the API
   uint64_t address = 0;                 ///< The address from the command line
   std::string cmdlineName;              ///< Stores the name of what the command line function would be.
   int match;                            ///< For sscanf
@@ -461,11 +545,64 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
         return ECMD_INVALID_ARGS;
       }
       channel = (uint32_t)atoi(channelPtr);
-    } else {
-      printLine = cmdlineName + " - channel must be specified with -ch option. Please contact plugin owner for correct channel. Cronus/FSP default channel: 2.\n";
+      sramMode |= (channel & (ECMD_SRAM_MODE_CHANNEL_MASK >> ECMD_SRAM_MODE_CHANNEL_SHIFT)) << ECMD_SRAM_MODE_CHANNEL_SHIFT;
+    } 
+
+    char * pectopPtr = ecmdParseOptionWithArgs(&argc, &argv, "-top");
+    if (pectopPtr != NULL) {
+      if (!ecmdIsAllDecimal(pectopPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in top option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      pcietop = (uint32_t)atoi(pectopPtr);
+      sramMode |= (pcietop & (ECMD_SRAM_MODE_PECTOP_MASK >> ECMD_SRAM_MODE_PECTOP_SHIFT)) << ECMD_SRAM_MODE_PECTOP_SHIFT;
+    }
+
+    char * pecphyPtr = ecmdParseOptionWithArgs(&argc, &argv, "-phy");
+    if (pecphyPtr != NULL) {
+      if (!ecmdIsAllDecimal(pecphyPtr)) {
+        printLine = cmdlineName + " - Non-dec characters detected in phy option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      pciephy = (uint32_t)atoi(pecphyPtr);
+      sramMode |= (pciephy & (ECMD_SRAM_MODE_PECPHY_MASK >> ECMD_SRAM_MODE_PECPHY_SHIFT)) << ECMD_SRAM_MODE_PECPHY_SHIFT;
+    }
+
+    char * modePtr = ecmdParseOptionWithArgs(&argc, &argv, "-mode");
+    if (modePtr != NULL) {
+      if (!ecmdIsAllHex(modePtr)) {
+        printLine = cmdlineName + " - Non-hex characters detected in mode option\n";
+        ecmdOutputError(printLine.c_str());
+        return ECMD_INVALID_ARGS;
+      }
+      match = sscanf(modePtr, "%x", &sramMode);
+      if (match != 1) {
+        ecmdOutputError("Error occurred processing mode value!\n");
+        return ECMD_INVALID_ARGS;
+      }
+      channel = (sramMode & ECMD_SRAM_MODE_CHANNEL_MASK) >> ECMD_SRAM_MODE_CHANNEL_SHIFT;
+      sramMode = (uint32_t)atoi(modePtr);
+    }
+
+    if ( (modePtr != NULL) && ((channelPtr != NULL) || (pectopPtr != NULL) || (pecphyPtr != NULL) ) ) {
+      printLine = cmdlineName + " - mode cannot be specified along with channel, top or phy\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    }
+    } else if ((channelPtr != NULL) && ((pectopPtr != NULL) || (pecphyPtr != NULL))) {
+      printLine = cmdlineName + " - channel cannot be specified along with top or phy\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((pectopPtr != NULL) && (pecphyPtr == NULL)) {
+      printLine = cmdlineName + " - top and phy must be specified together\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } else if ((pectopPtr == NULL) && (pecphyPtr != NULL)) {
+      printLine = cmdlineName + " - top and phy must be specified together\n";
+      ecmdOutputError(printLine.c_str());
+      return ECMD_INVALID_ARGS;
+    } 
   }
 
   /* Get the filename if -fb is specified */
@@ -503,6 +640,23 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   /* Global args have been parsed, we can read if -coe was given */
   bool coeMode = ecmdGetGlobalVar(ECMD_GLOBALVAR_COEMODE); ///< Are we in continue on error mode
 
+  /************************************************************************/
+  /* Parse Local ARGS here!                                               */
+  /************************************************************************/
+  std::string chipType, chipUnitType;
+  int legacyModeArgOffset = 1;
+  if ( argc == 0 )
+  {
+    legacyModeArgOffset = 0;
+  }
+  else
+  {
+    rc = ecmdParseChipField(argv[0], chipType, chipUnitType, true /* supports wildcard usage */);
+    if (rc || ecmdIsAllHex(chipType.c_str())) {
+      legacyModeArgOffset = 0;
+    }
+  }
+
   if ((memMode == ECMD_SRAM) && (channel == 1)) {
     // channel 1 for sram commands is access to a circular buffer and does not require an address
     // dcard not supported
@@ -513,21 +667,21 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    } else if ((argc >= 1) && (filename != NULL)) {
+    } else if ( ((argc >= (1 + legacyModeArgOffset)) && (filename != NULL)) ) {
       // Too many arguments
       printLine = cmdlineName + " - Too many arguments specified for channel 1.\n";
       ecmdOutputError(printLine.c_str());
       printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    } else if (argc > 1) {
+    } else if ( (argc > 1 + legacyModeArgOffset) ) {
       // Too many arguments
       printLine = cmdlineName + " - Too many arguments specified for channel 1; you only need input data|file.\n";
       ecmdOutputError(printLine.c_str());
       printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
-    } else if ((argc < 1) && (filename == NULL)) {
+    } else if ( ((argc < (1 + legacyModeArgOffset)) && (filename == NULL)) ) {
       // Too few arguments, need data
       printLine = cmdlineName + " - Too few arguments specified for channel 1; you need at least input data.\n";
       ecmdOutputError(printLine.c_str());
@@ -535,25 +689,25 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       ecmdOutputError(printLine.c_str());
       return ECMD_INVALID_ARGS;
     }
-  } else if ( (argc < 2)&&((filename == NULL) && (dcardfilename == NULL)) ) {  //chip + address
+  } else if ( (argc < (2 + legacyModeArgOffset)) && (filename == NULL) && (dcardfilename == NULL) ) {  //chip + address
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and data to write.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  }else if((argc < 1)&&(filename != NULL)) { 
+  }else if( (argc < (1 + legacyModeArgOffset)) && (filename != NULL) ) { 
     printLine = cmdlineName + " - Too few arguments specified; you need at least an address and input data file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  } else if(((argc > 2)&&((filename == NULL) && (dcardfilename == NULL))) || ((argc > 1)&&(filename != NULL))) {
+  } else if( ((argc > (2 + legacyModeArgOffset)) && (filename == NULL) && (dcardfilename == NULL)) || ((argc > (1 + legacyModeArgOffset)) && (filename != NULL)) ) {
     printLine = cmdlineName + " - Too many arguments specified; you only need an address and input data|file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
     ecmdOutputError(printLine.c_str());
     return ECMD_INVALID_ARGS;
-  } else if((argc > 1) && (dcardfilename != NULL)) {
+  } else if( (argc > (1 + legacyModeArgOffset)) && (dcardfilename != NULL) ) {
     printLine = cmdlineName + " - Too many arguments specified; you only need an optional address offset and a dcard file.\n";
     ecmdOutputError(printLine.c_str());
     printLine = cmdlineName + " - Type '" + cmdlineName + " -h' for usage.\n";
@@ -565,13 +719,25 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (memMode == ECMD_MEM_MEMCTRL) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || (memMode == ECMD_SRAM)) {
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || ((legacyModeArgOffset == 1) && (memMode == ECMD_SRAM)) ) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
     target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
+  } else if ((memMode == ECMD_SRAM)) {
+    target.chipType = chipType;
+    target.chipTypeState = ECMD_TARGET_FIELD_VALID;
+    target.cageState = target.nodeState = target.slotState = 
+      target.posState = ECMD_TARGET_FIELD_WILDCARD;
+    if (chipUnitType != "") {
+      target.chipUnitType = chipUnitType;
+      target.chipUnitTypeState = ECMD_TARGET_FIELD_VALID;
+      target.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
+    } else {
+      target.chipUnitTypeState = target.chipUnitNumState = ECMD_TARGET_FIELD_UNUSED;
+    }
+    target.threadState = ECMD_TARGET_FIELD_UNUSED;
   }
-
 
   // Get the address
   if ((memMode == ECMD_SRAM) && (channel == 1)) {
@@ -583,16 +749,15 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return ECMD_INVALID_ARGS;
    }
 #ifdef _LP64
-   match = sscanf(argv[0], "%lx", &address);
+   match = sscanf(argv[0 + legacyModeArgOffset], "%lx", &address);
 #else
-   match = sscanf(argv[0], "%llx", &address);
+   match = sscanf(argv[0 + legacyModeArgOffset], "%llx", &address);
 #endif
    if (match != 1) {
     ecmdOutputError("Error occurred processing address!\n");
     return ECMD_INVALID_ARGS;
    }
   }
-  
   
   // Read in the input data
   if(filename != NULL) {
@@ -614,9 +779,9 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
      return rc;
     }
   } else {
-    uint32_t argument_index = 1;
+    uint32_t argument_index = 1 + legacyModeArgOffset;
     if ((memMode == ECMD_SRAM) && (channel == 1)) {
-      argument_index = 0;
+      argument_index = argument_index - legacyModeArgOffset;
     }
     rc = ecmdReadDataFormatted(inputData, argv[argument_index] , inputformat);
     if (rc) {
@@ -660,7 +825,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
       } else if (memMode == ECMD_MEM_PROC) {
         rc = putMemProc(target, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data, mode);
       } else if (memMode == ECMD_SRAM) {
-        rc = putSram(target, channel, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
+        rc = putSram(target, sramMode, memdataIter->address, memdataIter->data.getByteLength(), memdataIter->data);
       }
 
       if (rc) {
