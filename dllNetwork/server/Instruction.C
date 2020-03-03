@@ -79,6 +79,8 @@ std::string InstructionTypeToString(Instruction::InstructionType i_type) {
       return "D2C";
     case Instruction::BRKPT:
       return "BRKPT";
+    case Instruction::SPI:
+      return "SPI";
   }
   return "";
 }
@@ -283,6 +285,8 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "BRKPT_INSTR_STOP";
     case Instruction::BRKPT_INSTR_STEP:
       return "BRKPT_INSTR_STEP";
+    case Instruction::SPI_COMMAND:
+      return "SPI_COMMAND";
   }
   return "";
 }
@@ -405,6 +409,14 @@ int Instruction::genWords(const ecmdDataBuffer &data, std::string &words) const 
 std::ostream& operator<<(std::ostream& io_stream, const Instruction& i_instruction ) {
   io_stream << i_instruction.dumpInstruction() << std::endl;
   return io_stream;
+}
+
+uint32_t getFlattenSize(const ecmdDataBuffer * i_buf)
+{
+    if (i_buf)
+        return i_buf->flattenSize();
+    else
+        return EDB_ADMIN_TOTAL_SIZE_BYTES;
 }
 
 uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash)
