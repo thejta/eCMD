@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include "adal_sbefifo.h"
-#include <time.h>
+#include <delay.h>
 
 static const uint32_t fsirawSize = 4;
 static const char *fsiraw[4] = {"/sys/class/fsi-master/fsi0/slave@00:00/raw",            // newest
@@ -32,40 +32,6 @@ static const char *fsiraw[4] = {"/sys/class/fsi-master/fsi0/slave@00:00/raw",   
                                 "/sys/devices/platform/fsi-master/slave@00:00/raw",   
                                 "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"}; // oldest
 
-uint32_t delay(uint64_t i_nanoSeconds)
-{
-    uint32_t rc = 0;
-    if (i_nanoSeconds == 0ull) return rc;
-
-    struct timespec requested;
-    struct timespec remaining;
-    remaining.tv_sec = 0;
-    remaining.tv_nsec = 0;
-    if (i_nanoSeconds >= 1000000000ull)
-    {
-        requested.tv_sec = (time_t) (i_nanoSeconds / 1000000000ull);
-        requested.tv_nsec = (long) (i_nanoSeconds % 1000000000ull);
-    }
-    else
-    {
-        requested.tv_sec = 0;
-        requested.tv_nsec = (long) i_nanoSeconds;
-    }
-
-    int sleep_rc = 0;
-    do
-    {
-        errno = 0;
-        sleep_rc = nanosleep(&requested, &remaining);
-        requested = remaining;
-    } while ((sleep_rc != 0) && (errno == EINTR));
-    if (sleep_rc)
-    {
-        rc = 1;
-    }
-    return rc;
-}
-                                         
 
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
