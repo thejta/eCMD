@@ -335,6 +335,10 @@
 #define SERVER_BRKPT_SBE_GETSCOM_ERROR                 (ECMD_ERR_CRONUS | 0x403050)
 #define SERVER_BRKPT_SBE_PUTSCOM_ERROR                 (ECMD_ERR_CRONUS | 0x403051)
 
+#define SERVER_SPI_OPEN_FAIL                           (ECMD_ERR_CRONUS | 0x403100)
+#define SERVER_SPI_CLOSE_FAIL                          (ECMD_ERR_CRONUS | 0x403101)
+#define SERVER_SPI_COMMAND_FAIL                        (ECMD_ERR_CRONUS | 0x403102)
+
 #endif /* CRONUSRC_H */
 
 

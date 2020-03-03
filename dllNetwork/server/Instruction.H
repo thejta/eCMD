@@ -96,6 +96,7 @@ class Instruction{
         PNOR,
         D2C,
         BRKPT,
+        SPI,
     } InstructionType;
 
     /**
@@ -230,6 +231,8 @@ class Instruction{
         BRKPT_INSTR_START,
         BRKPT_INSTR_STOP,
         BRKPT_INSTR_STEP,
+
+        SPI_COMMAND,
     } InstructionCommand;
 
     /** @name Instruction Constructor */
@@ -395,6 +398,11 @@ bits 0:3 </pre>
     uint32_t error; // used to capture errors that would prevent correct operation later on
                     // set flag if error during unflatten
 };
+
+/**
+ * @brief Utility to return buffer flatten size, if ptr is null return default size
+ */
+uint32_t getFlattenSize(const ecmdDataBuffer * i_buf);
 
 uint32_t devicestring_genhash(const std::string & i_string, uint32_t & o_hash);
 
