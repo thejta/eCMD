@@ -55,6 +55,7 @@
 #include <ServerFSIInstruction.H>
 #include <ServerGPIOInstruction.H>
 #include <ServerI2CInstruction.H>
+#include <ServerSPIInstruction.H>
 #include <PNORInstruction.H>
 #include <ServerSBEFIFOInstruction.H>
 #include <ServerBrkptInstruction.H>
@@ -222,6 +223,9 @@ void processClient(int socket, enum socketState & state, bool & keyValid, uint32
                     break;
                 case Instruction::I2C:
                     newInstruction = new ServerI2CInstruction();
+                    break;
+                case Instruction::SPI:
+                    newInstruction = new ServerSPIInstruction();
                     break;
                 case Instruction::PNOR:
                     newInstruction = new PNORInstruction();
@@ -594,11 +598,14 @@ int main (int argc, char **argv)
     global_version_map["server"] = 0x1;
     {
         global_version_map["ControlInstruction"] = ControlInstruction().getVersion();
-        global_version_map["ServerFSIInstruction"] = ServerFSIInstruction().getVersion();
-        global_version_map["ServerGPIOInstruction"] = ServerGPIOInstruction().getVersion();
-        global_version_map["ServerI2CInstruction"] = ServerI2CInstruction().getVersion();
+        global_version_map["FSIInstruction"] = ServerFSIInstruction().getVersion();
+        global_version_map["GPIOInstruction"] = ServerGPIOInstruction().getVersion();
+        global_version_map["I2CInstruction"] = ServerI2CInstruction().getVersion();
+        global_version_map["SPIInstruction"] = ServerSPIInstruction().getVersion();
         global_version_map["PNORInstruction"] = PNORInstruction().getVersion();
         global_version_map["SBEFIFOInstruction"] = ServerSBEFIFOInstruction().getVersion();
+        global_version_map["SBEFIFOInstruction"] = ServerSBEFIFOInstruction().getVersion();
+        global_version_map["BrkptInstruction"] = ServerBrkptInstruction().getVersion();
     }
 
     /* parse command line options */

@@ -32,6 +32,8 @@ TGT_INCLUDES += ServerGPIOInstruction.H
 TGT_INCLUDES += GPIOInstruction.H
 TGT_INCLUDES += ServerI2CInstruction.H
 TGT_INCLUDES += I2CInstruction.H
+TGT_INCLUDES += ServerSPIInstruction.H
+TGT_INCLUDES += SPIInstruction.H
 TGT_INCLUDES += ControlInstruction.H
 TGT_INCLUDES += InstructionFlag.H
 TGT_INCLUDES += ecmdDataBuffer.H
@@ -53,6 +55,8 @@ TGT_SOURCE += ServerGPIOInstruction.C
 TGT_SOURCE += GPIOInstruction.C
 TGT_SOURCE += ServerI2CInstruction.C
 TGT_SOURCE += I2CInstruction.C
+TGT_SOURCE += ServerSPIInstruction.C
+TGT_SOURCE += SPIInstruction.C
 TGT_SOURCE += ControlInstruction.C
 TGT_SOURCE += InstructionFlag.C
 TGT_SOURCE += ecmdDataBuffer.C
@@ -77,6 +81,7 @@ TGT_SOURCE_C += adal_scan.c
 TGT_SOURCE_C += adal_sbefifo.c
 TGT_SOURCE_C += adal_mbx.c
 TGT_SOURCE_C += adal_iic.c
+TGT_SOURCE_C += delay.c
 
 -include ${ECMD_ROOT}/*/server_ext/makefile.config
 
