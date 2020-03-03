@@ -77,6 +77,7 @@ TGT_SOURCE_C += adal_scan.c
 TGT_SOURCE_C += adal_sbefifo.c
 TGT_SOURCE_C += adal_mbx.c
 TGT_SOURCE_C += adal_iic.c
+TGT_SOURCE_C += delay.c
 
 -include ${ECMD_ROOT}/*/server_ext/makefile.config
 
