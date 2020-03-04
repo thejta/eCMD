@@ -719,7 +719,7 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   if (memMode == ECMD_MEM_MEMCTRL) {
     target.cageState = ECMD_TARGET_FIELD_WILDCARD;
     target.nodeState = target.chipTypeState = target.slotState = target.posState = target.chipUnitTypeState = target.chipUnitNumState = target.threadState = ECMD_TARGET_FIELD_UNUSED;
-  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || ((legacyModeArgOffset == 1) && (memMode == ECMD_SRAM)) ) {
+  } else if ((memMode == ECMD_MEM_PROC) || (memMode == ECMD_MEM_DMA) || ((legacyModeArgOffset == 0) && (memMode == ECMD_SRAM)) ) {
     target.chipType = ECMD_CHIPT_PROCESSOR;
     target.chipTypeState =   ECMD_TARGET_FIELD_VALID;
     target.cageState = target.nodeState = target.slotState = target.posState = ECMD_TARGET_FIELD_WILDCARD;
