@@ -4306,20 +4306,17 @@ To compile client code to use the C++ API, the following header files are requir
 @section link Link objects
 To link the client code on AIX, the following is required:
 <ul>
-<li>ecmdClientCapi.a
 <li>libecmd.so
 <li>xlC 9.0.0.0
 </ul>
 To create Linux x86 binaries, the following is required:
 <ul>
-<li>ecmdClientCapi.a
 <li>libecmd.so
 <li>g++ 4.1.2
 </ul>
 
 To create Linux x86_64 binaries, the following is required:
 <ul>
-<li>ecmdClientCapi.a
 <li>libecmd.so
 <li>g++ 4.8.1
 </ul>

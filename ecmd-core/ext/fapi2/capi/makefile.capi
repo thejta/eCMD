@@ -34,10 +34,7 @@ endif
 # *****************************************************************************
 # The Common Setup stuff
 # *****************************************************************************
-TARGET = ${EXTENSION_NAME}ClientCapi.a
-ifneq (${SLIB_SOURCE},)
-  SLIB    := lib${EXTENSION_NAME}.so
-endif
+SLIB    := lib${EXTENSION_NAME}.so
 
 VPATH := ${VPATH}:${OBJPATH}:${ECMD_CORE}/capi:${EXT_TEMPLATE_PATH}/capi:${SRCPATH}
 
@@ -50,17 +47,14 @@ all:
 
 generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES} ${TEMPLATE_SOURCE}
 
-build: ${TARGET} ${SLIB}
+build: ${SLIB}
 
 test:
   # Do nothing
 
 install:
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Api to ${INSTALL_PATH} ..."
-	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-        ifneq (${SLIB},)
-	  cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-        endif
+	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Includes to ${INSTALL_PATH}/include ..."
 	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
 	@echo "Installing ${EXTENSION_NAME_u} eCMD Client Extension Scripts to ${INSTALL_PATH}/bin ..."
@@ -113,16 +107,9 @@ ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	${VERBOSE}${CXX} -c ${CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
-# Create the Client Archive
-# *****************************************************************************
-${TARGET}: ${CAPI_SOURCE_OBJS} ${CAPI_SPECIAL_SOURCE_OBJS} ${LINK_OBJS}
-	@echo Creating $@
-	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
-
-# *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
-${SLIB}: ${SLIB_SOURCE_OBJS}
+${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS} ${CAPI_SPECIAL_SOURCE_OBJS} ${LINK_OBJS}
 	@echo Linking $@
 	${VERBOSE}${LD} ${SLDFLAGS} -lecmd -L ${OUTLIB} -o ${OUTLIB}/${SLIB} $^ -ldl
 

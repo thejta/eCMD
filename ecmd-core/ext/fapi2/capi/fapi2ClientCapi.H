@@ -53,7 +53,6 @@
  <li>mbvpdAccess.H</li>
  </ul>
  </ul>
- <li> Library : fapi2ClientCapi.a</li>
  <li> Library : libfapi2.so</li>
  </ul>
 
