@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2017 IBM International Business Machines Corp.
+ * Copyright 2020 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -461,6 +461,25 @@ class variable_buffer
         }
 
         ///
+        /// @brief Write a bit in variable buffer to a given value
+        /// @param[in] i_value the value to write
+        /// @param[in] i_bit the bit number to set.
+        /// @param[in] i_count the count of bits to set, defaults to 1
+        /// @return FAPI2_RC_SUCCESS if OK
+        ///
+        inline fapi2::ReturnCodes writeBit(const bool i_value,
+                                           const bits_type& i_bit,
+                                           const bits_type& i_count = 1)
+        {
+            if(i_value == 0)
+            {
+                return clearBit(i_bit, i_count);
+            }
+
+            return setBit(i_bit, i_count);
+        }
+
+        ///
         /// @brief  invert a bit or range of bits in a buffer
         /// @tparam SB Start bit in buffer to invert.
         /// @tparam L Number of consecutive bits from start bit to
@@ -501,9 +520,6 @@ class variable_buffer
         /// @brief Get the value of a bit in the buffer
         /// @tparam B Bit in buffer to get.
         /// @return true/1 if bit is on, false/0 if bit is off
-        /// @note Asserting that all the parameters are known at
-        /// compile time so this can be templated only. If that is not
-        /// the case we can add a function parameter version.
         ///
         template< bits_type B >
         inline bool getBit(void) const
@@ -511,6 +527,19 @@ class variable_buffer
             const bits_type index = B / bits_per_unit;
             const unit_type mask = unit_type(1) <<
                                    ((bits_per_unit - 1) - (B - (index * bits_per_unit)));
+            return iv_data[index] & mask;
+        }
+
+        ///
+        /// @brief Get the value of a bit in the buffer (function parameter version)
+        /// @param[in] i_bit bit to check
+        /// @return true/1 if bit is on, false/0 if bit is off
+        ///
+        inline bool getBit(bits_type i_bit) const
+        {
+            const bits_type index = i_bit / bits_per_unit;
+            const unit_type mask = unit_type(1) <<
+                                   ((bits_per_unit - 1) - (i_bit - (index * bits_per_unit)));
             return iv_data[index] & mask;
         }
 
