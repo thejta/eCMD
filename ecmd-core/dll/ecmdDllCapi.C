@@ -6103,16 +6103,13 @@ std::string dllParseReturnCode(uint32_t i_returnCode) {
   std::string l_version = "default";
   uint32_t rc = dllQueryFileLocation(dummy, ECMD_FILE_HELPTEXT, paths, l_version); 
 
-  // Assume for now we only have one helptext path returned
-  filePath = paths.begin()->textFile;
-
-  if (rc || (filePath.length()==0)) {
+  if (rc || paths.empty() || (paths.begin()->textFile.length() == 0)) {
     ret = "ERROR FINDING DECODE FILE";
     return ret;
   }
 
-  filePath += "ecmdReturnCodes.H";
-
+  // Assume for now we only have one helptext path returned
+  filePath = paths.begin()->textFile + "ecmdReturnCodes.H";
 
   std::string line;
   std::vector< std::string > tokens;
