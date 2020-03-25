@@ -67,7 +67,7 @@
     l_args.push_back(&l_enabled); \
     uint32_t l_u32_rc_xyzabc = fapi2GeneralApi(l_args); \
     const uint32_t l_not_supported = ECMD_FUNCTION_NOT_SUPPORTED; \
-    if ((l_rc == l_not_supported) || (l_enabled == 0)) \
+    if ((l_u32_rc_xyzabc == l_not_supported) || (l_enabled == 0)) \
     { \
         l_u32_rc_xyzabc = fapi2plat::openSharedLib(#FUNC, l_pLibHandle); \
     } \
