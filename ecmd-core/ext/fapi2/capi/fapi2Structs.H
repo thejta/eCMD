@@ -92,7 +92,9 @@ struct AttributeData {
   ~AttributeData();
 
   // Methods  
+#if !defined(ECMD_PYAPI)
   void printStruct(void);
+#endif
 
   // Members
   uint32_t              faValidMask;  ///< Indicates which of the fields in this structure are valid
