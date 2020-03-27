@@ -10,6 +10,7 @@ fapi2::AttributeData createAttribute(uint32_t i_id)
 
     fapi2::AttributeData l_data;
     l_data.faValidMask = l_attrType;
+    l_data.faMode = FAPI_ATTRIBUTE_MODE_DIMS;
     switch (l_attrType)
     {
         case FAPI_ATTRIBUTE_TYPE_UINT8ARY:
@@ -229,13 +230,13 @@ PyObject * getPyAttribute(uint32_t i_id, fapi2::AttributeData & i_data)
 def fapi2GetAttr(i_target, i_id):
     (rc, attr_id) = fapi2AttributeStringToId(i_id)
     if (rc):
-        return None
+        return (rc, None)
     attr_data = createAttribute(attr_id)
     rc = _ecmd.fapi2GetAttribute(i_target, attr_id, attr_data)
     if (rc):
         destroyAttribute(attr_data)
-        return None
+        return (rc, None)
     val = getPyAttribute(attr_id, attr_data)
     destroyAttribute(attr_data)
-    return val
+    return (int(0), val)
 %}
