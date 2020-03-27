@@ -29,6 +29,7 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBuffer.H>
+#include <fapi2DllCapi.H>
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -464,5 +465,32 @@ uint32_t dllQueryClockState(const ecmdChipTarget &i_target, const char *i_clockD
 
 uint32_t dllRelatedTargets(const ecmdChipTarget & i_target, const std::string i_relatedType, std::list<ecmdChipTarget> & o_relatedTargets, const ecmdLoopMode_t i_mode = ECMD_DYNAMIC_LOOP) {
   o_relatedTargets.push_back(i_target);
+  return ECMD_SUCCESS;
+}
+
+uint32_t dllFapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId &o_attrId) {
+  if (i_attrString != "ATTR_CHIP_ID")
+    return 0x0206005A; // FAPI_UNSUPPORTED_ATTRIBUTE
+  o_attrId = fapi2::ATTR_CHIP_ID;
+  return ECMD_SUCCESS;
+}
+
+uint32_t dllFapi2GetAttribute (const ecmdChipTarget &i_target, const uint32_t i_id, fapi2::AttributeData &o_data)
+{
+  o_data.faUint32 = 42;
+  return ECMD_SUCCESS;
+}
+
+uint32_t dllFapi2SetAttribute (const ecmdChipTarget &i_target, const uint32_t i_id, fapi2::AttributeData &i_data)
+{
+  return ECMD_SUCCESS;
+}
+
+uint32_t dllFapi2GetAttrInfo (fapi2::AttributeId i_attrId, uint32_t &o_attrType, uint32_t &o_numOfEntries, uint32_t &o_numOfBytes, bool &o_attrEnum)
+{
+  o_attrType = FAPI_ATTRIBUTE_TYPE_UINT32;
+  o_numOfEntries = 1;
+  o_numOfBytes = 4;
+  o_attrEnum = false;
   return ECMD_SUCCESS;
 }
