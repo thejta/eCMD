@@ -9,15 +9,15 @@ include ../makefile.base
 # The Common Setup stuff
 # *****************************************************************************
 TARGET       := stub.dll
-CXXFLAGS     += -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I${SRCPATH}
-VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${SRCPATH}
+CXXFLAGS     += -I ${ECMD_ROOT}/ecmd-core/capi -I ${ECMD_ROOT}/ecmd-core/dll -I ${ECMD_ROOT}/ecmd-core/ext/fapi2/capi -I${SRCPATH}
+VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:${ECMD_ROOT}/ecmd-core/ext/fapi2/capi:${SRCPATH}
 
 # *****************************************************************************
 # Setup all the files going into the build
 # *****************************************************************************
 
 # The ECMD_INCLUDES are files provided by eCMD that if changed, we would want to recompile on
-ECMD_INCLUDES := ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
+ECMD_INCLUDES := ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H fapi2DllCapi.H
 
 # The source files and includes in our local dirs that are going into the build
 TGT_INCLUDES  := ecmdDllCapi.H
