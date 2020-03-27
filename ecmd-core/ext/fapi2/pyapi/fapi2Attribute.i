@@ -76,6 +76,28 @@ void destroyAttribute(fapi2::AttributeData & i_data)
     }
 }
 
+PyObject * getPyDataFromArray(const fapi2::AttributeData & i_data, const uint32_t i_entry)
+{
+    PyObject * l_entryObject = NULL;
+    if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_UINT8ARY)
+        l_entryObject = PyInt_FromLong(i_data.faUint8ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
+        l_entryObject = PyInt_FromLong(i_data.faUint32ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_UINT64ARY)
+        l_entryObject = PyInt_FromLong(i_data.faUint64ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_INT8ARY)
+        l_entryObject = PyInt_FromLong(i_data.faInt8ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_INT32ARY)
+        l_entryObject = PyInt_FromLong(i_data.faInt32ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_INT64ARY)
+        l_entryObject = PyInt_FromLong(i_data.faInt64ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
+        l_entryObject = PyInt_FromLong(i_data.faUint16ary[i_entry]);
+    else if (i_data.faValidMask == FAPI_ATTRIBUTE_TYPE_INT16ARY)
+        l_entryObject = PyInt_FromLong(i_data.faInt16ary[i_entry]);
+    return l_entryObject;
+}
+
 PyObject * getPyAttribute(uint32_t i_id, fapi2::AttributeData & i_data)
 {
     PyObject * return_val = NULL;
@@ -120,29 +142,76 @@ PyObject * getPyAttribute(uint32_t i_id, fapi2::AttributeData & i_data)
                 bool l_attrEnum = false;
                 fapi2GetAttrInfo(static_cast<fapi2::AttributeId>(i_id), l_attrType, l_numOfEntries, l_numOfBytes, l_attrEnum);
 
-                return_val = PyList_New(l_numOfEntries);
-                PyObject * l_entryObject = NULL;
-                for (uint32_t l_entry = 0; l_entry < l_numOfEntries; l_entry++)
+                if ((i_data.faNumOfArrayDim == 0) || (i_data.faNumOfArrayDim == 1))
                 {
-                    if (l_attrType == FAPI_ATTRIBUTE_TYPE_UINT8ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faUint8ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_UINT32ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faUint32ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_UINT64ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faUint64ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_INT8ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faInt8ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_INT32ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faInt32ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_INT64ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faInt64ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_UINT16ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faUint16ary[l_entry]);
-                    else if (l_attrType == FAPI_ATTRIBUTE_TYPE_INT16ARY)
-                        l_entryObject = PyInt_FromLong(i_data.faInt16ary[l_entry]);
-
-                    PyList_SetItem(return_val, l_entry, l_entryObject);
+                    return_val = PyList_New(l_numOfEntries);
+                    for (uint32_t l_entry = 0; l_entry < l_numOfEntries; l_entry++)
+                    {
+                        PyList_SetItem(return_val, l_entry, getPyDataFromArray(i_data, l_entry));
+                    }
                 }
+                else if (i_data.faNumOfArrayDim == 2)
+                {
+                    return_val = PyList_New(i_data.faSizeOfArrayDimW);
+                    for (uint32_t l_w = 0; l_w < i_data.faSizeOfArrayDimW; l_w++)
+                    {
+                        PyObject * l_xList = PyList_New(i_data.faSizeOfArrayDimX);
+                        PyList_SetItem(return_val, l_w, l_xList);
+                        for (uint32_t l_x = 0; l_x < i_data.faSizeOfArrayDimX; l_x++)
+                        {
+                            uint32_t l_entry = (l_w * i_data.faSizeOfArrayDimX) + l_x;
+                            PyList_SetItem(l_xList, l_x, getPyDataFromArray(i_data, l_entry));
+                        }
+                    }
+                }
+                else if (i_data.faNumOfArrayDim == 3)
+                {
+                    return_val = PyList_New(i_data.faSizeOfArrayDimW);
+                    for (uint32_t l_w = 0; l_w < i_data.faSizeOfArrayDimW; l_w++)
+                    {
+                        PyObject * l_xList = PyList_New(i_data.faSizeOfArrayDimX);
+                        PyList_SetItem(return_val, l_w, l_xList);
+                        for (uint32_t l_x = 0; l_x < i_data.faSizeOfArrayDimX; l_x++)
+                        {
+                            PyObject * l_yList = PyList_New(i_data.faSizeOfArrayDimY);
+                            PyList_SetItem(l_xList, l_x, l_yList);
+                            for (uint32_t l_y = 0; l_y < i_data.faSizeOfArrayDimY; l_y++)
+                            {
+                                uint32_t l_entry = (l_w * i_data.faSizeOfArrayDimX * i_data.faSizeOfArrayDimY) +
+                                                   (l_x * i_data.faSizeOfArrayDimY) + l_y;
+                                PyList_SetItem(l_yList, l_y, getPyDataFromArray(i_data, l_entry));
+                            }
+                        }
+                    }
+                }
+                else if (i_data.faNumOfArrayDim == 4)
+                {
+                    return_val = PyList_New(i_data.faSizeOfArrayDimW);
+                    for (uint32_t l_w = 0; l_w < i_data.faSizeOfArrayDimW; l_w++)
+                    {
+                        PyObject * l_xList = PyList_New(i_data.faSizeOfArrayDimX);
+                        PyList_SetItem(return_val, l_w, l_xList);
+                        for (uint32_t l_x = 0; l_x < i_data.faSizeOfArrayDimX; l_x++)
+                        {
+                            PyObject * l_yList = PyList_New(i_data.faSizeOfArrayDimY);
+                            PyList_SetItem(l_xList, l_x, l_yList);
+                            for (uint32_t l_y = 0; l_y < i_data.faSizeOfArrayDimY; l_y++)
+                            {
+                                PyObject * l_zList = PyList_New(i_data.faSizeOfArrayDimZ);
+                                PyList_SetItem(l_yList, l_y, l_zList);
+                                for (uint32_t l_z = 0; l_z < i_data.faSizeOfArrayDimZ; l_z++)
+                                {
+                                    uint32_t l_entry = (l_w * i_data.faSizeOfArrayDimX * i_data.faSizeOfArrayDimY * i_data.faSizeOfArrayDimZ) +
+                                                       (l_x * i_data.faSizeOfArrayDimY * i_data.faSizeOfArrayDimZ) +
+                                                       (l_y * i_data.faSizeOfArrayDimZ) + l_z;
+                                    PyList_SetItem(l_zList, l_z, getPyDataFromArray(i_data, l_entry));
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                    Py_RETURN_NONE;
             }
             break;
         default:
