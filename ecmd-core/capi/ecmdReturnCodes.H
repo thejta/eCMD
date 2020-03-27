@@ -173,6 +173,14 @@
  #define ECMD_DBUF_NULL_POINTER                  (ECMD_ERR_ECMD | 0x2067) ///< Null pointer passed 
 #endif
 
+/* ecmd fapi2 return codes */
+#define ECMD_FAPI2_TYPE_MISMATCH_ERROR           (ECMD_ERR_ECMD | 0x3001) ///< Incorrect data type used
+#define ECMD_FAPI2_DATA_CONVERSION_ERROR         (ECMD_ERR_ECMD | 0x3002) ///< Data could not be converted
+#define ECMD_FAPI2_UNKNOWN_TYPE_ERROR            (ECMD_ERR_ECMD | 0x3003) ///< Unknown data type
+#define ECMD_FAPI2_ARRAY_SIZE_MISMATCH_ERROR     (ECMD_ERR_ECMD | 0x3004) ///< Array data is not the correct size
+#define ECMD_FAPI2_ARRAY_SIZE_INCONSISTENT_ERROR (ECMD_ERR_ECMD | 0x3005) ///< Array size is not consitent
+
+
 #define ECMD_GET_ALL_REMAINING_ERRORS            (ECMD_ERR_ECMD | 0xFFFF) ///< Retrieve all errors from getErrorMsg.  Not to be used.
 
 #endif /* ecmdReturnCodes_h */
