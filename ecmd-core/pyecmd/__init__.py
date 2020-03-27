@@ -183,6 +183,16 @@ class Target(_Target):
     # alias to match eCMD API spelling
     relatedTargets = related_targets
 
+    def fapi2GetAttr(self, i_id):
+        rc, data = ecmd.fapi2GetAttr(self, i_id)
+        if rc == 0x0206005A: # FAPI_UNSUPPORTED_ATTRIBUTE
+            raise KeyError(i_id)
+        _rcwrap(rc)
+        return data
+
+    def fapi2SetAttr(self, i_id, i_data):
+        _rcwrap(ecmd.fapi2SetAttr(self, i_id, i_data))
+
 class Ecmd(object):
     def __init__(self, dll="", version="ver14", args=None, **kwargs):
         self.dll = dll
