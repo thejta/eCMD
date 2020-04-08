@@ -756,12 +756,10 @@ constexpr void _check_valid_parent_of_pau()
 {
     // valid parents for PAU
     // PAU -> PERV
-    // PAU -> IOHS
     // PAU -> PAUC
     // PAU -> PROC
     static_assert(!((K == fapi2::TARGET_TYPE_PAU) &&
                     (T != fapi2::TARGET_TYPE_PERV) &&
-                    (T != fapi2::TARGET_TYPE_IOHS) &&
                     (T != fapi2::TARGET_TYPE_PAUC) &&
                     (T != fapi2::TARGET_TYPE_PROC_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_PAU");
