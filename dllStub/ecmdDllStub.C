@@ -29,7 +29,9 @@
 #include <ecmdStructs.H>
 #include <ecmdReturnCodes.H>
 #include <ecmdDataBuffer.H>
+#ifdef ECMD_FAPI2
 #include <fapi2DllCapi.H>
+#endif
 
 //--------------------------------------------------------------------
 //  Forward References                                                
@@ -354,6 +356,7 @@ uint32_t dllRelatedTargets(const ecmdChipTarget & i_target, const std::string i_
   return ECMD_SUCCESS;
 }
 
+#ifdef ECMD_FAPI2
 uint32_t dllFapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId &o_attrId) {
   if (i_attrString != "ATTR_CHIP_ID")
     return 0x0206005A; // FAPI_UNSUPPORTED_ATTRIBUTE
@@ -380,3 +383,4 @@ uint32_t dllFapi2GetAttrInfo (fapi2::AttributeId i_attrId, uint32_t &o_attrType,
   o_attrEnum = false;
   return ECMD_SUCCESS;
 }
+#endif // ECMD_FAPI2
