@@ -81,6 +81,7 @@ enum AttributeSource
 #define FAPI_ATTRIBUTE_MODE_CONST       0x80000000
 #define FAPI_ATTRIBUTE_MODE_HOSTBOOT    0x40000000
 #define FAPI_ATTRIBUTE_MODE_SCRATCH     0x20000000
+#define FAPI_ATTRIBUTE_MODE_DIMS        0x10000000
 /**
  @brief Used by the get/set configuration functions to return the data
 */
@@ -92,7 +93,9 @@ struct AttributeData {
   ~AttributeData();
 
   // Methods  
+#if !defined(ECMD_PYAPI)
   void printStruct(void);
+#endif
 
   // Members
   uint32_t              faValidMask;  ///< Indicates which of the fields in this structure are valid
