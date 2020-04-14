@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2017 IBM International Business Machines Corp.
+ * Copyright 2017, 2020 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,9 @@ namespace fapi2plat
                                     const std::vector<uint8_t>& i_data,
                                     std::vector<uint8_t>& o_data)
     {
-        static_assert(((K == fapi2::TARGET_TYPE_OCMB_CHIP) || (K == fapi2::TARGET_TYPE_PMIC)), 
-                      "getI2C requires TARGET_TYPE_OCMB_CHIP or TARGET_TYPE_PMIC");
+        static_assert(((K == fapi2::TARGET_TYPE_OCMB_CHIP) || (K == fapi2::TARGET_TYPE_PMIC) ||
+                       (K == fapi2::TARGET_TYPE_GENERICI2CSLAVE)), 
+                      "getI2C requires TARGET_TYPE_OCMB_CHIP, TARGET_TYPE_PMIC, or TARGET_TYPE_GENERICI2CSLAVE");
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget);
         return fapi2plat::getI2c(ecmdTarget, i_get_size, i_data, o_data);
@@ -58,8 +59,9 @@ namespace fapi2plat
     inline fapi2::ReturnCode putI2c(const fapi2::Target<K, M, V>& i_target,
                                     const std::vector<uint8_t>& i_data)
     {
-        static_assert(((K == fapi2::TARGET_TYPE_OCMB_CHIP) || (K == fapi2::TARGET_TYPE_PMIC)), 
-                      "putI2C requires TARGET_TYPE_OCMB_CHIP or TARGET_TYPE_PMIC");
+        static_assert(((K == fapi2::TARGET_TYPE_OCMB_CHIP) || (K == fapi2::TARGET_TYPE_PMIC) ||
+                       (K == fapi2::TARGET_TYPE_GENERICI2CSLAVE)), 
+                      "putI2C requires TARGET_TYPE_OCMB_CHIP, TARGET_TYPE_PMIC, or TARGET_TYPE_GENERICI2CSLAVE");
         ecmdChipTarget ecmdTarget;
         fapiTargetToEcmdTarget(i_target, ecmdTarget);
         return fapi2plat::putI2c(ecmdTarget, i_data);

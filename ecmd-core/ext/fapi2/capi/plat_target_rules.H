@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2017 IBM International Business Machines Corp.
+ * Copyright 2017, 2020 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -367,6 +367,16 @@ constexpr void _check_valid_parent_of_pmic()
     static_assert(!((K == fapi2::TARGET_TYPE_PMIC) &&
                     (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
                   "improper parent of fapi2::TARGET_TYPE_PMIC");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_valid_parent_of_generici2cslave()
+{
+    // valid parents for GENERICI2CSLAVE
+    // GENERICI2CSLAVE -> OCMB
+    static_assert(!((K == fapi2::TARGET_TYPE_GENERICI2CSLAVE) &&
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_GENERICI2CSLAVE");
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
@@ -774,6 +784,7 @@ constexpr void _check_valid_unicast_parent()
     // Specific parent checks for each TargetType
     fapi2plat::_check_valid_parent_of_dimm<K, T>();
     fapi2plat::_check_valid_parent_of_pmic<K, T>();
+    fapi2plat::_check_valid_parent_of_generici2cslave<K, T>();
     fapi2plat::_check_valid_parent_of_proc_chip<K, T>();
     fapi2plat::_check_valid_parent_of_membuf_chip<K, T>();
     fapi2plat::_check_valid_parent_of_ocmb_chip<K, T>();
@@ -899,10 +910,12 @@ constexpr void _check_ocmb_chip_valid_children()
     // OCMB -> MEM_PORT
     // OCMB -> DIMM
     // OCMB -> PMIC
+    // OCMB -> GENERICI2CSLAVE
     static_assert(!((K == fapi2::TARGET_TYPE_OCMB_CHIP) &&
                     (T != fapi2::TARGET_TYPE_MEM_PORT) &&
                     (T != fapi2::TARGET_TYPE_DIMM) &&
-                    (T != fapi2::TARGET_TYPE_PMIC)),
+                    (T != fapi2::TARGET_TYPE_PMIC) &&
+                    (T != fapi2::TARGET_TYPE_GENERICI2CSLAVE)),
                   "improper child of fapi2::TARGET_TYPE_OCMB_CHIP");
 }
 
