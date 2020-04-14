@@ -62,7 +62,10 @@ constexpr void _check_ep_chip_valid_parent()
             fapi2::TARGET_TYPE_GXA |
             fapi2::TARGET_TYPE_CORE |
             fapi2::TARGET_TYPE_MCS |
-            fapi2::TARGET_TYPE_PCIE;
+            fapi2::TARGET_TYPE_PCIE |
+            fapi2::TARGET_TYPE_ABUS |
+            fapi2::TARGET_TYPE_EX |
+            fapi2::TARGET_TYPE_L3;
 
     static_assert( !((T == fapi2::TARGET_TYPE_EP_CHIP) &&
                      ((K & TARGET_TYPE_EP_CHIPLETS) == fapi2::TARGET_TYPE_NONE)),
@@ -109,8 +112,12 @@ constexpr void _check_valid_parent_of_abus()
 {
     // valid parents for ABUS
     // ABUS -> SC_CHIP
+    // ABUS -> EP_CHIP
+    // ABUS -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_ABUS) &&
-                    (T != fapi2::TARGET_TYPE_SC_CHIP)),
+                    (T != fapi2::TARGET_TYPE_SC_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_ABUS");
 }
 
@@ -120,9 +127,11 @@ constexpr void _check_valid_parent_of_nest()
     // valid parents for NEST
     // NEST -> SC_CHIP
     // NEST -> EP_CHIP
+    // NEST -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_NEST) &&
                     (T != fapi2::TARGET_TYPE_SC_CHIP) &&
-                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_NEST");
 }
 
@@ -132,9 +141,11 @@ constexpr void _check_valid_parent_of_xbus0()
     // valid parents for XBUS0
     // XBUS0 -> SC_CHIP
     // XBUS0 -> EP_CHIP
+    // XBUS0 -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_XBUS0) &&
                     (T != fapi2::TARGET_TYPE_SC_CHIP) &&
-                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_XBUS0");
 }
 
@@ -173,13 +184,43 @@ constexpr void _check_valid_parent_of_gxa()
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_valid_parent_of_ex()
+{
+    // valid parents for EX
+    // EX -> EP_CHIP
+    // EX -> PERV
+    static_assert(!((K == fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
+                  "improper parent of fapi2::TARGET_TYPE_EX");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_parent_of_core()
 {
     // valid parents for CORE
     // CORE -> EP_CHIP
+    // CORE -> EX
+    // CORE -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_CORE) &&
-                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_CORE");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_valid_parent_of_l3()
+{
+    // valid parents for L3
+    // L3 -> EP_CHIP
+    // L3 -> EX
+    // L3 -> PERV
+    static_assert(!((K == fapi2::TARGET_TYPE_L3) &&
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
+                  "improper parent of fapi2::TARGET_TYPE_L3");
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
@@ -187,8 +228,10 @@ constexpr void _check_valid_parent_of_mcs()
 {
     // valid parents for MCS
     // MCS -> EP_CHIP
+    // MCS -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_MCS) &&
-                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_MCS");
 }
 
@@ -197,8 +240,10 @@ constexpr void _check_valid_parent_of_pcie()
 {
     // valid parents for PCIE
     // PCIE -> EP_CHIP
+    // PCIE -> PERV
     static_assert(!((K == fapi2::TARGET_TYPE_PCIE) &&
-                    (T != fapi2::TARGET_TYPE_EP_CHIP)),
+                    (T != fapi2::TARGET_TYPE_EP_CHIP) &&
+                    (T != fapi2::TARGET_TYPE_PERV)),
                   "improper parent of fapi2::TARGET_TYPE_PCIE");
 }
 
@@ -217,7 +262,9 @@ constexpr void _check_valid_unicast_parent()
     fapi2plat::_check_valid_parent_of_xbus1<K, T>();
     fapi2plat::_check_valid_parent_of_perv<K, T>();
     fapi2plat::_check_valid_parent_of_gxa<K, T>();
+    fapi2plat::_check_valid_parent_of_ex<K, T>();
     fapi2plat::_check_valid_parent_of_core<K, T>();
+    fapi2plat::_check_valid_parent_of_l3<K, T>();
     fapi2plat::_check_valid_parent_of_mcs<K, T>();
     fapi2plat::_check_valid_parent_of_pcie<K, T>();
 }
@@ -252,6 +299,9 @@ constexpr void _check_ep_chip_valid_children()
     // EP_CHIP -> CORE
     // EP_CHIP -> MCS
     // EP_CHIP -> PCIE
+    // EP_CHIP -> ABUS
+    // EP_CHIP -> EX
+    // EP_CHIP -> L3
     static_assert(!((K == fapi2::TARGET_TYPE_EP_CHIP) &&
                     (T != fapi2::TARGET_TYPE_NEST) &&
                     (T != fapi2::TARGET_TYPE_XBUS0) &&
@@ -260,8 +310,47 @@ constexpr void _check_ep_chip_valid_children()
                     (T != fapi2::TARGET_TYPE_GXA) &&
                     (T != fapi2::TARGET_TYPE_CORE) &&
                     (T != fapi2::TARGET_TYPE_MCS) &&
-                    (T != fapi2::TARGET_TYPE_PCIE)),
+                    (T != fapi2::TARGET_TYPE_PCIE) &&
+                    (T != fapi2::TARGET_TYPE_ABUS) &&
+                    (T != fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_L3)),
                   "improper child of fapi2::TARGET_TYPE_EP_CHIP");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_perv_valid_children()
+{
+    // valid children for PERV
+    // PERV -> EX
+    // PERV -> CORE
+    // PERV -> L3
+    // PERV -> XBUS
+    // PERV -> ABUS
+    // PERV -> MCS
+    // PERV -> NEST
+    // PERV -> PCIE
+    static_assert(!((K == fapi2::TARGET_TYPE_PERV) &&
+                    (T != fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_CORE) &&
+                    (T != fapi2::TARGET_TYPE_L3) &&
+                    (T != fapi2::TARGET_TYPE_XBUS) &&
+                    (T != fapi2::TARGET_TYPE_ABUS) &&
+                    (T != fapi2::TARGET_TYPE_MCS) &&
+                    (T != fapi2::TARGET_TYPE_NEST) &&
+                    (T != fapi2::TARGET_TYPE_PCIE)),
+                  "improper child of fapi2::TARGET_TYPE_PERV");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_ex_valid_children()
+{
+    // valid children for EX
+    // EX -> CORE
+    // EX -> L3
+    static_assert(!((K == fapi2::TARGET_TYPE_EX) &&
+                    (T != fapi2::TARGET_TYPE_CORE) &&
+                    (T != fapi2::TARGET_TYPE_L3)),
+                  "improper child of fapi2::TARGET_TYPE_EX");
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
@@ -269,6 +358,8 @@ constexpr void _check_valid_unicast_children()
 {
     fapi2plat::_check_sc_chip_valid_children<K, T>();
     fapi2plat::_check_ep_chip_valid_children<K, T>();
+    fapi2plat::_check_perv_valid_children<K, T>();
+    fapi2plat::_check_ex_valid_children<K, T>();
 }
 
 #else
