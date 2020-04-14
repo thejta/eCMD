@@ -146,6 +146,7 @@ enum TargetType : uint64_t
     TARGET_TYPE_NEST          = TARGET_TYPE_CAPP,
     TARGET_TYPE_PCIE          = TARGET_TYPE_PEC,
     TARGET_TYPE_GXA           = TARGET_TYPE_PHB,
+    TARGET_TYPE_L3            = TARGET_TYPE_L4,
 #endif
 };
 
