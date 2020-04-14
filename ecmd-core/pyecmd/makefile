@@ -12,6 +12,9 @@ HEADERS_TO_PARSE := $(addprefix ${ECMD_CORE}/capi/, ecmdClientCapi.H ecmdSharedU
 PYTHON_INSTALL_PATH := ${INSTALL_PATH}/${TARGET_ARCH}/python
 PYECMD_INSTALL_PATH := ${PYTHON_INSTALL_PATH}/pyecmd
 
+# For extensions, include <ext>ClientCapi.H if and only if it's also referenced in <ext>ClientPyapi.i
+HEADERS_TO_PARSE += $(foreach ext, $(EXT_PYAPI),$(if $(findstring $(ext)ClientCapi.H,$(file <$(EXT_$(ext)_PATH)/pyapi/$(ext)ClientPyapi.i)),$(EXT_$(ext)_PATH)/capi/$(ext)ClientCapi.H))
+
 # *****************************************************************************
 # The Main Targets
 # *****************************************************************************
@@ -28,32 +31,39 @@ build:
 
 install:
 	@echo "Creating ${PYECMD_INSTALL_PATH} dir ..."
-	@mkdir -p ${PYECMD_INSTALL_PATH}
+	${VERBOSE}mkdir -p ${PYECMD_INSTALL_PATH}
 	@echo " "
 
 	@echo "Installing Pythonic eCMD Wrapper pyeCMD ${PYECMD_INSTALL_PATH} ..."
-	cp ${GENERATED_PY} ${CONSTANTS_PY} ${COPIED_PY} ${PYECMD_INSTALL_PATH}
-	cp bitstring.py ${PYTHON_INSTALL_PATH}
+	${VERBOSE}cp ${GENERATED_PY} ${CONSTANTS_PY} ${COPIED_PY} ${PYECMD_INSTALL_PATH}
+	${VERBOSE}cp bitstring.py ${PYTHON_INSTALL_PATH}
 	@echo " "
 
 test:
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
-	@ln -sf `pwd`/*.py ${OUTPYECMD}
-	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} test_api.py
+	${VERBOSE}ln -sf `pwd`/*.py ${OUTPYECMD}
+ifeq ($(CREATE_PYAPI),yes)
+	@echo "Testing on python2"
+	${VERBOSE}ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} test_api.py
+endif
+ifeq ($(CREATE_PY3API),yes)
+	@echo "Testing on python3"
+	${VERBOSE}ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY3}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY3} ${ECMDPYTHON3BIN} test_api.py
+endif
 
 test-interactive:
-	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN}
+	${VERBOSE}ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY3}:${OUTPYECMD}/.. LD_LIBRARY_PATH=${OUTLIB}:${OUTPY3} ${ECMDPYTHON3BIN}
 
 # *****************************************************************************
 # Generate most of the wrapper Python code
 # *****************************************************************************
 ${GENERATED_PY}: ./generate_pyecmd.py $(HEADERS_TO_PARSE)
 	@echo "Generating $@ ..."
-	@./generate_pyecmd.py $(HEADERS_TO_PARSE) > $@
+	${VERBOSE}./generate_pyecmd.py $(HEADERS_TO_PARSE) > $@
 
 ${CONSTANTS_PY}: ${OUTPY}/ecmd.py
 	@echo "Generating $@ ..."
-	@{ \
+	${VERBOSE}{ \
 	    echo -n "from ecmd import "; \
 	    grep -E "([[:upper:][:digit:]_]+)\s+=\s+_ecmd\.\1" $< | cut -d' ' -f1 | tr '\n' ',' | sed 's/,$$//'; \
 	 } > $@
