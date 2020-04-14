@@ -56,6 +56,7 @@
 %template(ecmdNodeDataList)          std::list<ecmdNodeData>;
 %template(ecmdCageDataList)          std::list<ecmdCageData>;
 %template(stringList)                std::list<std::string>;
+%template(stringVector)              std::vector<std::string>;
 %template(ecmdDataBufferBaseVector)  std::vector<ecmdDataBufferBase>;
 %template(ecmdDataBufferVector)      std::vector<ecmdDataBuffer>;
 %template(ecmdDataBufferVectorVector) std::vector<std::vector<ecmdDataBuffer>>;
