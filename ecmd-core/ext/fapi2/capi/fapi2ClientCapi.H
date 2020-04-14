@@ -76,6 +76,7 @@
 
 extern "C" {
 
+#if !defined(ECMD_PYAPI)
 /** @name Load/Unload Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
 /**
@@ -85,9 +86,11 @@ extern "C" {
 */
  uint32_t fapi2InitExtension();  
 //@}
+#endif
 
 /** @name Misc Functions (NOTE: Available only in eCMD HWPF FAPI extention implementation, not FW)*/
 //@{
+#if !defined(ECMD_PYAPI)
 /**
  @brief Query the location of a specific HWP
  @param i_fileType Enum that specifies which type of file you are looking for (see fapiStructs.H)
@@ -120,6 +123,7 @@ uint32_t fapi2QueryFileLocation(fapi2::FileType_t i_fileType, std::string & i_fi
 
 */
 uint32_t fapi2GetAttributeOverride(const ecmdChipTarget & i_target, const uint32_t i_id, fapi2::AttributeData & o_data);
+#endif
 
 
 
@@ -196,6 +200,7 @@ uint32_t fapi2AttributeStringToId(std::string i_attrString, fapi2::AttributeId &
 */
 uint32_t fapi2GetAttrInfo(fapi2::AttributeId i_attrId, uint32_t & o_attrType, uint32_t & o_numOfEntries, uint32_t & o_numOfBytes, bool & o_attrEnum);
 
+#if !defined(ECMD_PYAPI)
 /**
  @brief deprecated Retrieve a list of attributes based upon their TargetType and AttributeSource deprecated
  @param i_targetTypes An ored value of requested TargetType
@@ -213,9 +218,11 @@ uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attribute
  @retval ECMD_SUCCESS if successful
 */
 uint32_t fapi2GetAttrIdsByType(fapi2::TargetType i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds);
+#endif
 
 //@}
 
+#if !defined(ECMD_PYAPI)
 /**
  @brief Output a message related to an error
  @param i_message String to output
@@ -285,6 +292,7 @@ void fapi2OutputLab(const char* i_message);
  @retval ECMD_SUCCESS if function is found and executed
 */
 uint32_t fapi2GeneralApi(std::list<void *> & io_args);
+#endif
 
 } //extern c
 

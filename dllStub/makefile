@@ -19,6 +19,15 @@ VPATH        := ${VPATH}:${ECMD_ROOT}/ecmd-core/capi:${ECMD_ROOT}/ecmd-core/dll:
 # The ECMD_INCLUDES are files provided by eCMD that if changed, we would want to recompile on
 ECMD_INCLUDES := ecmdClientCapi.H ecmdDataBuffer.H ecmdReturnCodes.H ecmdStructs.H ecmdUtils.H ecmdClientEnums.H ecmdSharedUtils.H ecmdDefines.H
 
+# *****************************************************************************
+# Modify build for fapi2
+# *****************************************************************************
+ifneq (${EXT_fapi2_PATH},)
+ECMD_INCLUDES += fapi2DllCapi.H
+CXXFLAGS += -DECMD_FAPI2 -I ${ECMD_ROOT}/ecmd-core/ext/fapi2/capi
+VPATH := ${VPATH}:${ECMD_ROOT}/ecmd-core/ext/fapi2/capi
+endif
+
 # The source files and includes in our local dirs that are going into the build
 TGT_INCLUDES  := ecmdDllCapi.H
 TGT_SOURCE    := ecmdDllCapi.C ecmdDllStub.C ecmdDllStubInfo.C
