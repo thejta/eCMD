@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This script will look for any ecmd-* dirs at the top level and
 # setup a number of variables used through out the make
@@ -10,6 +10,24 @@ import os
 import sys
 import glob
 import platform
+# The linux_distribution function was removed from platform in Python 3.8+
+# It's now available in a different module - distro
+# Try to use it from platform if still available there
+# If not, see if the user has distro installed and get it from there
+# We abstract the function name into get_distro to keep the usage code common
+if "linux_distribution" in dir(platform):
+    get_distro = platform.linux_distribution
+else:
+    # Not in platform, try to get this from the distro module
+    try:
+        import distro
+    except:
+        # If not installed, try to provide a helpful message
+        print("ERROR: Unable to import distro module to get OS info!")
+        print("ERROR: Please install the module and try again!")
+        sys.exit(1)
+    # It works, assign it to our common function name
+    get_distro = distro.linux_distribution
 import textwrap
 import re
 import argparse
@@ -378,7 +396,7 @@ buildvars["TARGET_BARCH"] = TARGET_BARCH
 # Determine the distro
 DISTRO = ""
 if (platform.system() == "Linux"):
-    dtuple = platform.linux_distribution()
+    dtuple = get_distro()
     if ("Red Hat Enterprise" in dtuple[0]):
         DISTRO = "el" + dtuple[1][0]
     elif (dtuple[0] == "Ubuntu"):
