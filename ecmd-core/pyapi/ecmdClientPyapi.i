@@ -75,6 +75,7 @@
 %template(ecmdSpyDataList)           std::list<ecmdSpyData>;
 %template(ecmdSpyLatchDataList)      std::list<ecmdSpyLatchData>;
 %template(ecmdScomDataList)          std::list<ecmdScomData>;
+%template(ecmdScomDataHiddenList)    std::list<ecmdScomDataHidden>;
 %template(ecmdI2CCmdEntryList)       std::list<ecmdI2CCmdEntry>;
 %template(ecmdConnectionDataList)    std::list<ecmdConnectionData>;
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;

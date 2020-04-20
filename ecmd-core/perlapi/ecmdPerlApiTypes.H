@@ -179,6 +179,11 @@ typedef ecmdSpyDataList ecmdSpyDataList;
 */
 typedef ecmdScomDataList ecmdScomDataList;
 /**
+ @brief The perl version of the ecmdScomDataHidden C API std::list
+ @see List
+*/
+typedef ecmdScomDataHiddenList ecmdScomDataHiddenList;
+/**
  @brief The perl version of the ecmdTraceArrayData C API std::list
  @see List
 */
