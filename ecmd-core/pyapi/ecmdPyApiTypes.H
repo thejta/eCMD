@@ -236,6 +236,11 @@ typedef ecmdSpyLatchDataList ecmdSpyLatchDataList;
 */
 typedef ecmdScomDataList ecmdScomDataList;
 /**
+ @brief The python version of the ecmdScomDataHidden C API std::list
+ @see List
+*/
+typedef ecmdScomDataHiddenList ecmdScomDataHiddenList;
+/**
  @brief The python version of the ecmdI2CCmdEntry C API std::list
  @see List
 */
