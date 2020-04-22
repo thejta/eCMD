@@ -14,7 +14,7 @@ PYECMD_INSTALL_PATH := ${PYTHON_INSTALL_PATH}/pyecmd
 
 # For extensions, include <ext>ClientCapi.H if and only if it's also referenced in <ext>ClientPyapi.i
 # skip fapi2 api for now
-EXTENTIONS_TO_PARSE := $(filter-out fapi2, $(EXT_PYAPI))
+EXTENSIONS_TO_PARSE := $(filter-out fapi2, $(EXT_PYAPI))
 HEADERS_TO_PARSE += $(foreach ext, $(EXTENSIONS_TO_PARSE),$(if $(findstring $(ext)ClientCapi.H,$(shell cat $(EXT_$(ext)_PATH)/pyapi/$(ext)ClientPyapi.i)),$(EXT_$(ext)_PATH)/capi/$(ext)ClientCapi.H))
 
 # *****************************************************************************
