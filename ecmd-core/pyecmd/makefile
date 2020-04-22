@@ -13,7 +13,9 @@ PYTHON_INSTALL_PATH := ${INSTALL_PATH}/${TARGET_ARCH}/python
 PYECMD_INSTALL_PATH := ${PYTHON_INSTALL_PATH}/pyecmd
 
 # For extensions, include <ext>ClientCapi.H if and only if it's also referenced in <ext>ClientPyapi.i
-HEADERS_TO_PARSE += $(foreach ext, $(EXT_PYAPI),$(if $(findstring $(ext)ClientCapi.H,$(file <$(EXT_$(ext)_PATH)/pyapi/$(ext)ClientPyapi.i)),$(EXT_$(ext)_PATH)/capi/$(ext)ClientCapi.H))
+# skip fapi2 api for now
+EXTENTIONS_TO_PARSE := $(filter-out fapi2, $(EXT_PYAPI))
+HEADERS_TO_PARSE += $(foreach ext, $(EXTENSIONS_TO_PARSE),$(if $(findstring $(ext)ClientCapi.H,$(shell cat $(EXT_$(ext)_PATH)/pyapi/$(ext)ClientPyapi.i)),$(EXT_$(ext)_PATH)/capi/$(ext)ClientCapi.H))
 
 # *****************************************************************************
 # The Main Targets
