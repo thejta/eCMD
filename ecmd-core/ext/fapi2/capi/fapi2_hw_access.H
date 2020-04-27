@@ -33,8 +33,8 @@
 #include <stdint.h>
 #include <buffer.H>
 
-// variable_buffer isn't supported on PPE
-#ifndef __PPE__
+// variable_buffer isn't supported on PPE or Hostboot Bootloader
+#if !defined(__PPE__) && !defined(FAPI_VARIABLE_BUFFER_NOT_SUPPORTED)
     #include <variable_buffer.H>
 #endif
 
@@ -45,17 +45,21 @@
 
 namespace fapi2
 {
-//--------------------------------------------------------------------------
-// PIB Error Functions
-//--------------------------------------------------------------------------
+// No PIB error masks supported by Hostboot Bootloader
+#ifndef PIB_ERROR_MASK_NOT_SUPPORTED
+    //--------------------------------------------------------------------------
+    // PIB Error Functions
+    //--------------------------------------------------------------------------
 
-/// @brief Sets the PIB error mask - platform dependant
-/// @param[in]  i_mask     The new error mask
-inline void setPIBErrorMask(uint8_t i_mask);
+    /// @brief Sets the PIB error mask - platform dependant
+    /// @param[in]  i_mask     The new error mask
+    inline void setPIBErrorMask(uint8_t i_mask);
 
-/// @brief Gets the PIB error mask - platform dependant
-/// @return uint8_t The current PIB error mask
-inline uint8_t getPIBErrorMask(void);
+    /// @brief Gets the PIB error mask - platform dependant
+    /// @return uint8_t The current PIB error mask
+    inline uint8_t getPIBErrorMask(void);
+
+#endif
 
 //--------------------------------------------------------------------------
 // Operational Mode Error Functions
@@ -85,6 +89,9 @@ inline OpModes getOpMode(void);
 /// result in error.
 /// i_mappings may contain an arbitrary amount of abstract/HW pairs, but the
 /// function may return an error if too many mappings are specified.
+/// If the hardware supports a "broadcast" group, that must also be mapped
+/// explicitly via this function - platforms are not expected to map the
+/// broadcast group implicitly.
 template< MulticastType M, typename V >
 inline ReturnCode setMulticastGroupMap(const Target<TARGET_TYPE_PROC_CHIP, M, V>& i_chip,
                                        const std::vector< MulticastGroupMapping >& i_mappings);
@@ -176,7 +183,7 @@ ReturnCode putRing(const Target<K, M, V>& i_target,
                    const RingMode i_ringMode = RING_MODE_HEADER_CHECK);
 
 // variable_buffer isn't supported on PPE
-#ifndef __PPE__
+#if !defined(__PPE__) && !defined(FAPI_VARIABLE_BUFFER_NOT_SUPPORTED)
 /// @brief Reads a ring from a chip.
 /// @tparam K template parameter, passed in target.
 /// @param[in]  i_target   Target to operate on.
@@ -213,7 +220,7 @@ inline ReturnCode modifyRing(const Target<K, M, V>& i_target,
 // --------------------------------------------------------------------------
 
 // variable_buffer isn't supported on PPE
-#ifndef __PPE__
+#if !defined(__PPE__) && !defined(FAPI_VARIABLE_BUFFER_NOT_SUPPORTED)
 /// @brief Reads a spy from a chip.
 /// @tparam K template parameter, passed in target.
 /// @param[in]  TARGET   Target to operate on.
@@ -441,7 +448,7 @@ inline ReturnCode getSpyImage(const Target<K, M, V>& i_target,
                               const variable_buffer& i_imageData);
 #endif
 
-#endif // PPE
+#endif // PPE and FAPI_VARIABLE_BUFFER_NOT_SUPPORTED
 };
 
 #endif // _FAPI2_HWACCESS_H_

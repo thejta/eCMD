@@ -133,6 +133,8 @@ class Target
             iv_handle(Value)
         {
             plat_apply_target_limits<K, M, V>();
+            // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
 
             /* Iff this is a potential mcast target, update the handle.
              * We can't know the mcast op of the V handed in, so we have
@@ -142,6 +144,8 @@ class Target
             {
                 mcUpdateHandle();
             }
+
+#endif
         };
 
         ///
@@ -286,7 +290,7 @@ class Target
 
         ///
         /// @brief Get this target's children
-        /// @tparam T The type of the parent
+        /// @tparam T The type of the children
         /// @param[in] i_state The desired TargetState of the children
         /// @return std::vector<Target<T,V>> a vector of present/functional
         /// children
@@ -299,7 +303,7 @@ class Target
 
         ///
         /// @brief Get this target's children, filtered
-        /// @tparam T The type of the parent
+        /// @tparam T The type of the children
         /// @param[in] i_filter The desired chiplet filter
         /// @param[in] i_state The desired TargetState of the children
         /// @return std::vector<Target<T,V>> a vector of present/functional
@@ -310,6 +314,9 @@ class Target
         getChildren(const TargetFilter i_filter,
                     const TargetState i_state = TARGET_STATE_FUNCTIONAL) const;
 
+
+        // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
         ///
         /// @brief Get a multicast target for a given chip
         /// @tparam T The type of target to return; TARGET_TYPE_MULTICAST is added automatically
@@ -339,6 +346,7 @@ class Target
         template< MulticastType O = MULTICAST_OR >
         inline Target < TARGET_TYPE_CORE | TARGET_TYPE_MULTICAST, O, V >
         getMulticast(const MulticastGroup i_group, const MulticastCoreSelect i_cores) const;
+#endif
 
         ///
         /// @brief Get the target at the other end of a bus
@@ -372,6 +380,9 @@ class Target
         inline uint8_t
         getChipletNumber(void) const;
 
+
+        // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
         ///
         /// @brief Returns the core select vector associated with a Core target
         /// @return The core select value for the target. For unicast core targets
@@ -384,6 +395,7 @@ class Target
             static_assert(K & TARGET_TYPE_CORE, "getCoreSelect is only applicable to TARGET_TYPE_CORE targets");
             return _getCoreSelect();
         }
+#endif
 
         ///
         /// @brief Copy from a Target<O, MO> to a Target<K, M>
@@ -403,11 +415,16 @@ class Target
             static_assert( bitCount<K>::count >= bitCount<O>::count,
                            "unable to cast to specialized Target");
 
+            // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
+
             // Only need to update the handle if we're coming from a target that's already MULTICAST
             if ((O & TARGET_TYPE_MULTICAST) && (MO != M))
             {
                 mcUpdateHandle();
             }
+
+#endif
         }
 
     private:
@@ -416,11 +433,71 @@ class Target
         static const TargetType iv_type = K;
         V iv_handle;
 
+        // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
         /// @brief if iv_handle is a multicast target, update its multicast type to M
         inline void mcUpdateHandle(void);
 
         /// @brief Internal implementation of getCoreSelect, filtered for CORE targets
         inline MulticastCoreSelect _getCoreSelect(void) const;
+#endif
+
+        ///
+        /// @brief Static checks for getParent.
+        ///        Platform implementations are expected to call this.
+        /// @tparam T The type of the parent
+        ///
+        template< TargetType T >
+        inline void check_getParent(void) const
+        {
+            // It's forbidden to strip multicast from a target below PROC_CHIP level:
+            // Since a multicast might end up expanding to more than one unicast target,
+            // users are required to use getChildren if they want to map back to unicast.
+            static_assert(!(((K ^ T) & TARGET_TYPE_MULTICAST) && ((T & TARGET_TYPE_CHIPLETS) != TARGET_TYPE_NONE)),
+                          "Parent target for a multicast target must also be multicast or PROC_CHIP");
+        }
+
+        ///
+        /// @brief Static compile time checks for getChildren.
+        ///        Platform implementations are expected to call this.
+        /// @tparam T The type of the children
+        ///
+        template< TargetType T>
+        inline void check_getChildren() const
+        {
+            // valid children for multicast targets are the same with multicast stripped
+            static_assert(!((K & TARGET_TYPE_MULTICAST) &&
+                            (K != (T | TARGET_TYPE_MULTICAST))),
+                          "improper child of fapi2::TARGET_TYPE_MULTICAST");
+        }
+
+        // No multicast support for Hostboot Bootloader
+#ifndef FAPI_PLAT_MULTICAST_NOT_SUPPORTED
+        ///
+        /// @brief Static checks for getMulticast(). Platforms are expected to call this.
+        /// @tparam T The type of target to return; TARGET_TYPE_MULTICAST is added automatically
+        /// @tparam O The type of multicast read operation for the target; defaults to OR
+        ///
+        template< TargetType T, MulticastType O >
+        inline void check_getMulticast() const
+        {
+            // C++ does not allow partial specialization of class member functions (please prove me wrong!),
+            // so we need to use this static assertion instead. On the upside, the error message is much clearer ;)
+            static_assert((K == TARGET_TYPE_PROC_CHIP), "Parent target must be the proc chip");
+            static_assert((T & TARGET_TYPE_MULTICASTABLE) != 0,
+                          "Requested target type must be part of TARGET_TYPE_MULTICASTABLE");
+            static_assert(bitCount<T>::count == 1,
+                          "Requested target type must be a single type, TARGET_TYPE_MULTICAST will be added automatically");
+        }
+#endif
+
+        ///
+        /// @brief Static checks for getChipletNumber. Platforms are expected to call this.
+        ///
+        inline void check_getChipletNumber(void) const
+        {
+            static_assert((K & TARGET_TYPE_MULTICAST) == 0, "getChipletNumber is not supported for multicast targets");
+        }
 };
 
 // EX threads map to CORE threads:
