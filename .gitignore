@@ -5,6 +5,7 @@ out_*
 install
 makefile.config
 makefile.override
+ecmd-core/pyecmd/__pycache__/
 
 # We want to ignore any sub ecmd-* dirs, except the included ecmd-core
 ecmd-*
