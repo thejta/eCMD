@@ -61,9 +61,15 @@ enum ReturnCodes : uint32_t
     FAPI2_RC_SUCCESS = 0,
 
     // Flag bits indicating which code generated the error.
+    FAPI2_RC_PHAL_MASK = 0x08000000, ///< PHAL mask
     FAPI2_RC_FAPI2_MASK = 0x04000000, ///< FAPI2 mask
     FAPI2_RC_PLAT_MASK =  0x02000000, ///< Platform mask
     FAPI2_RC_HWP_MASK =   0x00000000, ///< HWP mask
+
+    //
+    // PHAL generic return codes
+    //
+    FAPI2_RC_PHAL_NOT_SUPPORTED = FAPI2_RC_PHAL_MASK | 0x01,
 
     //
     // FAPI generated return codes
@@ -111,6 +117,10 @@ enum ReturnCodes : uint32_t
 
     FAPI2_RC_PLAT_TOR_HEADER_DATA_INVALID = FAPI2_RC_PLAT_MASK | 0x07,
     //Accessing TOR ring section fail because TOR magic word not found
+
+    FAPI2_RC_PLAT_MISCOMPARE              = FAPI2_RC_PLAT_MASK | 0x08,
+    ///< An operation (like a getScom using multicast-compare) failed
+    ///< because the returned data was different from a reference value.
 };
 
 }

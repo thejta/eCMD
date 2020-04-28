@@ -72,7 +72,9 @@ static inline constexpr bool is_platform()
     return fapi2::PLATFORM == i_type;
 }
 
-#ifndef __PPE__
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+
+#if !defined(__PPE__) && !defined(BOOTLOADER)
 ///
 /// @brief Enable/Disable special wakeup on processor chip core(s)
 ///

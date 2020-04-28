@@ -26,7 +26,11 @@
 
 #include <stdint.h>
 #include <plat_error_scope.H>
-#include <hwp_ffdc_classes.H>
+
+// No advanced FFDC is supported for Hostboot Bootloader
+#ifndef FAPI2_NO_FFDC
+    #include <hwp_ffdc_classes.H>
+#endif
 
 /// @cond
 #define FAPI_VA_NARGS_IMPL(_1, _2, _3, _4, _5, N, ...) N
@@ -35,10 +39,14 @@
 #define FAPI_TRY_IMPL2(count, ...) FAPI_TRY ## count (__VA_ARGS__)
 #define FAPI_TRY_IMPL(count, ...) FAPI_TRY_IMPL2(count, __VA_ARGS__)
 
+#define FAPI_TRY_TRACE_AUTOERR_STR(__operation__) #__operation__" failed."
+#define FAPI_TRY_TRACE_AUTOERR(__operation__) PLAT_FAPI_TRY_TRACE(__operation__, \
+        FAPI_TRY_TRACE_AUTOERR_STR(__operation__))
+
 #define FAPI_TRY_NO_TRACE( __operation__ ) PLAT_FAPI_TRY_NO_TRACE( __operation__ )
 #define FAPI_TRY_TRACE( __operation__, ... ) PLAT_FAPI_TRY_TRACE( __operation__, __VA_ARGS__ )
 
-#define FAPI_TRY1 FAPI_TRY_NO_TRACE
+#define FAPI_TRY1 FAPI_TRY_TRACE_AUTOERR
 #define FAPI_TRY2 FAPI_TRY_TRACE
 #define FAPI_TRY3 FAPI_TRY_TRACE
 #define FAPI_TRY4 FAPI_TRY_TRACE
