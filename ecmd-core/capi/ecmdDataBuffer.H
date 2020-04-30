@@ -275,6 +275,20 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    */
   uint32_t growBitLength(uint32_t i_newNumBits);
+
+protected:
+  /**
+   * @brief Implementation of growBitLength()
+   * @param i_newNumBits New bit length for buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @post Internal buffer size is reset but data inside is not lost
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   */
+  virtual uint32_t growBitLengthInternal(uint32_t i_newNumBits);
+
+public:
+
   //@}
 
   /** @name Bit/Word Manipulation Functions */
@@ -583,6 +597,22 @@ public:
    */
   uint32_t insert(const ecmdDataBuffer & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
+protected:
+  /**
+   * @brief Copy part of another DataBuffer into this one
+   * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
+   * @param i_targetStart Start bit to insert to
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_bufferIn - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  uint32_t insertBase(const ecmdDataBufferBase & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+public:
+
 #if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
   /**
    * @brief Copy part of a uint32_t array into this DataBuffer
@@ -759,6 +789,22 @@ public:
    * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
    */
   uint32_t extract(ecmdDataBuffer & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+
+protected:
+  /**
+   * @brief Copy data from this DataBuffer into another
+   * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
+   * @param i_start Start bit of data in this DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to bufferOut
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+
+   * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
+   */
+  virtual uint32_t extractBase(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+
+public:
 
 #if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
   /**
@@ -1241,6 +1287,18 @@ public:
    */
   std::string genBinStr(uint32_t i_start, uint32_t i_bitlen) const; 
 
+protected:
+  /**
+   * @brief Return Data as a binary char string
+   * @param i_bufferIn Buffer to generate from
+   * @param i_start Start bit of data to convert
+   * @param i_bitlen Number of consecutive bits to convert
+   * @retval String containing requested data
+   */
+  static std::string genBinStr(const ecmdDataBufferBase & i_bufferIn, uint32_t i_start, uint32_t i_bitlen); 
+
+public:
+
   /**
    * @brief Return Data as an ASCII char string.  If it's out of range, a . is printed.
    * @param i_start Start bit of data to convert
@@ -1291,6 +1349,18 @@ public:
    * @retval String containing requested data
    */
   std::string genXstateStr(uint32_t i_start, uint32_t i_bitlen) const;
+
+protected:
+  /**
+   * @brief Retrieve a section of the Xstate Data
+   * @param i_bufferIn Buffer to generate from
+   * @param i_start Start bit of data to retrieve
+   * @param i_bitlen Number of consecutive bits to retrieve
+   * @retval String containing requested data
+   */
+  static std::string genXstateStr(const ecmdDataBufferBase & i_bufferIn, uint32_t i_start, uint32_t i_bitlen);
+
+public:
 
   /**
    * @brief Retrieve entire Xstate Data buffer
@@ -1410,6 +1480,20 @@ public:
    */
   uint32_t enableXstateBuffer();
 
+protected:
+
+  /**
+   * @brief Initializes the X-state buffer, from then on all changes are reflected in Xstate
+   * @param io_buffer Buffer to modify
+   * @post Xstate buffer is created and initialized to value of current raw buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_INIT_FAIL failure occurred allocating X-state array
+   * @retval ECMD_DBUF_NOT_OWNER when called on buffer not owned
+   */
+  static uint32_t enableXstateBuffer(ecmdDataBufferBase & io_buffer);
+
+public:
+
   /**
    * @brief Removes the X-state buffer, from then on no changes are made to Xstate
    * @post Xstate buffer is deallocated
@@ -1444,6 +1528,18 @@ public:
    * @retval true if xstate found false if none
    */
   bool   hasXstate(uint32_t i_start, uint32_t i_length) const; /* check subset */
+
+protected:
+  /**
+   * @brief Check section of buffer for any X-state values
+   * @param i_bufferIn Buffer to check
+   * @param i_start Start bit to test
+   * @param i_length Number of consecutive bits to test
+   * @retval true if xstate found false if none
+   */
+  static bool   hasXstate(const ecmdDataBufferBase & i_bufferIn, uint32_t i_start, uint32_t i_length);
+
+public:
 
   /**
    * @brief Retrieve an Xstate value from the buffer
