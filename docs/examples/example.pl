@@ -16,7 +16,7 @@ $| = 1;  # set autoflush
 # Load the eCMD PerlModule,
 #  first parm is a pointer to the plugin, "" says use environment which is suggested
 #  second parm is a comma seperated list of eCMD Major version supported by this script, ie "ver4,ver5"
-if (ecmdLoadDll("","ver5,ver6,ver7")) { die "Fatal errors initializing DLL"; }
+if (ecmdLoadDll("","ver14,ver15")) { die "Fatal errors initializing DLL"; }
 
 #####
 #
@@ -28,7 +28,7 @@ if (ecmdLoadDll("","ver5,ver6,ver7")) { die "Fatal errors initializing DLL"; }
 $rc = ecmdCommandArgs(\@ARGV);
 
 
-if (0) {
+if (1) {
   my $o_dllInfo = new ecmd::ecmdDllInfo;
 
   print "---- starting ecmdQueryDllInfo -----\n";
@@ -48,7 +48,7 @@ if (0) {
 
 
  # put/getring
-if (0) {
+if (1) {
 
   print "---- starting putring -----\n";
   my $edb1 = new ecmd::ecmdDataBuffer();
@@ -96,7 +96,7 @@ if (0) {
 
 
  # put/getscom
-if (0) {
+if (1) {
   my $edb1 = new ecmd::ecmdDataBuffer();
   my $target = new ecmd::ecmdChipTarget();
   # Let's setup our target, two ways to do it
@@ -142,7 +142,7 @@ if (0) {
 
 
  # put/getArray
-if (0) {
+if (1) {
 
   my $target = new ecmd::ecmdChipTarget();
   # Let's setup our target, two ways to do it
@@ -184,7 +184,7 @@ if (0) {
 }
 
  # put/getspy
-if (0) {
+if (1) {
   my $target = new ecmd::ecmdChipTarget();
   # Let's setup our target, two ways to do it
   $target->{chipType} = "pu";
@@ -210,8 +210,6 @@ if (0) {
   printf("Hex data = %s\n",$data->genHexLeftStr());
 
   printf("Let's make an error by writing to the nonexistant potato spy\n",$rc);
-  $rc = ecmdDisablePerlSafeMode();
-#  $rc = ecmdEnablePerlSafeMode();
   $rc = putSpy($target, "potato", $data);
   printf("rc decimal = %d\n",$rc);
   printf("rc hex     = %08X\n",$rc);
@@ -231,7 +229,7 @@ if (0) {
 }
 
  # put/getlatch
-if (0) {
+if (1) {
   my $target = new ecmd::ecmdChipTarget();
   # Let's setup our target, two ways to do it
   $target->{chipType} = "pu";
@@ -262,7 +260,7 @@ if (0) {
   if($rc) {
     printf("rc = ep->getLatch(target, \"vital_func\", \"TPCFAM.TPVLOGIC.TPPSC.FUSE_LIMIT.Z.L2\",  latchList, 0, width);\n");
     printf("rc = %08X  msg= %s\n",$rc,ecmdGetErrorMsg($rc));
-    exit;
+    #exit;
   }
 #
 #struct ecmdLatchEntry {
@@ -293,7 +291,7 @@ if (0) {
 
 
  # put/getspyenum
-if (0) {
+if (1) {
   my $target = new ecmd::ecmdChipTarget();
   # Let's setup our target, two ways to do it
   $target->{chipType} = "pu";
@@ -333,7 +331,7 @@ if (0) {
 
 
  # simPUTFAC/simGETFAC
-if (0) {
+if (1) {
   my $data = new ecmd::ecmdDataBuffer();
   $data->setBitLength(32); #default
   $data->flushTo0();
@@ -347,7 +345,7 @@ if (0) {
   printf("word0    = %s\n", $data->getWord(0));
   printf("Hex Data = %s\n",$data->genHexLeftStr());
 
-  $rc = simPUTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data,0,0);
+  $rc = simPUTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
   printf("Hex Data after simPUTFAC= %s\n",$data->genHexLeftStr());
 
   printf("---- starting simclock -----\n");
@@ -359,7 +357,7 @@ if (0) {
   printf("---- starting simGETFAC -----\n");
   $data->setBitLength(32); #default
   $data->flushTo0();
-  $rc = simGETFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data,0,0);
+  $rc = simGETFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
   printf("just after simGETFAC\n");
   printf("word count= %d\n",$data->getWordLength());
   printf("simGETFAC hexLeftStr = %s\n", $data->genHexLeftStr(0,$data->getBitLength()));
@@ -371,7 +369,7 @@ if (0) {
 
 
  # simEXPECTFAC/simGETFAC
-if (0) {
+if (1) {
 
 
   print "---- starting simEXPECTFAC -----\n";
@@ -386,7 +384,7 @@ if (0) {
   $data->setWord(0, 0x12300000);
   printf("Hex data = %s\n",$data->genHexLeftStr());
 
-  $rc = simPUTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data,0,0);
+  $rc = simPUTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
 
   printf("---- starting simclock -----\n");
   $rc = simclock(10);
@@ -402,10 +400,10 @@ if (0) {
 
   printf("---- starting simGETFAC -----\n");
   $data->flushTo0();
-  $rc = simEXPECTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data,0,0);
+  $rc = simEXPECTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
   printf("word count= %d\n",$data->getWordLength());
   printf("rc was = %d\n",$rc);
-  $rc = simEXPECTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data,0);
+  $rc = simEXPECTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
   printf("word count= %d\n",$data->getWordLength());
   printf("rc was = %d\n",$rc);
   $rc = simEXPECTFAC("P0.FSPE.SPC.SP.CMPS.TCKFCRL2",32,$data);
@@ -414,7 +412,7 @@ if (0) {
   printf("simGETFAC hexLeftStr = %s\n", $data->genHexLeftStr());
 
 #uint32_t simexpecttcfac(const char* i_tcfacname, uint32_t i_bitlength, ecmdDataBuffer & i_expect, uint32_t i_row = 0);
-  $rc = simexpecttcfac("potato", 32, $data, 0);
+  $rc = simexpecttcfac("potato", 32, $data);
 
   printf("word count= %d\n",$data->getWordLength());
   printf("rc was = %d\n",$rc);
@@ -434,7 +432,7 @@ if (0) {
 
 
  # put/getmemproc
-if (0) {
+if (1) {
 
 #uint32_t getMemProc (ecmdChipTarget & i_target, uint64_t i_address, uint32_t i_bytes, ecmdDataBuffer & o_data);
 
@@ -474,7 +472,7 @@ if (0) {
 
 
 # getTraceArray
-if (0) {
+if (1) {
 
   #uint32_t getTraceArray(ecmdChipTarget & i_target, const char* i_name, std::vector <ecmdDataBuffer> & o_data);
 

@@ -69,9 +69,9 @@ int main (int argc, char *argv[])
   // ----------------- 
   // Ring's            
   // ----------------- 
-  rc = getRing (target, "perv_vitl_chain", data);
+  rc = getRing (target, "perv_fure", data);
   if (rc) return rc;
-  printf("Scanned ring perv_vitl_chain - length = %d\n",data.getBitLength());
+  printf("Scanned ring perv_fure - length = %d\n",data.getBitLength());
 
   // We need to set a few bits
   // Set an entire word
@@ -84,16 +84,16 @@ int main (int argc, char *argv[])
   data.clearBit(12);            
 
   // Scan the ring back in 
-  rc = putRing (target, "perv_vitl_chain", data);
+  rc = putRing (target, "perv_fure", data);
   if (rc) return rc;
 
 
   // Let's setup our target, here we manually target processor 1 and the core chipunit number 3
   target.cage = target.node = target.slot = 0;
   target.chipType = "pu";
-  target.pos = 1;
-  target.chipUnitType = "core";
-  target.chipUnitNum = 3;
+  target.pos = 0;
+  target.chipUnitType = "c";
+  target.chipUnitNum = 1;
   // We have to tell the Dll what type of target we are querying
   // We are not dealing with thread here so let the Dll know we want to know everything above that
   target.threadState = ECMD_TARGET_FIELD_UNUSED;
@@ -172,7 +172,7 @@ int main (int argc, char *argv[])
 
     // We will dump the ring
     rc = getRing(target, "ex_func_core", data);
-    printf("First word of ex_func_core for %s : 0x%.08X\n", ecmdWriteTarget(target).c_str(), data.getWord(0));
+    printf("First word of ex_func_core for %s : 0x%.08X\n", ecmdWriteTarget(target, ECMD_DISPLAY_TARGET_DEFAULT).c_str(), data.getWord(0));
 
     // Signify that we looped at least once 
     validPosFound = true;

@@ -4309,10 +4309,11 @@ To link the client code on AIX, the following is required:
 <li>libecmd.so
 <li>xlC 9.0.0.0
 </ul>
-To create Linux x86 binaries, the following is required:
+
+To link 64-bit client code on AIX, the following is required:
 <ul>
 <li>libecmd.so
-<li>g++ 4.1.2
+<li>g++ 4.8.5
 </ul>
 
 To create Linux x86_64 binaries, the following is required:
@@ -4321,13 +4322,19 @@ To create Linux x86_64 binaries, the following is required:
 <li>g++ 4.8.1
 </ul>
 
+To create Linux ppc64le binaries, to following is required:
+<ul>
+<li>libecmd.so
+<li>g++ 4.8.5
+</ul>
+
 <hr>
 @section ext eCMD Extensions
 Check ecmdExtCapi.H to see the supported extensions and how to use them
 
 <hr>
 @section dllv DLL Version
-The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .a archive and rebuild there client to correct this problem.
+The eCMD Capi client code is built with a ECMD_CAPI_VERSION that gets passed into the DLL with the initDll function. If the version passed in does not match the version compiled into the DLL, the init will fail. The programmer needs to get a new copy of the .so library and rebuild their client to correct this problem.
 
 <br>
 <hr>
