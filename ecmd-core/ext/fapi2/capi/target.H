@@ -53,6 +53,7 @@ extern "C" {
         const uint32_t i_group,
         std::list<const ecmdChipTarget*>& o_targets,
         const fapi2::TargetState i_state);
+    uint32_t fapi2GetTargetType(const ecmdChipTarget & i_target, fapi2::TargetType & o_targetType);
 }
 
 
@@ -301,6 +302,49 @@ Target<K, M, V>::getChildren(const TargetFilter i_filter,
     }
 
     return l_children;
+}
+
+template<TargetType K, MulticastType M, typename V>
+template< TargetType T >
+inline ReturnCodes
+Target<K, M, V>::reduceType(Target<T, M, V>& o_target) const
+{
+    check_reduceType<T>();
+
+    bool compatible = true;
+    plat_target_handle_t l_handle = this->get();
+    const ecmdChipTarget * l_pEcmdTarget = l_handle;
+    fapi2::TargetType l_type = TARGET_TYPE_NONE;
+
+    uint32_t l_rc = fapi2GetTargetType(*l_pEcmdTarget, l_type);
+    if (l_rc)
+    {
+        compatible = false;
+    }
+
+    // Here you would check that the platform target's type is compatible with T,
+    // also taking multicast into account (iff the plat target is a real multicast
+    // target, T must include TARGET_TYPE_MULTICAST).
+
+    if (((T & TARGET_TYPE_MULTICAST) == TARGET_TYPE_NONE) &&
+        (l_handle.multicast == true))
+    {
+        compatible = false;
+    }
+
+    if (((l_type & T) == TARGET_TYPE_NONE) &&
+        (l_handle.multicast == false))
+    {
+        compatible = false;
+    }
+
+    if (!compatible)
+    {
+        return FAPI2_RC_INVALID_PARAMETER;
+    }
+
+    o_target = Target < T, M, V > (l_handle);
+    return FAPI2_RC_SUCCESS;
 }
 
 ///
