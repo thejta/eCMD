@@ -161,10 +161,21 @@ enum TargetFilter : uint64_t;
 // attributeOverride tool requires x86.nfp compile
 #ifndef CONTEXT_x86_nfp
 /// @cond
-constexpr TargetType operator|(TargetType x, TargetType y)
+    constexpr TargetType operator|(TargetType x, TargetType y)
 {
     return static_cast<TargetType>(static_cast<uint64_t>(x) |
                                    static_cast<uint64_t>(y));
+}
+
+constexpr TargetType operator&(TargetType x, TargetType y)
+{
+    return static_cast<TargetType>(static_cast<uint64_t>(x) &
+                                   static_cast<uint64_t>(y));
+}
+
+constexpr TargetType operator~(TargetType x)
+{
+    return static_cast<TargetType>(~static_cast<uint64_t>(x));
 }
 #endif
 
