@@ -272,7 +272,7 @@ uint32_t cipInstructUser(int argc, char * argv[]) {
         while (ecmdLooperNext(subTarget, subLooperData) && (!coeRc || coeMode)) {
 
           if (firstThreadLoop) {
-            if (!strcasecmp(argv[0 + argOffset],"start") || !strcasecmp(argv[0 + argOffset],"sreset")) {
+            if (!strcasecmp(argv[0 + argOffset],"stop")) {
               uint32_t specialWakeupMode = 0;
               rc = cipSpecialWakeup(target, true, specialWakeupMode);
               if (rc) {
