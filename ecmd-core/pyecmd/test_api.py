@@ -1,4 +1,5 @@
 from pyecmd import *
+from ecmd import ecmdDataBuffer
 
 extensions = {}
 if hasattr(ecmd, "fapi2InitExtension"):
@@ -27,3 +28,13 @@ with Ecmd(**extensions):
 
          t.fapi2SetAttr("ATTR_CHIP_ID", 42)
          assert(42 == t.fapi2GetAttr("ATTR_CHIP_ID"))
+
+     # Some buffer tests
+     b = ecmdDataBuffer(64)
+     b.setDoubleWord(0, 0x1234567812345678)
+     assert(convertFromDataBuffer(b).uint == 0x1234567812345678)
+
+     b = EcmdBitArray("0x1234567812345678")
+     assert(convertToDataBuffer(b).getDoubleWord(0) == 0x1234567812345678)
+     assert(convertToDataBuffer("0x1234567812345678").getDoubleWord(0) == 0x1234567812345678)
+     assert(convertToDataBuffer(0x1234567812345678).getDoubleWord(0) == 0x1234567812345678)
