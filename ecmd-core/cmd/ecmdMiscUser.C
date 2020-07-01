@@ -2898,50 +2898,76 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
 {
   uint32_t rc = ECMD_SUCCESS;
 
-  ecmdDataBuffer waferID(60);
-  char           waferIdText[11];
+  ecmdDataBuffer waferID;
+  std::string waferIdText;
+  uint32_t ecidPos = 0;
 
-  i_ecidBuffer.extract(waferID, 4, 60);
-  for (uint32_t offset = 0; offset < 10; offset++)
-    {
-      uint8_t code = 0;
-      waferID.extractToRight(&code, offset * 6, 6);
-      if (code < 10)
-	{
-	  code += '0';
-	}
-      else if ((code >= 10) && (code < 36))
-	{
-	  code += ('A' - 10);
-	}
-      else if (code == '\x3D')
-	{
-	  code = '-';
-	}
-      else if (code == '\x3E')
-	{
-	  code = '.';
-	}
-      else if (code == '\x3F')
-	{
-	  code = ' ';
-	}
-      else
-	{
-	  // unknown code
-	}
-      waferIdText[offset] = code;
-    }
-  waferIdText[10] = 0;
-  
-  o_waferString = waferIdText;
-  // getCheckSum()
+  /* Need to query DLL product*/
+  ecmdDllInfo info;
+  rc = ecmdQueryDllInfo(info);
+  if (rc) {
+    ecmdOutputError("formatEcidString - Problems occurred trying to get Dll Info\n");
+    return rc;
+  }
+
+  if (info.dllProduct == ECMD_DLL_PRODUCT_P10)
   {
+    waferID.setBitLength(48);
+    // Using the first 8 positions of the 10 character field, the last two are programmed to "blanks" (all ls)
+    ecidPos = 8;
+    i_ecidBuffer.extract(waferID, 4, 48);
+  } else {
+    waferID.setBitLength(60);
+    ecidPos = 10;
+    i_ecidBuffer.extract(waferID, 4, 60);
+  }
+
+  for (uint32_t offset = 0; offset < ecidPos; offset++)
+  {
+    uint8_t code = 0;
+    waferID.extractToRight(&code, offset * 6, 6);
+    if (code < 10)
+    {
+      code += '0';
+    }
+    else if ((code >= 10) && (code < 36))
+    {
+      code += ('A' - 10);
+    }
+    else if (code == '\x3D')
+    {
+      code = '-';
+    }
+    else if (code == '\x3E')
+    {
+      code = '.';
+    }
+    else if (code == '\x3F')
+    {
+      code = ' ';
+    }
+    else
+    {
+      // unknown code
+    }
+    waferIdText += code;
+  }
+
+  if (info.dllProduct == ECMD_DLL_PRODUCT_P10)
+  {
+    // getCheckSum is not called in p10 wrapper, so we will skip it
+    o_waferString = waferIdText;
+  } else {
+
+    waferIdText[10] = 0;
+    o_waferString = waferIdText;
+
+    // getCheckSum()
     std::string rtn=o_waferString + "A0";
     int sum=0;
     for (uint32_t i = 0; i < rtn.size(); i++)
       {
-	sum = ((sum * 8) + (rtn[i] - 32)) % 59;
+        sum = ((sum * 8) + (rtn[i] - 32)) % 59;
       }
     if (sum != 0 && rtn.size() >= 12) {
       int adjust = 59 - sum;
@@ -2950,11 +2976,9 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
       rtn[10] += adjust & 7;
     }
     o_waferString = rtn;
-  }
-  
- 
+  } 
+
   return rc;
-  
 }
 
 uint32_t ecmdChipCleanupUser(int argc, char * argv[]) {
