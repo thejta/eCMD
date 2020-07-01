@@ -259,3 +259,15 @@ def saveDataBuffer(data, filename, save_format = ecmd.ECMD_SAVE_FORMAT_BINARY):
     """
     buf = _to_ecmdDataBuffer(data)
     _bufwrap(buf.writeFile(filename, save_format))
+
+def convertFromDataBuffer(buf):
+    """
+    Convert an ecmdDataBuffer (e.g. from a result list object) into an EcmdBitArray
+    """
+    return _from_ecmdDataBuffer(buf)
+
+def convertToDataBuffer(buf):
+    """
+    Convert a bit string into an ecmdDataBuffer
+    """
+    return _to_ecmdDataBuffer(buf)
