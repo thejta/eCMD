@@ -129,7 +129,7 @@ class Target(_Target):
         if name in Target._attrs_with_state:
             if value == "*":
                 super(Target, self).__setattr__(name + "State", ecmd.ECMD_TARGET_FIELD_WILDCARD)
-            elif value == None:
+            elif value is None:
                 super(Target, self).__setattr__(name + "State", ecmd.ECMD_TARGET_FIELD_UNUSED)
             else:
                 super(Target, self).__setattr__(name, value)
@@ -151,6 +151,8 @@ class Target(_Target):
             for attr in Target._attrs_with_state:
                 self.__setattr__(attr, None)
         for (attr, value) in kwargs.items():
+            if attr not in self._attrs_with_state:
+                raise TypeError("unexpected keyword argument '%s'" % attr)
             setattr(self, attr, value)
 
     def __repr__(self):
