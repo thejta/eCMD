@@ -63,8 +63,10 @@ _error_map = {
 
 if sys.version_info[0] >= 3:
     _int_types = int
+    _str_types = (str, bytes, bytearray)
 else:
     _int_types = (int, long)
+    _str_types = (str, unicode, bytes, bytearray)
 
 def _rcwrap(rc):
     """
@@ -95,24 +97,29 @@ def _to_ecmdDataBuffer(buf, defwidth=64):
             raise NotImplementedError()
 
         return ecmd_buf
+
     if isinstance(buf, bitstring.Bits):
         ecmd_buf = ecmd.ecmdDataBuffer(len(buf))
-        overhang = len(buf) % 64
-        bits = buf + bitstring.Bits(64 - (len(buf) % 64)) if overhang else buf # pad to multiples of 64 bits
-        for i in range(len(bits) // 64):
-            ecmd_buf.setDoubleWord(i, bits[i*64:(i+1)*64].uint)
+        if len(buf):
+            buf_bytes = bytearray(buf.tobytes())
+            ecmd_buf.memCopyIn(buf_bytes, len(buf_bytes))
+
         return ecmd_buf
-    if isinstance(buf, (str, unicode)):
+
+    if isinstance(buf, _str_types):
         bits = bitstring.Bits(buf)
         return _to_ecmdDataBuffer(bits)
+
     return buf
 
 def _from_ecmdDataBuffer(buf):
     """
     @type buf: ecmd.ecmdDataBuffer
     """
-    bits = EcmdBitArray((buf.getBitLength() + 63) & ~63)
-    for i in range(buf.getDoubleWordLength()):
-        bits[i*64:(i+1)*64] = buf.getDoubleWord(i)
-    del bits[buf.getBitLength():]
-    return bits
+    buf_len = buf.getByteLength()
+    if buf_len == 0:
+        return EcmdBitArray(0)
+
+    buf_bytes = bytearray(buf_len)
+    buf.memCopyOut(buf_bytes, buf_len)
+    return EcmdBitArray(length=buf.getBitLength(), bytes=buf_bytes)
