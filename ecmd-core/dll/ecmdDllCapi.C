@@ -5202,7 +5202,8 @@ bool findLatchInCache(const std::list<ecmdFileLocation> & i_fileLocs, uint64_t i
                 }
             }
         }
-        if (!foundit)
+        // Add the scandef entry to the map
+        else
         {
             latchCache.push_front(searchCache);
         }
@@ -5470,9 +5471,11 @@ uint32_t readScandef(const ecmdChipTarget & target, const char* i_ringName, cons
     {
         ecmdLatchCacheEntry searchCache;
         searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
-        latchCache.push_front(searchCache);
-        searchCacheIter = latchCache.begin(); 
-        searchCacheIter->latches[latchHashKey64] = o_latchdata;
+        searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
+        if (searchCacheIter != latchCache.end())
+        {
+            searchCacheIter->latches[latchHashKey64] = o_latchdata;
+        }
     }
 
     return rc;
@@ -5658,6 +5661,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
     uint32_t latchHashKey32;                      ///< Hash Key for i_latchName
     uint32_t ringHashKey32;                       ///< Hash Key for i_ringName
     uint64_t latchHashKey64;                      ///< Hash Key for i_latchName
+    uint64_t fullLatchHashKey64;                  ///< Hash Key for i_latchName without any modification - used for caching
     uint64_t ringHashKey64;                       ///< Hash Key for i_ringName
     std::string curRing;                          ///< Current ring being read in
     std::string curLine;                          ///< Current line in the scandef
@@ -5670,6 +5674,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
     // Base hash key off of base latch name, particularly for array entries.  Remove array index.
     latchHashKey32 = ecmdHashString32((latchName.substr(0,latchName.find_last_of("("))).c_str(), 0);
     latchHashKey64 = ecmdHashString64((latchName.substr(0,latchName.find_last_of("("))).c_str(), 0);
+    fullLatchHashKey64 = ecmdHashString64(latchName.c_str(), 0);
 
     /* Transform to lower case for case-insensitive comparisons */
     transform(ringName.begin(), ringName.end(), ringName.begin(), (int(*)(int)) tolower);
@@ -5686,7 +5691,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
     }
 
     LockGuard lg(&latchCacheMutex);
-    if (findLatchInCache(l_fileLocs, latchHashKey64, ringName, o_latchdata))
+    if (findLatchInCache(l_fileLocs, fullLatchHashKey64, ringName, o_latchdata))
     {
         /* We're done, get out of here */
         return rc;
@@ -6058,7 +6063,7 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
             o_latchdata.ringName = "";
         }
         o_latchdata.latchName = latchName;
-        o_latchdata.latchNameHashKey = latchHashKey64;
+        o_latchdata.latchNameHashKey = fullLatchHashKey64;
         o_latchdata.entry.sort();
 
         // We found the ring already, so bail
@@ -6084,12 +6089,14 @@ uint32_t readScandefHash(const ecmdChipTarget & target, const char* i_ringName, 
     }
     else
     {
+        // Update the cache
         ecmdLatchCacheEntry searchCache;
         searchCache.scandefHashKey = ecmdHashString64(scandefFile.c_str(), 0);
-        latchCache.push_front(searchCache);
-        searchCacheIter = latchCache.begin();
-        /* Now insert it in proper order */
-        searchCacheIter->latches[latchHashKey64] = o_latchdata;
+        searchCacheIter = find(latchCache.begin(), latchCache.end(), searchCache);
+        if (searchCacheIter != latchCache.end())
+        {
+            searchCacheIter->latches[fullLatchHashKey64] = o_latchdata;
+        }
     }
     return rc;
 }
