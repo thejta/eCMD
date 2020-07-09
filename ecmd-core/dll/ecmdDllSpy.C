@@ -110,8 +110,7 @@ uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, 
 uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
 uint32_t dllPutSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName);
-
-uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string &spyName, bool &isCoreRelated);
+uint32_t dllIsChipUnitSpy(ecmdChipTarget & i_target, std::string &spyName, ecmdSpyData & io_queryData);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -213,8 +212,8 @@ uint32_t dllQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o
     	continue;
       }
 
-      /* Is this a core spy */
-      rc = dllIsCoreSpy(i_target, queryData.spyName, queryData.isCoreRelated);
+      /* Is this a chip unit spy */
+      rc = dllIsChipUnitSpy(i_target, queryData.spyName, queryData);
       if (rc) return rc;
 
       /* Does it have ECC ? */
@@ -276,18 +275,22 @@ uint32_t dllQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o
 /**
   This function specification is the same as defined in ecmdClientCapi.H as getSpy
 */
-uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags){
+uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
   uint32_t rc = ECMD_SUCCESS;
 
   dllSpyData fdata;
   fdata.dataType = SPYDATA_DATA;
   fdata.int_data = &o_data;
 
+  return dllGetSpy(i_target, i_spyName, fdata);
+}
+
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as getSpyHidden
+*/
+uint32_t dllGetSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags) {
   //Drop the flags and just call the standard getspy
-  rc = dllGetSpy(i_target, i_spyName, fdata);
-
-
-  return rc;
+  return dllGetSpy(i_target, i_spyName, o_data);
 }
 
 /**
@@ -299,30 +302,39 @@ uint32_t dllGetSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName,
   dllSpyData fdata;
   fdata.dataType = SPYDATA_ENUM;
 
-  rc = dllGetSpy(i_target,i_spyName,fdata);
+  rc = dllGetSpy(i_target, i_spyName, fdata);
   if (!rc)
-  o_enumValue = fdata.enum_data;
+    o_enumValue = fdata.enum_data;
   
   return rc;
 }
 
-uint32_t dllGetSpyGroups(const ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
-  uint32_t rc = ECMD_SUCCESS;
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnumHidden
+*/
+uint32_t dllGetSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
+  //Drop the flags and just call the standard getspyenum
+  return dllGetSpyEnum(i_target, i_spyName, o_enumValue);
+}
+
+uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups) {
   dllSpyData fdata;
   fdata.dataType = SPYDATA_GROUPS;
   fdata.group_data = &o_groups;
 
-  rc = dllGetSpy(i_target,i_spyName,fdata);
-  return rc;
-
+  return dllGetSpy(i_target, i_spyName, fdata);
 }
 
-uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data){
+uint32_t dllGetSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
+  //Drop the flags and just call the standard getspygroups
+  return dllGetSpyGroups(i_target, i_spyName, o_groups);
+}
+
+uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data) {
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   sedcSpyContainer mySpy;
   char outstr[200];
-
 
   ecmdChipTarget cacheTarget;
   cacheTarget = i_target;
@@ -331,7 +343,6 @@ uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, dll
     enabledCache = true;
     dllEnableRingCache(cacheTarget);
   }
-
 
   /* Retrieve my spy either from the DB or the spydef file */
   rc = dllGetSpyInfo(i_target, i_spyName, mySpy);
@@ -439,10 +450,8 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
   /* Store our type */
   bustype = chipData.chipFlags & ECMD_CHIPFLAG_BUSMASK;
 
-
   /* Now let's go grab our data */
   sedcAEIEntry spyent = mySpy.getAEIEntry();
-
 
   /* See if we need the clock domain */
   if (spyent.states & SPY_CLOCK_ANY)
@@ -471,7 +480,6 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
   }
 
   deadbitsMask.setBitLength(spyent.length);
-
 
 
   /* Ok, here goes the meat */
@@ -678,7 +686,6 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
 
     }
   }     /* End of spy data loop */
-
 
   int foundit = 0;
   int wordlen = extractbuffer->getWordLength();
@@ -908,7 +915,34 @@ uint32_t dllGetSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spy
 
     rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
 
-    return rc;
+    rc = dllGetSpyEpCheckers(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
+
+  return rc;
+}
+
+
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as PutSpy
+*/
+uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
+  dllSpyData fdata;
+
+  fdata.dataType = SPYDATA_DATA;
+  fdata.int_data = &i_data;
+
+  return dllPutSpy(i_target,i_spyName,fdata);
+}
+
+/**
+  This function specification is the same as defined in ecmdClientCapi.H as putSpyHidden
+*/
+uint32_t dllPutSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
+  dllSpyData fdata;
+
+  fdata.dataType = SPYDATA_DATA;
+  fdata.int_data = &i_data;
+
+  return dllPutSpy(i_target, i_spyName, fdata);
 }
 
 /**
@@ -927,14 +961,14 @@ uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, con
 /**
   This function specification is the same as defined in ecmdClientCapi.H as putSpyEnum
 */
-uint32_t dllPutSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags){
+uint32_t dllPutSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName, const std::string i_enumValue, uint32_t i_flags) {
+  dllSpyData fdata;
 
-    dllSpyData fdata;
+  fdata.dataType = SPYDATA_ENUM;
+  fdata.enum_data = i_enumValue;
+  fdata.int_data = NULL;
 
-    fdata.dataType = SPYDATA_ENUM;
-    fdata.enum_data = i_enumValue;
-    fdata.int_data = NULL;
-    return dllPutSpy(i_target, i_spyName, fdata);
+  return dllPutSpy(i_target, i_spyName, fdata);
 }
 
 uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data){
@@ -1388,153 +1422,141 @@ uint32_t dllGetSpiesInfo(const ecmdChipTarget & i_target, std::list<sedcSpyConta
   std::list<ecmdFileLocation> spyFilePairs;
   std::list<sedcHash32Entry> spyKeysList32;
   std::list<sedcHash32Entry>::iterator searchSpy32;
+  std::string io_version;
 
   std::list<sedcHash64Entry> spyKeysList64;
   std::list<sedcHash64Entry>::iterator searchSpy64;
 
-  uint32_t buildflags = 0;
   char outstr[200];
   sedcSpyContainer returnSpy;
   bool l_isSpydefHash64 = false;
 
   /* We have to do this because won't don't have an easy way to swtich between high and low detail - JTA 09/22/06 */
   /* We'll just save all the information everytime (high detail).  Hopefully this won't hose performance */
+  uint32_t buildflags = 0;
   buildflags |= RTF_RETAIN_LATCH_NAME;
 
   /* ----------------------------------------------------------------- */
   /*  Try to find the spy position from the hash file		     */
   /* ----------------------------------------------------------------- */
-  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
+  rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs, io_version);
+  if (rc) {
+    return ECMD_UNKNOWN_FILE;
+  } else {
 
-  if (rc)
-  {
-      return ECMD_UNKNOWN_FILE;
-  }
-
-  else
-  {
-
-      if ( !spyFilePairs.empty() && spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos )
-      {
-          l_isSpydefHash64 = true;
-      }
+    if (!spyFilePairs.empty() && spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos) {
+      l_isSpydefHash64 = true;
+    }
   
-      std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
+    std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
 
-      while (spyFilePair != spyFilePairs.end()) {
-          spyFile.open(spyFilePair->textFile.c_str());
-          if (spyFile.fail()) {
-              sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
-              dllOutputError(outstr);
-              returnSpy.valid = 0;
-              return ECMD_INVALID_SPY;
-          }
+    while (spyFilePair != spyFilePairs.end()) {
+      spyFile.open(spyFilePair->textFile.c_str());
+      if (spyFile.fail()) {
+        sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
+        dllOutputError(outstr);
+        returnSpy.valid = 0;
+        return ECMD_INVALID_SPY;
+      }
 
-          hashFile.open(spyFilePair->hashFile.c_str(),
+      hashFile.open(spyFilePair->hashFile.c_str(),
                         std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
 
-          /* If we have a hash file, look for it in there */
-          if (!hashFile.fail()) {
-              if (l_isSpydefHash64)
-              {
-                  rc = dllGetSpyListHash64(hashFile, spyKeysList64);
-              }
-              else
-              {
-                  rc = dllGetSpyListHash32(hashFile, spyKeysList32);
-              }
-              hashFile.close();
+      /* If we have a hash file, look for it in there */
+      if (!hashFile.fail()) {
+        if (l_isSpydefHash64) {
+          rc = dllGetSpyListHash64(hashFile, spyKeysList64);
+        }
+        else {
+          rc = dllGetSpyListHash32(hashFile, spyKeysList32);
+        }
+        hashFile.close();
 
-              if (rc) {
-                  // A non-zero rc here is means the keys list is empty - need to try searching the next hash file
-                  spyFilePair++;
-                  spyFile.close();
-                  // If this is now the last one after incrementing, then throw an error
-                  if (spyFilePair == spyFilePairs.end())
-                  {
-                      sprintf(outstr,"dllGetSpiesInfo - Problems in getting spylist from the spydefhash file!\n");
-                      dllOutputError(outstr);
-                      return rc;
-                  }
-                  else
-                  {
-                      rc = 0;
-                      continue;
-                  }
-              }
-          } else {
-              sprintf(outstr,"dllGetSpiesInfo - Unable to open spydefhash file: %s!\n", spyFilePair->second.c_str());
-              dllOutputError(outstr);
-              return ECMD_INVALID_SPY;
-          }
-
-          if (l_isSpydefHash64)
-          {
-              if (spyKeysList64.empty()) {
-                  sprintf(outstr,"dllGetSpiesInfo - Unable to find any spies from the hashfile!\n");
-                  dllOutputError(outstr);
-                  return ECMD_INVALID_SPY;
-              }
-          }
-          else
-          {
-              if (spyKeysList32.empty()) {
-                  sprintf(outstr,"dllGetSpiesInfo - Unable to find any spies from the hashfile!\n");
-                  dllOutputError(outstr);
-                  return ECMD_INVALID_SPY;
-              }
-          }
-          //Not handling getting the list from the spydef file incase the hashfile method fails
-          /* Couldn't find it in the hash file, try a straigh linear search */
-          /*
-            if (!foundSpy) {
-            foundSpy = dllLocateSpy(spyFile, spy_name);
-            }
-            
-            // If we made it here, we got nothing.. 
-            if (!foundSpy) {
-            sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
-            dllOutputError(outstr);
-            returnSpy.valid = 0;
-            return ECMD_INVALID_SPY;
-            }
-          */
-          
-          if (l_isSpydefHash64)
-          {
-              for (searchSpy64 = spyKeysList64.begin(); searchSpy64 != spyKeysList64.end(); searchSpy64++) {
-                  spyFile.seekg(searchSpy64->filepos);
-
-                  /* Now that we have our position in the file, call the parser and read it in */
-                  std::vector<std::string> errMsgs; /* This should be empty all the time */
-                  returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
-                  if (!errMsgs.empty()) {
-                      returnSpy.valid = 0;
-                  }
-                  else if (returnSpy.type != SC_SYNONYM){
-                      returnSpyList.push_back(returnSpy);
-                  }
-              }
-          }
-          else
-          {
-              for (searchSpy32 = spyKeysList32.begin(); searchSpy32 != spyKeysList32.end(); searchSpy32++) {
-                  spyFile.seekg(searchSpy32->filepos);
-
-                  /* Now that we have our position in the file, call the parser and read it in */
-                  std::vector<std::string> errMsgs; /* This should be empty all the time */
-                  returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
-                  if (!errMsgs.empty()) {
-                      returnSpy.valid = 0;
-                  }
-                  else if (returnSpy.type != SC_SYNONYM){
-                      returnSpyList.push_back(returnSpy);
-                  }
-              }
-          }
-
+        if (rc) {
+          // A non-zero rc here is means the keys list is empty - need to try searching the next hash file
+          spyFilePair++;
           spyFile.close();
-      }//end while
+          // If this is now the last one after incrementing, then throw an error
+          if (spyFilePair == spyFilePairs.end()) {
+            sprintf(outstr,"dllGetSpiesInfo - Problems in getting spylist from the spydefhash file!\n");
+            dllOutputError(outstr);
+            return rc;
+          }
+          else {
+            rc = 0;
+            continue;
+          }
+        }
+      } else {
+        sprintf(outstr,"dllGetSpiesInfo - Unable to open spydefhash file: %s!\n", spyFilePair->hashFile.c_str());
+        dllOutputError(outstr);
+        return ECMD_INVALID_SPY;
+      }
+
+      if (l_isSpydefHash64) {
+        if (spyKeysList64.empty()) {
+          sprintf(outstr,"dllGetSpiesInfo - Unable to find any spies from the hashfile!\n");
+          dllOutputError(outstr);
+          return ECMD_INVALID_SPY;
+        }
+      }
+      else {
+        if (spyKeysList32.empty()) {
+          sprintf(outstr,"dllGetSpiesInfo - Unable to find any spies from the hashfile!\n");
+          dllOutputError(outstr);
+          return ECMD_INVALID_SPY;
+        }
+      }
+
+      //Not handling getting the list from the spydef file incase the hashfile method fails
+      /* Couldn't find it in the hash file, try a straigh linear search */
+      /*
+        if (!foundSpy) {
+        foundSpy = dllLocateSpy(spyFile, spy_name);
+        }
+
+        // If we made it here, we got nothing..
+        if (!foundSpy) {
+        sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", spy_name.c_str());
+        dllOutputError(outstr);
+        returnSpy.valid = 0;
+        return ECMD_INVALID_SPY;
+        }
+      */
+
+      if (l_isSpydefHash64) {
+        for (searchSpy64 = spyKeysList64.begin(); searchSpy64 != spyKeysList64.end(); searchSpy64++) {
+          spyFile.seekg(searchSpy64->filepos);
+
+          /* Now that we have our position in the file, call the parser and read it in */
+          std::vector<std::string> errMsgs; /* This should be empty all the time */
+          returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
+          if (!errMsgs.empty()) {
+            returnSpy.valid = 0;
+          }
+          else if (returnSpy.type != SC_SYNONYM){
+            returnSpyList.push_back(returnSpy);
+          }
+        }
+      }
+      else {
+        for (searchSpy32 = spyKeysList32.begin(); searchSpy32 != spyKeysList32.end(); searchSpy32++) {
+          spyFile.seekg(searchSpy32->filepos);
+          
+          /* Now that we have our position in the file, call the parser and read it in */
+          std::vector<std::string> errMsgs; /* This should be empty all the time */
+          returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
+          if (!errMsgs.empty()) {
+            returnSpy.valid = 0;
+          }
+          else if (returnSpy.type != SC_SYNONYM){
+            returnSpyList.push_back(returnSpy);
+          }
+        }
+      }
+
+      spyFile.close();
+    }//end while
   }
   return 0;
 }
@@ -1546,13 +1568,13 @@ uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSp
 
   std::ifstream spyFile, hashFile;
   std::list<ecmdFileLocation> spyFilePairs;
+  std::string io_version;
   uint32_t key32;
   uint64_t key;
   std::list<sedcSpyContainer>::iterator searchSpy;
   std::string spy_name;
   int foundSpy = 0;
   returnSpy.valid = 0;
-  uint32_t buildflags = 0;
   char outstr[200];
   std::list<chipSpies>::iterator  searchSpyList;
   chipSpies curSpyInfo;
@@ -1562,140 +1584,127 @@ uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSp
 
   /* We have to do this because won't don't have an easy way to swtich between high and low detail - JTA 09/22/06 */
   /* We'll just save all the information everytime (high detail).  Hopefully this won't hose performance */
+  uint32_t buildflags = 0;
   buildflags |= RTF_RETAIN_LATCH_NAME;
 
   /* Convert to a STL string */
   spy_name = name;
-  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), (int(*)(int)) toupper);
+  transform(spy_name.begin(), spy_name.end(), spy_name.begin(), toupper);
 
   /* Look in the DB to see if we've read this in already */
   returnSpy.setName(spy_name);
   do {
-      /* Let's get the path to the spydef */
-      rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs);
-      if (rc) return rc;
+    /* Let's get the path to the spydef */
+    rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs, io_version);
+    if (rc) return rc;
 
-      std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
-      while (spyFilePair != spyFilePairs.end()) {
-          for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList ++) {
-              if (searchSpyList->spydefName == spyFilePair->hashFile) {
-                  spydefFnd = true;
-                  searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
-
-                  if (searchSpy != searchSpyList->spies.end()) { /* Found! */
-  
-                      returnSpy = (*searchSpy);
-                      spyFnd = true;
-                  } 
-                  break;
-              } 
+    std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
+    while (spyFilePair != spyFilePairs.end()) {
+      for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList++) {
+        if (searchSpyList->spydefName == spyFilePair->textFile) {
+          spydefFnd = true;
+          searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
+          if (searchSpy != searchSpyList->spies.end()) { /* Found! */
+            returnSpy = (*searchSpy);
+            spyFnd = true;
+            break;
           } 
-          // Nothing in cache
-          if (spyBuffer.empty())
-          {
-              break;
-          }
-          // Try the next file
-          if (!spyFnd && !spydefFnd)
-          {
-              spyFilePair++;
-              continue;
-          }
-      }
-      if ( spyBuffer.empty() || (!spyFnd && !spydefFnd))  {
-          curSpyInfo.spydefName = spyFilePair->hashFile;
-          curSpyInfo.spies.clear();
-          spyBuffer.push_front(curSpyInfo);
-          searchSpyList = spyBuffer.begin();
+        }
       }
 
-      if (!spyFnd) {
-      
-          spyFilePair = spyFilePairs.begin();
-          while (spyFilePair != spyFilePairs.end()) {
+      // If we didn't find it in this pair, try the next one
+      // If we did find it, we bail on this while loop
+      if (spyFnd) {
+        break;
+      } else {
+        spyFilePair++;
+      }
+    }
 
-              spyFile.open(spyFilePair->textFile.c_str());
-              if (spyFile.fail()) {
-                  sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
-                  dllOutputError(outstr);
-                  returnSpy.valid = 0;
-                  return ECMD_INVALID_SPY;
-              }
+    if (spyBuffer.empty() || (!spyFnd && !spydefFnd)) {
+      curSpyInfo.spydefName = spyFilePair->textFile;
+      curSpyInfo.spies.clear();
+      spyBuffer.push_front(curSpyInfo);
+      searchSpyList = spyBuffer.begin();
+    }
 
+    if (!spyFnd) {
+      spyFilePair = spyFilePairs.begin();
+      while (spyFilePair != spyFilePairs.end()) {
+        spyFile.open(spyFilePair->textFile.c_str());
+        if (spyFile.fail()) {
+          sprintf(outstr,"dllGetSpyInfo - Unable to open spy file : %s\n", spyFilePair->textFile.c_str());
+          dllOutputError(outstr);
+          returnSpy.valid = 0;
+          return ECMD_INVALID_SPY;
+        }
 
-              key32 = ecmdHashString32(returnSpy.name.c_str(),0);
-              key = ecmdHashString64(returnSpy.name.c_str(),0);
+        key32 = ecmdHashString32(returnSpy.name.c_str(),0);
+        key = ecmdHashString64(returnSpy.name.c_str(),0);
 
-
-              if ( !spyFilePairs.empty() && (spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos) )
-              {
-                  l_isSpydefHash64 = true;
-              }
+        if (!spyFilePairs.empty() && (spyFilePairs.front().hashFile.rfind("hash.64") != std::string::npos) ) {
+          l_isSpydefHash64 = true;
+        }
      
-              /* ----------------------------------------------------------------- */
-              /*  Try to find the spy position from the hash file                */
-              /* ----------------------------------------------------------------- */
-              hashFile.open(spyFilePair->hashFile.c_str(),
-                            std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
-              /* If we have a hash file, look for it in there */
-              if (!hashFile.fail()) {
-                  if(l_isSpydefHash64)
-                  {
-                      foundSpy = dllLocateSpyHash64(spyFile, hashFile, key, returnSpy.name);
-                  }
-                  else
-                  {
-                      foundSpy = dllLocateSpyHash32(spyFile, hashFile, key32, returnSpy.name);
-                  }
-                  hashFile.close();
-              }
+        /* ----------------------------------------------------------------- */
+        /*  Try to find the spy position from the hash file                */
+        /* ----------------------------------------------------------------- */
+        hashFile.open(spyFilePair->hashFile.c_str(),
+                      std::ios::ate | std::ios::in | std::ios::binary); /* go to end of file upon opening */
+        /* If we have a hash file, look for it in there */
+        if (!hashFile.fail()) {
+          if(l_isSpydefHash64) {
+            foundSpy = dllLocateSpyHash64(spyFile, hashFile, key, returnSpy.name);
+          }
+          else {
+            foundSpy = dllLocateSpyHash32(spyFile, hashFile, key32, returnSpy.name);
+          }
+          hashFile.close();
+        }
   
+        /* Couldn't find it in the hash file, try a straigh linear search */
+        /*if (!foundSpy) {
+          foundSpy = dllLocateSpy(spyFile, returnSpy.name);
+          }*/
 
-              /* Couldn't find it in the hash file, try a straigh linear search */
-              /*if (!foundSpy) {
-                foundSpy = dllLocateSpy(spyFile, returnSpy.name);
-                }*/
+        /* If we made it here, we got nothing.. */
+        if (!foundSpy) {
+          //try the next hash file
+          spyFilePair++;
+          spyFile.close();
+          // If this is now the last one after incrementing, then throw an error
+          if (spyFilePair == spyFilePairs.end()) {
+            sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", returnSpy.name.c_str());
+            dllOutputError(outstr);
+            returnSpy.valid = 0;
+            return ECMD_INVALID_SPY;
+          } else {
+            continue;
+          }
+        }
 
-              /* If we made it here, we got nothing.. */
-              if (!foundSpy) {
-                  //try the next hash file
-                  spyFilePair++;
-                  spyFile.close();
-                  // If this is now the last one after incrementing, then throw an error
-                  if (spyFilePair == spyFilePairs.end())
-                  {
-                      sprintf(outstr,"dllGetSpyInfo - Unable to find spy \"%s\"!\n", returnSpy.name.c_str());
-                      dllOutputError(outstr);
-                      returnSpy.valid = 0;
-                      return ECMD_INVALID_SPY;
-                  }
-                  else
-                  {
-                      continue;
-                  }
-              }
+        /* Now that we have our position in the file, call the parser and read it in */
+        std::vector<std::string> errMsgs; /* This should be empty all the time */
+        returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
+        if (!errMsgs.empty()) {
+          sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",returnSpy.name.c_str());
+          dllOutputError(outstr);
+          returnSpy.valid = 0;
+          spyFile.close();
+          return ECMD_INVALID_SPY;
+        }
+        /* Everything looks good, let's get out of here */
+        (*searchSpyList).spies.push_front(returnSpy);
+        spyFile.close();
+        break;
+      } // end while loop for spydef/hash pairs
+    }
 
-              /* Now that we have our position in the file, call the parser and read it in */
-              std::vector<std::string> errMsgs; /* This should be empty all the time */
-              returnSpy = sedcSpyParser(spyFile, errMsgs, buildflags);
-              if (!errMsgs.empty()) {
-                  sprintf(outstr,"dllGetSpyInfo - Error occured in the parsing of the spy : %s!\n",returnSpy.name.c_str());
-                  dllOutputError(outstr);
-                  returnSpy.valid = 0;
-                  spyFile.close();
-                  return ECMD_INVALID_SPY;
-              }
-              /* Everything looks good, let's get out of here */
-              (*searchSpyList).spies.push_front(returnSpy);
-              spyFile.close();
-          } // end while loop for spydef/hash pairs
-      }
-
-      /* If we found a synonym, go back and look up what it is suppose to point to */
-      if (returnSpy.type == SC_SYNONYM) {
-          sedcSynonymEntry syn = returnSpy.getSynonymEntry();
-          returnSpy.name = syn.realName;  /* Change the name to point to real name so when we do the look up, we find the spy/ecclatch/etc.. */
-      }
+    /* If we found a synonym, go back and look up what it is suppose to point to */
+    if (returnSpy.type == SC_SYNONYM) {
+      sedcSynonymEntry syn = returnSpy.getSynonymEntry();
+      returnSpy.name = syn.realName;  /* Change the name to point to real name so when we do the look up, we find the spy/ecclatch/etc.. */
+    }
   } while (returnSpy.type == SC_SYNONYM);
 
   return 0;
@@ -1750,12 +1759,11 @@ uint32_t dllGetSpyClockDomain(const ecmdChipTarget & i_target, sedcAEIEntry* spy
 
 }
 
-uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, bool & o_isCoreRelated) {
+uint32_t dllIsChipUnitSpy(ecmdChipTarget & i_target, std::string & i_spyName, ecmdSpyData & io_queryData) {
 
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
   uint32_t rc = ECMD_SUCCESS;
-  o_isCoreRelated = false;
   std::list<sedcLatchLine>::iterator lineit;
   sedcAEIEntry spyent;
   uint32_t flags = 0x0;
@@ -1764,11 +1772,11 @@ uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, 
   /* Retrieve my spy either from the DB or the spydef file */
   rc = dllGetSpyInfo(i_target, i_spyName.c_str(), myDC);
   if (rc) {
-    sprintf(outstr,"dllIsCoreSpy - Problems reading spy '%s' from file!\n", i_spyName.c_str());
+    sprintf(outstr,"dllIsChipUnitSpy - Problems reading spy '%s' from file!\n", i_spyName.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   } else if (!myDC.valid) {
-    sprintf(outstr,"dllIsCoreSpy - Read of spy '%s' from file failed!\n", i_spyName.c_str());
+    sprintf(outstr,"dllIsChipUnitSpy - Read of spy '%s' from file failed!\n", i_spyName.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   }
@@ -1779,7 +1787,7 @@ uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, 
   } else if (myDC.type == SC_AEI) {
     spyent = myDC.getAEIEntry();
   } else {
-    sprintf(outstr,"dllIsCoreSpy - Invalid spy type found for '%s'!\n", i_spyName.c_str());
+    sprintf(outstr,"dllIsChipUnitSpy - Invalid spy type found for '%s'!\n", i_spyName.c_str());
     dllOutputError(outstr);
     return ECMD_INVALID_SPY;
   }
@@ -1793,7 +1801,8 @@ uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, 
       rc = dllQueryRing(i_target, ringQueryData, lineit->latchName.c_str(), detail);
       if (rc) return rc;
       if (!ringQueryData.empty()) {
-        o_isCoreRelated = ringQueryData.begin()->isCoreRelated;
+        io_queryData.isChipUnitRelated = ringQueryData.begin()->isChipUnitRelated;
+        io_queryData.relatedChipUnit = ringQueryData.begin()->relatedChipUnit;
       }
       break;
     } else if (lineit->state == (SPY_SECTION_START | SPY_SCOM)) {
@@ -1802,14 +1811,15 @@ uint32_t dllIsCoreSpy(const ecmdChipTarget & i_target, std::string & i_spyName, 
       std::list<ecmdScomData> scomQueryData;
       num = sscanf(lineit->latchName.c_str(), "%x",&addr);
       if (num != 1) {
-        sprintf(outstr, "dllIsCoreSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), i_spyName.c_str());
+        sprintf(outstr, "dllIsChipUnitSpy - Unable to determine scom address (%s) from spy definition (%s)\n", lineit->latchName.c_str(), i_spyName.c_str());
         dllOutputError(outstr);
         return ECMD_INVALID_SPY;
       }
       rc = dllQueryScom(i_target, scomQueryData, addr, ECMD_QUERY_DETAIL_LOW);
       if (rc) return rc;
       if (!scomQueryData.empty()) {
-        o_isCoreRelated = scomQueryData.begin()->isCoreRelated;
+        io_queryData.isChipUnitRelated = scomQueryData.begin()->isChipUnitRelated;
+        io_queryData.relatedChipUnit = scomQueryData.begin()->relatedChipUnit;
       }
       break;
     }
@@ -2000,22 +2010,22 @@ int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t
 
     cur = (high + low) / 2;
 
-    hashFile.seekg(cur * entrysize);         /* position into file */ 
+    hashFile.seekg(cur * entrysize);         /* position into file */
     hashFile.read((char*)&(curhash.key), 8); /* read 8-byte key */
     /* We need to byte swap this guy */
     curhash.key = htonll(curhash.key);
 
-    if (key > curhash.key)
+    if (key > curhash.key) {
       low = cur + 1;
-    else   /* key < hash || key == hash */
+    } else {  /* key < hash || key == hash */
       high = cur;
+    }
   }
 
   cur = low;
   hashFile.seekg(cur * entrysize);         /* position into file */
 
   do {  /* at least once */
-
     hashFile.read((char*)&(curhash.key), sizeof(curhash.key));
     /* We need to byte swap this guy */
     curhash.key = htonll(curhash.key);
@@ -2057,6 +2067,7 @@ int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t
 
   return found;
 }
+
 uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
 
   int found = 0;
