@@ -79,6 +79,9 @@ struct dllSpyData {
 struct chipSpies{
   std::string spydefName;              ///< Name of spydef where data was retrieved
   std::list<sedcSpyContainer> spies;
+  inline int operator==(const chipSpies &rhs) const {
+    return (spydefName == rhs.spydefName);
+  };
 };
 
 
@@ -1576,9 +1579,11 @@ uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSp
   int foundSpy = 0;
   returnSpy.valid = 0;
   char outstr[200];
-  std::list<chipSpies>::iterator  searchSpyList;
+  std::list<ecmdFileLocation>::iterator spyFilePair;
+  chipSpies searchChipSpy;
+  std::list<chipSpies>::iterator searchSpyList;
   chipSpies curSpyInfo;
-  bool spyFnd = false, spydefFnd = false; 
+  bool spyFnd = false;
   bool l_isSpydefHash64 = false;
 
 
@@ -1598,36 +1603,34 @@ uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSp
     rc = dllQueryFileLocation(i_target, ECMD_FILE_SPYDEF, spyFilePairs, io_version);
     if (rc) return rc;
 
-    std::list<ecmdFileLocation>::iterator spyFilePair = spyFilePairs.begin();
-    while (spyFilePair != spyFilePairs.end()) {
-      for (searchSpyList = spyBuffer.begin(); searchSpyList != spyBuffer.end(); searchSpyList++) {
-        if (searchSpyList->spydefName == spyFilePair->textFile) {
-          spydefFnd = true;
-          searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
-          if (searchSpy != searchSpyList->spies.end()) { /* Found! */
-            returnSpy = (*searchSpy);
-            spyFnd = true;
-            break;
-          } 
+    // It could be a list of multiple spydefs we need to look through, so first loop through all possibilites
+    for (spyFilePair = spyFilePairs.begin(); spyFilePair != spyFilePairs.end(); spyFilePair++) {
+      // Go through our db of spies in memory, which is indexed by the spydef name to track where they came from
+      searchChipSpy.spydefName = spyFilePair->textFile;
+      searchSpyList = find(spyBuffer.begin(), spyBuffer.end(), searchChipSpy);
+      if (searchSpyList != spyBuffer.end()) {
+        // We already had an entry for this spydef, mark that
+        // Then look to see if we had previously looked up this spy and have the data in memory
+        searchSpy = find(searchSpyList->spies.begin(), searchSpyList->spies.end(), returnSpy);
+        if (searchSpy != searchSpyList->spies.end()) {
+          // We found it - mark that and set our returnSpy struct to what we had in memory
+          spyFnd = true;
+          returnSpy = (*searchSpy);
+          break;
         }
-      }
-
-      // If we didn't find it in this pair, try the next one
-      // If we did find it, we bail on this while loop
-      if (spyFnd) {
-        break;
       } else {
-        spyFilePair++;
+        curSpyInfo.spydefName = spyFilePair->textFile;
+        curSpyInfo.spies.clear();
+        spyBuffer.push_front(curSpyInfo);
+        searchSpyList = spyBuffer.begin();
       }
+
+      // If we found our spy, no need to go through the remaining returned spydefs
+      if (spyFnd)
+        break;
     }
 
-    if (spyBuffer.empty() || (!spyFnd && !spydefFnd)) {
-      curSpyInfo.spydefName = spyFilePair->textFile;
-      curSpyInfo.spies.clear();
-      spyBuffer.push_front(curSpyInfo);
-      searchSpyList = spyBuffer.begin();
-    }
-
+    // Wasn't found in the db, so we need to go look this up in the spydef
     if (!spyFnd) {
       spyFilePair = spyFilePairs.begin();
       while (spyFilePair != spyFilePairs.end()) {
@@ -1694,7 +1697,11 @@ uint32_t dllGetSpyInfo(const ecmdChipTarget & i_target, const char* name, sedcSp
           return ECMD_INVALID_SPY;
         }
         /* Everything looks good, let's get out of here */
-        (*searchSpyList).spies.push_front(returnSpy);
+        // Get us back to the entry in the db for the spydef we found it in
+        searchChipSpy.spydefName = spyFilePair->textFile;
+        searchSpyList = find(spyBuffer.begin(), spyBuffer.end(), searchChipSpy);
+        // Now store the spy into the db
+        searchSpyList->spies.push_front(returnSpy);
         spyFile.close();
         break;
       } // end while loop for spydef/hash pairs
