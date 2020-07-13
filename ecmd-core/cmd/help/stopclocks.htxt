@@ -37,25 +37,22 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
                         > stopclocks 
                         > stopclocks -domain ALL_PU_CHIPS
 
-        P8S1 Specific Examples:
-                        > stopclocks pu         # stops nest, ex, xbus, abus, pcie clocks
-                        > stopclocks pu pcie    # stops pcie clock only 
-                        > stopclocks pu xbus    # stops the xbus clocks only
-                        > stopclocks pu abus    # stops the abus clocks only
-                        > stopclocks pu nest    # stops the nest clocks only
-                        > stopclocks pu.ex refr # stops ex and dram refresh clocks only
-                        > stopclocks pu.ex dpll # stops ex and dpll clocks only
-                        > stopclocks pu.ex ex   # stops ex clocks
-                        > stopclocks pu.ex      # stops ex clocks
-                        > stopclocks pu.ex -c4  # stops ex4 clocks only
-                        > stopclocks pu perv    # stops pervasive/tp domain only
-
         P9 Specific Examples:
-	               > stopclocks pu all      # stops all clocks except tp, pib, vitl
-		       > stopclocks pu pcie     # stops pcie clock only
-		       > stopclocks pu cachecore# stops cache & core clocks only
-		       > stopclocks pu pervpib  # stops perv and pib only
-		       > stopclocks pu vitl     # stops only vital clocks
+	                > stopclocks pu all      # stops all clocks except tp, pib, vitl
+		        > stopclocks pu pcie     # stops pcie clock only
+		        > stopclocks pu cachecore# stops cache & core clocks only
+		        > stopclocks pu pervpib  # stops perv and pib only
+		        > stopclocks pu vitl     # stops only vital clocks
+
+        p10 Specific Examples:
+	                > stopclocks pu all      # stops all clocks except tp, pib, vitl
+		        > stopclocks pu pcie     # stops pcie clock only
+		        > stopclocks pu cache    # stops cache clocks only
+		        > stopclocks pu core     # stops core clocks only
+		        > stopclocks pu pau      # stops pau only
+		        > stopclocks pu mc       # stops mc only
+		        > stopclocks pu tp       # stops tp only
+		        > stopclocks pu vitl     # stops only vital clocks
 
 			To skip the setting of the io valid bits for the X/A bus
 			use -skip_iovalid
