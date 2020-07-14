@@ -106,14 +106,15 @@ int dllLocateSpyHash64(std::ifstream &spyFile, std::ifstream &hashFile, uint64_t
 uint32_t dllGetSpiesInfo(const ecmdChipTarget & i_target, std::list<sedcSpyContainer>& returnSpyList);
 int dllGetSpyListHash32(std::ifstream &hashFile, std::list<sedcHash32Entry> &spyKeysList);
 int dllGetSpyListHash64(std::ifstream &hashFile, std::list<sedcHash64Entry> &spyKeysList);
-uint32_t dllGetSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data);
-uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
-uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask);
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data, const std::map<std::string, ecmdDataBuffer> & i_ringImages);
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy, const std::map<std::string, ecmdDataBuffer> & i_ringImages);
+uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask, const std::map<std::string, ecmdDataBuffer> & i_ringImages);
 uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, ecmdDataBuffer& inLatches, ecmdDataBuffer& goodECC);
-uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
+uint32_t dllPutSpy(const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & i_data);
 uint32_t dllPutSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy);
 uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName);
-uint32_t dllIsChipUnitSpy(ecmdChipTarget & i_target, std::string &spyName, ecmdSpyData & io_queryData);
+uint32_t dllIsChipUnitSpy(const ecmdChipTarget & i_target, std::string &spyName, ecmdSpyData & io_queryData);
+void dllPopulateSpyRings(sedcAEIEntry & i_spyEntry, std::list<std::string> & io_ringNames);
 
 //----------------------------------------------------------------------
 //  Global Variables
@@ -276,64 +277,60 @@ uint32_t dllQuerySpy(const ecmdChipTarget & i_target, std::list<ecmdSpyData> & o
 }
 
 /**
+  This function specification is the same as defined in ecmdClientCapi.H as GetSpyImages
+*/
+uint32_t dllGetSpyImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, ecmdDataBuffer & o_data) {
+
+  dllSpyData fdata;
+  fdata.dataType = SPYDATA_DATA;
+  fdata.int_data = &o_data;
+  ecmdChipTarget l_target = i_target;
+
+  return dllGetSpy(l_target, i_spyName, fdata, i_ringImages);
+}
+
+uint32_t dllGetSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyName, const std::map<std::string, ecmdDataBuffer> & i_ringImages, std::string & o_enumValue) {
+  return ECMD_FUNCTION_NOT_SUPPORTED;
+}
+
+/**
   This function specification is the same as defined in ecmdClientCapi.H as getSpy
 */
-uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data){
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags) {
   uint32_t rc = ECMD_SUCCESS;
 
   dllSpyData fdata;
   fdata.dataType = SPYDATA_DATA;
   fdata.int_data = &o_data;
 
-  return dllGetSpy(i_target, i_spyName, fdata);
-}
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as getSpyHidden
-*/
-uint32_t dllGetSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & o_data, uint32_t i_flags) {
-  //Drop the flags and just call the standard getspy
-  return dllGetSpy(i_target, i_spyName, o_data);
+  return dllGetSpy(i_target, i_spyName, fdata, {});
 }
 
 /**
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnum
 */
-uint32_t dllGetSpyEnum (const ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
+uint32_t dllGetSpyEnum(const ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags) {
   uint32_t rc = ECMD_SUCCESS;
 
   dllSpyData fdata;
   fdata.dataType = SPYDATA_ENUM;
 
-  rc = dllGetSpy(i_target, i_spyName, fdata);
+  rc = dllGetSpy(i_target, i_spyName, fdata, {});
   if (!rc)
     o_enumValue = fdata.enum_data;
   
   return rc;
 }
 
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as GetSpyEnumHidden
-*/
-uint32_t dllGetSpyEnumHidden (ecmdChipTarget & i_target, const char * i_spyName, std::string & o_enumValue, uint32_t i_flags){
-  //Drop the flags and just call the standard getspyenum
-  return dllGetSpyEnum(i_target, i_spyName, o_enumValue);
-}
-
-uint32_t dllGetSpyGroups(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups) {
+uint32_t dllGetSpyGroups(const ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
   dllSpyData fdata;
   fdata.dataType = SPYDATA_GROUPS;
   fdata.group_data = &o_groups;
 
-  return dllGetSpy(i_target, i_spyName, fdata);
+  return dllGetSpy(i_target, i_spyName, fdata, {});
 }
 
-uint32_t dllGetSpyGroupsHidden(ecmdChipTarget & i_target, const char * i_spyName, std::list < ecmdSpyGroupData > & o_groups, uint32_t i_flags) {
-  //Drop the flags and just call the standard getspygroups
-  return dllGetSpyGroups(i_target, i_spyName, o_groups);
-}
-
-uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data) {
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data, const std::map<std::string, ecmdDataBuffer> & i_ringImages) {
   uint32_t rc = ECMD_SUCCESS;
   bool enabledCache = false;                    ///< This is turned on if we enabled the cache, so we can disable on exit
   sedcSpyContainer mySpy;
@@ -362,9 +359,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, dllSpyData
     return ECMD_INVALID_SPY;
   }
 
-
-  rc = dllGetSpy(i_target, data, mySpy);
-
+  rc = dllGetSpy(i_target, data, mySpy, i_ringImages);
 
   /* Handle ECC here */
   if (!rc) {
@@ -375,7 +370,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, dllSpyData
       eccIter = myAIE.aeiEpcheckers.begin();
       uint32_t totalrc = 0;
       while (eccIter != myAIE.aeiEpcheckers.end()) {
-        rc = dllGetSpyEcc(i_target, *eccIter, inData, outData, errorMask);
+        rc = dllGetSpyEcc(i_target, *eccIter, inData, outData, errorMask, i_ringImages);
         if (rc) {
           totalrc = rc;
           sprintf(outstr,"dllGetSpy - ECC match fail for eplatches \"%s\"!\n",eccIter->c_str());
@@ -398,7 +393,7 @@ uint32_t dllGetSpy(ecmdChipTarget & i_target, const char * i_spyName, dllSpyData
   return rc;
 }
 
-uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy) {
+uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyContainer &spy, const std::map<std::string, ecmdDataBuffer> & i_ringImages) {
   uint32_t rc = ECMD_SUCCESS;
 
   std::list<sedcLatchLine>::iterator lineit;
@@ -421,6 +416,7 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
 
   int num;
   int curaliasbit = 0;
+  std::string curRing;
 
   uint32_t curstate = SPY_CLOCK_IND;       ///< Current state of what we will accept, we will start by allowing clock independent (or spy's without clock dependence) to run
 
@@ -508,8 +504,12 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
       /* This is a new ring */
       /* Check to see if we are in the right state */
       if (curstate & SPY_CLOCK_ANY) {
-        rc = dllGetRing( i_target, lineit->latchName.c_str(), scan);
-        if (rc) return rc;
+        curRing = lineit->latchName;
+        if (i_ringImages.empty()) { // If we have no ring images, read out the ring
+          /* This is a new ring */
+          rc = dllGetRing(i_target, curRing.c_str(), scan, 0);
+          if (rc) return rc;
+        }
       }
 
     } else if (lineit->state == (SPY_SECTION_END | SPY_RING)) {
@@ -560,13 +560,14 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_ON)) {
       /* We hit a clock on section - we need to figure out if the chip clocks are on */
-      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      rc = dllQueryClockState(i_target, spyDomain.c_str(), curClockState);
       if (rc) return rc;
-      if ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA)) {
+      if (i_ringImages.empty() && ((curClockState == ECMD_CLOCKSTATE_ON) || (curClockState == ECMD_CLOCKSTATE_NA))) {
         curstate &= ~(SPY_CLOCK_ANY);
         curstate |= SPY_CLOCK_ON;
-      } else 
+      } else {
         curstate &= ~(SPY_CLOCK_ANY);
+      }
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_ON)) {
       /* We are done with the clock dep section, lets set our state back to independent */
       curstate &= ~(SPY_CLOCK_ANY);
@@ -578,14 +579,14 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
     /*---------------------*/
     } else if (lineit->state == (SPY_SECTION_START | SPY_CLOCK_OFF)) {
       /* We hit a clock off section - we need to figure out if the chip clocks are off */
-      rc = dllQueryClockState (i_target, spyDomain.c_str(), curClockState);
+      rc = dllQueryClockState(i_target, spyDomain.c_str(), curClockState);
       if (rc) return rc;
-      if ((curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA)  || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)  ) {
+      if (!i_ringImages.empty() || (curClockState == ECMD_CLOCKSTATE_OFF) || (curClockState == ECMD_CLOCKSTATE_NA) || (curClockState == ECMD_CLOCKSTATE_UNKNOWN)) {
         curstate &= ~(SPY_CLOCK_ANY);
-        curstate |= SPY_CLOCK_ON;
-      } else 
+        curstate |= SPY_CLOCK_OFF;
+      } else {
         curstate &= ~(SPY_CLOCK_ANY);
-
+      }
     } else if (lineit->state == (SPY_SECTION_END | SPY_CLOCK_OFF)) {
       /* We are done with the clock dep section, lets set our state back to independent */
       curstate &= ~(SPY_CLOCK_ANY);
@@ -627,66 +628,60 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
       /* Inverted bits */
       } else if (lineit->state & SPY_INVERT) {
 
-        if (lineit->length == 1) {
-          if (bustype == ECMD_CHIPFLAG_FSI) {
-            if (scan.isBitSet(lineit->offsetFSI))
-              rc = extractbuffer->clearBit(curaliasbit++);
-            else
-              rc = extractbuffer->setBit(curaliasbit++);
-          } else { //JTAG
-            if (scan.isBitSet(lineit->offsetJTAG))
-              rc = extractbuffer->clearBit(curaliasbit++);
-            else
-              rc = extractbuffer->setBit(curaliasbit++);
-          }
-          if (rc) return rc;
-        } else {
-          /* We need to grab more data */
-          /* scom's are not reversed so we grab like FSI mode */
-          if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
-            rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
-          else { // JTAG
-            rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
-            tmpbuffer.reverse();
-          }
-          if (rc) return rc;
-          tmpbuffer.invert();   /* Invert bits */
-          rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
-          if (rc) return rc;
-          curaliasbit += lineit->length;
+        /* We need to grab more data */
+        /* scom's are not reversed so we grab like FSI mode */
+        if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM))
+          rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+        else { // JTAG
+          rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
+          tmpbuffer.reverse();
         }
+        if (rc) return rc;
+        tmpbuffer.invert();   /* Invert bits */
+        rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+        curaliasbit += lineit->length;
+        if (rc) return rc;
 
         /* Standard latch bits */
       } else {
-        if (lineit->length == 1) {
-          if (bustype == ECMD_CHIPFLAG_FSI) {
-            if (scan.isBitSet(lineit->offsetFSI))
-              rc = extractbuffer->setBit(curaliasbit++);
-            else
-              rc = extractbuffer->clearBit(curaliasbit++);
-          } else { //JTAG
-            if (scan.isBitSet(lineit->offsetJTAG))
-              rc = extractbuffer->setBit(curaliasbit++);
-            else
-              rc = extractbuffer->clearBit(curaliasbit++);
-          }
-          if (rc) return rc;
-        } else {
-          /* We need to grab more data */
-          /* scom's are not reversed so we grab like FSI mode */
-          if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) 
-            rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
-          else { // JTAG
-            rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
-            tmpbuffer.reverse();
-          }
-          if (rc) return rc;
-          rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
-          if (rc) return rc;
-          curaliasbit += lineit->length;
-        }
-      }
 
+        /* We need to grab more data */
+        /* scom's are not reversed so we grab like FSI mode */
+        if ((bustype == ECMD_CHIPFLAG_FSI) || (lineit->state & SPY_SCOM)) {
+          if (i_ringImages.empty()) {
+            rc = scan.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+          } else {
+            std::map<std::string, ecmdDataBuffer>::const_iterator imageIter;
+            imageIter = i_ringImages.find(curRing);
+            if (imageIter != i_ringImages.end()) {
+              rc = imageIter->second.extract(tmpbuffer, lineit->offsetFSI, lineit->length);
+            } else {
+              sprintf(outstr, "dllGetSpy - Unable3 to find %s ring image from images passed in.\n", curRing.c_str());
+              dllOutputError(outstr);
+              return ECMD_MULTIPLE_RING_IMAGE_SPY;
+            }
+          }
+        } else { // JTAG
+          if (i_ringImages.empty()) {
+            rc = scan.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
+          } else {
+            std::map<std::string, ecmdDataBuffer>::const_iterator imageIter;
+            imageIter = i_ringImages.find(curRing);
+            if (imageIter != i_ringImages.end()) {
+              rc = imageIter->second.extract(tmpbuffer, (lineit->offsetJTAG - lineit->length + 1), lineit->length);
+            } else {
+              sprintf(outstr, "dllGetSpy - Unable2 to find %s ring image from images passed in.\n", curRing.c_str());
+              dllOutputError(outstr);
+              return ECMD_MULTIPLE_RING_IMAGE_SPY;
+            }
+          }
+          tmpbuffer.reverse();
+        }
+        if (rc) return rc;
+        rc = extractbuffer->insert(tmpbuffer, curaliasbit, lineit->length);
+        if (rc) return rc;
+        curaliasbit += lineit->length;
+      }
     }
   }     /* End of spy data loop */
 
@@ -788,7 +783,7 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
   return rc;
 }
 
-uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask) {
+uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName, ecmdDataBuffer& inLatches, ecmdDataBuffer& outLatches, ecmdDataBuffer& errorMask, const std::map<std::string, ecmdDataBuffer> & i_ringImages) {
   uint32_t rc = ECMD_SUCCESS;
 
   sedcSpyContainer myDC;
@@ -817,17 +812,17 @@ uint32_t dllGetSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName
   ecmdDataBuffer goodECC;
   // in{} latches
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setAEIEntry(tempECC.inSpy); 
+  tempDC.setAEIEntry(tempECC.inSpy);
   data.dataType = SPYDATA_DATA;
   data.int_data = &inLatches;
-  rc = dllGetSpy(i_target, data, tempDC);
+  rc = dllGetSpy(i_target, data, tempDC, i_ringImages);
   if (rc) return rc;
 
   // out{} latches
   tempECC = myDC.getEplatchesEntry();
   tempDC.setAEIEntry(tempECC.outSpy);
   data.int_data = &outLatches;
-  rc = dllGetSpy(i_target, data, tempDC);
+  rc = dllGetSpy(i_target, data, tempDC, i_ringImages);
   if (rc) return rc;
 
   /* Now generate the proper ecc based on the in{} */
@@ -916,9 +911,7 @@ uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, 
 uint32_t dllGetSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
     uint32_t rc = ECMD_SUCCESS;
 
-    rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
-
-    rc = dllGetSpyEpCheckers(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask);
+    rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask, {});
 
   return rc;
 }
@@ -927,25 +920,13 @@ uint32_t dllGetSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spy
 /**
   This function specification is the same as defined in ecmdClientCapi.H as PutSpy
 */
-uint32_t dllPutSpy (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
+uint32_t dllPutSpy (const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data){
   dllSpyData fdata;
 
   fdata.dataType = SPYDATA_DATA;
   fdata.int_data = &i_data;
 
   return dllPutSpy(i_target,i_spyName,fdata);
-}
-
-/**
-  This function specification is the same as defined in ecmdClientCapi.H as putSpyHidden
-*/
-uint32_t dllPutSpyHidden (ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & i_data, uint32_t i_flags){
-  dllSpyData fdata;
-
-  fdata.dataType = SPYDATA_DATA;
-  fdata.int_data = &i_data;
-
-  return dllPutSpy(i_target, i_spyName, fdata);
 }
 
 /**
@@ -1174,14 +1155,14 @@ uint32_t dllPutSpy(const ecmdChipTarget & i_target, dllSpyData &data, sedcSpyCon
       if (curstate & SPY_CLOCK_ANY) {
         /* This is a new ring */
         curRing = lineit->latchName;
-        rc = dllGetRing(i_target, curRing.c_str(), scan);
+        rc = dllGetRing(i_target, curRing.c_str(), scan, 0);
         if (rc) return rc;
       }
     } else if (lineit->state == (SPY_SECTION_END | SPY_RING)) {
       /* Write the ring back in , hopefully cached */
       if (curstate & SPY_CLOCK_ANY) {
 
-        rc = dllPutRing(i_target, curRing.c_str(), scan);
+        rc = dllPutRing(i_target, curRing.c_str(), scan, 0);
         if (rc) return rc;
       }
 
@@ -1394,11 +1375,11 @@ uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName
   ecmdDataBuffer goodECC, inLatches;
   // in{} latches
   tempECC = myDC.getEplatchesEntry();
-  tempDC.setAEIEntry(tempECC.inSpy); 
+  tempDC.setAEIEntry(tempECC.inSpy);
 
   data.dataType = SPYDATA_DATA;
   data.int_data = &inLatches;
-  rc = dllGetSpy(i_target, data, tempDC);
+  rc = dllGetSpy(i_target, data, tempDC, {});
   if (rc) return rc;
 
   /* Now generate the proper ecc based on the in{} */
@@ -1766,7 +1747,7 @@ uint32_t dllGetSpyClockDomain(const ecmdChipTarget & i_target, sedcAEIEntry* spy
 
 }
 
-uint32_t dllIsChipUnitSpy(ecmdChipTarget & i_target, std::string & i_spyName, ecmdSpyData & io_queryData) {
+uint32_t dllIsChipUnitSpy(const ecmdChipTarget & i_target, std::string & i_spyName, ecmdSpyData & io_queryData) {
 
   sedcSpyContainer myDC;
   sedcEplatchesEntry tempECC;
@@ -1826,7 +1807,7 @@ uint32_t dllIsChipUnitSpy(ecmdChipTarget & i_target, std::string & i_spyName, ec
       if (rc) return rc;
       if (!scomQueryData.empty()) {
         io_queryData.isChipUnitRelated = scomQueryData.begin()->isChipUnitRelated;
-        io_queryData.relatedChipUnit = scomQueryData.begin()->relatedChipUnit;
+        io_queryData.relatedChipUnit = scomQueryData.begin()->relatedChipUnit.front();
       }
       break;
     }
@@ -2120,5 +2101,129 @@ uint32_t dllLocateSpy(std::ifstream &spyFile, std::string spy_name) {
   return found;
 }
 
+uint32_t dllQuerySpyRings(const ecmdChipTarget & i_target, const char * i_spyName, std::list<std::string> & o_ringNames)
+{
+  uint32_t l_rc = ECMD_SUCCESS;
+  sedcSpyContainer mySpy;
+  sedcAEIEntry spyent;
+  char outstr[200];
+  ecmdChipTarget l_target = i_target;
 
+  o_ringNames.clear();
+
+  if (i_spyName == NULL) {
+    sprintf(outstr, "dllQuerySpyRings - You must pass in a spy name to use this method.\n");
+    dllOutputError(outstr);
+    return ECMD_INVALID_ARGS;
+  }
+
+  l_rc = dllGetSpyInfo(l_target, i_spyName, mySpy);
+  if (l_rc) {
+    sprintf(outstr, "dllQuerySpyRings - Problems reading spy '%s' from file!\n", i_spyName);
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  } else if (!mySpy.valid) {
+    sprintf(outstr, "dllQuerySpyRings - Read of spy '%s' from file failed!\n", i_spyName);
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }
+
+  // This is a standard spy
+  if (mySpy.type == SC_AEI) {
+    spyent = mySpy.getAEIEntry();
+
+    // Get rings associated with spy itself
+    dllPopulateSpyRings(spyent, o_ringNames);
+
+    // Now we need to look at parity checkers associated with the spy and add rings for those
+    if (spyent.states & SPY_EPCHECKERS) {
+      std::list<std::string> l_aeiEpcheckers = (mySpy.getAEIEntryRef().aeiEpcheckers);
+      if (!l_aeiEpcheckers.empty()) {
+        std::list<std::string>::iterator eccIter;
+        for (eccIter = l_aeiEpcheckers.begin(); eccIter != l_aeiEpcheckers.end(); eccIter++) {
+          sedcSpyContainer myDC;
+          uint32_t l_flags = 0;
+          l_rc = dllGetSpyInfo(l_target, eccIter->c_str(), myDC);
+          if (l_rc) return l_rc;
+          if (myDC.type != SC_EPLATCHES) {
+            sprintf(outstr, "dllQuerySpyRings - A type other than eplatches was found on the lookup!\n");
+            dllOutputError(outstr);
+            return ECMD_INVALID_SPY;
+          }
+
+          sedcSpyContainer tempDC;
+          tempDC.type = SC_AEI; // We need to set this to fake out the DA code
+          sedcEplatchesEntry tempECC;
+
+          // in{} latches
+          tempECC = myDC.getEplatchesEntry();
+          tempDC.setAEIEntry(tempECC.inSpy);
+          spyent = tempDC.getAEIEntryRef();
+
+          // Get rings assoicated with input parity latches
+          dllPopulateSpyRings(spyent, o_ringNames);
+
+          // out{} latches
+          tempECC = myDC.getEplatchesEntry();
+          tempDC.setAEIEntry(tempECC.outSpy);
+          spyent = tempDC.getAEIEntryRef();
+
+          // Get rings assoicated with output parity latches
+          dllPopulateSpyRings(spyent, o_ringNames);
+        }
+      }
+    }
+  }
+  // This is just a parity checker
+  else if (mySpy.type == SC_EPLATCHES) {
+    sedcSpyContainer tempDC;
+    tempDC.type = SC_AEI; // We need to set this to fake out the DA code
+    sedcEplatchesEntry tempECC;
+
+    // in{} latches
+    tempECC = mySpy.getEplatchesEntry();
+    tempDC.setAEIEntry(tempECC.inSpy);
+    spyent = tempDC.getAEIEntryRef();
+
+    // Get rings assoicated with input parity latches
+    dllPopulateSpyRings(spyent, o_ringNames);
+
+    // out{} latches
+    tempECC = mySpy.getEplatchesEntry();
+    tempDC.setAEIEntry(tempECC.outSpy);
+    spyent = tempDC.getAEIEntryRef();
+
+    // Get rings assoicated with output parity latches
+    dllPopulateSpyRings(spyent, o_ringNames);
+  }
+  else {
+    sprintf(outstr, "dllQuerySpyRings - Unsupported SPY_CONTAINER_TYPE %d\n", mySpy.type);
+    dllOutputError(outstr);
+    return ECMD_INVALID_SPY;
+  }
+
+  return l_rc;
+}
+
+void dllPopulateSpyRings(sedcAEIEntry & i_spyEntry, std::list<std::string> & io_ringNames) {
+  bool l_found = false;
+  std::list<sedcLatchLine>::iterator aeiLineIter;
+  for (aeiLineIter = i_spyEntry.aeiLines.begin(); aeiLineIter != i_spyEntry.aeiLines.end(); aeiLineIter++) {
+    if (aeiLineIter->state == (SPY_SECTION_START | SPY_RING)) { // This is where the ring name is
+      // Check to see if we know about the ring yet before adding it
+      std::list<std::string>::iterator ringIter;
+      l_found = false;
+      for (ringIter = io_ringNames.begin(); ringIter != io_ringNames.end(); ringIter++) {
+        // We have it already, so break out
+        if (aeiLineIter->latchName == *ringIter) {
+          l_found = true;
+          break;
+        }
+      }
+      if (!l_found) {
+        io_ringNames.push_back(aeiLineIter->latchName);
+      }
+    }
+  }
+}
 #endif
