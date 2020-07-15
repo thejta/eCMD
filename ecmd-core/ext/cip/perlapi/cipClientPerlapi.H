@@ -25,7 +25,8 @@
  * @file cipClientPerlapi.H
  * @brief Converged IP System eCMD Perlapi Extension
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 
  @section cip CIP (Converged IP System) Extension
  This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>

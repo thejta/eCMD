@@ -25,7 +25,8 @@
  * @file cmdStructs.H
  * @brief eCMD Command line Extension Structures
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 */
 
 //--------------------------------------------------------------------
