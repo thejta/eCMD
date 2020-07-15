@@ -25,7 +25,8 @@
  * @file cipClientPyapi.H
  * @brief Converged IP Systems eCMD Pyapi Extension
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 
  @section cip CIP (Converged IP Systems) Extension
  This extension provides interfaces to start/stop processor instructions and breakpoint handling.<br>
