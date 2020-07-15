@@ -21,7 +21,8 @@
  * @file fapi2ClientCapi.H
  * @brief Hardware Procedure Framework (fapi2) eCMD Extension
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 
  @section fapi2 FAPI2 (Hardware Procedure Framework) Extension
  This extension provides HWPF fapi2 only interfaces.  

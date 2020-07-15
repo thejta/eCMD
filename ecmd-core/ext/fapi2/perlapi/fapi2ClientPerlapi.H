@@ -25,7 +25,8 @@
  * @file fapi2ClientPerlapi.H
  * @brief Cronus & IP eCMD Perlapi Extension
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 
  @section fapi2 FAPI2 (Hardware Procedure Framework) Extension
  In Perl only extension intialization is provided.<br>

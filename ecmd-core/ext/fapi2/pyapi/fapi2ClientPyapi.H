@@ -25,7 +25,8 @@
  * @file fapi2ClientPyapi.H
  * @brief FAPI2 eCMD Pyapi Extension
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 
  @section fapi2 FAPI2 (Hardware Procedure Framework) Extension
  In Python only extension intialization is provided
