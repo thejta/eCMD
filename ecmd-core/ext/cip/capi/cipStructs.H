@@ -25,7 +25,8 @@
  * @file cipStructs.H
  * @brief Converged IP System Extension Structures
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 */
 
 //--------------------------------------------------------------------

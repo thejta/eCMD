@@ -24,7 +24,8 @@
  * @file fapi2Structs.H
  * @brief fapi eCMD Extension Structures
 
- * Extension Owner : Matt Light
+ * Primary Extension Owner   : Kahn Evans
+ * Secondary Extension Owner : Steven Janssen
 */
 
 //--------------------------------------------------------------------
