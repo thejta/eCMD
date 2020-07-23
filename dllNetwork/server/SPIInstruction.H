@@ -167,6 +167,8 @@ bits 0:3  bits 4:7,      bits 8:15,     bits 16:23,      bits 24:31 </pre>
 
     virtual ssize_t spi_command(Handle * i_handle, ecmdDataBufferBase & o_data, InstructionStatus & o_status) { return -1; }
 
+    const uint32_t commandLengthBytes = 4;
+
 };
 
 #endif // _SPIINSTRUCTION_H
