@@ -22,10 +22,9 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include <unistd.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <string.h>
-#include <linux/spi/spidev.h>
 #include <delay.h>
 
 extern bool global_server_debug;
@@ -40,8 +39,6 @@ uint32_t ServerSPIInstruction::spi_open(Handle ** handle, InstructionStatus & o_
       return rc;
 
     /* Open the device */
-
-    //snprintf(device, 50, "/dev/spidev%d.%d", engineId, select);
     snprintf(device, 50, "/sys/class/spi_master/spi%s%d/spi%s%d.0/eeprom", deviceString.c_str(), engineId, deviceString.c_str(), engineId);
 
     errno = 0;
