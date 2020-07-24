@@ -97,6 +97,7 @@ class Instruction{
         D2C,
         BRKPT,
         SPI,
+        XDMA,
     } InstructionType;
 
     /**
@@ -233,6 +234,8 @@ class Instruction{
         BRKPT_INSTR_STEP,
 
         SPI_COMMAND,
+
+        XDMA_COMMAND,
     } InstructionCommand;
 
     /** @name Instruction Constructor */
