@@ -1,12 +1,12 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
-/* 
+/*
  * Copyright 2017 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 	http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0 
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -94,25 +94,25 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 #ifdef _LP64
 #define FAPI_INF(_fmt_, _args_...) \
     if(fapi2IsOutputInfoEnabled()) \
-    {   char inf_user_str[255]; \
-        char inf_sum_str[512]; \
+    {   char inf_user_str[355]; \
+        char inf_sum_str[712]; \
         const char* input = "" _fmt_ "\n"; \
         ::size_t fmtSize = (strlen(input) + 1); \
         char fmt_cpy[fmtSize]; \
         fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
-        snprintf(inf_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(inf_user_str, 255, fmt_cpy, ##_args_); \
-        strncat(inf_sum_str, inf_user_str, 255); \
+        snprintf(inf_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(inf_user_str, 355, fmt_cpy, ##_args_); \
+        strncat(inf_sum_str, inf_user_str, 355); \
         fapi2OutputInfo(inf_sum_str); \
     }
 #else
 #define FAPI_INF(_fmt_, _args_...) \
     if(fapi2IsOutputInfoEnabled()) \
-    {   char inf_user_str[255]; \
-        char inf_sum_str[512]; \
-        snprintf(inf_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(inf_user_str, 255, "" _fmt_ "\n", ##_args_); \
-        strncat(inf_sum_str, inf_user_str, 255); \
+    {   char inf_user_str[355]; \
+        char inf_sum_str[712]; \
+        snprintf(inf_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(inf_user_str, 355, "" _fmt_ "\n", ##_args_); \
+        strncat(inf_sum_str, inf_user_str, 355); \
         fapi2OutputInfo(inf_sum_str); \
     }
 #endif
@@ -121,25 +121,25 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 #ifdef _LP64
 #define FAPI_IMP(_fmt_, _args_...) \
     if(fapi2IsOutputInfoEnabled()) \
-    {   char imp_user_str[255]; \
-        char imp_sum_str[512]; \
+    {   char imp_user_str[355]; \
+        char imp_sum_str[712]; \
         const char* input = "" _fmt_ "\n"; \
         ::size_t fmtSize = (strlen(input) + 1);   \
         char fmt_cpy[fmtSize]; \
         fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
-        snprintf(imp_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(imp_user_str, 255, fmt_cpy, ##_args_); \
-        strncat(imp_sum_str, imp_user_str, 255); \
+        snprintf(imp_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(imp_user_str, 355, fmt_cpy, ##_args_); \
+        strncat(imp_sum_str, imp_user_str, 355); \
         fapi2OutputImportant(imp_sum_str); \
     }
 #else
 #define FAPI_IMP(_fmt_, _args_...) \
     if(fapi2IsOutputInfoEnabled()) \
-    {   char imp_user_str[255]; \
-        char imp_sum_str[512]; \
-        snprintf(imp_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(imp_user_str, 255, "" _fmt_ "\n", ##_args_); \
-        strncat(imp_sum_str, imp_user_str, 255); \
+    {   char imp_user_str[355]; \
+        char imp_sum_str[712]; \
+        snprintf(imp_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(imp_user_str, 355, "" _fmt_ "\n", ##_args_); \
+        strncat(imp_sum_str, imp_user_str, 355); \
         fapi2OutputImportant(imp_sum_str); \
     }
 #endif
@@ -148,25 +148,25 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 #ifdef _LP64
 #define FAPI_ERR(_fmt_, _args_...) \
     do \
-    {   char err_user_str[255]; \
-        char err_sum_str[512];  \
+    {   char err_user_str[355]; \
+        char err_sum_str[712];  \
         const char* input = "" _fmt_ "\n"; \
         ::size_t fmtSize = (strlen(input) + 1); \
         char fmt_cpy[fmtSize]; \
         fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
-        snprintf(err_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(err_user_str, 255, fmt_cpy, ##_args_); \
-        strncat(err_sum_str, err_user_str, 255); \
+        snprintf(err_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(err_user_str, 355, fmt_cpy, ##_args_); \
+        strncat(err_sum_str, err_user_str, 355); \
         fapi2OutputError(err_sum_str); \
     } while(0)
 #else
 #define FAPI_ERR(_fmt_, _args_...) \
     do \
-    {   char err_user_str[255]; \
-        char err_sum_str[512];  \
-        snprintf(err_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(err_user_str, 255, "" _fmt_ "\n", ##_args_); \
-        strncat(err_sum_str, err_user_str, 255); \
+    {   char err_user_str[355]; \
+        char err_sum_str[712];  \
+        snprintf(err_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(err_user_str, 355, "" _fmt_ "\n", ##_args_); \
+        strncat(err_sum_str, err_user_str, 355); \
         fapi2OutputError(err_sum_str); \
     } while(0)
 #endif
@@ -175,25 +175,25 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 #ifdef _LP64
 #define FAPI_DBG(_fmt_, _args_...) \
     if (fapi2IsOutputDebugEnabled()) \
-    {   char dbg_user_str[255]; \
-        char dbg_sum_str[512];  \
+    {   char dbg_user_str[355]; \
+        char dbg_sum_str[712];  \
         const char* input = "" _fmt_ "\n"; \
         ::size_t fmtSize = (strlen(input) + 1);   \
         char fmt_cpy[fmtSize]; \
         fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
-        snprintf(dbg_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(dbg_user_str, 255, fmt_cpy, ##_args_); \
-        strncat(dbg_sum_str, dbg_user_str, 255); \
+        snprintf(dbg_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(dbg_user_str, 355, fmt_cpy, ##_args_); \
+        strncat(dbg_sum_str, dbg_user_str, 355); \
         fapi2OutputDebug(dbg_sum_str); \
     }
 #else
 #define FAPI_DBG(_fmt_, _args_...) \
     if (fapi2IsOutputDebugEnabled()) \
-    {   char dbg_user_str[255]; \
-        char dbg_sum_str[512];  \
-        snprintf(dbg_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(dbg_user_str, 255, "" _fmt_ "\n", ##_args_); \
-        strncat(dbg_sum_str, dbg_user_str, 255); \
+    {   char dbg_user_str[355]; \
+        char dbg_sum_str[712];  \
+        snprintf(dbg_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(dbg_user_str, 355, "" _fmt_ "\n", ##_args_); \
+        strncat(dbg_sum_str, dbg_user_str, 355); \
         fapi2OutputDebug(dbg_sum_str); \
     }
 #endif
@@ -201,8 +201,8 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 // Scan traces
 #define FAPI_SCAN(_fmt_, _args_...) \
     do \
-    {   char scan_user_str[255]; \
-        snprintf(scan_user_str, 255, "" _fmt_ "\n", ##_args_); \
+    {   char scan_user_str[355]; \
+        snprintf(scan_user_str, 355, "" _fmt_ "\n", ##_args_); \
         fapi2OutputScanTrace(scan_user_str); \
     } while(0)
 
@@ -210,25 +210,25 @@ static const uint32_t MAX_ECMD_STRING_LEN = 64;
 #ifdef _LP64
 #define FAPI_MFG(_fmt_, _args_...) \
     if (fapi2IsOutputManufacturingEnabled()) \
-    {   char mfg_user_str[255]; \
-        char mfg_sum_str[512];  \
+    {   char mfg_user_str[355]; \
+        char mfg_sum_str[712];  \
         const char* input = "" _fmt_ "\n"; \
         ::size_t fmtSize = (strlen(input) + 1);   \
         char fmt_cpy[fmtSize]; \
         fapi2FixOutputFormat(fmt_cpy, input, fmtSize); \
-        snprintf(mfg_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(mfg_user_str, 255, fmt_cpy, ##_args_); \
-        strncat(mfg_sum_str, mfg_user_str, 255); \
+        snprintf(mfg_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(mfg_user_str, 355, fmt_cpy, ##_args_); \
+        strncat(mfg_sum_str, mfg_user_str, 355); \
         fapi2OutputManufacturing(mfg_sum_str); \
     }
 #else
 #define FAPI_MFG(_fmt_, _args_...) \
     if (fapi2IsOutputManufacturingEnabled()) \
-    {   char mfg_user_str[255]; \
-        char mfg_sum_str[512];  \
-        snprintf(mfg_sum_str, 255, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
-        snprintf(mfg_user_str, 255, "" _fmt_ "\n", ##_args_); \
-        strncat(mfg_sum_str, mfg_user_str, 255); \
+    {   char mfg_user_str[355]; \
+        char mfg_sum_str[712];  \
+        snprintf(mfg_sum_str, 355, "%s:%s:%d: ", __FILE__, __FUNCTION__, __LINE__); \
+        snprintf(mfg_user_str, 355, "" _fmt_ "\n", ##_args_); \
+        strncat(mfg_sum_str, mfg_user_str, 355); \
         fapi2OutputManufacturing(mfg_sum_str); \
     }
 #endif
