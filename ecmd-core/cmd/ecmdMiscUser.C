@@ -2897,23 +2897,18 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
 uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString)
 {
   uint32_t rc = ECMD_SUCCESS;
-
   ecmdDataBuffer waferID;
   std::string waferIdText;
   uint32_t ecidPos = 0;
 
-  /* Need to query DLL product*/
-  ecmdDllInfo info;
-  rc = ecmdQueryDllInfo(info);
-  if (rc) {
-    ecmdOutputError("formatEcidString - Problems occurred trying to get Dll Info\n");
-    return rc;
-  }
+  // Using the first 8 positions of the 10 character field, the last two are programmed to "blanks" (all ls)
+  // On samsung wafer, word 3 is going to be blank (all 1's) and we use that to determine the format
+  uint16_t word3 = i_ecidBuffer.getHalfWord(3);
 
-  if (info.dllProduct == ECMD_DLL_PRODUCT_P10)
+  // P10 and later chips using samsung wafer
+  if ( word3 == 0x7fff)
   {
     waferID.setBitLength(48);
-    // Using the first 8 positions of the 10 character field, the last two are programmed to "blanks" (all ls)
     ecidPos = 8;
     i_ecidBuffer.extract(waferID, 4, 48);
   } else {
@@ -2953,9 +2948,10 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
     waferIdText += code;
   }
 
-  if (info.dllProduct == ECMD_DLL_PRODUCT_P10)
+  // P10 and later chips using samsung wafer has bits 49...64 set to all 1's
+  if ( word3 == 0x7fff)
   {
-    // getCheckSum is not called in p10 wrapper, so we will skip it
+    // getCheckSum is not called in p10 wrapper,  so we will skip it
     o_waferString = waferIdText;
   } else {
 
