@@ -2906,7 +2906,7 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
   uint16_t word3 = i_ecidBuffer.getHalfWord(3);
 
   // P10 and later chips using samsung wafer
-  if ( word3 == 0x7fff)
+  if ((word3 & 0x0fff) == 0x0fff)
   {
     waferID.setBitLength(48);
     ecidPos = 8;
@@ -2948,8 +2948,8 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
     waferIdText += code;
   }
 
-  // P10 and later chips using samsung wafer has bits 49...64 set to all 1's
-  if ( word3 == 0x7fff)
+  // P10 and later chips using samsung wafer has bits 52...63 set to all 1's
+  if ((word3 & 0x0fff) == 0x0fff)
   {
     // getCheckSum is not called in p10 wrapper,  so we will skip it
     o_waferString = waferIdText;
