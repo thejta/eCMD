@@ -168,6 +168,15 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
   // use a local target to set up procInfo and use target so looper works properly
   ecmdChipTarget l_target = target;
+  ecmdLooperData l_target_looperData;
+  // Get a valid first target in case anything is deconfigured
+  rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_target_looperData);
+  if (rc) return rc;
+  if(!ecmdLooperNext(l_target, l_target_looperData))
+  { 
+      ecmdOutputError("No valid processors configured\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   // strip chipunit from target
   target.chipUnitType = "";
@@ -196,7 +205,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
         printed = "getspr - Error occured getting spr info for ";
         printed += sprName;
         printed += " on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(l_target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -233,7 +242,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
       rc = getSprMultiple(l_target, posEntries);
       if (rc) {
         printed = "getspr - Error occured performing getSprMultiple on ";
-        printed += ecmdWriteTarget(target) + "\n";
+        printed += ecmdWriteTarget(l_target) + "\n";
         ecmdOutputError( printed.c_str() );
         coeRc = rc;
         continue;
@@ -691,6 +700,15 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
   // use a local target to set up procInfo and use target so looper works properly
   ecmdChipTarget l_target = target;
+  ecmdLooperData l_target_looperdata; 
+  // Get a valid first target in case anything is deconfigured
+  rc = ecmdLooperInit(l_target, ECMD_SELECTED_TARGETS_LOOP, l_target_looperdata);
+  if (rc) return rc;
+  if(!ecmdLooperNext(l_target, l_target_looperdata))
+  { 
+      ecmdOutputError("No valid processors configured\n");
+      return ECMD_TARGET_NOT_CONFIGURED;
+  }
 
   // strip chipunit from target
   target.chipUnitType = "";
@@ -712,7 +730,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
       printed = function + " - Error occured getting info for ";
       printed += sprName;
       printed += " on ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(l_target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = rc;
       continue;
@@ -720,7 +738,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
 
     if ((startEntry + numEntries) > (int)procInfo.totalEntries) {
       printed = function + " - Num Entries requested exceeds maximum number available on: ";
-      printed += ecmdWriteTarget(target) + "\n";
+      printed += ecmdWriteTarget(l_target) + "\n";
       ecmdOutputError( printed.c_str() );
       coeRc = ECMD_INVALID_ARGS;
       continue;
