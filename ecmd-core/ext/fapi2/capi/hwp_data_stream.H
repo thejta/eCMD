@@ -322,7 +322,7 @@ class hwp_bit_istream
          */
         ReturnCodes get8(uint8_t& o_value)
         {
-            uint64_t l_tmp;
+            uint64_t l_tmp = 0;
             const ReturnCodes l_rc = get(l_tmp, 8);
             o_value = l_tmp;
             return l_rc;
@@ -338,7 +338,7 @@ class hwp_bit_istream
          */
         ReturnCodes get16(uint16_t& o_value)
         {
-            uint64_t l_tmp;
+            uint64_t l_tmp = 0;
             const ReturnCodes l_rc = get(l_tmp, 16);
             o_value = l_tmp;
             return l_rc;
@@ -354,7 +354,7 @@ class hwp_bit_istream
          */
         ReturnCodes get32(uint32_t& o_value)
         {
-            uint64_t l_tmp;
+            uint64_t l_tmp = 0;
             const ReturnCodes l_rc = get(l_tmp, 32);
             o_value = l_tmp;
             return l_rc;
