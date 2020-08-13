@@ -59,6 +59,7 @@
 #include <PNORInstruction.H>
 #include <ServerSBEFIFOInstruction.H>
 #include <ServerBrkptInstruction.H>
+#include <ServerXDMAInstruction.H>
 
 #include <OutputLite.H>
 OutputLite out;
@@ -235,6 +236,9 @@ void processClient(int socket, enum socketState & state, bool & keyValid, uint32
                     break;
                 case Instruction::BRKPT:
                     newInstruction = new ServerBrkptInstruction();
+                    break;
+                case Instruction::XDMA:
+                    newInstruction = new ServerXDMAInstruction();
                     break;
                 default:
                     printf("ERROR : socket %d : Unknown instruction received %d\n", socket, instructionInfo.type);
@@ -606,6 +610,7 @@ int main (int argc, char **argv)
         global_version_map["SBEFIFOInstruction"] = ServerSBEFIFOInstruction().getVersion();
         global_version_map["SBEFIFOInstruction"] = ServerSBEFIFOInstruction().getVersion();
         global_version_map["BrkptInstruction"] = ServerBrkptInstruction().getVersion();
+        global_version_map["XDMAInstruction"] = ServerXDMAInstruction().getVersion();
     }
 
     /* parse command line options */
