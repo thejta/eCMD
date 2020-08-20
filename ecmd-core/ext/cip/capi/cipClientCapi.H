@@ -259,6 +259,7 @@ uint32_t cipClearBreakpoint (const ecmdChipTarget & i_target, uint64_t i_address
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS Vr number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -287,7 +288,9 @@ uint32_t cipGetVr (const ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBu
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid.   If an entry is for an inactive thread, the function return code will not be set, 
+  but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data and continue to 
+  the next entry. <br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
@@ -456,6 +459,7 @@ uint32_t cipPutMemMemCtrl (const ecmdChipTarget & i_target, uint64_t i_address, 
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_ARGS Vsr number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -484,7 +488,9 @@ uint32_t cipGetVsr (const ecmdChipTarget & i_target, uint32_t i_vsrNum, ecmdData
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid. If an entry is for an inactive thread, the function return code will not be set, 
+  but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data and continue 
+  to the next entry. <br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
@@ -797,6 +803,7 @@ uint32_t cipRWWriteMem(const ecmdChipTarget & i_target, uint32_t i_address, uint
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Dcr number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -826,7 +833,9 @@ uint32_t cipRWGetDcr (const ecmdChipTarget & i_target, uint32_t i_dcrNum, ecmdDa
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid.  If an entry is for an inactive thread, the function return code will not
+  be set, but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data
+  and continue to the next entry.<br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>

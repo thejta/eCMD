@@ -257,7 +257,14 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
         printed = nameIter->name + "\t";
 
-        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        if (nameIter->rc == ECMD_INACTIVE_THREAD)
+        {
+            printed += "INACTIVE\n";
+        }
+        else
+        {
+            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        }
 
         ecmdOutput( printed.c_str() );
       }
@@ -306,7 +313,14 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
             printed = nameIter->name + "\t";
 
-            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+            if (nameIter->rc == ECMD_INACTIVE_THREAD)
+            {
+                printed += "INACTIVE\n";
+            }
+            else
+            {
+                printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+            }
 
             ecmdOutput( printed.c_str() );
           }
@@ -358,7 +372,14 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
 
             printed = nameIter->name + "\t";
 
-            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+            if (nameIter->rc == ECMD_INACTIVE_THREAD)
+            {
+                printed += "INACTIVE\n";
+            }
+            else
+            {
+                printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+            }
 
             ecmdOutput( printed.c_str() );
           }
@@ -797,7 +818,14 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
         sprintf(buf,"%02d\t", nameIter->index);
         printed = buf;
 
-        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        if (nameIter->rc == ECMD_INACTIVE_THREAD)
+        {
+            printed += "INACTIVE\n";
+        }
+        else
+        {
+            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        }
 
         ecmdOutput( printed.c_str() );
       }
