@@ -1769,6 +1769,7 @@ uint32_t ecmdQueryProcRegisterInfo(const ecmdChipTarget & i_target, const char* 
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_SPR Spr name is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -1804,7 +1805,9 @@ uint32_t getSpr (const ecmdChipTarget & i_target, const char * i_sprName, ecmdDa
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid.  If an entry is for an inactive thread, the function return code will not
+  be set, but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data
+  and continue to the next entry.<br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
@@ -1862,6 +1865,7 @@ uint32_t putSprMultiple (const ecmdChipTarget & i_target, std::list<ecmdNameEntr
  @retval ECMD_TARGET_INVALID_TYPE if target is not a processor
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_INVALID_GPR Gpr number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
@@ -1891,7 +1895,9 @@ uint32_t getGpr (const ecmdChipTarget & i_target, uint32_t i_gprNum, ecmdDataBuf
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid. If an entry is for an inactive thread, the function return code will not
+  be set, but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data
+  and continue to the next entry.<br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
@@ -1951,6 +1957,7 @@ uint32_t putGprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEnt
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INVALID_FPR Fpr number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
@@ -1979,7 +1986,9 @@ uint32_t getFpr (const ecmdChipTarget & i_target, uint32_t i_fprNum, ecmdDataBuf
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.<br>
+  should be considered invalid. If an entry is for an inactive thread, the function return code will not
+  be set, but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data
+  and continue to the next entry.<br>
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>
@@ -2038,6 +2047,7 @@ uint32_t putFprMultiple (const ecmdChipTarget & i_target, std::list<ecmdIndexEnt
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_CLOCKS_IN_INVALID_STATE Chip Clocks were in an invalid state to perform the operation
  @retval ECMD_INVALID_ENTRY_REQUESTED Slb number is invalid
+ @retval ECMD_INACTIVE_THREAD if the thread is inactive and data should be ignored.
  @retval ECMD_RING_CACHE_ENABLED Ring Cache enabled function - must be disabled to use this function
  @retval ECMD_SUCCESS if successful read
  @retval nonzero if unsuccessful
@@ -2066,7 +2076,9 @@ uint32_t getSlb (const ecmdChipTarget & i_target, uint32_t i_slbNum, ecmdDataBuf
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.
+  should be considered invalid. If an entry is for an inactive thread, the function return code will not
+  be set, but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data
+  and continue to the next entry.
 
  TARGET DEPTH  : chipUnit, thread<br>
  TARGET STATES : Unused<br>

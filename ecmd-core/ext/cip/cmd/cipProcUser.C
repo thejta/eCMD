@@ -594,7 +594,14 @@ uint32_t cipGetVrUser(int argc, char * argv[]) {
       sprintf(buf,"%.02X\t", entit->index);
       printed = buf;
 
-      printed += ecmdWriteDataFormatted(entit->buffer, format);
+      if (entit->rc == ECMD_INACTIVE_THREAD)
+      {
+          printed += "INACTIVE\n";
+      }
+      else
+      {
+          printed += ecmdWriteDataFormatted(entit->buffer, format);
+      }
 
       ecmdOutput( printed.c_str() );
     }
@@ -1215,7 +1222,14 @@ uint32_t cipGetVsrUser(int argc, char * argv[]) {
       sprintf(buf,"%.02X\t", entit->index);
       printed = buf;
 
-      printed += ecmdWriteDataFormatted(entit->buffer, format);
+      if (entit->rc == ECMD_INACTIVE_THREAD)
+      {
+          printed += "INACTIVE\n";
+      }
+      else
+      {
+          printed += ecmdWriteDataFormatted(entit->buffer, format);
+      }
 
       ecmdOutput( printed.c_str() );
     }
@@ -2427,7 +2441,14 @@ uint32_t cipRWGetDcrUser(int argc, char * argv[]) {
         sprintf(buf,"%02d\t", nameIter->index);
         printed = buf;
 
-        printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        if (nameIter->rc == ECMD_INACTIVE_THREAD)
+        {
+            printed += "INACTIVE\n";
+        }
+        else
+        {
+            printed += ecmdWriteDataFormatted(nameIter->buffer, format);
+        }
 
         ecmdOutput( printed.c_str() );
       }

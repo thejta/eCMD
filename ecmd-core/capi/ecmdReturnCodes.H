@@ -70,6 +70,7 @@
 #define ECMD_INVALID_SPR                        (ECMD_ERR_ECMD | 0x1031) ///< Invalid SPR was specified to get/put spr functions
 #define ECMD_INVALID_GPR                        (ECMD_ERR_ECMD | 0x1033) ///< Invalid GPR number was specified to get/put gpr functions
 #define ECMD_INVALID_FPR                        (ECMD_ERR_ECMD | 0x1035) ///< Invalid FPR number was specified to get/put fpr functions
+#define ECMD_INACTIVE_THREAD                    (ECMD_ERR_ECMD | 0x1036) ///< Thread requested by spr/gpr/fpr call is inactive
 #define ECMD_RING_CACHE_ENABLED                 (ECMD_ERR_ECMD | 0x1037) ///< Ring Cache enabled during call non-cache enabled function
 #define ECMD_INVALID_CONFIG_NAME                (ECMD_ERR_ECMD | 0x1039) ///< An Invalid name was used to set/get a configuation setting
 #define ECMD_INVALID_CONFIG_DATA                (ECMD_ERR_ECMD | 0x103B) ///< An Invalid data type was used to set/get a configuation setting
