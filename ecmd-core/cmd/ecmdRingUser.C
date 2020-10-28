@@ -2346,6 +2346,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
   bool l_cond = false;
   bool l_cond_all = false;
   bool l_no_ignore = false;
+  // Does the user want to do multicast reads and/or writes?
+  bool mcastRead = false;
+  bool mcastWrite = false;
+  uint32_t mcastMode = 0;
+  uint32_t l_num_mcast_chiplets = 0;
+  uint32_t l_cuLoopCount = 0;
 
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -2399,7 +2405,52 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
      }
   }
 
-  
+  //Check for mcastRead/Write flag
+ char * mcastReadVal = ecmdParseOptionWithArgs(&argc, &argv, "-mcastread");
+ if (mcastReadVal != NULL)
+ {
+     mcastRead = true;
+     mcastMode = (uint32_t)strtol(mcastReadVal, NULL, 16);
+     mcastMode |= ECMD_RING_MODE_MULTICAST;
+ }
+
+ char * mcastWriteVal = ecmdParseOptionWithArgs(&argc, &argv, "-mcastwrite");
+ if (mcastWriteVal != NULL)
+ {
+     mcastWrite = true;
+     uint32_t tmpVal = (uint32_t)strtol(mcastWriteVal, NULL, 16);
+     // If read group was specified, make sure it matches
+     if (mcastRead)
+     {
+         if (*mcastReadVal != *mcastWriteVal)
+         {
+             ecmdOutputError("checkrings - Multicast group must be the same when specifying both -mcastwrite and -mcastread\n");
+             return ECMD_INVALID_ARGS;
+         }
+     }
+     mcastMode = tmpVal;
+     mcastMode |= ECMD_RING_MODE_MULTICAST;
+ }
+
+ if (mcastWrite || mcastRead)
+ {
+     // Only a sinlge pattern is supported with mcast modes
+     if ((flush0 + flush1 + pattern0 + pattern1 + pattern) != 1) {
+      ecmdOutputError("checkrings - To use the -mcastread/-mcastwrite options, you must also specify a single pattern to write (-flush<0|1>/-pattern[0|1])\n");
+      return ECMD_INVALID_ARGS;
+     }
+
+    // Make sure broadside mode isn't enabled
+    rc = ecmdGetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", configValid, bsOriginalState, configNum);
+    if (rc) return rc;
+    
+    /* Set a global flag to know if we are starting out with broadside on */
+    if (bsOriginalState.find("scan") != std::string::npos) {
+      ecmdOutputError("checkrings - To use the -mcastread/-mcastwrite options, SIM_BROADSIDE_MODE \"scan\" can't be on.\n");
+      return ECMD_INVALID_ARGS;
+    }   
+
+ }
 
   /* If none of the options were specified, turn them all on */
   if ((flush0 + flush1 + pattern0 + pattern1 + pattern) == 0) {
@@ -2422,6 +2473,13 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       return ECMD_INVALID_ARGS;
     }
 
+    // Multicast isn't supported with broadside
+    if ((bsRead && mcastRead) || (bsWrite && mcastWrite))
+    {
+      ecmdOutputError("checkrings - Can't specify -mcastread with -bsread or -mcastwrite with -bswrite.\n");
+      return ECMD_INVALID_ARGS;
+    }
+    
     // Make sure broadside isn't already on with these flags
     rc = ecmdGetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", configValid, bsOriginalState, configNum);
     if (rc) return rc;
@@ -2516,6 +2574,21 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
       }
     }
 
+    // Can't support "all" rings with mcast unless a chipUnit is specified
+    if (allRingsFlag && chipUnitType == "" && (mcastRead || mcastWrite))
+    {
+        ecmdOutputError("checkrings - When using mcast modes and \"all\" rings, you must specify a chipUnit \n");
+        return ECMD_INVALID_ARGS;
+    }
+
+    // Multicast only makes sense for chipUnit rings
+    if (chipUnitType == "" && (mcastRead || mcastWrite))
+    {
+        ecmdOutputError("checkrings - When using mcast modes, you must specify a chipUnit \n");
+        return ECMD_INVALID_ARGS;
+    }
+
+
     std::list<ecmdRingData>::iterator curRingData = queryRingData.begin();
 
     while (curRingData != queryRingData.end()) {
@@ -2544,6 +2617,21 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
         cuTarget.chipUnitNumState = ECMD_TARGET_FIELD_WILDCARD;
         cuTarget.threadState = ECMD_TARGET_FIELD_UNUSED;
 
+        // Get a count of configured chipUnits for the target chip if we're using any mcast options
+        l_num_mcast_chiplets = 0;
+        l_cuLoopCount = 0;
+        if (mcastRead || mcastWrite)
+        {
+            ecmdChipTarget cuCountTarget = cuTarget;
+            ecmdLooperData cuCountLooper;
+            rc = ecmdConfigLooperInit(cuCountTarget, ECMD_SELECTED_TARGETS_LOOP_DEFALL, cuCountLooper);
+            if (rc) break;
+            while (ecmdConfigLooperNext(cuCountTarget, cuCountLooper))
+            {
+                l_num_mcast_chiplets++;
+            }            
+        }
+
         /* Init the chipUnit loop */
         /* For an all loop, we want to default to all targets at the chipUnit level
           It doesn't make sense to have the "all" option just do 0 by default */
@@ -2569,7 +2657,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
       /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
       while ((curRingData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
-
+        l_cuLoopCount++;
         ringName = curRingData->ringNames.front();
 
         if (!curRingData->isCheckable && allRingsFlag) {
@@ -2589,18 +2677,22 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
 
         //Save the Ring state
         if (saveRestore) {
-          printed = "Saving the ring state before performing pattern testing.\n";
-          ecmdOutput(printed.c_str());   
-          rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
-          if (rc) {
-            printed = "checkrings - Error occurred performing getring on ";
-            printed += ecmdWriteTarget(cuTarget) + "\n";
-            ecmdOutputError(printed.c_str());   
-            coeRc = rc;
+          // Get the initial ring state on first time through only when using mcast modes.
+          if (((l_cuLoopCount == 1) && (mcastRead || mcastWrite)) || !(mcastRead || mcastWrite))
+          {
+            printed = "Saving the ring state before performing pattern testing.\n";
+            ecmdOutput(printed.c_str());   
+            rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
+            if (rc) {
+              printed = "checkrings - Error occurred performing getring on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError(printed.c_str());   
+              coeRc = rc;
           
-            /* Go onto the next one */
-            failedRings.push_back(ringlog);
-            continue;
+              /* Go onto the next one */
+              failedRings.push_back(ringlog);
+              continue;
+            }
           }
         }
 
@@ -2696,8 +2788,19 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
              if (rc) return rc;
            }
 
-          // Write in my data and get it back out.
-          rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+           // Write in my data and get it back out.
+           if (mcastWrite)
+           {
+               // Only do the mcast write on the first loop
+               if (l_cuLoopCount == 1)
+               {
+                   rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode | mcastMode);
+               }
+           }
+           else
+           {
+               rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+           }
 
           /* If we did a broadside write, restore state */
           if (bsWrite) {
@@ -2716,68 +2819,79 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             validPosFound = true;
           }
 
-          /* If the user wants to force a broadside read, handle that before doing the get below */
-          if (bsRead) {
-            if (bsOriginalState == "none") {
-              bsModifiedState = "scan";
-            } else { // Other options are on, tack it on
-              bsModifiedState = bsOriginalState + ",scan";       
+          // For mcastRead, only do the read/compare on last access unless mcastWrite is also specified
+          if (((l_cuLoopCount == l_num_mcast_chiplets) && (mcastRead)) || (mcastRead && mcastWrite) || !(mcastRead))
+          {
+
+            /* If the user wants to force a broadside read, handle that before doing the get below */
+            if (bsRead) {
+              if (bsOriginalState == "none") {
+                bsModifiedState = "scan";
+              } else { // Other options are on, tack it on
+                bsModifiedState = bsOriginalState + ",scan";       
+              }
+              /* Set it */
+              rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
+              if (rc) return rc;
             }
-            /* Set it */
-            rc = ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsModifiedState, configNum);
-            if (rc) return rc;
-          }
 
-          if(pattern)
-          {
-            printed = "Performing  " + passedPattern.genHexLeftStr() + "'s test on " + ringName + " ...\n";
-          }
-          else
-          {
-            printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
-          }
-          ecmdOutput(printed.c_str());
-          rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
+            if(pattern)
+            {
+                printed = "Performing  " + passedPattern.genHexLeftStr() + "'s test on " + ringName + " ...\n";
+            }
+            else
+            {
+                printed = "Performing  " + repPattern + "'s test on " + ringName + " ...\n";
+            }
+            ecmdOutput(printed.c_str());
+            if (mcastRead)
+            {
+                rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode | mcastMode);
+            }
+            else
+            {
+                rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
+            }
 
-          /* If we did a broadside read, restore state */
-          if (bsRead) {
-            rc |= ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
-          }
+            /* If we did a broadside read, restore state */
+            if (bsRead) {
+                rc |= ecmdSetConfiguration(cuTarget, "SIM_BROADSIDE_MODE", ECMD_CONFIG_VALID_FIELD_ALPHA, bsOriginalState, configNum);
+            }
 
-          if (rc) {
-            printed = "checkrings - Error occurred performing getring on ";
-            printed += ecmdWriteTarget(cuTarget) + "\n";
-            ecmdOutputError( printed.c_str() );
-            foundProblem = true;
-            coeRc = rc;
-            continue;
-          }
-
-          /******* Check our results *******/
-
-          // Do not test the last bit or the ring (The access bit)
-          if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) {
-            ringBuffer.setBit((readRingBuffer.getBitLength())-1);
-          } else {
-            ringBuffer.clearBit((readRingBuffer.getBitLength())-1);
-          }
-
-          // On the hardware headercheck chips, clear the headercheck data out so we don't get false fails
-          // On non-headercheck chips, check the starting pattern
-          if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
-            readRingBuffer.clearBit(0,32);
-          } else if (chipData.chipFlags & ECMD_CHIPFLAG_64BIT_HEADERCHECK) {
-              readRingBuffer.clearBit(0,64);
-          } else {
-            if (readRingBuffer.getWord(0) != checkPattern) {
-              sprintf(outstr, "checkrings - Data fetched from ring %s did not match expected header: %.08X.  Found: %.08X\n", ringName.c_str(), checkPattern, readRingBuffer.getWord(0));
-              ecmdOutputWarning( outstr );
+            if (rc) {
+              printed = "checkrings - Error occurred performing getring on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
               foundProblem = true;
+              coeRc = rc;
+              continue;
             }
-          }
 
-          if (!l_no_ignore)
-          {
+            /******* Check our results *******/
+
+            // Do not test the last bit or the ring (The access bit)
+            if (readRingBuffer.isBitSet((readRingBuffer.getBitLength())-1)) {
+              ringBuffer.setBit((readRingBuffer.getBitLength())-1);
+            } else {
+              ringBuffer.clearBit((readRingBuffer.getBitLength())-1);
+            }
+
+            // On the hardware headercheck chips, clear the headercheck data out so we don't get false fails
+            // On non-headercheck chips, check the starting pattern
+            if (chipData.chipFlags & ECMD_CHIPFLAG_32BIT_HEADERCHECK) {
+              readRingBuffer.clearBit(0,32);
+            } else if (chipData.chipFlags & ECMD_CHIPFLAG_64BIT_HEADERCHECK) {
+              readRingBuffer.clearBit(0,64);
+            } else {
+              if (readRingBuffer.getWord(0) != checkPattern) {
+                sprintf(outstr, "checkrings - Data fetched from ring %s did not match expected header: %.08X.  Found: %.08X\n", ringName.c_str(), checkPattern, readRingBuffer.getWord(0));
+                ecmdOutputWarning( outstr );
+                foundProblem = true;
+              }
+            }
+
+            if (!l_no_ignore)
+            {
               ecmdDataBuffer ignore_mask_data;
               if(ignore_mask_filename != NULL) {
                   rc = readInversionFile(ignore_mask_filename, ignore_mask_data, curRingData->ringNames, curRingData->bitLength);
@@ -2809,67 +2923,81 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
                       ecmdOutput( outstr );
                   }
               }
-          }
+            }
 
-          if (readRingBuffer != ringBuffer) {
-            sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %s's\n", ringName.c_str(),
-                    (pattern) ? passedPattern.genHexLeftStr().c_str() : repPattern.c_str());
-            ecmdOutputWarning( outstr );
-            if (verbose) {
-              std::string read_printed;
-              std::string exp_printed;
-              printed = "Offset       Data Miscompares\n";
-              printed += "------------------------------------------------------------------------\n";
-              ecmdOutput( printed.c_str() );
-              for (uint32_t y=0; y < ringBuffer.getBitLength();) {
-                if ( (y+64) > ringBuffer.getBitLength()) {                   
-                  exp_printed = ringBuffer.genBinStr(y,(ringBuffer.getBitLength()-y)) + "\n";
-                  read_printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
-                } else {
-                  exp_printed = ringBuffer.genBinStr(y,64) + "\n";
-                  read_printed = readRingBuffer.genBinStr(y,64) + "\n";
-                }
-                if (exp_printed != read_printed)
-                {
+            if (readRingBuffer != ringBuffer) {
+              sprintf(outstr, "checkrings - Data fetched from ring %s did not match repeated pattern of %s's\n", ringName.c_str(),
+                      (pattern) ? passedPattern.genHexLeftStr().c_str() : repPattern.c_str());
+              ecmdOutputWarning( outstr );
+              if (verbose) {
+                std::string read_printed;
+                std::string exp_printed;
+                printed = "Offset       Data Miscompares\n";
+                printed += "------------------------------------------------------------------------\n";
+                ecmdOutput( printed.c_str() );
+                for (uint32_t y=0; y < ringBuffer.getBitLength();) {
+                  if ( (y+64) > ringBuffer.getBitLength()) {                   
+                    exp_printed = ringBuffer.genBinStr(y,(ringBuffer.getBitLength()-y)) + "\n";
+                    read_printed = readRingBuffer.genBinStr(y,(readRingBuffer.getBitLength()-y)) + "\n";
+                  } else {
+                    exp_printed = ringBuffer.genBinStr(y,64) + "\n";
+                    read_printed = readRingBuffer.genBinStr(y,64) + "\n";
+                  }
+                  if (exp_printed != read_printed)
+                  {
                     printf("%8d IN  ", y);
                     ecmdOutput( exp_printed.c_str() );
                     printf("%8d OUT ", y);
                     ecmdOutput( read_printed.c_str() );
                     printf("\n");
+                  }
+                  y += 64;
                 }
-                y += 64;
               }
-            }
-            foundProblem = true;
-          } 
-
+              foundProblem = true;
+            } 
+          }
           if (foundProblem) {
             printed = "checkrings - Error occurred performing a checkring on " + ecmdWriteTarget(cuTarget) + "\n";
             ecmdOutputWarning( printed.c_str() );
-          }
+          }     
 
         } /* Test for loop */
 
         //Restore ring state
         if (saveRestore) {
-          printed = "Restoring the ring state.\n\n";
-          ecmdOutput( printed.c_str() );
-          rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode);
-          if (rc) {
-            printed = "checkrings - Error occurred performing putring on ";
-            printed += ecmdWriteTarget(cuTarget) + "\n";
-            ecmdOutputError( printed.c_str() );
-            coeRc = rc;
-            failedRings.push_back(ringlog);
-            continue;
+          // Restore the initial ring state on last time through only when using mcast modes.
+          if (((l_cuLoopCount == l_num_mcast_chiplets) && (mcastRead || mcastWrite)) || !(mcastRead || mcastWrite))
+          {
+            printed = "Restoring the ring state.\n\n";
+            ecmdOutput( printed.c_str() );
+            rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode | mcastMode);
+            if (rc) {
+              printed = "checkrings - Error occurred performing putring on ";
+              printed += ecmdWriteTarget(cuTarget) + "\n";
+              ecmdOutputError( printed.c_str() );
+              coeRc = rc;
+              failedRings.push_back(ringlog);
+              continue;
+            }
           }
         }
 
         if (foundProblem) {
           failedRings.push_back(ringlog);
         } else {
-          passedRings.push_back(ringlog);
+            // Don't add the ring as passed until the last mcast read if enabled
+            if (!(mcastRead && (l_cuLoopCount != l_num_mcast_chiplets))) {
+                passedRings.push_back(ringlog);
+            }
         }
+ 
+        // If both mcastRead and mcastWrite were specified, we can exit the cuLooper after the first time
+        if (mcastRead && mcastWrite)
+        {
+            break;
+        }
+            
       } /* end chipUnit looper */
       curRingData++;
     }
