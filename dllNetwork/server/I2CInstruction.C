@@ -39,7 +39,23 @@ extern OutputLite out;
 /*****************************************************************************/
 /* I2CInstruction Implementation *********************************************/
 /*****************************************************************************/
-I2CInstruction::I2CInstruction(void) : Instruction(){
+I2CInstruction::I2CInstruction(void) : Instruction(),
+cfamid(0),
+linkid(0),
+engineId(0),
+port(0),
+slaveAddress(0),
+busSpeed(0),
+offset(0),
+offsetFieldSize(0),
+length(0),
+i2cFlags(0),
+address(0),
+deviceString(""),
+iicAckMask(0),
+numRedos(0),
+msDelay(0)
+{
   version = 0x4;
   type = I2C;
 }
@@ -56,6 +72,7 @@ offsetFieldSize(i_offsetFieldSize),
 length(i_length),
 i2cFlags(i_i2cFlags),
 address(0),
+deviceString(""),
 iicAckMask(0),
 numRedos(0),
 msDelay(0)

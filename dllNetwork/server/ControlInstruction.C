@@ -50,14 +50,19 @@ extern OutputLite out;
 /* ControlInstruction Implementation *****************************************/
 /*****************************************************************************/
 ControlInstruction::ControlInstruction(void) : Instruction(),
+commandToRun(""),
+fileStart(0),
+key(0),
+contactInfo(""),
+majorIstepNum(0),
+minorIstepNum(0),
+timeout(0),
 controls(NULL)
 {
   version = 0x4;
   type = CONTROL;
-  majorIstepNum = 0;
-  minorIstepNum = 0;
-  timeout = 0;
 }
+
 ControlInstruction::ControlInstruction(InstructionCommand i_command, uint32_t i_flags, const char * i_commandToRun, uint32_t i_fileStart, uint32_t i_fileChunkSize) : Instruction(),
 controls(NULL)
 {

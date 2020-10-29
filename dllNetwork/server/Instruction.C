@@ -299,7 +299,7 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
 /*****************************************************************************/
 /* Instruction Implementation ************************************************/
 /*****************************************************************************/
-Instruction::Instruction(void) : version(0x1), command(NOCOMMAND), type(NOINSTRUCTION), error(0){
+Instruction::Instruction(void) : version(0x1), command(NOCOMMAND), type(NOINSTRUCTION), flags(0), error(0) {
 }
 
 /* for all of these methods check if we are of a different type */

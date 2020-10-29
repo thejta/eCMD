@@ -37,7 +37,15 @@ extern OutputLite out;
 /*****************************************************************************/
 /* FSIInstruction Implementation *********************************************/
 /*****************************************************************************/
-FSIInstruction::FSIInstruction(void) : Instruction(){
+FSIInstruction::FSIInstruction(void) : Instruction(),
+cfamid(0),
+linkid(0),
+cmaster(0),
+address(0),
+address64(0),
+length(0),
+deviceString("")
+{
   version = 0x6;
   type = FSI;
 }
@@ -46,7 +54,10 @@ FSIInstruction::FSIInstruction(InstructionCommand i_command, uint32_t i_cfamid, 
 cfamid(i_cfamid),
 linkid(i_linkid),
 cmaster(i_cmaster),
-length(i_length)
+address(0),
+address64(0),
+length(i_length),
+deviceString("")
 {
   version = 0x4; // revert to version 4 if no deviceString
   type = FSI;
