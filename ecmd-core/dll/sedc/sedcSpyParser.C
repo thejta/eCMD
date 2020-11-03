@@ -27,8 +27,8 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#include <fstream>
 #define sedcSpyParser_C
+#include <fstream>
 #include <list>
 #include <string>
 #include <vector>

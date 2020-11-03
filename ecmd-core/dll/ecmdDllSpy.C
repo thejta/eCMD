@@ -29,8 +29,8 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#include <fstream>
 #define ecmdClientSpy_C
+#include <fstream>
 #include <list>
 #include <algorithm>
 #include <stdio.h>
