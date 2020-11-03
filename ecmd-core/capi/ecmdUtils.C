@@ -21,6 +21,7 @@
 //--------------------------------------------------------------------
 // Includes
 //--------------------------------------------------------------------
+#include <fstream>
 #include <inttypes.h>
 #include <string>
 #include <vector>
@@ -31,7 +32,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include <fstream>
 #include <sys/time.h>
 
 #include <ecmdUtils.H>
