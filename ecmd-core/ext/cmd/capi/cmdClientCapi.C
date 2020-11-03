@@ -26,9 +26,9 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>

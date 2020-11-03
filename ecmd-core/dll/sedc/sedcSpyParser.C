@@ -27,11 +27,11 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #define sedcSpyParser_C
 #include <list>
 #include <string>
 #include <vector>
-#include <fstream>
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>

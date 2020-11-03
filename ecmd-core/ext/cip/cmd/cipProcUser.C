@@ -21,6 +21,7 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <ecmdClientCapi.H>
 #include <cipInterpreter.H>
 #include <ecmdStructs.H>
@@ -30,7 +31,6 @@
 #include <ecmdCommandUtils.H>
 #include <stdio.h>
 #include <string.h>
-#include <fstream>
 #include <algorithm> // for transform
 
 //----------------------------------------------------------------------
