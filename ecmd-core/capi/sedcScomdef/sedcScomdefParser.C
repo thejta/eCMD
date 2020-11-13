@@ -27,10 +27,10 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <list>
 #include <string>
 #include <vector>
-#include <fstream>
 #include <algorithm>
 #include <stdio.h>
 #include <sedcScomdefParser.H>

@@ -26,13 +26,13 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include <netinet/in.h> /* for htonl */
-#include <fstream>
 #include <iostream>
 #if defined (_AIX) && defined (_LP64)
 #include "/usr/include/zlib.h"

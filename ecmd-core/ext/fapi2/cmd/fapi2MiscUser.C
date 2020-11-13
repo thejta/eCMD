@@ -21,6 +21,7 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
@@ -37,7 +38,6 @@
 #include <ecmdSharedUtils.H>
 #include <algorithm>
 #include <map>
-#include <fstream>
 
 //----------------------------------------------------------------------
 //  User Types

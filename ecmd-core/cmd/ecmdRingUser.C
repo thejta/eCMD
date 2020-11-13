@@ -20,10 +20,10 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <netinet/in.h> /* for htonl */

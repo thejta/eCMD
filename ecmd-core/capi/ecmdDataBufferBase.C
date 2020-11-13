@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -35,7 +36,6 @@
 #include <prdfCompressBuffer.H>
 
 #include <ctype.h>
-#include <fstream>
 #include <iostream>
 #if defined (_AIX) && defined (_LP64)
   #include "/usr/include/zlib.h"

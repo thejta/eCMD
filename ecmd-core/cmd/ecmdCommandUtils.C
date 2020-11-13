@@ -21,9 +21,9 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <list>
 #include <iostream>
-#include <fstream>
 #include <inttypes.h>
 #include <string.h>
 #include <string>
