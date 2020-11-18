@@ -126,10 +126,6 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
 #endif
 
 #ifndef ECMD_STATIC_FUNCTIONS
-#ifdef _AIX
-    /* clean up the machine from previous tests */
-  system("slibclean");
-#endif
 
     /* --------------------- */
     /* load DLL              */

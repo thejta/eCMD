@@ -23,10 +23,10 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <list>
 #include <algorithm>
-#include <fstream>
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>

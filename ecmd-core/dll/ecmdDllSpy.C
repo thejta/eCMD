@@ -30,9 +30,9 @@
 //  Includes
 //----------------------------------------------------------------------
 #define ecmdClientSpy_C
+#include <fstream>
 #include <list>
 #include <algorithm>
-#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>

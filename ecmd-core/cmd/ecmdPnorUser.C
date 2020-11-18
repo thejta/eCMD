@@ -20,9 +20,9 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
+#include <fstream>
 #include <stdio.h>
 #include <string.h>
-#include <fstream>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
