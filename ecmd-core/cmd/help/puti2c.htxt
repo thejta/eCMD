@@ -2,13 +2,13 @@
 Syntax: 
         WITHOUT OFFSET:
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data>
-                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>]
+                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-i<format>] [-busspeed <speed>] [-i2cflags <flags>]
         puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename>
-                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>]
+                         [-coe] [-a#] [-k#] [-n#] [-s#] [-p#] [-busspeed <speed>] [-i2cflags <flags>]
 
         WITH OFFSET:
-        puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize> [-i<format>] [-busspeed <speed>]
-        puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize> [-busspeed <speed>]
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> <Data> <Offset> <FieldSize> [-i<format>] [-busspeed <speed>] [-i2cflags <flags>]
+        puti2c <Chip> <EngineId> <Port> <SlaveAddress> -f<filename> <Offset> <FieldSize> [-busspeed <speed>] [-i2cflags <flags>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -35,8 +35,10 @@ Syntax:
 
         FieldSize       Byte width of the offset
 
-        -busspeed [opt] Specifies the bus speed to run i2c in khz : default 400
-                        Valid values are 400, 100, 50
+        -busspeed [opt] Specifies the bus speed to run i2c in khz : default set by plugin
+                        Valid values are 1000, 400, 100, 50
+
+        -i2cflags       Specifies the i2c flags to be passed in to the plugin
 
         -i<format>[opt] Specifies the format type of the input : default 'xl'
                         Run 'ecmdquery formats' to view available formats

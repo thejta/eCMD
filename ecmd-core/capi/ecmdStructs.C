@@ -5268,6 +5268,307 @@ void  ecmdI2CCmdEntry::printStruct() const
 #endif  // end of ECMD_STRIP_DEBUG
 // @07 end
 
+// @07.5 start
+/*
+ * The following methods for the ecmdI2CCmdEntryHidden struct will flatten,
+ * unflatten & get the flattened size of the struct.
+ */
+uint32_t ecmdI2CCmdEntryHidden::flatten(uint8_t *o_buf, uint32_t i_len)
+{
+        uint32_t tmpData32 = 0;
+        uint32_t l_rc = ECMD_SUCCESS;
+
+        uint32_t dataBufSize = 0; // holder for ecmdDataBuffer size
+        int l_len = (int)i_len;   // use a local copy to decrement
+	uint8_t *l_ptr8 = o_buf;  // pointer to the output buffer
+
+        do      // Single entry ->
+        {
+            // Check for buffer overflow conditions.
+            if (this->flattenSize() > i_len) 
+            {
+                // Generate an error for buffer overflow conditions.
+                ETRAC2("ECMD: Buffer overflow occurred in "
+                       "ecmdI2CCmdEntryHidden::flatten(), "
+                       "structure size = %d; input length = %d",
+                       this->flattenSize(), i_len);
+                l_rc = ECMD_DATA_OVERFLOW;
+                break;
+            }
+
+            // Flatten and store each data member in the ouput buffer
+
+            // "ecmdI2CCmd" (ecmdI2CCmds_t, stored as uint32_t)
+	    tmpData32 = htonl( (uint32_t)ecmdI2CCmd );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "engineId" (uint32_t)
+            tmpData32 = htonl( engineId );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(engineId);
+            l_len -= sizeof(engineId);
+
+            // "port" (uint32_t)
+            tmpData32 = htonl( port );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(port);
+            l_len -= sizeof(port);
+
+            // "slaveaddress" (uint32_t)
+            tmpData32 = htonl( slaveaddress );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(slaveaddress);
+            l_len -= sizeof(slaveaddress);
+
+            // "busSpeed" (ecmdI2cBusSpeed_t, stored as uint32_t)
+	    tmpData32 = htonl( (uint32_t)busSpeed );
+	    memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "byteOffset" (uint32_t)
+            tmpData32 = htonl( byteOffset );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(byteOffset);
+            l_len -= sizeof(byteOffset);
+
+            // "offsetFieldSize" (uint32_t)
+            tmpData32 = htonl( offsetFieldSize );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(offsetFieldSize);
+            l_len -= sizeof(offsetFieldSize);
+
+            // "readByteLength" (uint32_t)
+            tmpData32 = htonl( readByteLength );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(readByteLength);
+            l_len -= sizeof(readByteLength);
+
+            // "data" (ecmdDataBuffer)
+            //  1st save the size of the buffer
+            dataBufSize = data.flattenSize();
+            tmpData32 = htonl( dataBufSize );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof( dataBufSize );
+            l_len -= sizeof( dataBufSize );
+
+            //  2nd, flatten and save the buffer
+            l_rc = data.flatten( l_ptr8, dataBufSize );
+
+            // If the flatten failed, exit now with an error
+            if ( l_rc != ECMD_DBUF_SUCCESS )
+            {
+               break;  // exit the do loop
+            } 
+            else
+            {
+               l_rc = ECMD_SUCCESS;  // restore standard success value
+            }
+            l_ptr8 += dataBufSize;
+            l_len -= dataBufSize;
+
+            // "i2cFlags" (uint32_t)
+            tmpData32 = htonl( i2cFlags );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(i2cFlags);
+            l_len -= sizeof(i2cFlags);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdI2CCmdEntryHidden::flatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdI2CCmdEntryHidden::flatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
+}
+
+
+uint32_t ecmdI2CCmdEntryHidden::unflatten(const uint8_t *i_buf, uint32_t i_len)
+{
+        uint32_t l_rc = ECMD_SUCCESS;
+        uint32_t tmpData32 = 0;
+
+        uint32_t dataBufSize = 0;       // holds size of data buffer
+	int l_len = (int)i_len;         // use a local copy to decrement
+        const uint8_t *l_ptr8 = i_buf;  // pointer to the input buffer
+
+        do    // Single entry ->
+        {
+            // Unflatten each data member from the input buffer
+
+            // "ecmdI2CCmd" (ecmdI2CCmds_t, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            ecmdI2CCmd = (ecmdI2CCmds_t)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "engineId" (uint32_t)
+            memcpy( &engineId, l_ptr8, sizeof(engineId) );
+            engineId = ntohl( engineId );
+            l_ptr8 += sizeof(engineId);
+            l_len -= sizeof(engineId);
+
+            // "port" (uint32_t)
+            memcpy( &port, l_ptr8, sizeof(port) );
+            port = ntohl( port );
+            l_ptr8 += sizeof(port);
+            l_len -= sizeof(port);
+
+            // "slaveaddress" (uint32_t)
+            memcpy( &slaveaddress, l_ptr8, sizeof(slaveaddress) );
+            slaveaddress = ntohl( slaveaddress );
+            l_ptr8 += sizeof(slaveaddress);
+            l_len -= sizeof(slaveaddress);
+
+            // "busSpeed" (ecmdI2cBusSpeed_t, stored as uint32_t)
+	    memcpy( &tmpData32, l_ptr8, sizeof(tmpData32) );
+            busSpeed = (ecmdI2cBusSpeed_t)ntohl( tmpData32 );
+	    l_ptr8 += sizeof(tmpData32);
+	    l_len -= sizeof(tmpData32);
+
+            // "byteOffset" (uint32_t)
+            memcpy( &byteOffset, l_ptr8, sizeof(byteOffset) );
+            byteOffset = ntohl( byteOffset );
+            l_ptr8 += sizeof(byteOffset);
+            l_len -= sizeof(byteOffset);
+
+            // "offsetFieldSize" (uint32_t)
+            memcpy( &offsetFieldSize, l_ptr8, sizeof(offsetFieldSize) );
+            offsetFieldSize = ntohl( offsetFieldSize );
+            l_ptr8 += sizeof(offsetFieldSize);
+            l_len -= sizeof(offsetFieldSize);
+
+            // "readByteLength" (uint32_t)
+            memcpy( &readByteLength, l_ptr8, sizeof(readByteLength) );
+            readByteLength = ntohl( readByteLength );
+            l_ptr8 += sizeof(readByteLength);
+            l_len -= sizeof(readByteLength);
+
+            // "data" (ecmdDataBuffer)
+            //  1st get the size of the data buffer
+            memcpy( &dataBufSize, l_ptr8, sizeof(dataBufSize) );
+            dataBufSize = ntohl( dataBufSize );
+            l_ptr8 += sizeof( dataBufSize );
+            l_len -= sizeof( dataBufSize );
+
+            //  2nd, unflatten the data buffer "data"
+            l_rc = data.unflatten( l_ptr8, dataBufSize );
+
+            // If the unflatten failed, exit now with an error
+            if ( l_rc != ECMD_DBUF_SUCCESS )
+            {
+               break;
+            }
+            else
+            {
+               l_rc = ECMD_SUCCESS;  // restore standard success value
+            }
+            l_ptr8 += dataBufSize;
+            l_len -= dataBufSize;
+
+            // "i2cFlags" (uint32_t)
+            memcpy( &i2cFlags, l_ptr8, sizeof(i2cFlags) );
+            i2cFlags = ntohl( i2cFlags );
+            l_ptr8 += sizeof(i2cFlags);
+            l_len -= sizeof(i2cFlags);
+
+            // Final check: if the length isn't 0, something went wrong
+            if (l_len < 0)
+            {	
+               // Generate an error for buffer overflow conditions.
+               ETRAC3("ECMD: Buffer overflow occurred in "
+                      "ecmdI2CCmdEntryHidden::unflatten(), struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_OVERFLOW;
+               break;
+            }
+
+            if (l_len > 0)
+            {	
+               // Generate an error for buffer underflow conditions.
+               ETRAC3("ECMD: Buffer underflow occurred in "
+                      "ecmdI2CCmdEntryHidden::unflatten() struct size= %d; "
+                      "input length= %d; remainder= %d\n",
+                      this->flattenSize(), i_len, l_len);
+               l_rc = ECMD_DATA_UNDERFLOW;
+               break;
+            }
+
+        } while (false);   // <- single exit
+
+        return l_rc;
+}
+
+
+uint32_t ecmdI2CCmdEntryHidden::flattenSize() const
+{
+        uint32_t flatSize = 0;
+
+        // Calculate the size needed to store the flattened struct
+        flatSize = sizeof(uint32_t)  // ecmdI2CCmd stored as uint32_t
+                   + sizeof(engineId)
+                   + sizeof(port)
+                   + sizeof(slaveaddress)
+                   + sizeof(uint32_t)  // busSpeed stored as uint32_t
+                   + sizeof(byteOffset)
+                   + sizeof(offsetFieldSize)
+                   + sizeof(readByteLength)
+                   + sizeof(uint32_t)  // size of "data" stored in uint32_t
+                   + data.flattenSize()
+                   + sizeof(i2cFlags);
+
+        return flatSize;
+}
+
+
+#ifndef ECMD_STRIP_DEBUG
+void  ecmdI2CCmdEntryHidden::printStruct() const
+{
+        uint32_t bufSize = 0;
+        std::string bufString;
+
+        printf("\n\t--- I2C CMD Entry Structure ---\n");
+
+        printf("\tI2C Command: 0x%x\n", (uint32_t)ecmdI2CCmd);
+        printf("\tEngine ID: 0x%08x\n", engineId);
+        printf("\tPort: 0x%08x\n", port);
+        printf("\tSlave Address: 0x%08x\n", slaveaddress);
+        printf("\tBus Speed: 0x%x\n", (uint32_t)busSpeed);
+        printf("\tOffset: 0x%08x\n", byteOffset);
+        printf("\tOffset Field Size: 0x%08x\n", offsetFieldSize);
+        printf("\tByte: 0x%08x\n", readByteLength);
+
+        bufSize = data.getBitLength();
+        bufString = data.genHexLeftStr(0, bufSize);
+        printf("\tData: bit length = %d\n", bufSize);
+        printf("\tData: contents = %s\n", bufString.c_str() );
+
+        printf("\tI2CFlags: 0x%08x\n", i2cFlags);
+}
+#endif  // end of ECMD_STRIP_DEBUG
+// @07 end
 
 /*
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &

@@ -74,7 +74,8 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   ecmdLooperData looperdata1;           ///< looper to do the real work
   char targetStr[50];                   ///< target postfix for the filename incase of multi positions
   int targetCount=0;                    ///< counts the number of targets user specified
-  ecmdI2cBusSpeed_t busspeed = ECMD_I2C_BUSSPEED_400KHZ; ///< bus speed to run i2c in khz
+  ecmdI2cBusSpeed_t busspeed = ECMD_I2C_BUSSPEED_UNKNOWN; ///< bus speed to run i2c in khz, let plugins choose default
+  uint32_t i2cFlags = 0x0;              ///< flags to be passed to the i2c driver where appropriate
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
@@ -96,6 +97,14 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
     return ECMD_INVALID_ARGS;
   } 
   
+  char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
+  if (!ecmdIsAllHex(tmpI2cFlags)) {
+    ecmdOutputError("geti2c - Non-hex characters detected in i2cflags field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (tmpI2cFlags != NULL) {
+    i2cFlags = ecmdGenB32FromHexRight( &i2cFlags, tmpI2cFlags );
+  } 
+
   /* get the bus speed, if it's there */
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
   if (busspeedstr != NULL) {
@@ -103,8 +112,12 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
       busspeed = ECMD_I2C_BUSSPEED_50KHZ;
     } else if (strcmp(busspeedstr, "100")==0) {
       busspeed = ECMD_I2C_BUSSPEED_100KHZ;
-    } else if (strcmp(busspeedstr, "400")!=0) {
-      printed = "geti2c - Invalid value for busspeed. Possible values are - 400, 100, 50.\n";
+    } else if (strcmp(busspeedstr, "400")==0) {
+      busspeed = ECMD_I2C_BUSSPEED_400KHZ;
+    } else if (strcmp(busspeedstr, "1000")==0) {
+      busspeed = ECMD_I2C_BUSSPEED_1MHZ;
+    } else {
+      printed = "geti2c - Invalid value for busspeed. Possible values are - 1000, 400, 100, 50.\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
@@ -220,9 +233,9 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
-      rc = ecmdI2cReadOffsetHidden(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data);
+      rc = ecmdI2cReadOffsetHidden2(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data, i2cFlags);
     } else {
-      rc = ecmdI2cRead(target1, engineId, port, slaveAddr, busspeed, numBytes, data);
+      rc = ecmdI2cReadHidden(target1, engineId, port, slaveAddr, busspeed, numBytes, data, i2cFlags);
     }
     if (rc) { 
       if (argc > 5) {
@@ -284,7 +297,8 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   ecmdDataBuffer data;                  ///< buffer for the Data to write into the module vpd keyword
   bool validPosFound = false;           ///< Did the looper find anything to execute on
   bool inputformatflag = false;
-  ecmdI2cBusSpeed_t busspeed = ECMD_I2C_BUSSPEED_400KHZ; ///< bus speed to run i2c in khz
+  ecmdI2cBusSpeed_t busspeed = ECMD_I2C_BUSSPEED_UNKNOWN; ///< bus speed to run i2c in khz, let plugins choose default
+  uint32_t i2cFlags = 0x0;              ///< flags to be passed to the i2c driver where appropriate
   std::string printed;
   /************************************************************************/
   /* Parse Local FLAGS here!                                              */
@@ -297,7 +311,14 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
     inputformatflag = true;
   }
   
-  
+  char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
+  if (!ecmdIsAllHex(tmpI2cFlags)) {
+    ecmdOutputError("puti2c - Non-hex characters detected in i2cflags field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (tmpI2cFlags != NULL) {
+    i2cFlags = ecmdGenB32FromHexRight( &i2cFlags, tmpI2cFlags );
+  }
+
   /* get the bus speed, if it's there */
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
   if (busspeedstr != NULL) {
@@ -305,8 +326,12 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
       busspeed = ECMD_I2C_BUSSPEED_50KHZ;
     } else if (strcmp(busspeedstr, "100")==0) {
       busspeed = ECMD_I2C_BUSSPEED_100KHZ;
-    } else if (strcmp(busspeedstr, "400")!=0) {
-      printed = "puti2c - Invalid value for busspeed. Possible values are - 400, 100, 50.\n";
+    } else if (strcmp(busspeedstr, "400")==0) {
+      busspeed = ECMD_I2C_BUSSPEED_400KHZ;
+    } else if (strcmp(busspeedstr, "1000")==0) {
+      busspeed = ECMD_I2C_BUSSPEED_1MHZ;
+    } else {
+      printed = "puti2c - Invalid value for busspeed. Possible values are - 1000, 400, 100, 50.\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
@@ -441,9 +466,9 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
-      rc = ecmdI2cWriteOffsetHidden(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data);
+      rc = ecmdI2cWriteOffsetHidden2(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data, i2cFlags);
     } else {
-      rc = ecmdI2cWrite(target, engineId, port, slaveAddr, busspeed, data);
+      rc = ecmdI2cWriteHidden(target, engineId, port, slaveAddr, busspeed, data, i2cFlags);
     }
     if (rc) {
       if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
@@ -576,12 +601,20 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 //I2cMultiple stuff
 /******Used in ecmdI2cMultipleUser for parsting the geti2c calls*******/
 
-uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
+uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
 
+  char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
+  if (!ecmdIsAllHex(tmpI2cFlags)) {
+    ecmdOutputError("geti2cMultipleParser - Non-hex characters detected in i2cflags field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (tmpI2cFlags != NULL) {
+    o_cmd.i2cFlags = ecmdGenB32FromHexRight( &o_cmd.i2cFlags, tmpI2cFlags );
+  } 
+
   std::string printed;
-  o_cmd.busSpeed = ECMD_I2C_BUSSPEED_400KHZ; //bus speed to run i2c in khz.This is default if not specified on cmdLine
+  o_cmd.busSpeed = ECMD_I2C_BUSSPEED_UNKNOWN; //bus speed to run i2c in khz.This is default if not specified on cmdLine, plugins will supply valid default
   // get the bus speed, if it's there 
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
   if (busspeedstr != NULL) {
@@ -589,8 +622,12 @@ uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
       o_cmd.busSpeed = ECMD_I2C_BUSSPEED_50KHZ;
     } else if (strcmp(busspeedstr, "100")==0) {
       o_cmd.busSpeed = ECMD_I2C_BUSSPEED_100KHZ;
-    } else if (strcmp(busspeedstr, "400")!=0) {
-      printed = "getI2cMultipleParser - Invalid value for busspeed. Possible values are - 400, 100, 50.\n";
+    } else if (strcmp(busspeedstr, "400")==0) {
+      o_cmd.busSpeed = ECMD_I2C_BUSSPEED_400KHZ;
+    } else if (strcmp(busspeedstr, "1000")==0) {
+      o_cmd.busSpeed = ECMD_I2C_BUSSPEED_1MHZ;
+    } else {
+      printed = "getI2cMultipleParser - Invalid value for busspeed. Possible values are - 1000, 400, 100, 50.\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
     }
@@ -677,7 +714,7 @@ uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
 
 /******Used in ecmdI2cMultipleUser for parsting the puti2c calls*******/
 
-uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
+uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
   std::string inputformat = "xl";       // format of input data 
@@ -688,7 +725,15 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
     inputformat = formatPtr;
   }
   
-  o_cmd.busSpeed = ECMD_I2C_BUSSPEED_400KHZ; // bus speed to run i2c in khz.This is default if not specified on cmdLine 
+  char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
+  if (!ecmdIsAllHex(tmpI2cFlags)) {
+    ecmdOutputError("puti2cMultipleParser - Non-hex characters detected in i2cflags field\n");
+    return ECMD_INVALID_ARGS;
+  } else if (tmpI2cFlags != NULL) {
+    o_cmd.i2cFlags = ecmdGenB32FromHexRight( &o_cmd.i2cFlags, tmpI2cFlags );
+  } 
+
+  o_cmd.busSpeed = ECMD_I2C_BUSSPEED_UNKNOWN; // bus speed to run i2c in khz.This is default if not specified on cmdLine, plugins will set the default 
   // get the bus speed, if it's there 
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
   if (busspeedstr != NULL) {
@@ -696,7 +741,11 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
       o_cmd.busSpeed = ECMD_I2C_BUSSPEED_50KHZ;
     } else if (strcmp(busspeedstr, "100")==0) {
       o_cmd.busSpeed = ECMD_I2C_BUSSPEED_100KHZ;
-    } else if (strcmp(busspeedstr, "400")!=0) {
+    } else if (strcmp(busspeedstr, "400")==0) {
+      o_cmd.busSpeed = ECMD_I2C_BUSSPEED_400KHZ;
+    } else if (strcmp(busspeedstr, "1000")==0) {
+      o_cmd.busSpeed = ECMD_I2C_BUSSPEED_1MHZ;
+    } else {
       printed = "putI2cMultipleParser - Invalid value for busspeed. Possible values are - 400, 100, 50.\n";
       ecmdOutputError(printed.c_str());
       return ECMD_INVALID_ARGS;
@@ -783,7 +832,7 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
 
 /******Used in ecmdI2cMultipleUser for parsting the i2creset calls*******/
 
-uint32_t i2cResetMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
+uint32_t i2cResetMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
   std::string printed;
@@ -836,9 +885,9 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   ecmdChipTarget target1;               // Current target operating on-for second looper
   ecmdLooperData looperdata1;           // looper to do the real work
   int targetCount=0;                    // counts the number of targets user specified
-  std::list<ecmdI2CCmdEntry> o_cmdList; // multiple command list to be processed
-  std::list<ecmdI2CCmdEntry>::iterator itr; //iterator to iterate on the o_cmdList 
-  ecmdI2CCmdEntry o_cmd;		// This object is passed in the parser functions for get/puti2c and i2creset
+  std::list<ecmdI2CCmdEntryHidden> o_cmdList; // multiple command list to be processed
+  std::list<ecmdI2CCmdEntryHidden>::iterator itr; //iterator to iterate on the o_cmdList 
+  ecmdI2CCmdEntryHidden o_cmd;		// This object is passed in the parser functions for get/puti2c and i2creset
   char temp_buf[200];			// this will be used in sprintf
   /************************************************************************/
   /* Parse Common FLAGS here!                                             */
@@ -1079,7 +1128,7 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) 
   {
 
-	  rc = ecmdI2CMultipleCmds(target1,o_cmdList);
+	  rc = ecmdI2CMultipleCmdsHidden(target1,o_cmdList);
 	  if(rc){
               printed += "i2cmultiple - Error occurred performing on ecmdI2CMultipleCmds";
               printed += ecmdWriteTarget(target1) + "\n";

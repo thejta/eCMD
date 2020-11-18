@@ -388,6 +388,12 @@ typedef enum {
 } ecmdI2cBusSpeed_t;
 
 /**
+ @brief Used by I2C functions to specify the contents of the eCMD i2c flags parameter
+*/
+#define ECMD_I2C_FLAGS_I2C_SLAVE_FORCE         0x00000001
+
+
+/**
  @brief Used by ecmdGpioWriteConfigRegister to specify the type of operation to do
 */
 typedef enum {
@@ -2242,6 +2248,60 @@ readByteLength(0)                            //fix beam error
 // ecmdI2CCmdEntry Destructor
 inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
 #endif
+
+/**
+ @brief Used by ecmdI2CMultipleCmdsHidden API
+*/
+struct ecmdI2CCmdEntryHidden {
+
+#ifndef DOCUMENTATION
+  // Constructor
+  ecmdI2CCmdEntryHidden();
+
+  // Destructor
+  ~ecmdI2CCmdEntryHidden();
+
+  // Methods
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  uint32_t flattenSize(void) const;
+#ifndef ECMD_STRIP_DEBUG
+  void printStruct(void) const;
+#endif
+#endif
+
+  // Members
+  ecmdI2CCmds_t ecmdI2CCmd;     ///< The eCMD API to target with this command
+  uint32_t engineId;            ///< The i2c engine to use
+  uint32_t port;                ///< The i2c port to use
+  uint32_t slaveaddress;        ///< The i2c slave device address to use
+  ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
+  uint32_t byteOffset;          ///< Byte offset in the device (needed for offset commands only)
+  uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
+  uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
+  ecmdDataBuffer data;          ///< The data returned from the i2c operation
+  uint32_t i2cFlags;            ///< The i2c flags to use
+};
+
+#ifndef DOCUMENTATION
+// ecmdI2CCmdEntry Constructor
+inline ecmdI2CCmdEntryHidden::ecmdI2CCmdEntryHidden():
+ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
+engineId(0),
+port(0),
+slaveaddress(0),
+busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
+byteOffset(0),
+offsetFieldSize(0),
+readByteLength(0),                           //fix beam error
+i2cFlags(0)
+{
+}
+
+// ecmdI2CCmdEntry Destructor
+inline ecmdI2CCmdEntryHidden::~ecmdI2CCmdEntryHidden() { }
+#endif
+
 
 /**
  @brief Used by simGetModelInfo
