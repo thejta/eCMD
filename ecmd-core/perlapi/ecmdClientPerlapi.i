@@ -80,6 +80,7 @@
 %template(listEcmdScomDataHidden)    std::list<ecmdScomDataHidden>;
 %template(listEcmdFileLocation)      std::list<ecmdFileLocation>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
+%template(listEcmdI2CCmdEntryHidden) std::list<ecmdI2CCmdEntryHidden>;
 %template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
 %template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
 %template(listUint32_t)              std::list<uint32_t>;
@@ -117,6 +118,7 @@
 %copyctor ecmdCacheData;
 %copyctor ecmdSpyData;
 %copyctor ecmdI2CCmdEntry;
+%copyctor ecmdI2CCmdEntryHidden;
 %copyctor ecmdSimModelInfo;
 %copyctor ecmdConnectionData;
 %copyctor ecmdPnorListEntryData;

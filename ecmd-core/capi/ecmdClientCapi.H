@@ -5460,6 +5460,115 @@ uint32_t getSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyNam
 //@}
 #endif // ECMD_REMOVE_SPY_FUNCTIONS
 
+/** @name I2C Functions */
+//@{
+#ifndef ECMD_REMOVE_I2C_FUNCTIONS
+/**
+ @brief Read data from an I2C device
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveAddress I2C slave device address to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_bytes Byte length to read
+ @param o_data Data read from device
+ @param i_flags Bitmask of i2c flags
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2cReadHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
+
+/**
+ @brief Read data from an I2C device at the given offset
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveAddress I2C slave device address to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_offset Byte offset in the device
+ @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
+ @param i_bytes Byte length to read
+ @param o_data Data read from device
+ @param i_flags Bitmask of i2c flags
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2cReadOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
+
+/**
+ @brief Write the provided data into the I2C device
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveAddress I2C slave device address to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_data Data to write to device
+ @param i_flags Bitmask of i2c flags
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2cWriteHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data, uint32_t i_flags);
+
+/**
+ @brief Write the provided data into the I2C device at the given offset
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param i_engineId I2c engine to use
+ @param i_port I2C port to use
+ @param i_slaveAddress I2C slave device address to use
+ @param i_busSpeed I2C Bus speed to use
+ @param i_offset Byte offset in the device
+ @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
+ @param i_data Data to write to device
+ @param i_flags Bitmask of i2c flags
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2cWriteOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data, uint32_t i_flags);
+
+/**
+ @brief Let the user to run a series of command, while the i2c device is locked for the duration
+ @param i_target Struct that specifies the target to operate on (see target depth and states below)
+ @param io_cmdsEntries The series of commands to be run
+ @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
+ @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
+ @retval ECMD_INVALID_ARGS Invalid argument values found
+ @retval ECMD_SUCCESS if successful
+ @retval non-zero if unsuccessful
+
+ NOTE : The i2c device targeted is locked at the first use of the device in the list and then unlocked when the command is complete.<br>
+ NOTE : The output data on reads is filled into the ecmdDataBuffer in the list for that operation
+
+ TARGET DEPTH  : pos<br>
+ TARGET STATES : Unused <br>
+*/
+uint32_t ecmdI2CMultipleCmdsHidden(const ecmdChipTarget & i_target, std::list<ecmdI2CCmdEntryHidden> & io_cmdsEntries);
+#endif /* ifndef ECMD_REMOVE_I2C_FUNCTIONS (this comment has to be here for makedll.pl to work */
+//@}
+
 #ifndef DOCUMENTATION
 }  //extern "C"
 #endif

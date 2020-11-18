@@ -1,9 +1,9 @@
 
 Syntax: 
         WITHOUT OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> [-o<format> | -f<filename>] [-busspeed <speed>]
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> [-o<format> | -f<filename>] [-busspeed <speed>] [-i2cflags <flags>]
         WITH OFFSET:
-        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize> [-o<format> | -f<filename>] [-busspeed <speed>]
+        geti2c <Chip> <EngineId> <Port> <SlaveAddress> <Bytes> <Offset> <FieldSize> [-o<format> | -f<filename>] [-busspeed <speed>] [-i2cflags <flags>]
         [-quiet] [-quieterror] [-exist] [-coe] [-a#] [-k#] [-n#] [-s#] [-p#]
 
         ECMD:           Core Common Function
@@ -31,8 +31,10 @@ Syntax:
 
         FieldSize       Byte width of the offset
 
-        -busspeed [opt] Specifies the bus speed to run i2c in khz : default 400
-                        Valid values are 400, 100, 50
+        -busspeed [opt] Specifies the bus speed to run i2c in khz : default set by plugin
+                        Valid values are 1000, 400, 100, 50
+
+        -i2cflags       Specifies the i2c flags to be passed in to the plugin
 
         -o<format>[opt] Specifies the format type of the output : default 'xl'
                         Run 'ecmdquery formats' to view available formats

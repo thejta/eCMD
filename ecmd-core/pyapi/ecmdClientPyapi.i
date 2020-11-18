@@ -77,6 +77,7 @@
 %template(ecmdScomDataList)          std::list<ecmdScomData>;
 %template(ecmdScomDataHiddenList)    std::list<ecmdScomDataHidden>;
 %template(ecmdI2CCmdEntryList)       std::list<ecmdI2CCmdEntry>;
+%template(ecmdI2CCmdEntryHiddenList) std::list<ecmdI2CCmdEntryHidden>;
 %template(ecmdConnectionDataList)    std::list<ecmdConnectionData>;
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;
 %template(ecmdFileLocationList)      std::list<ecmdFileLocation>;
@@ -281,6 +282,13 @@ def __deepcopy__(self, memo):
 %pythoncode %{
 def __deepcopy__(self, memo):
     return ecmdI2CCmdEntry(self)
+%}
+}
+%copyctor ecmdI2CCmdEntryHidden;
+%extend ecmdI2CCmdEntryHidden {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdI2CCmdEntryHidden(self)
 %}
 }
 %copyctor ecmdSimModelInfo;

@@ -246,6 +246,11 @@ typedef ecmdScomDataHiddenList ecmdScomDataHiddenList;
 */
 typedef ecmdI2CCmdEntryList ecmdI2CCmdEntryList;
 /**
+ @brief The python version of the ecmdI2CCmdEntryHidden C API std::list
+ @see List
+*/
+typedef ecmdI2CCmdEntryHiddenList ecmdI2CCmdEntryHiddenList;
+/**
  @brief The python version of the ecmdConnectionData C API std::list
  @see List
 */

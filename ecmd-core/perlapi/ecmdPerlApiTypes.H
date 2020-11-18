@@ -244,6 +244,11 @@ typedef ecmdChipTargetList ecmdChipTargetList;
 */
 typedef ecmdI2CCmdEntryList ecmdI2CCmdEntryList;
 /**
+ @brief The perl version of the ecmdI2CCmdEntryHidden C API std::list
+ @see List
+*/
+typedef ecmdI2CCmdEntryHiddenList ecmdI2CCmdEntryHiddenList;
+/**
  @brief The perl version of the ecmdDataBuffer Vector
  @see Vector
 */
