@@ -323,6 +323,12 @@ typedef enum {
 } ecmdI2cBusSpeed_t;
 
 /**
+ @brief Used by I2C functions to specify the contents of the eCMD i2c flags parameter
+*/
+#define ECMD_I2C_FLAGS_I2C_SLAVE_FORCE         0x00000001
+
+
+/**
  @brief Used by ecmdGpioWriteConfigRegister to specify the type of operation to do
 */
 typedef enum {
@@ -1949,6 +1955,7 @@ struct ecmdI2CCmdEntry {
   uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
   uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
   ecmdDataBuffer data;          ///< The data returned from the i2c operation
+  uint32_t i2cFlags;            ///< The i2c flags to use
 };
 
 #ifndef DOCUMENTATION
@@ -1961,7 +1968,8 @@ slaveaddress(0),
 busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
 byteOffset(0),
 offsetFieldSize(0),
-readByteLength(0)                            //fix beam error
+readByteLength(0),                           //fix beam error
+i2cFlags(0)
 {
 }
 
