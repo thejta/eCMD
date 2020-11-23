@@ -81,7 +81,7 @@ pyapi_install:
 
 test:
 	@echo "***** If you see python load errors this build of the python module is invalid ****"
-	@ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY} LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} ../pyapi/testBuild.py
+	${VERBOSE}ECMD_DLL_FILE=${OUTLIB}/stub.dll PYTHONPATH=${OUTPY} LD_LIBRARY_PATH=${OUTLIB}:${OUTPY} ${ECMDPYTHONBIN} ../pyapi/testBuild.py
 
 doxygen-pyapi:
 	@cp ecmdPyApiTypes.H ${DOXYGEN_PERLAPI_PATH}/.

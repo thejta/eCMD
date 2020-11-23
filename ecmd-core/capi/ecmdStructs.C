@@ -5074,6 +5074,12 @@ uint32_t ecmdI2CCmdEntry::flatten(uint8_t *o_buf, uint32_t i_len) const
             l_ptr8 += dataBufSize;
             l_len -= dataBufSize;
 
+            // "i2cFlags" (uint32_t)
+            tmpData32 = htonl( i2cFlags );
+            memcpy( l_ptr8, &tmpData32, sizeof(tmpData32) );
+            l_ptr8 += sizeof(i2cFlags);
+            l_len -= sizeof(i2cFlags);
+
             // Final check: if the length isn't 0, something went wrong
             if (l_len < 0)
             {	
@@ -5186,6 +5192,12 @@ uint32_t ecmdI2CCmdEntry::unflatten(const uint8_t *i_buf, uint32_t i_len)
             l_ptr8 += dataBufSize;
             l_len -= dataBufSize;
 
+            // "i2cFlags" (uint32_t)
+            memcpy( &i2cFlags, l_ptr8, sizeof(i2cFlags) );
+            i2cFlags = ntohl( i2cFlags );
+            l_ptr8 += sizeof(i2cFlags);
+            l_len -= sizeof(i2cFlags);
+
             // Final check: if the length isn't 0, something went wrong
             if (l_len < 0)
             {	
@@ -5229,7 +5241,8 @@ uint32_t ecmdI2CCmdEntry::flattenSize() const
                    + sizeof(offsetFieldSize)
                    + sizeof(readByteLength)
                    + sizeof(uint32_t)  // size of "data" stored in uint32_t
-                   + data.flattenSize();
+                   + data.flattenSize()
+                   + sizeof(i2cFlags);
 
         return flatSize;
 }
@@ -5257,10 +5270,10 @@ void  ecmdI2CCmdEntry::printStruct() const
         printf("\tData: bit length = %d\n", bufSize);
         printf("\tData: contents = %s\n", bufString.c_str() );
 
+        printf("\tI2CFlags: 0x%08x\n", i2cFlags);
 }
 #endif  // end of ECMD_STRIP_DEBUG
 // @07 end
-
 
 /*
  * The following methods for the ecmdNameEntry struct will flatten, unflatten &

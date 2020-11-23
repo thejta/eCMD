@@ -3292,6 +3292,7 @@ uint32_t ecmdI2cReset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint
  @param i_busSpeed I2C Bus speed to use
  @param i_bytes Byte length to read
  @param o_data Data read from device
+ @param i_flags Bitmask of i2c flags
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -3301,7 +3302,7 @@ uint32_t ecmdI2cReset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
 
 /**
  @brief Read data from an I2C device at the given offset
@@ -3314,6 +3315,7 @@ uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
  @param i_bytes Byte length to read
  @param o_data Data read from device
+ @param i_flags Bitmask of i2c flags
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -3323,7 +3325,7 @@ uint32_t ecmdI2cRead(const ecmdChipTarget & i_target, uint32_t i_engineId, uint3
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data);
+uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
 
 /**
  @brief Write the provided data into the I2C device
@@ -3333,6 +3335,7 @@ uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId,
  @param i_slaveAddress I2C slave device address to use
  @param i_busSpeed I2C Bus speed to use
  @param i_data Data to write to device
+ @param i_flags Bitmask of i2c flags
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -3342,7 +3345,7 @@ uint32_t ecmdI2cReadOffset(const ecmdChipTarget & i_target, uint32_t i_engineId,
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data, uint32_t i_flags);
 
 /**
  @brief Write the provided data into the I2C device at the given offset
@@ -3354,6 +3357,7 @@ uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint
  @param i_offset Byte offset in the device
  @param i_offsetFieldSize Specifies the field size used in the I2C protocol of the slave device
  @param i_data Data to write to device
+ @param i_flags Bitmask of i2c flags
  @retval ECMD_TARGET_NOT_CONFIGURED if target is not available in the system
  @retval ECMD_TARGET_INVALID_TYPE if target doesn't support I2c
  @retval ECMD_INVALID_ARGS Invalid argument values found
@@ -3363,7 +3367,7 @@ uint32_t ecmdI2cWrite(const ecmdChipTarget & i_target, uint32_t i_engineId, uint
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data);
+uint32_t ecmdI2cWriteOffset(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data, uint32_t i_flags);
 
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration
