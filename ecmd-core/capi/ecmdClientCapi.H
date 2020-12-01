@@ -5482,7 +5482,7 @@ uint32_t getSpyEnumImages(const ecmdChipTarget & i_target, const char * i_spyNam
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
+uint32_t ecmdI2cReadHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
 
 /**
  @brief Read data from an I2C device at the given offset
@@ -5505,7 +5505,7 @@ uint32_t ecmdI2cReadHidden(const ecmdChipTarget & i_target, uint32_t i_engineId,
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cReadOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags);
+uint32_t ecmdI2cReadOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_bytes, ecmdDataBuffer & o_data, uint32_t i_flags = 0);
 
 /**
  @brief Write the provided data into the I2C device
@@ -5525,7 +5525,7 @@ uint32_t ecmdI2cReadOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_en
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data, uint32_t i_flags);
+uint32_t ecmdI2cWriteHidden(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , const ecmdDataBuffer & i_data, uint32_t i_flags = 0);
 
 /**
  @brief Write the provided data into the I2C device at the given offset
@@ -5547,7 +5547,7 @@ uint32_t ecmdI2cWriteHidden(const ecmdChipTarget & i_target, uint32_t i_engineId
  TARGET DEPTH  : pos<br>
  TARGET STATES : Unused <br>
 */
-uint32_t ecmdI2cWriteOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data, uint32_t i_flags);
+uint32_t ecmdI2cWriteOffsetHidden2(const ecmdChipTarget & i_target, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, ecmdI2cBusSpeed_t i_busSpeed , uint64_t i_offset, uint32_t i_offsetFieldSize, const ecmdDataBuffer & i_data, uint32_t i_flags = 0);
 
 /**
  @brief Let the user to run a series of command, while the i2c device is locked for the duration
