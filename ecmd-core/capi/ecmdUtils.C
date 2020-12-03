@@ -2289,6 +2289,11 @@ void ecmdRegisterExtensionInitState(bool* i_initState) {
 */
 void ecmdResetExtensionInitState() {
   for (std::list<bool*>::iterator ptrit = g_initPtrs.begin(); ptrit != g_initPtrs.end(); ptrit ++) {
-    *(*ptrit) = false;
+      *(*ptrit) = false;
+      // Now erase the pointer from the list to avoid seg faults when unloading the dll more than once without loading again.
+      // There could be cases where the initialized extensions have gone out of scope and no longer have a 
+      // valid bool in the list.  If accessed in this situation, it causes a seg fault.
+      ptrit = g_initPtrs.erase(ptrit);
+      --ptrit;
   }
 }
