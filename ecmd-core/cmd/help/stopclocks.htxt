@@ -58,14 +58,18 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
 		        > stopclocks pu vitl     # stops only vital clocks
 
         p10 Specific Examples:
-	                > stopclocks pu all      # stops all clocks except tp, pib, vitl
-		        > stopclocks pu pcie     # stops pcie clock only
-		        > stopclocks pu cache    # stops cache clocks only
-		        > stopclocks pu core     # stops core clocks only
-		        > stopclocks pu pau      # stops pau only
+	                > stopclocks pu all      # stops all clocks except tp, pib, sbe, vitl
+		        > stopclocks pu nest     # stops nest only
+		        > stopclocks pu pcie     # stops pcie only
 		        > stopclocks pu mc       # stops mc only
+		        > stopclocks pu pau      # stops pau only
+		        > stopclocks pu axon     # stops axon only
 		        > stopclocks pu tp       # stops tp only
-		        > stopclocks pu vitl     # stops only vital clocks
+		        > stopclocks pu sbe      # stops sbe only
+		        > stopclocks pu vitl     # stops vital only
+		        > stopclocks pu cache    # stops cache only
+		        > stopclocks pu core     # stops core only
+		        > stopclocks pu eq       # stops eq only
 
 			To skip the setting of the io valid bits for the X/A bus
 			use -skip_iovalid
