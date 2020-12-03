@@ -37,19 +37,6 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
                         > stopclocks 
                         > stopclocks -domain ALL_PU_CHIPS
 
-         P8S1 Specific Examples:
-                        > stopclocks pu         # stops nest, ex, xbus, abus, pcie clocks
-                        > stopclocks pu pcie    # stops pcie clock only 
-                        > stopclocks pu xbus    # stops the xbus clocks only
-                        > stopclocks pu abus    # stops the abus clocks only
-                        > stopclocks pu nest    # stops the nest clocks only
-                        > stopclocks pu.ex refr # stops ex and dram refresh clocks only
-                        > stopclocks pu.ex dpll # stops ex and dpll clocks only
-                        > stopclocks pu.ex ex   # stops ex clocks
-                        > stopclocks pu.ex      # stops ex clocks
-                        > stopclocks pu.ex -c4  # stops ex4 clocks only
-                        > stopclocks pu perv    # stops pervasive/tp domain only
-
         P9 Specific Examples:
 	                > stopclocks pu all      # stops all clocks except tp, pib, vitl
 		        > stopclocks pu pcie     # stops pcie clock only
