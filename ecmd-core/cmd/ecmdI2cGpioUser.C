@@ -98,7 +98,7 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   } 
   
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
-  if (!ecmdIsAllHex(tmpI2cFlags)) {
+  if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("geti2c - Non-hex characters detected in i2cflags field\n");
     return ECMD_INVALID_ARGS;
   } else if (tmpI2cFlags != NULL) {
@@ -312,7 +312,7 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   }
   
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
-  if (!ecmdIsAllHex(tmpI2cFlags)) {
+  if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("puti2c - Non-hex characters detected in i2cflags field\n");
     return ECMD_INVALID_ARGS;
   } else if (tmpI2cFlags != NULL) {
@@ -606,7 +606,7 @@ uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
   uint32_t rc = ECMD_SUCCESS;
 
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
-  if (!ecmdIsAllHex(tmpI2cFlags)) {
+  if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("geti2cMultipleParser - Non-hex characters detected in i2cflags field\n");
     return ECMD_INVALID_ARGS;
   } else if (tmpI2cFlags != NULL) {
@@ -726,7 +726,7 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
   }
   
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
-  if (!ecmdIsAllHex(tmpI2cFlags)) {
+  if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("puti2cMultipleParser - Non-hex characters detected in i2cflags field\n");
     return ECMD_INVALID_ARGS;
   } else if (tmpI2cFlags != NULL) {
