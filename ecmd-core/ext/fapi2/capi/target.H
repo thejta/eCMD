@@ -488,7 +488,7 @@ Target<K, M, V>::getChipletNumber(void) const
 
     // check if this is a PERV target
     if ((l_pEcmdTarget->chipUnitTypeState == ECMD_TARGET_FIELD_VALID) &&
-        (l_pEcmdTarget->chipUnitType == "perv") &&
+        ((l_pEcmdTarget->chipUnitType == "perv") || (l_pEcmdTarget->chipUnitType == "pervasive")) &&
         (l_pEcmdTarget->chipUnitNumState == ECMD_TARGET_FIELD_VALID))
     {
         l_pervasive_chipunit = l_pEcmdTarget->chipUnitNum;
@@ -518,6 +518,13 @@ Target<K, M, V>::getChipletNumber(void) const
               (l_pEcmdTarget->chipUnitType == "iohs") ||
               (l_pEcmdTarget->chipUnitType == "fc") ||
               (l_pEcmdTarget->chipUnitType == "pauc") ||
+#ifdef FAPI_2_Z
+              (l_pEcmdTarget->chipUnitType == "nest") ||
+              (l_pEcmdTarget->chipUnitType == "abus") ||
+              (l_pEcmdTarget->chipUnitType == "core") ||
+              (l_pEcmdTarget->chipUnitType == "pcie") ||
+              (l_pEcmdTarget->chipUnitType == "ex") ||
+#endif
               (l_pEcmdTarget->chipUnitType == "ppe")) &&
              (l_pEcmdTarget->chipUnitNumState == ECMD_TARGET_FIELD_VALID))
     {
