@@ -269,6 +269,7 @@ Target<K, M, V>::getChildren(const TargetFilter i_filter,
             fapi2::TARGET_TYPE_NMMU |
             fapi2::TARGET_TYPE_PAU |
             fapi2::TARGET_TYPE_IOHS |
+            fapi2::TARGET_TYPE_IOLINK |
             fapi2::TARGET_TYPE_PAUC;
 
     static_assert( !((T & TARGET_TYPE_FILTER_CHIPLETS) == fapi2::TARGET_TYPE_NONE),
