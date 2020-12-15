@@ -853,6 +853,16 @@ constexpr void _check_valid_parent_of_iohs()
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_valid_parent_of_iolink()
+{
+    // valid parents for IOLINK
+    // IOLINK -> IOHS
+    static_assert(!((K == fapi2::TARGET_TYPE_IOLINK) &&
+                    (T != fapi2::TARGET_TYPE_IOHS)),
+                  "improper parent of fapi2::TARGET_TYPE_IOLINK");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_parent_of_pau()
 {
     // valid parents for PAU
@@ -905,6 +915,7 @@ constexpr void _check_valid_unicast_parent()
     fapi2plat::_check_valid_parent_of_capp<K, T>();
     fapi2plat::_check_valid_parent_of_nmmu<K, T>();
     fapi2plat::_check_valid_parent_of_iohs<K, T>();
+    fapi2plat::_check_valid_parent_of_iolink<K, T>();
     fapi2plat::_check_valid_parent_of_pau<K, T>();
 }
 
@@ -1203,6 +1214,16 @@ constexpr void _check_pauc_valid_children()
                   "improper child of fapi2::TARGET_TYPE_PAUC");
 }
 
+template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_iohs_valid_children()
+{
+    // valid children for IOHS
+    // IOHS -> IOLINK
+    static_assert(!((K == fapi2::TARGET_TYPE_IOHS) &&
+                    (T != fapi2::TARGET_TYPE_IOLINK)),
+                  "improper child of fapi2::TARGET_TYPE_IOHS");
+}
+
 
 template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_unicast_children()
@@ -1227,6 +1248,7 @@ constexpr void _check_valid_unicast_children()
     fapi2plat::_check_mc_valid_children<K, T>();
     fapi2plat::_check_obus_valid_children<K, T>();
     fapi2plat::_check_pauc_valid_children<K, T>();
+    fapi2plat::_check_iohs_valid_children<K, T>();
 }
 
 #endif
