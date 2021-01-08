@@ -30,6 +30,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 #include <git_version.H>
 
 #ifdef OTHER_USE
@@ -191,34 +194,185 @@ uint32_t ControlInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus 
         }
         const int maxbuf = 1024 * 1024;
         char buf[maxbuf];
+        char buferr[maxbuf];
         memset(buf, 0x0, maxbuf);
+        memset(buferr, 0x0, maxbuf);
 
-        FILE * lFilePtr = popen(commandToRun.c_str(), "r") ;
-
-        char lChar;
-        char compareChar = -1;
-        int idx = 0;
-        // read the output from ls
-        while(compareChar != (lChar = getc(lFilePtr)))
+        // create a pipe for child process to communicate with
+        int std_out[2];
+        int std_err[2];
+        if( (pipe(std_out) == -1) || (pipe(std_err) == -1) )
         {
-          buf[idx++] = lChar;
-          if (idx > (maxbuf - 2)) {
-            rc = o_status.rc = SERVER_COMMAND_BUFFER_OVERFLOW;
-            break;
+          rc = o_status.rc = SERVER_COMMAND_PIPE_ERROR;
+          break;
+        }
+
+        // fork a new process for the command
+        pid_t pid = fork();
+        if( pid == -1 )
+        {
+          // error, couldn't create thread
+        }
+        else if( pid == 0 )
+        {
+          // CHILD process
+          // close unused read side of pipe
+          close( std_out[0] );
+          close( std_err[0] );
+          // dup to stderr/stdout
+          errno = 0;
+          while( (dup2(std_out[1], STDOUT_FILENO) == -1) && (errno == EINTR) ) {}
+          errno = 0;
+          while( (dup2(std_err[1], STDERR_FILENO) == -1) && (errno == EINTR) ) {}
+          // close unused descriptor
+          close( std_out[1] );
+          close( std_err[1] );
+
+          execl( "/bin/sh", "/bin/sh", "-c", commandToRun.c_str(), (char*) NULL );
+          // should never get here
+          _exit(-1);
+        }
+        else
+        {
+          // close unused write side of pipe
+          close( std_out[1] );
+          close( std_err[1] );
+        
+          struct timeval timeout;
+          int found = 0;
+          fd_set pipes;
+          size_t bytes_readStdout = 0;
+          size_t bytes_readStderr = 0;
+          size_t lBufferSize = 1024;
+          char lBuffer[lBufferSize];
+          int idx = 0;
+          int idxerr = 0;
+          int exit_status = 0;
+
+          FD_ZERO( &pipes );
+          FD_SET( std_out[0], &pipes );
+          FD_SET( std_err[0], &pipes );
+          int max_nfds = ( std_out[0] > std_err[0] ) ? std_out[0] : std_err[0];
+
+          while( 1 )
+          {
+            bytes_readStdout = bytes_readStderr = 0;
+            // read from pipes file descriptors
+            // poll for output and check for child pid ending
+            timeout.tv_sec = 2;    // Timeout in 2s
+            timeout.tv_usec = 0;
+
+            fd_set l_pipes = pipes;
+
+            errno = 0;
+            found = select( max_nfds + 1, &l_pipes, NULL, NULL, &timeout );
+            if( found < 0 )
+            {
+              if( errno == EINTR)
+              {
+                continue;
+              }
+              break;
+            }
+            else if( found == 0 )
+            {
+              // We timed out waiting for data 
+              // check if process is still running
+              pid_t wpid = waitpid( pid, &exit_status, WNOHANG );
+              if( (wpid == pid) && WIFEXITED( exit_status ) )
+              {
+                // process has exited, so break out now
+                break;
+              }
+              continue;
+            }
+
+            bool l_breakStdoutNeeded = false;
+            if( FD_ISSET( std_out[0], &l_pipes ) )
+            {
+              //stdout has data, or returned noop/error
+              memset( lBuffer, 0x0, lBufferSize );
+              bytes_readStdout = read( std_out[0], lBuffer, lBufferSize );
+              // only handle cases where no error or nooop is returned, error handling is later to be able to capture both stderr/stdout
+              if( bytes_readStdout == (size_t) -1 )
+              {
+                l_breakStdoutNeeded = true;  // ERROR
+              }
+              else if( bytes_readStdout == 0 )
+              {
+                l_breakStdoutNeeded = true;  // EOF
+              }
+              else
+              {
+                // size to copy into buf
+                size_t lCopySize = ((idx + bytes_readStdout) > (maxbuf - 2)) ? (maxbuf - 2 - idx) : bytes_readStdout;
+                std::copy( lBuffer, lBuffer + lCopySize, buf + idx );
+                if( (idx + bytes_readStdout) > (maxbuf - 2) )
+                {
+                  rc = o_status.rc = SERVER_COMMAND_BUFFER_OVERFLOW;
+                  l_breakStdoutNeeded = true;
+                }
+                idx += lCopySize;
+              }
+            }
+
+            bool l_breakStderrNeeded = false;
+            if( FD_ISSET( std_err[0], &l_pipes ) )
+            {
+              //stderr has data, or returned noop/error
+              memset( lBuffer, 0x0, lBufferSize );
+              bytes_readStderr = read( std_err[0], lBuffer, lBufferSize );
+              // only handle cases where no error or nooop is returned, error handling is later to be able to capture both stderr/stdout
+              if( bytes_readStderr == (size_t) -1 )
+              {
+                l_breakStderrNeeded = true;  // ERROR
+              }
+              else if( bytes_readStderr == 0 )
+              {
+                l_breakStderrNeeded = true;  // EOF
+              }
+              else
+              {
+                // size to copy into buf
+                size_t lCopySize = ((idxerr + bytes_readStderr) > (maxbuf - 2)) ? (maxbuf - 2 - idxerr) : bytes_readStderr;
+                std::copy( lBuffer, lBuffer + lCopySize, buferr + idxerr );
+                if( (idxerr + bytes_readStderr) > (maxbuf - 2) )
+                {
+                  rc = o_status.rc = SERVER_COMMAND_BUFFER_OVERFLOW;
+                  l_breakStderrNeeded = true;
+                }
+                idxerr += lCopySize;
+              }
+            }
+
+            // stdout/stderr processing generated a condition where a break out of the while(1) is needed
+            if (found == 1) {
+                if (l_breakStdoutNeeded || l_breakStderrNeeded) break;
+            } else {
+                if (l_breakStdoutNeeded && l_breakStdoutNeeded) break;
+            }
+          }
+          waitpid( pid, &exit_status, 0 );
+          close( std_err[0] );
+          close( std_out[0] );
+          exit_status = WEXITSTATUS( exit_status );
+          o_status.data.setBitLength( 32 );
+          o_status.data.insert( (uint32_t) exit_status, 0, 32 );
+       
+          /* Now let's copy this into our return structure */
+          o_data.setWordLength( (((strlen(buf) + 1) / sizeof(uint32_t)) + 1) + (((strlen(buferr) + 1) / sizeof(uint32_t)) + 1) );
+          if( strlen( buferr ) > 0 ) 
+          {
+            o_data.insert( (uint8_t *) buferr, 0, (strlen(buferr) + 1) * 8, 0 );
+          } 
+          if( strlen( buf ) > 0 ) 
+          {
+            o_data.insert( (uint8_t *) buf, (strlen(buferr)) * 8, (strlen(buf) + 1) * 8, 0 );
           }
         }
-        uint32_t exit_status = pclose(lFilePtr);
-        exit_status = WEXITSTATUS(exit_status);
 
-        o_status.data.setBitLength(32);
-        o_status.data.insert(exit_status, 0, 32);
-       
-        /* Now let's copy this into our return structure */
-        if(idx > 0) {
-          o_data.setWordLength(((strlen(buf) + 1) / sizeof(uint32_t)) + 1);
-          rc = o_status.rc = o_data.memCopyIn((uint8_t *) buf, strlen(buf) + 1);
-        }
-        if(!rc) {
+        if(!rc) 
+        {
           rc = o_status.rc = SERVER_COMMAND_COMPLETE;
         }
       }
