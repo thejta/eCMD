@@ -81,6 +81,8 @@ std::string InstructionTypeToString(Instruction::InstructionType i_type) {
       return "BRKPT";
     case Instruction::SPI:
       return "SPI";
+    case Instruction::XDMA:
+      return "XDMA";
   }
   return "";
 }
@@ -287,6 +289,8 @@ std::string InstructionCommandToString(Instruction::InstructionCommand i_command
       return "BRKPT_INSTR_STEP";
     case Instruction::SPI_COMMAND:
       return "SPI_COMMAND";
+    case Instruction::XDMA_COMMAND:
+      return "XDMA_COMMAND";
   }
   return "";
 }
