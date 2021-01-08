@@ -339,6 +339,10 @@
 #define SERVER_SPI_CLOSE_FAIL                          (ECMD_ERR_CRONUS | 0x403101)
 #define SERVER_SPI_COMMAND_FAIL                        (ECMD_ERR_CRONUS | 0x403102)
 
+#define SERVER_XDMA_OPEN_FAIL                          (ECMD_ERR_CRONUS | 0x403150)
+#define SERVER_XDMA_CLOSE_FAIL                         (ECMD_ERR_CRONUS | 0x403151)
+#define SERVER_XDMA_COMMAND_FAIL                       (ECMD_ERR_CRONUS | 0x403152)
+
 #endif /* CRONUSRC_H */
 
 
