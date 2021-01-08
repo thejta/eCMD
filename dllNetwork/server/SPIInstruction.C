@@ -111,12 +111,14 @@ uint32_t SPIInstruction::execute(ecmdDataBuffer & o_data, InstructionStatus & o_
 
                 o_data.setBitLength(readLength);
                 ssize_t bytelen = readLength % 8 ? (readLength / 8) + 1 : readLength / 8;
+                if ( bytelen == 0 )
+                    bytelen = data->getByteLength() - commandLengthBytes;
                 ssize_t len = 0;
                 errno = 0;
 
                 if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
                 {
-                    snprintf(errstr, 200, "SERVER_DEBUG : spi_command() readLength = %d\n", readLength);
+                    snprintf(errstr, 200, "SERVER_DEBUG : spi_command() readLength = %d, writeLength = %d\n", readLength, (data->getByteLength() - commandLengthBytes));
                     o_status.errorMessage.append(errstr);
                 }
 

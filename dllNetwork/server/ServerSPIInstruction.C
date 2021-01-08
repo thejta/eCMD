@@ -41,7 +41,8 @@ uint32_t ServerSPIInstruction::spi_open(Handle ** handle, InstructionStatus & o_
 
     /* Open the device */
 
-    snprintf(device, 50, "/dev/spidev%d.%d", engineId, select);
+    //snprintf(device, 50, "/dev/spidev%d.%d", engineId, select);
+    snprintf(device, 50, "/sys/class/spi_master/spi%s%d/spi%s%d.0/eeprom", deviceString.c_str(), engineId, deviceString.c_str(), engineId);
 
     errno = 0;
 
@@ -58,11 +59,11 @@ uint32_t ServerSPIInstruction::spi_open(Handle ** handle, InstructionStatus & o_
     *handle = (Handle *) open(device, O_RDWR | O_SYNC);
 #endif
     if (flags & INSTRUCTION_FLAG_SERVER_DEBUG) {
-        snprintf(errstr, 200, "SERVER_DEBUG : open() *handle = %p\n", *handle);
+        snprintf(errstr, 200, "SERVER_DEBUG : open() *handle = %p, errno %d\n", *handle, errno);
         o_status.errorMessage.append(errstr);
     }
 
-    if (*handle < 0) {
+    if (*handle < 0 || (uint32_t)*handle == 0xFFFFFFFF) {
         snprintf(errstr, 200, "ServerSPIInstruction::spi_open Problem opening SPI device %s : errno %d\n", device, errno);
         o_status.errorMessage.append(errstr);
         rc = o_status.rc = SERVER_SPI_OPEN_FAIL;
@@ -102,118 +103,146 @@ ssize_t ServerSPIInstruction::spi_command(Handle * i_handle, ecmdDataBufferBase 
 
     int fd = (int) i_handle;
     uint32_t readBytes = readLength % 8 ? (readLength / 8) + 1 : readLength / 8;
-    struct spi_ioc_transfer * xfer = NULL;
-    uint32_t l_messages = 0;
+    uint8_t *l_buf = NULL;
 
     do
     {
-        if (flags & INSTRUCTION_FLAG_SPI_FULL_DUPLEX)
+        if ( (data == NULL) || (data->getByteLength() < commandLengthBytes) )
         {
-            if ((data == NULL) || (data->getBitLength() == 0))
+            snprintf(errstr, 200, "ServerSPIInstruction::spi_command no command data\n");
+            o_status.errorMessage.append(errstr);
+            rc = -1;
+            break;
+        }
+
+        errno = 0;
+
+        uint32_t addr = data->getWord(0) & 0xFFFFFF;
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : lseek(fd, 0x%08X, SEEK_SET)\n", addr);
+            o_status.errorMessage.append(errstr);
+        }
+#ifdef TESTING
+        TEST_PRINT("off_t l_skVal = lseek(fd, (off_t)%08X, SEEK_SET)\n", addr);
+#else
+        off_t l_skVal = lseek(fd, (off_t)addr, SEEK_SET);
+#endif
+
+        if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+        {
+            snprintf(errstr, 200, "SERVER_DEBUG : lseek() rc = %08X, errno = %d\n", (uint32_t)l_skVal, errno);
+            o_status.errorMessage.append(errstr);
+        }
+
+        // read stuff here
+        if ( readLength )
+        {
+            errno = 0;
+
+            l_buf = new uint8_t[readBytes];
+            if (l_buf == NULL)
             {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command no data for full duplex message\n");
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command could not allocate l_buf\n");
                 o_status.errorMessage.append(errstr);
                 rc = -1;
                 break;
             }
-
-            if (data->getBitLength() != readLength)
+            
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
             {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command full duplex message not symmetric\n");
+                snprintf(errstr, 200, "SERVER_DEBUG : read(fd, buf, %d)\n", readBytes);
                 o_status.errorMessage.append(errstr);
-                rc = -1;
+            }
+
+#ifdef TESTING
+            TEST_PRINT("rc = read(fd, l_buf, (size_t) %d)\n", readBytes);
+            rc = readBytes;
+#else
+            rc = read(fd, l_buf, (size_t) readBytes);
+#endif
+
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : read() rc = %d, errno = %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
+            }
+
+            if ( rc < 0 )
+            {
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during read: rc %d, errno: %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
                 break;
             }
 
-            l_messages = 1;
+            if ( rc != (ssize_t)readBytes )
+            {
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during read: rc %d != readBytes(%d)\n", rc, readBytes);
+                o_status.errorMessage.append(errstr);
+                break;
+            }
+
+            rc = readBytes;
         }
         else
+        // write stuff here
         {
-            if ((data != NULL) && data->getBitLength())
-                l_messages++;
-            if (readLength)
-                l_messages++;
-        }
+            errno = 0;
 
-        if (l_messages == 0)
-        {
-            snprintf(errstr, 200, "ServerSPIInstruction::spi_command no messages to send\n");
-            o_status.errorMessage.append(errstr);
-            rc = -1;
-            break;
-        }
-
-        xfer = new spi_ioc_transfer[l_messages];
-
-        if (xfer == NULL)
-        {
-            snprintf(errstr, 200, "ServerSPIInstruction::spi_command could not allocate xfer\n");
-            o_status.errorMessage.append(errstr);
-            rc = -1;
-            break;
-        }
-
-        memset(xfer, 0, sizeof(spi_ioc_transfer) * l_messages);
-
-        if ((data != NULL) && data->getBitLength())
-        {
-            xfer[0].tx_buf = (unsigned long) new uint8_t[data->getByteLength()];
-            if (xfer[0].tx_buf == 0)
-            {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command could not allocate tx_buf\n");
-                o_status.errorMessage.append(errstr);
-                rc = -1;
-                break;
-            }
-
-            uint32_t rc_ecmd = data->extract((uint8_t *) xfer[0].tx_buf, 0, data->getBitLength());
+            // correct byte length to remove the command word
+            uint32_t writeBytes = data->getByteLength() - commandLengthBytes;
+            l_buf = new uint8_t[writeBytes];
+            uint32_t rc_ecmd = data->extract((uint8_t *) l_buf, commandLengthBytes*8, writeBytes*8);
             if (rc_ecmd)
             {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during extract: %08X\n", rc_ecmd);
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during extract: %08X, length %d\n", rc_ecmd, writeBytes);
                 o_status.errorMessage.append(errstr);
                 rc = -1;
                 break;
             }
-            xfer[0].len = data->getByteLength();
 
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : write(fd, buf, %d)\n", writeBytes);
+                o_status.errorMessage.append(errstr);
+            }
+
+#ifdef TESTING
+            TEST_PRINT("rc = write(fd, l_buf, (size_t) %d)\n", writeBytes);
+            rc = writeBytes;
+#else
+            rc = write(fd, l_buf, (size_t) writeBytes);
+#endif
+
+            if (flags & INSTRUCTION_FLAG_SERVER_DEBUG)
+            {
+                snprintf(errstr, 200, "SERVER_DEBUG : write() rc = %d, errno = %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
+            }
+
+            if ( rc < 0 )
+            {
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during write: rc %d, errno: %d\n", rc, errno);
+                o_status.errorMessage.append(errstr);
+                break;
+            }
+
+            if ( rc != (ssize_t)writeBytes )
+            {
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during write: rc %d != writeBytes(%d)\n", rc, writeBytes);
+                o_status.errorMessage.append(errstr);
+                break;
+            }
+
+            rc = writeBytes;
         }
 
         if (readLength)
         {
-            uint32_t l_msg_offset = 0;
-            if (l_messages > 1)
-                l_msg_offset = 1;
-
-            xfer[l_msg_offset].rx_buf = (unsigned long) new uint8_t[readBytes];
-            if (xfer[l_msg_offset].rx_buf == 0)
-            {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command could not allocate rx_buf\n");
-                o_status.errorMessage.append(errstr);
-                rc = -1;
-                break;
-            }
-            xfer[l_msg_offset].len = readBytes;
-        }
-
-        rc = ioctl(fd, SPI_IOC_MESSAGE(l_messages), xfer);
-
-        if (rc < 0)
-        {
-            snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during ioctl: errno: %d\n", errno);
-            o_status.errorMessage.append(errstr);
-            break;
-        }
-
-        if (readLength)
-        {
-            uint32_t l_msg_offset = 0;
-            if (l_messages > 1)
-                l_msg_offset = 1;
-
-            uint32_t rc_ecmd = o_data.insert((uint8_t *) xfer[l_msg_offset].rx_buf, 0, readLength);
+            uint32_t rc_ecmd = o_data.insert((uint8_t *) l_buf, 0, readLength);
             if (rc_ecmd)
             {
-                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during insert: %08X\n", rc_ecmd);
+                snprintf(errstr, 200, "ServerSPIInstruction::spi_command error during insert: %08X, readLength %d\n", rc_ecmd, readLength);
                 o_status.errorMessage.append(errstr);
                 rc = -1;
                 break;
@@ -225,19 +254,10 @@ ssize_t ServerSPIInstruction::spi_command(Handle * i_handle, ecmdDataBufferBase 
             uint64_t l_nsDelay = 1000000 * msDelay;
             delay(l_nsDelay);
         }
-
-        rc = readBytes;
     } while (0);
 
-    for (uint32_t l_msg_offset = 0; l_msg_offset < l_messages; l_msg_offset++)
-    {
-        if (xfer[l_msg_offset].tx_buf)
-            delete [] (uint8_t *) xfer[l_msg_offset].tx_buf;
-        if (xfer[l_msg_offset].rx_buf)
-            delete [] (uint8_t *) xfer[l_msg_offset].rx_buf;
-    }
-    if (xfer)
-        delete [] xfer;
+    if (l_buf)
+        delete [] l_buf;
 
     return rc;
 }
