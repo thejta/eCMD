@@ -52,7 +52,7 @@ adal_t * adal_scan_open(const char * device, int flags)
         if (nf) {
             adal->priv=nf;
             memset(nf->name,0,LENNAME);
-            strncpy(nf->name,device,LENNAME);
+            strncpy(nf->name,device,LENNAME-1);  // handle -Wstringop-truncation warning and only copy size-1
             nf->flags=flags;
         }
         else {
