@@ -21,6 +21,7 @@
 #include <OutputLite.H>
 #include <sstream>
 #include <stdio.h>
+#include <cstring>
 
 #include <adal_scom.h>
 #include <adal_scan.h>
@@ -206,18 +207,22 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   if(*handle != NULL)
     return rc;
 
-  const uint32_t numPaths = 4;
-  const char * devices[3][4] = {
-    {"", "", "", ""},
+  const uint32_t numPaths = 5;
+  const char * devices[5][5] = {
+    {"", "", "", "", ""},
     {"/sys/class/fsi-master/fsi0/slave@00:00/raw",
      "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/raw",
-     "/sys/bus/platform/devices/fsi-master/slave@00:00/raw"},
-    {"/sys/class/fsi-master/fsi0/slave@00:00/00:00:00:0a/fsi-master/fsi1/slave@01:00/raw",
+     "/sys/bus/platform/devices/fsi-master/slave@00:00/raw",
+     ""},
+    {"/sys/class/fsi-master/fsi1/slave@01:00/raw",
+     "/sys/class/fsi-master/fsi0/slave@00:00/00:00:00:0a/fsi-master/fsi1/slave@01:00/raw",
      "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/00:00:00:0a/fsi1/slave@01:00/raw",
      "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
-     "/sys/devices/hub@00/slave@01:00/raw"}};
-  int errnos[4] = { 0, 0, 0, 0 };
+     "/sys/devices/hub@00/slave@01:00/raw"},
+    {"/sys/class/fsi-master/fsi1/slave@02:00/raw", "", "", "", ""},
+    {"/sys/class/fsi-master/fsi1/slave@03:00/raw", "", "", "", ""}};
+  int errnos[5] = { 0, 0, 0, 0, 0 };
 
   /* We need to open the device*/
   if ((flags & INSTRUCTION_FLAG_DEVSTR) == 0) {
@@ -234,7 +239,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   uint32_t l_idx = 0;
   iss >> l_idx;
 
-  if ((l_idx != 1) && (l_idx != 2)) {
+  if ( (l_idx < 1) && (l_idx > 4) ) {
     *handle = NULL;
     snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
     o_status.errorMessage.append(errstr);
@@ -244,6 +249,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   for (uint32_t l_try = 0; l_try < numPaths; l_try++) {
     /* Validate and adjust the device string for the device to open */
     snprintf(device, 100, devices[l_idx][l_try]);
+    if ( strlen(device) == 0 ) continue;
 
     errno = 0;
 
