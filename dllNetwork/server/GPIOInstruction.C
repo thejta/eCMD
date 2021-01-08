@@ -53,7 +53,17 @@ const char * gpioDioModeToString(gpioDioMode_t i_mode) {
 /*****************************************************************************/
 /* GPIOInstruction Implementation ********************************************/
 /*****************************************************************************/
-GPIOInstruction::GPIOInstruction(void) : Instruction(){
+GPIOInstruction::GPIOInstruction(void) : Instruction(),
+cfamid(0),
+linkid(0),
+cmaster(0),
+engineId(0),
+pin(0),
+mask(0),
+mode(GPIO_DIO_NOT_USED),
+data(0),
+deviceString("")
+{
   version = 0x3;
   type = GPIO;
 }
@@ -66,7 +76,8 @@ engineId(i_engineId),
 pin(i_pin),
 mask(i_mask),
 mode(i_mode),
-data(i_data)
+data(i_data),
+deviceString("")
 {
   version = 0x2;
   type = GPIO;

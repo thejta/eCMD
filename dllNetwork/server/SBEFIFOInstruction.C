@@ -37,7 +37,10 @@ extern OutputLite out;
 /*****************************************************************************/
 /* SBEFIFOInstruction Implementation *****************************************/
 /*****************************************************************************/
-SBEFIFOInstruction::SBEFIFOInstruction(void) : Instruction()
+SBEFIFOInstruction::SBEFIFOInstruction(void) : Instruction(),
+deviceString(""),
+timeout(0),
+replyLength(0)
 {
     version = 0x1;
     type = SBEFIFO;

@@ -47,6 +47,7 @@ static void packReturnData(const std::list<cipSoftwareEvent_t> & i_events,
 /* BrkptInstruction Implementation *******************************************/
 /*****************************************************************************/
 BrkptInstruction::BrkptInstruction(void) : Instruction(),
+    deviceString(""),
     timeout(0),
     steps(0)
 {

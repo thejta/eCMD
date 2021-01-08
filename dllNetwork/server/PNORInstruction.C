@@ -45,7 +45,13 @@ extern bool global_server_debug;
 /*****************************************************************************/
 /* PNORInstruction Implementation *********************************************/
 /*****************************************************************************/
-PNORInstruction::PNORInstruction(void) : Instruction(){
+PNORInstruction::PNORInstruction(void) : Instruction(),
+deviceString(""),
+partitionEntry(""),
+partitionOffset(0),
+blockSize(0),
+pnorFlags(0)
+{
   version = 0x1;
   type = PNOR;
 }
