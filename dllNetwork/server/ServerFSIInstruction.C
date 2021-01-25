@@ -248,7 +248,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
 
   for (uint32_t l_try = 0; l_try < numPaths; l_try++) {
     /* Validate and adjust the device string for the device to open */
-    snprintf(device, 100, devices[l_idx][l_try]);
+    snprintf(device, 100, "%s", devices[l_idx][l_try]);
     if ( strlen(device) == 0 ) continue;
 
     errno = 0;
