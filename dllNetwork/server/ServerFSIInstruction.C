@@ -208,7 +208,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
     return rc;
 
   const uint32_t numPaths = 5;
-  const char * devices[5][5] = {
+  const char * devices[9][5] = {
     {"", "", "", "", ""},
     {"/sys/class/fsi-master/fsi0/slave@00:00/raw",
      "/sys/devices/platform/gpio-fsi/fsi0/slave@00:00/raw",
@@ -221,7 +221,11 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
      "/sys/devices/platform/fsi-master/slave@00:00/hub@00/slave@01:00/raw",
      "/sys/devices/hub@00/slave@01:00/raw"},
     {"/sys/class/fsi-master/fsi1/slave@02:00/raw", "", "", "", ""},
-    {"/sys/class/fsi-master/fsi1/slave@03:00/raw", "", "", "", ""}};
+    {"/sys/class/fsi-master/fsi1/slave@03:00/raw", "", "", "", ""},
+    {"/sys/class/fsi-master/fsi1/slave@04:00/raw", "", "", "", ""},
+    {"/sys/class/fsi-master/fsi1/slave@05:00/raw", "", "", "", ""},
+    {"/sys/class/fsi-master/fsi1/slave@06:00/raw", "", "", "", ""},
+    {"/sys/class/fsi-master/fsi1/slave@07:00/raw", "", "", "", ""}};
   int errnos[5] = { 0, 0, 0, 0, 0 };
 
   /* We need to open the device*/
@@ -239,7 +243,7 @@ uint32_t ServerFSIInstruction::mbx_open(Handle** handle, InstructionStatus & o_s
   uint32_t l_idx = 0;
   iss >> l_idx;
 
-  if ( (l_idx < 1) && (l_idx > 4) ) {
+  if ( (l_idx < 1) || (l_idx > 8) ) {
     *handle = NULL;
     snprintf(errstr, 200, "ServerFSIInstruction::mbx_open deviceString %s is not valid\n", deviceString.c_str());
     o_status.errorMessage.append(errstr);
