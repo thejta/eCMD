@@ -86,7 +86,7 @@ class I2CInstruction : public Instruction {
      * @post flag has INSTRUCTION_FLAG_DEVSTR set
      * @post version is set to 0x4
      */
-    uint32_t setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data = NULL, uint32_t i_iicAckMask = 0, uint32_t i_numRedos = 0, uint32_t i_msDelay = 0);
+    uint32_t setup(InstructionCommand i_command, std::string &i_deviceString, uint32_t i_engineId, uint32_t i_port, uint32_t i_slaveAddress, uint32_t i_busSpeed, uint64_t i_offset, uint32_t i_offsetFieldSize, uint32_t i_length, uint32_t i_i2cFlags, uint32_t i_flags, ecmdDataBuffer * i_data = NULL, uint32_t i_iicAckMask = 0, uint32_t i_numRedos = 0, uint32_t i_msDelay = 0, uint32_t i_serverI2cFlags = 0);
     //@}
 
     /** @name Execution Function */
@@ -256,6 +256,9 @@ bits 0:3  bits 4:7,      bits 8:15,     bits 16:23,      bits 24:31 </pre>
     uint32_t iicAckMask;
     uint32_t numRedos;
     uint32_t msDelay;
+
+    // server I2c flags
+    uint32_t serverI2cFlags;
     
     virtual uint32_t iic_open(Handle ** handle, InstructionStatus & o_status) { return -1; }
     virtual void iic_ffdc(Handle ** handle, InstructionStatus & o_status) { }
