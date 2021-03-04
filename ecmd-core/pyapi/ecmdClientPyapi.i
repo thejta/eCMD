@@ -88,6 +88,13 @@
 /*********** Start Copy Constructors ***********/
 // We also define __deepcopy__ for each class here since
 // they also rely upon the copy constructors we are defining
+%copyctor std::vector<ecmdDataBuffer>
+%extend std::vector<ecmdDataBuffer> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdDataBufferVector(self)
+%}
+}
 %copyctor ecmdChipTarget;
 %extend ecmdChipTarget {
 %pythoncode %{
