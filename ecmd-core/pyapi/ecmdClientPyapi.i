@@ -50,40 +50,244 @@
 // Templates for list/vector support - one of these have to be created for every type needed
 // From ecmdStructs.H
 %template(ecmdThreadDataList)        std::list<ecmdThreadData>;
+%extend std::list<ecmdThreadData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdThreadDataList(self)
+%}
+}
 %template(ecmdChipUnitDataList)      std::list<ecmdChipUnitData>;
+%extend std::list<ecmdChipUnitData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdChipUnitDataList(self)
+%}
+}
 %template(ecmdChipDataList)          std::list<ecmdChipData>;
+%extend std::list<ecmdChipData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdChipDataList(self)
+%}
+}
 %template(ecmdSlotDataList)          std::list<ecmdSlotData>;
+%extend std::list<ecmdSlotData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdSlotDataList(self)
+%}
+}
 %template(ecmdNodeDataList)          std::list<ecmdNodeData>;
+%extend std::list<ecmdNodeData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdNodeDataList(self)
+%}
+}
 %template(ecmdCageDataList)          std::list<ecmdCageData>;
+%extend std::list<ecmdCageData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdCageDataList(self)
+%}
+}
 %template(stringList)                std::list<std::string>;
+%extend std::list<std::string> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return stringList(self)
+%}
+}
 %template(stringVector)              std::vector<std::string>;
+%extend std::vector<std::string> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return stringVector(self)
+%}
+}
 %template(ecmdDataBufferBaseVector)  std::vector<ecmdDataBufferBase>;
+%extend std::vector<ecmdDataBufferBase> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdDataBufferBaseVector(self)
+%}
+}
 %template(ecmdDataBufferVector)      std::vector<ecmdDataBuffer>;
+%extend std::vector<ecmdDataBuffer> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdDataBufferVector(self)
+%}
+}
 %template(ecmdDataBufferVectorVector) std::vector<std::vector<ecmdDataBuffer>>;
+%extend std::vector<std::vector<ecmdDataBuffer>> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdDataBufferVectorVector(self)
+%}
+}
 %template(ecmdMemoryEntryList)       std::list<ecmdMemoryEntry>;
+%extend std::list<ecmdMemoryEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdMemoryEntryList(self)
+%}
+}
 %template(ecmdRingDataList)          std::list<ecmdRingData>;
+%extend std::list<ecmdRingData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdRingDataList(self)
+%}
+}
 %template(ecmdLatchDataList)         std::list<ecmdLatchData>;
+%extend std::list<ecmdLatchData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdLatchDataList(self)
+%}
+}
 %template(ecmdLatchEntryList)        std::list<ecmdLatchEntry>;
+%extend std::list<ecmdLatchEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdLatchEntryList(self)
+%}
+}
 %template(ecmdSpyGroupDataList)      std::list<ecmdSpyGroupData>;
+%extend std::list<ecmdSpyGroupData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdSpyGroupDataList(self)
+%}
+}
 %template(ecmdArrayEntryList)        std::list<ecmdArrayEntry>;
+%extend std::list<ecmdArrayEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdArrayEntryList(self)
+%}
+}
 %template(ecmdNameEntryList)         std::list<ecmdNameEntry>;
+%extend std::list<ecmdNameEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdNameEntryList(self)
+%}
+}
 %template(ecmdNameVectorEntryList)   std::list<ecmdNameVectorEntry>;
+%extend std::list<ecmdNameVectorEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdNameVectorEntryList(self)
+%}
+}
 %template(ecmdIndexEntryList)        std::list<ecmdIndexEntry>;
+%extend std::list<ecmdIndexEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdIndexEntryList(self)
+%}
+}
 %template(ecmdChipTargetList)        std::list<ecmdChipTarget>;
+%extend std::list<ecmdChipTarget> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdChipTargetList(self)
+%}
+}
 %template(ecmdArrayDataList)         std::list<ecmdArrayData>;
+%extend std::list<ecmdArrayData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdArrayDataList(self)
+%}
+}
 %template(ecmdTraceArrayDataList)    std::list<ecmdTraceArrayData>;
+%extend std::list<ecmdTraceArrayData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdTraceArrayDataList(self)
+%}
+}
 %template(ecmdSpyDataList)           std::list<ecmdSpyData>;
+%extend std::list<ecmdSpyData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdSpyDataList(self)
+%}
+}
 %template(ecmdSpyLatchDataList)      std::list<ecmdSpyLatchData>;
+%extend std::list<ecmdSpyLatchData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdSpyLatchDataList(self)
+%}
+}
 %template(ecmdScomDataList)          std::list<ecmdScomData>;
+%extend std::list<ecmdScomData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdScomDataList(self)
+%}
+}
 %template(ecmdScomDataHiddenList)    std::list<ecmdScomDataHidden>;
+%extend std::list<ecmdScomDataHidden> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdScomDataHiddenList(self)
+%}
+}
 %template(ecmdI2CCmdEntryList)       std::list<ecmdI2CCmdEntry>;
+%extend std::list<ecmdI2CCmdEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdI2CCmdEntryList(self)
+%}
+}
 %template(ecmdI2CCmdEntryHiddenList) std::list<ecmdI2CCmdEntryHidden>;
+%extend std::list<ecmdI2CCmdEntryHidden> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdI2CCmdEntryHiddenList(self)
+%}
+}
 %template(ecmdConnectionDataList)    std::list<ecmdConnectionData>;
+%extend std::list<ecmdConnectionData> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdConnectionDataList(self)
+%}
+}
 %template(ecmdScomEntryList)         std::list<ecmdScomEntry>;
+%extend std::list<ecmdScomEntry> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdScomEntryList(self)
+%}
+}
 %template(ecmdFileLocationList)      std::list<ecmdFileLocation>;
+%extend std::list<ecmdFileLocation> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return ecmdFileLocationList(self)
+%}
+}
 %template(uint32_tList)              std::list<uint32_t>;
+%extend std::list<uint32_t> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return uint32_tList(self)
+%}
+}
 // Template for maps
 %template(string_ecmdDataBufferMap)  std::map<std::string, ecmdDataBuffer>;
+%extend std::map<std::string, ecmdDataBuffer> {
+%pythoncode %{
+def __deepcopy__(self, memo):
+    return string_ecmdDataBufferMap(self)
+%}
+}
 
 /*********** Start Copy Constructors ***********/
 // We also define __deepcopy__ for each class here since
