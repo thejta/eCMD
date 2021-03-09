@@ -239,7 +239,7 @@ uint32_t ecmdGetSprUser(int argc, char * argv[]) {
     if (posEntries.size()) {
 
       /* Actually go fetch the data */
-      rc = getSprMultiple(l_target, posEntries);
+      rc = getSprMultiple(target, posEntries);
       if (rc) {
         printed = "getspr - Error occured performing getSprMultiple on ";
         printed += ecmdWriteTarget(l_target) + "\n";
@@ -771,7 +771,7 @@ uint32_t ecmdGetGprFprUser(int argc, char * argv[], ECMD_DA_TYPE daType) {
     }
 
     /* Now setup our chipUnit/thread loop */
-    subTarget = l_target;
+    subTarget = target;
     if (procInfo.isChipUnitRelated) {
       if (procInfo.relatedChipUnit != "") {
         subTarget.chipUnitType = procInfo.relatedChipUnit;
