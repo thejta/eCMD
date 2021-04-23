@@ -35,6 +35,6 @@
 
 // This define sticks an ERROR and function name at the start, then uses the
 // errmsg and varargs passed in to print the message
-#define ETRAC(errmsg, ...) printf("ERROR: (%s): " errmsg, __FUNCTION__, ##__VA_ARGS__);
+#define ETRAC(errmsg, ...) printf("ERROR: (%s): " errmsg"\n", __FUNCTION__, ##__VA_ARGS__);
 
 #endif
