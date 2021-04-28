@@ -1383,7 +1383,8 @@ uint32_t dllPutSpyEcc(const ecmdChipTarget & i_target, std::string epcheckerName
 
   data.dataType = SPYDATA_DATA;
   data.int_data = &inLatches;
-  rc = dllGetSpy(i_target, data, tempDC, {});
+  std::map<std::string, ecmdDataBuffer> noop;
+  rc = dllGetSpy(i_target, data, tempDC, noop);
   if (rc) return rc;
 
   /* Now generate the proper ecc based on the in{} */
