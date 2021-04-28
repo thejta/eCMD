@@ -302,8 +302,9 @@ uint32_t dllGetSpy(const ecmdChipTarget & i_target, const char * i_spyName, ecmd
   dllSpyData fdata;
   fdata.dataType = SPYDATA_DATA;
   fdata.int_data = &o_data;
+  std::map<std::string, ecmdDataBuffer> noop;
 
-  return dllGetSpy(i_target, i_spyName, fdata, {});
+  return dllGetSpy(i_target, i_spyName, fdata, noop);
 }
 
 /**
@@ -314,8 +315,9 @@ uint32_t dllGetSpyEnum(const ecmdChipTarget & i_target, const char * i_spyName, 
 
   dllSpyData fdata;
   fdata.dataType = SPYDATA_ENUM;
+  std::map<std::string, ecmdDataBuffer> noop;
 
-  rc = dllGetSpy(i_target, i_spyName, fdata, {});
+  rc = dllGetSpy(i_target, i_spyName, fdata, noop);
   if (!rc)
     o_enumValue = fdata.enum_data;
   
@@ -326,8 +328,9 @@ uint32_t dllGetSpyGroups(const ecmdChipTarget & i_target, const char * i_spyName
   dllSpyData fdata;
   fdata.dataType = SPYDATA_GROUPS;
   fdata.group_data = &o_groups;
+  std::map<std::string, ecmdDataBuffer> noop;
 
-  return dllGetSpy(i_target, i_spyName, fdata, {});
+  return dllGetSpy(i_target, i_spyName, fdata, noop);
 }
 
 uint32_t dllGetSpy(const ecmdChipTarget & i_target, const char * i_spyName, dllSpyData & data, const std::map<std::string, ecmdDataBuffer> & i_ringImages) {
@@ -909,9 +912,10 @@ uint32_t dllGenSpyEcc(const ecmdChipTarget & i_target, std::string eccfuncName, 
   This function specification is the same as defined in ecmdClientCapi.H as GetSpyEpCheckers
 */
 uint32_t dllGetSpyEpCheckers(const ecmdChipTarget & i_target, const char * i_spyEccGroupName, ecmdDataBuffer & o_inLatches, ecmdDataBuffer & o_outLatches, ecmdDataBuffer & o_eccErrorMask, uint32_t i_flags){
-    uint32_t rc = ECMD_SUCCESS;
+  uint32_t rc = ECMD_SUCCESS;
+  std::map<std::string, ecmdDataBuffer> noop;
 
-    rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask, {});
+  rc = dllGetSpyEcc(i_target, i_spyEccGroupName, o_inLatches, o_outLatches, o_eccErrorMask, noop);
 
   return rc;
 }
