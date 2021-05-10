@@ -60,7 +60,7 @@ uint32_t ServerSPIInstruction::spi_open(Handle ** handle, InstructionStatus & o_
         o_status.errorMessage.append(errstr);
     }
 
-    if (*handle < 0 || (uint32_t)*handle == 0xFFFFFFFF) {
+    if ( *handle == NULL || (*handle != NULL && (int32_t)*handle < 0) ) {
         snprintf(errstr, 200, "ServerSPIInstruction::spi_open Problem opening SPI device %s : errno %d\n", device, errno);
         o_status.errorMessage.append(errstr);
         rc = o_status.rc = SERVER_SPI_OPEN_FAIL;
