@@ -77,7 +77,7 @@ uint32_t ServerXDMAInstruction::xdma_open(Handle ** handle, InstructionStatus & 
         errstr.str(""); errstr.clear();
     }
 
-    if ( *handle < 0 )
+    if ( *handle == NULL || (*handle != NULL && (int32_t)*handle < 0) )
     {
         errstr << "ServerXDMAInstruction::xdma_open Problem opening xdma device " << device.str() << " errno " << errno << std::endl;
         o_status.errorMessage.append(errstr.str());
