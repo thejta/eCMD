@@ -35,11 +35,27 @@
 #include <cstring>
 
 #include <sys/mman.h>
-#include <linux/aspeed-xdma.h>
 #include <sys/ioctl.h>
+#include <linux/types.h> // needed for __u64, etc types
 #include <delay.h>
 
 extern bool global_server_debug;
+
+// data/structures/defines from aspeed-xdma.h
+// necessary due to build env not having file in packages yet
+#define __ASPEED_XDMA_IOCTL_MAGIC       0xb7
+#define ASPEED_XDMA_IOCTL_RESET         _IO(__ASPEED_XDMA_IOCTL_MAGIC, 0)
+
+enum aspeed_xdma_direction {
+        ASPEED_XDMA_DIRECTION_DOWNSTREAM = 0,
+        ASPEED_XDMA_DIRECTION_UPSTREAM,
+};
+
+struct aspeed_xdma_op {
+        __u64 host_addr;
+        __u32 len;
+        __u32 direction;
+};
 
 uint32_t ServerXDMAInstruction::xdma_open(Handle ** handle, InstructionStatus & o_status)
 {
