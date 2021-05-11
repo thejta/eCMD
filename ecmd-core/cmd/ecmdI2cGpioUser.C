@@ -304,13 +304,6 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   /* Parse Local FLAGS here!                                              */
   /************************************************************************/
   
-  /* get format flag, if it's there */
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-    inputformatflag = true;
-  }
-  
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
   if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("puti2c - Non-hex characters detected in i2cflags field\n");
@@ -319,6 +312,13 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
     i2cFlags = ecmdGenB32FromHexRight( &i2cFlags, tmpI2cFlags );
   }
 
+  /* get format flag, if it's there */
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+    inputformatflag = true;
+  }
+  
   /* get the bus speed, if it's there */
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
   if (busspeedstr != NULL) {
@@ -719,11 +719,6 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o
   uint32_t rc = ECMD_SUCCESS;
   std::string inputformat = "xl";       // format of input data 
   std::string printed; 
-  // get format flag, if it's there 
-  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
-  if (formatPtr != NULL) {
-    inputformat = formatPtr;
-  }
   
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
   if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
@@ -732,6 +727,12 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o
   } else if (tmpI2cFlags != NULL) {
     o_cmd.i2cFlags = ecmdGenB32FromHexRight( &o_cmd.i2cFlags, tmpI2cFlags );
   } 
+
+  // get format flag, if it's there 
+  char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-i");
+  if (formatPtr != NULL) {
+    inputformat = formatPtr;
+  }
 
   o_cmd.busSpeed = ECMD_I2C_BUSSPEED_UNKNOWN; // bus speed to run i2c in khz.This is default if not specified on cmdLine, plugins will set the default 
   // get the bus speed, if it's there 
