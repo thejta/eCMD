@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2019 IBM International Business Machines Corp.
+ * Copyright 2021 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,6 +232,7 @@ enum ProcedureCallout
     LVL_SUPPORT           = 1, // Call next level of support
     MEMORY_PLUGGING_ERROR = 2, // DIMM Plugging error
     BUS_CALLOUT           = 3, // Bus Called Out
+    FIND_DECONFIGURED_PART = 4, // Error caused by other deconfigurations
 };
 }
 
