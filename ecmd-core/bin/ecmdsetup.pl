@@ -422,7 +422,7 @@ sub main {
   # Change shared lib path to point to release
   # This is because the release may have changed from the installPath that was used
   #
-  if ((!$cleanup) && (!$singleInstall)) {
+  if (!$cleanup) {
       my $sharedLib;
       if ($arch =~ m/aix/) {
           $sharedLib = "LIBPATH";
