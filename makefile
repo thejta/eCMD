@@ -196,6 +196,10 @@ install_setup:
 	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/bin
 	@echo " "
 
+	@echo "Creating include dir ..."
+	@mkdir -p ${INSTALL_PATH}/include
+	@echo " "
+
 	@echo "Creating ${TARGET_ARCH}/lib dir ..."
 	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/lib
 	@echo " "
@@ -236,6 +240,12 @@ install_finish: install_setup ${BUILD_TARGETS}
 	@echo "Installing utils ..."
 	@$(foreach util, ${ECMD_REPOS_UTILS}, ${MAKE} -C ${util}/utils/ ${MAKECMDGOALS} ${MAKEFLAGS};)
 	@echo " "
+
+	@echo "Fixing include dir file permissions ..."
+	@chmod 644 ${INSTALL_PATH}/include/*
+
+	@echo "Fixing help dir file permissions ..."
+	@chmod 644 ${INSTALL_PATH}/help/*
 
 	@echo "Fixing bin dir file permissions ..."
 	@chmod 775 ${INSTALL_PATH}/bin/*

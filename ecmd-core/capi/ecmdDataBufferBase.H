@@ -106,13 +106,13 @@
 #ifdef _AIX
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
-    ETRAC1("**** ERROR : Argument %s is NULL",#ptr); \
+    ETRAC("Argument %s is NULL", #ptr); \
     return ECMD_DBUF_NULL_POINTER; \
   };
 #else
 #define  ECMD_NULL_PTR_CHECK(ptr) \
   if ( ptr == NULL ) { \
-    ETRAC2("**** ERROR : %s : Argument %s is NULL", __PRETTY_FUNCTION__, #ptr); \
+    ETRAC("Argument %s is NULL", #ptr); \
     return ECMD_DBUF_NULL_POINTER; \
   };
 #endif
@@ -328,6 +328,19 @@ public:
    * NOTE : Capacity will be adjusted to fit new size if neccesary
    */
   uint32_t growBitLength(uint32_t i_newNumBits);
+
+protected:
+  /**
+   * @brief Implementation of growBitLength()
+   * @param i_newNumBits New bit length for buffer
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @post Internal buffer size is reset but data inside is not lost
+   *
+   * NOTE : Capacity will be adjusted to fit new size if neccesary
+   */
+  virtual uint32_t growBitLengthInternal(uint32_t i_newNumBits);
+
+public:
 
   /**
    * @brief Returns value of iv_BufferOptimizable
@@ -630,6 +643,22 @@ public:
    */
   virtual uint32_t insert(const ecmdDataBufferBase & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
 
+protected:
+  /**
+   * @brief Copy part of another DataBuffer into this one
+   * @param i_bufferIn DataBuffer to copy data from - data is taken left aligned
+   * @param i_targetStart Start bit to insert to
+   * @param i_len Length of bits to insert
+   * @param i_sourceStart Start bit in i_bufferIn - default value is zero
+   * @pre DataBuffer must be pre-allocated
+   * @post Data is copied from i_bufferIn to this DataBuffer in specified location
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+   */
+  virtual uint32_t insertBase(const ecmdDataBufferBase & i_bufferIn, uint32_t i_targetStart, uint32_t i_len, uint32_t i_sourceStart = 0);
+
+public:
+
 #if !defined(ECMD_PERLAPI) && !defined(ECMD_PYAPI)
   /**
    * @brief Copy part of a uint32_t array into this DataBuffer
@@ -812,6 +841,22 @@ public:
    * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
    */
   uint32_t extract(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+
+protected:
+  /**
+   * @brief Copy data from this DataBuffer into another
+   * @param o_bufferOut DataBuffer to copy into - data is placed left aligned
+   * @param i_start Start bit of data in this DataBuffer to copy
+   * @param i_len Length of consecutive bits to copy
+   * @post Data is copied from specified location in this DataBuffer to bufferOut
+   * @retval ECMD_DBUF_SUCCESS on success
+   * @retval ECMD_DBUF_BUFFER_OVERFLOW operation requested out of range
+
+   * NOTE : The o_bufferOut buffer is resized to the extract length and any data in the buffer is lost
+   */
+  virtual uint32_t extractBase(ecmdDataBufferBase & o_bufferOut, uint32_t i_start, uint32_t i_len) const;
+
+public:
 
 #ifndef ECMD_PERLAPI
   /**
@@ -1299,15 +1344,13 @@ public:
    * @brief Look to see if the compression header is at the start of the buffer 
    * @retval true if compressed, false if not
    */   
-  bool isBufferCompressed();
+  bool isBufferCompressed() const;
 
 
   /**
    * @brief This function returns the stored error state that could have been caused by any number of previous operations on the buffer
    * @param o_errorState Stored Error state
    */
-  void queryErrorState(uint32_t & o_errorState);
-
   void queryErrorState(uint32_t & o_errorState) const;
   //@}
 

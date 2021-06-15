@@ -45,7 +45,7 @@
 //  Defines                                                
 //--------------------------------------------------------------------
 
-#define ECMD_CAPI_VERSION "14.21"         ///< eCMD API Version
+#define ECMD_CAPI_VERSION "15.0"          ///< eCMD API Version
 
 // Magic headers for packing/unpacking the ecmdQueryData structure heirarchy.
 #define QD_HDR_MAGIC     0xFFFFFFF1
@@ -53,7 +53,6 @@
 #define NODE_HDR_MAGIC   0xFFFFF3FF
 #define SLOT_HDR_MAGIC   0xFFFF4FFF
 #define CHIP_HDR_MAGIC   0xFFF5FFFF
-#define CORE_HDR_MAGIC   0xFF6FFFFF
 #define THREAD_HDR_MAGIC 0xF7FFFFFF
 #define CHIPUNIT_HDR_MAGIC 0x8FFFFFFF
 /**
@@ -286,40 +285,6 @@ typedef enum {
 } ecmdDllEnv_t;
 
 /**
- @brief This is used by ecmdQueryDllInfo to return what product the dll supports
-*/
-typedef enum {
-  ECMD_DLL_PRODUCT_UNKNOWN,     ///< Unknown product
-  ECMD_DLL_PRODUCT_ECLIPZ,      ///< IPZ Eclipz Project
-  ECMD_DLL_PRODUCT_APOLLO,      ///< IP Apollo Project
-  ECMD_DLL_PRODUCT_SYSTEMX,     ///< System X projects and products
-  ECMD_DLL_PRODUCT_ZGRYPHON,    ///< zGryphon Project
-  ECMD_DLL_PRODUCT_P8S1,        ///< P8/S1 Project
-  ECMD_DLL_PRODUCT_ZGRYPHONP,   ///< zHelix Project (zGr+)
-  ECMD_DLL_PRODUCT_STRADALE,    ///< Stradale Project
-  ECMD_DLL_PRODUCT_OPENPOWER,   ///< OpenPower Project
-  ECMD_DLL_PRODUCT_P9,          ///< P9 Project
-  ECMD_DLL_PRODUCT_P10,         ///< P10 Project
-} ecmdDllProduct_t;
-
-/**
- @brief This is used by ecmdQueryDllInfo to return who's dll you are actually running against 
-*/
-typedef enum {
-  ECMD_DLL_UNKNOWN,             ///< This should never be encountered
-  ECMD_DLL_STUB,                ///< This is a stub version of the dll for client testing
-  ECMD_DLL_CRONUS,              ///< Running against the Cronus Dll
-  ECMD_DLL_IPSERIES,            ///< Running against I/P Series HOM
-  ECMD_DLL_ZSERIES,             ///< Running against Z Series HOM
-  ECMD_DLL_SCAND,               ///< Running against the ScanD plugin
-  ECMD_DLL_BML,                 ///< Running against the BML plugin
-  ECMD_DLL_MAMBO,               ///< Running against the Mambo plugin
-  ECMD_DLL_RISCWATCH,           ///< Running against the RiscWatch plugin
-  ECMD_DLL_LINUXHOSTTOOL,       ///< Running against the Linux Host Tool plugin
-  ECMD_DLL_PDBG,                ///< Running against the pdbg plugin
-} ecmdDllType_t;
-
-/**
  @brief Used for the ecmdQueryFileLocation function to specify the file type you are looking for
 */
 typedef enum {
@@ -329,39 +294,9 @@ typedef enum {
   ECMD_FILE_ARRAYDEF,   ///< Array Definition file
   ECMD_FILE_HELPTEXT,   ///< eCMD Help Text file - target field of ecmdQueryFileLocation is not used for this and just a path is returned
   ECMD_FILE_SCOMDATA,   ///< eCMD ScanComm Parse data files, used by getscom - target field of ecmdQueryFileLocation is not used for this and just a path is returned
-  ECMD_FILE_SPYDEFHASH,    ///< Hash file for spy definition
-  ECMD_FILE_SCANDEFHASH, ///< Hash file for the scandef
-  ECMD_FILE_GROUPSCOM,    ///< GroupScom definition file
-  ECMD_FILE_GROUPSCOMHASH ///< Hash file for the GroupScom
+  ECMD_FILE_SPYDEFHASH, ///< Hash file for spy definition
+  ECMD_FILE_SCANDEFHASH ///< Hash file for the scandef
 } ecmdFileType_t;
-
-/**
- @brief Used by simOutputFusionMessage function to specify message type
- Values copied from globals.h of SimDispatcher delivery 
-*/
-typedef enum {
-  ECMD_SIM_MSG_UNKNOWN,    ///< Default for not initialized
-  ECMD_SIM_MSG_EXCEPTION = 1,
-  ECMD_SIM_MSG_TESTCASE = 2,
-  ECMD_SIM_MSG_CMD_RS = 4,       // command receive / response send
-  ECMD_SIM_MSG_CMD_EXE = 8,      // command execution details (e.g. subcommands)
-  ECMD_SIM_MSG_DEBUG = 16,
-  ECMD_SIM_MSG_BROADSIDE = 32,
-  ECMD_SIM_MSG_END_SD_MSGS = 0x000000ff,
-  ECMD_SIM_MSG_ALWAYS = 0xff
-} ecmdFusionMessageType_t;
-
-/**
- @brief Used by simOutputFusionMessage function to specify message severity
- Values copied from globals.h of SimDispatcher delivery 
-*/
-typedef enum {
-  ECMD_SIM_UNKNOWN,    ///< Default for not initialized
-  ECMD_SIM_ERROR = 0x1,
-  ECMD_SIM_WARNING = 0x2,
-  ECMD_SIM_INFO = 0x3,
-  ECMD_SIM_PLAIN = ~0
-} ecmdFusionSeverity_t;
 
 /**
  @brief Used by ecmdGetGlobalVar to specify what variable you are looking for
@@ -633,52 +568,17 @@ typedef enum {
   ECMD_BW_UNIT_MRW           ///< The selected Target is powered on
 } ecmdBandwidthUnit_t;
 
-typedef enum {
-  PARSED_UNDEFINED,
-  PARSED_NAME,
-  PARSED_CHIPUNIT,
-  PARSED_SIZE,
-  PARSED_ADDR,
-  PARSED_GROUP_DONE,
-} ecmdScomGroupParseStage;
-
 
 //--------------------------------------------------------------------
 //  Structures                                    
 //--------------------------------------------------------------------
 
-struct scomGroupRecord_t {
-  std::string scomGroup_name;
-  uint32_t lineNumofName;
-  uint32_t filepos;
-  std::string scomGroup_chipUnit;
-  std::vector<uint64_t> scomGroup_listOfAddrs;
-  std::vector<uint32_t> scomGroup_indexOfAddr;
-};
-struct groupHashEntry {
-  uint32_t key;             ///< 32 bit hash key generated off the groupname
-  uint32_t filepos;         ///< line of the file where the groupname is at
-  int operator<(const groupHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
-};
-struct sectionHashEntry {
-  uint32_t key;             ///< 32 bit hash key generated off the groupname
-  uint32_t filepos;         ///< line of the file where the groupname is at
-  int operator<(const sectionHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
-};
-
-struct addrHashEntry {
-  uint64_t key;              ///< 32 bit hash key generated off the 64 bit addr, of the actual 32bit addr
-  uint32_t indexOfAddrInGroup; //< index of adder within the list of addrs
-  uint32_t groupNameHash;    ///< 32 bit hash key generated off the groupname
-  int operator<(const addrHashEntry &rhs) const { return (key<rhs.key); }  ///< Used for sorts
-};
-
 /**
  @brief This is used by ecmdQueryDllInfo to return info to the client about what Dll instance they are actually running with
 */
 struct ecmdDllInfo {
-  ecmdDllType_t         dllType;        ///< Dll instance type running
-  ecmdDllProduct_t      dllProduct;     ///< Dll product supported
+  std::string           dllType;        ///< Dll instance type running
+  std::string           dllProduct;     ///< Dll product supported
   std::string           dllProductType; ///< Dll product type currently configured
   ecmdDllEnv_t          dllEnv;         ///< Dll environment (Simulation vs Hardware)
   std::string           dllBuildDate;   ///< Date the Dll was built
@@ -706,7 +606,6 @@ struct ecmdChipTarget {
   ~ecmdChipTarget();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
   uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
@@ -724,16 +623,7 @@ struct ecmdChipTarget {
   std::string chipType;         ///< name of chip to access , either actual or common name
   uint32_t    pos;              ///< position of chip within node
   std::string chipUnitType;     ///< name of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    uint8_t   core;
-#endif
-    uint8_t   chipUnitNum;      ///< number of the chip unit to access
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  uint8_t     chipUnitNum;      ///< number of the chip unit to access
   uint8_t     thread;           ///< which thread on chip to access, if chip is multi-threaded
   uint32_t    unitId;           ///< This is an optional field if unitid's are used to specify the target, the above info still needs to be filled in
   ecmdChipTargetState_t cageState;            ///< cage field state
@@ -742,16 +632,7 @@ struct ecmdChipTarget {
   ecmdChipTargetState_t chipTypeState;        ///< chipType field state
   ecmdChipTargetState_t posState;             ///< pos field state
   ecmdChipTargetState_t chipUnitTypeState;    ///< chipUnitType field state
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  union {
-#endif
-#if !defined(DOCUMENTATION)
-    ecmdChipTargetState_t coreState;
-#endif
-    ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
-#if !defined(ECMD_PERLAPI) && !defined(DOCUMENTATION) && !defined(ECMD_PYAPI)
-  };
-#endif
+  ecmdChipTargetState_t chipUnitNumState;   ///< chipUnitNum field state    
   ecmdChipTargetState_t threadState;          ///< thread field state
   ecmdChipTargetState_t unitIdState;          ///< unitId field state
 };
@@ -802,12 +683,12 @@ struct ecmdThreadData {
   ~ecmdThreadData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdThreadData& rhs) const; ///< Used to sort Thread entries in an ecmdThreadData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -830,55 +711,6 @@ threadFlags(0x0)
 inline ecmdThreadData::~ecmdThreadData() { }
 #endif
 
-#if 0
-/**
- @brief Used for the ecmdQueryConfig function to return core data
-
- Operators Supported : <
-
-*/
-struct ecmdCoreData {
-
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdCoreData();
-
-  // Destructor
-  ~ecmdCoreData();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
-  bool operator<(const ecmdCoreData& rhs) const;  ///< Used to sort Core entries in an ecmdCoreData list.
-#ifndef ECMD_STRIP_DEBUG
-    void printStruct(void);
-#endif
-#endif
-
-  // Members
-  uint8_t                       coreId;         ///< (Detail: Low) core number of this entry
-  uint8_t                       numProcThreads; ///< (Detail: Low) Number of threads per core this entry supports - only valid for Processors
-  uint32_t                      unitId;         ///< (Detail: High) Unit Id of this entry
-  uint32_t                      coreFlags;      ///< (Detail: High) Various additional info about the core - bitmask of defines
-  std::list<ecmdThreadData>     threadData;     ///< (Detail: Low) List of all threads avaliable for this chip - only valid for Processor compute cores - in numerical order
-};
-
-#ifndef DOCUMENTATION
-// ecmdCoreData Constructor
-inline ecmdCoreData::ecmdCoreData():
-coreId(0),
-numProcThreads(0),
-unitId(0),
-coreFlags(0x0)
-{
-}
-
-// ecmdCoreData Destructor
-inline ecmdCoreData::~ecmdCoreData() { }
-#endif
-#endif
-
 /**
  @brief Used for the ecmdQueryConfig function to return chipUnit data
 
@@ -895,13 +727,13 @@ struct ecmdChipUnitData {
   ~ecmdChipUnitData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
-  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Core entries in an ecmdChipUnitData list.
+  uint32_t flattenSize(void) const;
+  bool operator<(const ecmdChipUnitData& rhs) const;  ///< Used to sort Chip Unit entries in an ecmdChipUnitData list.
 #ifndef ECMD_STRIP_DEBUG
 
-  void printStruct(void);
+  void printStruct(void) const;
 
 #endif
 #endif
@@ -972,12 +804,12 @@ struct ecmdChipData {
   ~ecmdChipData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdChipData& rhs) const; ///< Used to sort Chip entries (based on Pos) in an ecmdChipData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1026,12 +858,12 @@ struct ecmdSlotData {
   ~ecmdSlotData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdSlotData& rhs) const; ///< Used to sort Slot entries in an ecmdSlotData list. 
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1072,12 +904,12 @@ struct ecmdNodeData {
   ~ecmdNodeData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdNodeData& rhs) const; ///< Used to sort Node entries in an ecmdNodeData list. 
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1118,12 +950,12 @@ struct ecmdCageData {
   ~ecmdCageData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
   bool operator<(const ecmdCageData& rhs) const;  ///< Used to sort Cage entries in an ecmdCageData list.
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1161,11 +993,11 @@ struct ecmdQueryData {
   ~ecmdQueryData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t &i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t &i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1198,7 +1030,7 @@ struct ecmdLooperData {
   std::list<ecmdNodeData>::iterator ecmdCurNode;                ///< Pointer to current Node
   std::list<ecmdSlotData>::iterator ecmdCurSlot;                ///< Pointer to current Slot
   std::list<ecmdChipData>::iterator ecmdCurChip;                ///< Pointer to current Chip
-  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current Core
+  std::list<ecmdChipUnitData>::iterator ecmdCurChipUnit;        ///< Pointer to current ChipUnit
   std::list<ecmdThreadData>::iterator ecmdCurThread;            ///< Pointer to current Thread
   ecmdChipTarget prevTarget;                                    ///< Pointer to previous target
 
@@ -1267,11 +1099,11 @@ struct ecmdRingData {
   ~ecmdRingData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1322,11 +1154,11 @@ struct ecmdArrayData {
   ~ecmdArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1378,11 +1210,11 @@ struct ecmdTraceArrayData {
   ~ecmdTraceArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1427,11 +1259,11 @@ struct ecmdFastArrayData {
   ~ecmdFastArrayData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1479,11 +1311,11 @@ struct ecmdScomData {
   ~ecmdScomData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
+  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
+  //uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  //void printStruct(void) const;
 #endif
 #endif
 
@@ -1493,8 +1325,8 @@ struct ecmdScomData {
   uint64_t         address;              ///< (Detail: Low)  Scom Address
   uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
   bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
+  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
+  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
   ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the data
   std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
   ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
@@ -1516,54 +1348,6 @@ inline ecmdScomData::~ecmdScomData() { }
 #endif
 
 /**
- @brief Used for the ecmdQueryScomHidden function to return scom info
-*/
-struct ecmdScomDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdScomDataHidden();
-
-  // Destructor
-  ~ecmdScomDataHidden();
-
-  // Methods
-  //uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  //uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  //uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  //void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  uint64_t         address;              ///< (Detail: Low)  Scom Address
-  uint32_t         length;               ///< (Detail: Low)  The length of the scom in bits
-  bool             isChipUnitRelated;    ///< (Detail: Low)  This scom is related to the chipUnit level of a chip
-  std::list<std::string>        relatedChipUnit;      ///< (Detail: Low)  If isChipUnitRelated, this is a list of names of the chipUnit
-  std::list<std::string>        relatedChipUnitShort; ///< (Detail: Low)  If isChipUnitRelated, this is short list of names of the chipUnit
-  ecmdEndianMode_t endianMode;           ///< (Detail: Low)  Indicate the endianness of the dataHidden
-  std::string      clockDomain;          ///< (Detail: High) Clock domain this scom belongs to
-  ecmdClockState_t clockState;           ///< (Detail: High) Required clock state to access this scom
-};
-
-#ifndef DOCUMENTATION
-// ecmdScomDataHidden Constructor
-inline ecmdScomDataHidden::ecmdScomDataHidden():
-address(0),
-length(0),
-isChipUnitRelated(false),
-endianMode(ECMD_UNKNOWN_ENDIAN),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdScomDataHidden Destructor
-inline ecmdScomDataHidden::~ecmdScomDataHidden() { }
-#endif
-
-/**
  @brief Used for the ecmdQueryLatch function to return latch info
 */
 struct ecmdLatchData {
@@ -1575,7 +1359,7 @@ struct ecmdLatchData {
   ~ecmdLatchData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -1625,11 +1409,11 @@ struct ecmdScomEntry {
   ~ecmdScomEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1666,7 +1450,7 @@ struct ecmdArrayEntry {
   ~ecmdArrayEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -1713,11 +1497,11 @@ struct ecmdNameEntry {
   ~ecmdNameEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1750,11 +1534,11 @@ struct ecmdNameVectorEntry {
   ~ecmdNameVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1788,11 +1572,11 @@ struct ecmdIndexVectorEntry {
   ~ecmdIndexVectorEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1827,11 +1611,11 @@ struct ecmdIndexEntry {
   ~ecmdIndexEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1865,11 +1649,11 @@ struct ecmdLatchEntry {
   ~ecmdLatchEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -1915,69 +1699,11 @@ struct ecmdLatchQueryData {
   ~ecmdLatchQueryData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
-#endif
-#endif
-
-  bool isChipUnitMatch(std::string &i_chipUnitType); ///< Checks if relatedChipUnit variable matches input
-
-  // Members
-  std::string      ringName;              ///< (Detail: Low)  Ring that latch came from
-  std::string      latchName;             ///< (Detail: Low)  Latch name of entry
-  uint32_t         fsiStartRingOffset;    ///< (Detail: Low)  Starting Ring Offset for FSI
-  uint32_t         jtagStartRingOffset;   ///< (Detail: Low)  Starting Ring Offset for JTAG
-  uint32_t         fsiEndRingOffset;      ///< (Detail: Low)  Ending Ring Offset for FSI
-  uint32_t         jtagEndRingOffset;     ///< (Detail: Low)  Ending Ring Offset for JTAG
-  uint32_t         latchStartBit;         ///< (Detail: Low)  Start bit of data inside latch
-  uint32_t         latchEndBit;           ///< (Detail: Low)  End bit of data inside latch
-  uint32_t         bitLength;             ///< (Detail: Low)  length of latch, sum of all the parts
-  bool             isChipUnitRelated;     ///< (Detail: Low)  This latch is related to the chipUnit level of a chip
-  std::string      relatedChipUnit;       ///< (Detail: Low)  If isChipUnitRelated, this is the name of the chipUnit
-  std::string      relatedChipUnitShort;  ///< (Detail: Low)  If isChipUnitRelated, this is the short name of the chipUnit
-  std::string      clockDomain;           ///< (Detail: High) Clock domain this latch belongs to
-  ecmdClockState_t clockState;            ///< (Detail: High) Required clock state to access this latch
-};
-
-#ifndef DOCUMENTATION
-// ecmdLatchQueryData Constructor
-inline ecmdLatchQueryData::ecmdLatchQueryData():
-fsiStartRingOffset(0),
-jtagStartRingOffset(0),
-fsiEndRingOffset(0),
-jtagEndRingOffset(0),
-latchStartBit(0),
-latchEndBit(0),
-bitLength(0),
-isChipUnitRelated(false),
-clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
-{
-}
-
-// ecmdLatchQueryData Destructor
-inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
-#endif
-
-/**
- @brief Used by ecmdQueryLatchInfoHidden function to return data
-*/
-struct ecmdLatchQueryDataHidden {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdLatchQueryDataHidden();
-
-  // Destructor
-  ~ecmdLatchQueryDataHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -2002,8 +1728,8 @@ struct ecmdLatchQueryDataHidden {
 };
 
 #ifndef DOCUMENTATION
-// ecmdLatchQueryDataHidden Constructor
-inline ecmdLatchQueryDataHidden::ecmdLatchQueryDataHidden():
+// ecmdLatchQueryData Constructor
+inline ecmdLatchQueryData::ecmdLatchQueryData():
 fsiStartRingOffset(0),
 jtagStartRingOffset(0),
 fsiEndRingOffset(0),
@@ -2016,8 +1742,8 @@ clockState((ecmdClockState_t) ECMD_CLOCKSTATE_UNKNOWN)
 {
 }
 
-// ecmdLatchQueryDataHidden Destructor
-inline ecmdLatchQueryDataHidden::~ecmdLatchQueryDataHidden() { }
+// ecmdLatchQueryData Destructor
+inline ecmdLatchQueryData::~ecmdLatchQueryData() { }
 #endif
 
 /**
@@ -2032,11 +1758,11 @@ struct ecmdProcRegisterInfo {
   ~ecmdProcRegisterInfo();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -2078,11 +1804,11 @@ struct ecmdCacheData {
   ~ecmdCacheData();
   
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -2144,11 +1870,11 @@ struct ecmdSpyData {
   ~ecmdSpyData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 
@@ -2211,58 +1937,7 @@ struct ecmdI2CCmdEntry {
   ~ecmdI2CCmdEntry();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void) const;
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void) const;
-#endif
-#endif
-
-  // Members
-  ecmdI2CCmds_t ecmdI2CCmd;     ///< The eCMD API to target with this command
-  uint32_t engineId;            ///< The i2c engine to use
-  uint32_t port;                ///< The i2c port to use
-  uint32_t slaveaddress;        ///< The i2c slave device address to use
-  ecmdI2cBusSpeed_t busSpeed;   ///< The i2c bus speed to use
-  uint32_t byteOffset;          ///< Byte offset in the device (needed for offset commands only)
-  uint32_t offsetFieldSize;     ///< Specifies the field size used in the i2c protocal of the slave device (needed for offset commands only)
-  uint32_t readByteLength;      ///< Byte length to read (only needed on reads)
-  ecmdDataBuffer data;          ///< The data returned from the i2c operation
-};
-
-#ifndef DOCUMENTATION
-// ecmdI2CCmdEntry Constructor
-inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
-ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
-engineId(0),
-port(0),
-slaveaddress(0),
-busSpeed(ECMD_I2C_BUSSPEED_UNKNOWN),         //fix beam error
-byteOffset(0),
-offsetFieldSize(0),
-readByteLength(0)                            //fix beam error
-{
-}
-
-// ecmdI2CCmdEntry Destructor
-inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
-#endif
-
-/**
- @brief Used by ecmdI2CMultipleCmdsHidden API
-*/
-struct ecmdI2CCmdEntryHidden {
-
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdI2CCmdEntryHidden();
-
-  // Destructor
-  ~ecmdI2CCmdEntryHidden();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
   uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
@@ -2285,7 +1960,7 @@ struct ecmdI2CCmdEntryHidden {
 
 #ifndef DOCUMENTATION
 // ecmdI2CCmdEntry Constructor
-inline ecmdI2CCmdEntryHidden::ecmdI2CCmdEntryHidden():
+inline ecmdI2CCmdEntry::ecmdI2CCmdEntry():
 ecmdI2CCmd(ECMD_I2C_UNKNOWN),                //fix beam error
 engineId(0),
 port(0),
@@ -2299,45 +1974,7 @@ i2cFlags(0)
 }
 
 // ecmdI2CCmdEntry Destructor
-inline ecmdI2CCmdEntryHidden::~ecmdI2CCmdEntryHidden() { }
-#endif
-
-
-/**
- @brief Used by simGetModelInfo
-*/
-struct ecmdSimModelInfo {
-#ifndef DOCUMENTATION
-  // Constructor
-  ecmdSimModelInfo();
-
-  // Destructor
-  ~ecmdSimModelInfo();
-
-  // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
-  uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
-#ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
-#endif
-#endif
-
-  char modelname[255];
-  char modeldate[255];
-  char modeltime[255];
-  char multivalue;  ///<   !=0  multivalue, ==0  2-state
-};
-
-//@01a Tell beam to ignore error w/uninitialized memember comment.
-#ifndef DOCUMENTATION
-// ecmdSimModelInfo Constructor
-inline ecmdSimModelInfo::ecmdSimModelInfo()
-{
-} /*uninitialized member*/
-
-// ecmdSimModelInfo Destructor
-inline ecmdSimModelInfo::~ecmdSimModelInfo() { }
+inline ecmdI2CCmdEntry::~ecmdI2CCmdEntry() { }
 #endif
 
 /**
@@ -2353,11 +1990,11 @@ struct ecmdConnectionData {
   ~ecmdConnectionData();
 
   // Methods
-  uint32_t flatten(uint8_t *o_buf, uint32_t i_len);
+  uint32_t flatten(uint8_t *o_buf, uint32_t i_len) const;
   uint32_t unflatten(const uint8_t *i_buf, uint32_t i_len);
-  uint32_t flattenSize(void);
+  uint32_t flattenSize(void) const;
 #ifndef ECMD_STRIP_DEBUG
-  void printStruct(void);
+  void printStruct(void) const;
 #endif
 #endif
 

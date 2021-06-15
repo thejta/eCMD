@@ -204,7 +204,8 @@ extension example but all extensions work the same way just replace the prefix w
  # Initialize the Plugin - has to be first thing done 
  if (ecmdLoadDll("", "ver1")) { die "Fatal errors initializing DLL"; }
 
- # Now initialize the extension as well - notice I use the $cp variable that points to my extension
+ # Now initialize the extension as well
+ # With the version 15 changes, this is no longer required by the user if the plugin you are using already does it.
  if (cipInitExtension("ver1")) { die "Fatal errors initializing CIP Extension"; }
 
 </pre>
@@ -286,7 +287,7 @@ Perl functions use the same ecmdChipTarget structure as the C-Api.
   $target->{node} = 0;
   $target->{slot} = 0;
   $target->{pos} = 1;
-  $target->{core} = 0;
+  $target->{chipUnitNum} = 0;
 
   $rc = putRing($target, "idreg", $data);
 

@@ -598,7 +598,7 @@ uint32_t ecmdGetCfamUser(int argc, char* argv[]) {
 
       if ((verbosePtr != NULL) && !expectFlag) {
       //even if rc returned is non-zero we want to continue to the next chip
-#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined(ECMD_REMOVE_SCOM_FUNCTIONS))
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
         ecmdScomData scomData;   ///< Scom data 
         scomData.address = address;
         ecmdDisplayScomData(target, scomData, buffer, verbosePtr);
@@ -1580,7 +1580,7 @@ uint32_t ecmdEchoUser(int argc, char * argv[]) {
   if (rc) return rc;
 
   if (argc < 1) {
-    ecmdOutputError("simecho - At least one argument (a message to print) is required for simecho.\n");
+    ecmdOutputError("ecmdecho - At least one argument (a message to print) is required for ecmdecho.\n");
     return ECMD_INVALID_ARGS;
   }
   for (int idx = 0; idx < argc; idx ++) {
@@ -2897,6 +2897,7 @@ uint32_t ecmdMpiplForceWinkleUser(int argc, char* argv[])
 uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_waferString)
 {
   uint32_t rc = ECMD_SUCCESS;
+
   ecmdDataBuffer waferID;
   std::string waferIdText;
   uint32_t ecidPos = 0;
@@ -2909,6 +2910,7 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
   if ((word3 & 0x0fff) == 0x0fff)
   {
     waferID.setBitLength(48);
+    // Using the first 8 positions of the 10 character field, the last two are programmed to "blanks" (all ls)
     ecidPos = 8;
     i_ecidBuffer.extract(waferID, 4, 48);
   } else {
@@ -2951,7 +2953,7 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
   // P10 and later chips using samsung wafer has bits 52...63 set to all 1's
   if ((word3 & 0x0fff) == 0x0fff)
   {
-    // getCheckSum is not called in p10 wrapper,  so we will skip it
+    // getCheckSum is not called in p10 wrapper, so we will skip it
     o_waferString = waferIdText;
   } else {
 
@@ -2975,6 +2977,7 @@ uint32_t formatEcidString( ecmdDataBuffer & i_ecidBuffer, std::string  & o_wafer
   } 
 
   return rc;
+  
 }
 
 uint32_t ecmdChipCleanupUser(int argc, char * argv[]) {

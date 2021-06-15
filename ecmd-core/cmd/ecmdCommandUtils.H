@@ -43,7 +43,7 @@
  @param i_expected The user-supplied data to match the fetched data to
  @param o_mismatchBit Return the first bit that mismatched in the data, set to ECMD_UNSET to not calculate when calling, will be set to ECMD_UNSET if wasn't a bit mismatch but was a length difference
  */
-uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit);
+uint32_t ecmdCheckExpected (const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_expected, uint32_t & o_mismatchBit);
 
 /**
  @brief Applies the buffer i_newData to the io_data buffer based upon the specified i_modifier for length of i_newData
@@ -54,7 +54,7 @@ uint32_t ecmdCheckExpected (ecmdDataBuffer & i_data, ecmdDataBuffer & i_expected
  @param i_startbit Startbit of io_data to begin modification
  @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
 */
-uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
+uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, const ecmdDataBuffer & i_newData, uint32_t i_startbit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /* STGC01276442 - MKL 03/04/10 */
 /**
@@ -67,7 +67,7 @@ uint32_t ecmdApplyDataModifier(ecmdDataBuffer & io_data, ecmdDataBuffer & i_newD
  @param i_startbit Startbit of o_data to begin creation
  @param i_modifier Type of data insertion to do 'and', 'or', 'insert'
 */
-uint32_t ecmdCreateDataMaskModifier(ecmdDataBuffer & o_data, ecmdDataBuffer & o_mask, ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
+uint32_t ecmdCreateDataMaskModifier(ecmdDataBuffer & o_data, ecmdDataBuffer & o_mask, const ecmdDataBuffer & i_newData, uint32_t i_startBit, std::string i_modifier, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Write help text file for command
@@ -176,7 +176,7 @@ std::string  getBestEcmd(std::string i_ecmd);
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_processingUnitName);
+uint32_t ecmdGetProcessingUnit(const ecmdChipTarget & i_target, std::string & o_processingUnitName);
 
 /**
  @brief Will get the processing unit name from the DLL
@@ -185,6 +185,6 @@ uint32_t ecmdGetProcessingUnit(ecmdChipTarget & i_target, std::string & o_proces
  @retval ECMD_SUCCESS on success
  @retval non-zero on failure
 */
-uint32_t ecmdGetPbaUnit(ecmdChipTarget & i_target, std::string & o_pbaUnitName);
+uint32_t ecmdGetPbaUnit(const ecmdChipTarget & i_target, std::string & o_pbaUnitName);
 
 #endif /* ecmdCommandUtils_h */

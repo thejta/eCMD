@@ -1227,7 +1227,7 @@ uint32_t ecmdGetMemPbaUser(int argc, char * argv[]) {
 
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
-    rc = getMemPbaHidden(target, address, numBytes, returnData, pbaMode);
+    rc = getMemPba(target, address, numBytes, returnData, pbaMode);
 
     if (rc) {
       printLine = cmdlineName + " - Error occured performing " + cmdlineName + " on ";

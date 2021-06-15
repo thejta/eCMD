@@ -24,15 +24,12 @@
 //----------------------------------------------------------------------
 //  Includes
 //----------------------------------------------------------------------
-#include <fstream>
 #include <dlfcn.h>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <netinet/in.h>
-#include <ecmdSharedUtils.H>
 #include <algorithm>
 
 #include <ecmdClientCapi.H>
@@ -139,8 +136,17 @@ uint32_t ecmdLoadDll(std::string i_dllName) {
     if (tempptr != NULL) {
       loadDllName = tempptr;
     } else {
+#ifdef ECMD_DLL_FILE_FIXED
+      // If compiled with the ECMD_DLL_FILE_FIXED define, we take that as the dll to use
+      // if not overriden by the ECMD_DLL_FILE env variable
+      // This is useful to prevent having to set environment variables in static environments
+      // A sample usage of this variable on a cmdline compile would be: -DECMD_DLL_FILE_FIXED=\"plugin.dll\"
+      loadDllName = ECMD_DLL_FILE_FIXED;
+#else
+      // If not compiled with a default, throw an error to the user
       fprintf(stderr,"ecmdLoadDll: Unable to find DLL to load, you must set ECMD_DLL_FILE\n");
       return ECMD_INVALID_DLL_FILENAME;
+#endif
     }
   }
 
@@ -593,189 +599,6 @@ uint32_t ecmdGetGlobalVar(ecmdGlobalVarType_t i_type) {
   return rc;
 }
 
-#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
-//this function will read the hash file and find the groupName passed in and then read the groupscomdef and gather all the entries and scomdata, and return them
-// if a version is passed in it will look for that version of the files
-uint32_t ecmdQueryScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, ecmdScomData &o_queryData, std::list<ecmdScomEntry> &o_entries, std::string & io_scomGroupFileVersion) {
-  uint32_t rc = 0;
-  std::string upper_scomGroupName = i_scomGroupName;
-
-  uint32_t groupNameKey;
-  groupHashEntry groupNameLine;  //use this for the few 32bit 32bit lines to seperate the unique, total, addrs, last line groupings
-  //addrHashEntry addrLine;  //use this for the few 32bit 32bit lines to seperate the unique, total, addrs, last line groupings
-  sectionHashEntry sectionLine;  //use this for the few 32bit 32bit lines to seperate the unique, total, addrs, last line groupings
-
-  int groupNameSize = sizeof(struct groupHashEntry); /* We need this to be able to traverse the binary hash file */
-  //int adderSize = sizeof(struct addrHashEntry); /* We need this to be able to traverse the binary hash file */
-  int group_section_start = 0;
-  int total_num_groups = 0;
-
-// we have the chip target and version number get the groupscomdef and the hash
-  std::string scomgroup_filename;
-  std::string scomgroupHash_filename;
-  ecmdChipTarget target = i_target;
-  std::string str_version = io_scomGroupFileVersion;
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOM, scomgroup_filename, str_version); if (rc) return rc;
-  //if str_version was default, then it should have been changed here but the groupscomdef and hash should have the exact same number
-  rc = ecmdQueryFileLocation(target, ECMD_FILE_GROUPSCOMHASH, scomgroupHash_filename, str_version); if (rc) return rc;
-
-  if ( io_scomGroupFileVersion == "default") {
-    io_scomGroupFileVersion = str_version;
-  }
-  std::ifstream scomgroupHashFile;
-  scomgroupHashFile.open(scomgroupHash_filename.c_str());
-  if (scomgroupHashFile.fail()) {
-    char buf[200];
-    sprintf(buf,"ecmdQueryScomGroup - Unable to open groupscom.hash file: %s\n", scomgroupHash_filename.c_str());
-    ecmdOutputError(buf);
-    return ECMD_UNKNOWN_FILE;
-  }
-
-  //get the start section, and number of groupName entries in that section
-  scomgroupHashFile.read((char*)&(sectionLine), sizeof(sectionLine));
-  sectionLine.key = htonl(sectionLine.key);
-
-  group_section_start = scomgroupHashFile.tellg();
-  total_num_groups = sectionLine.key;
-
-  //get hash of the groupName
-  transform(upper_scomGroupName.begin(), upper_scomGroupName.end(), upper_scomGroupName.begin(), (int(*)(int)) toupper);
-
-  groupNameKey = ecmdHashString32(upper_scomGroupName.c_str(), 0);
-
-
-  //binary search for the groupNameKey
-  int low = 0;
-  int high = total_num_groups - 1;
-  int cur;
-  int num_loops = 0;
-
-  while (low < high) {
-    cur = (high + low) / 2;
-    scomgroupHashFile.seekg( group_section_start + (cur * groupNameSize) ); /* position into file */ 
-    scomgroupHashFile.read((char*)&(groupNameLine), sizeof(groupNameLine));
-
-    /* We need to byte swap this guy */
-    groupNameLine.key = htonl(groupNameLine.key);
-
-    if (groupNameKey > groupNameLine.key) {
-      low = cur + 1;
-    } else {
-      high = cur;
-    }
-    num_loops++;
-  }// end while loop
-  cur = low;
-
-  //cur has the data we want, now go get it
-  scomgroupHashFile.seekg( group_section_start + (cur * groupNameSize) ); /* position into file */ 
-  scomgroupHashFile.read((char*)&(groupNameLine), sizeof(groupNameLine));
-  /* We need to byte swap this guy */
-  groupNameLine.key = htonl(groupNameLine.key);
-  groupNameLine.filepos = htonl(groupNameLine.filepos);
-
-  //we can close the hash file
-  scomgroupHashFile.close();
-
-  //make sure we have the right key
-  if (groupNameKey != groupNameLine.key) {
-    char buf[200];
-    sprintf(buf,"ecmdQueryScomGroup - Did not find the groupName: %s in the hash file\n", i_scomGroupName.c_str());
-    ecmdOutputError(buf);
-    return ECMD_INVALID_ARGS;
-  }
-
-  //printf("filepos = 0x%X\n", groupNameLine.filepos);
-  //call the parsing of groupscomdef, pass in the filepos, get back a std::list ecmdScomEntry
-  std::list<scomGroupRecord_t> scomGroupRecord;
-  rc = parse_groupscomdef_file(scomgroup_filename, scomGroupRecord, true, groupNameLine.filepos ); if (rc) return rc; //read only the group at filepos
-
-  // now xform the scomGroupRecord into the std::list ecmdScomEntry
-  ecmdScomEntry entry;
-  std::list<scomGroupRecord_t>::iterator scomGroupIter;
-
-  //print all the data we read to the screen
-  //printf("asked for a specific group, total groups found:%d\n", scomGroupRecord.size() );
-  for (scomGroupIter = scomGroupRecord.begin(); scomGroupIter != scomGroupRecord.end(); scomGroupIter++) {
-    //printf("GroupName = %s, line: %d filepos %X, ChipUnit = %s \n", scomGroupIter->scomGroup_name.c_str(), scomGroupIter->lineNumofName, scomGroupIter->filepos, scomGroupIter->scomGroup_chipUnit.c_str() );
-    if (scomGroupIter->scomGroup_chipUnit == "NONE") {
-      o_queryData.isChipUnitRelated = false;
-    } else {
-      o_queryData.isChipUnitRelated = true;
-      o_queryData.relatedChipUnit = scomGroupIter->scomGroup_chipUnit;
-      o_queryData.relatedChipUnitShort = scomGroupIter->scomGroup_chipUnit;
-    }
-    for (uint32_t i = 0; i < scomGroupIter->scomGroup_listOfAddrs.size(); i++) {
-      //printf("addr = 0x%016llX index in group:%X\n", scomGroupIter->scomGroup_listOfAddrs[i], scomGroupIter->scomGroup_indexOfAddr[i]);
-
-      //create the list of scoms
-      entry.operation = ECMD_GETSCOM_OP;
-      entry.address = scomGroupIter->scomGroup_listOfAddrs[i];
-      o_entries.push_back(entry);
-    }
-  }
-
-
-  return rc;
-}
-
-// does the queryScomgroup and the doScomMultiple all in one
-uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGroupName, std::list<ecmdScomEntry> & io_groupScomEntries, std::string & io_scomGroupFileVersion) {
-  uint32_t rc = ECMD_SUCCESS;
-  std::string scomGroupName;
-  ecmdScomData queryData;
-  std::string printed;
-  ecmdChipTarget target = i_target;
-
-
-  rc = ecmdQueryScomGroup(target, i_scomGroupName, queryData, io_groupScomEntries, io_scomGroupFileVersion);
-  if (rc) {
-    printed = "getScomGroup - Error occurred performing queryscom on ";
-    printed += ecmdWriteTarget(target) + "\n";
-    ecmdOutputError( printed.c_str() );
-    return ECMD_FAILURE;
-  }
-
-  if (io_groupScomEntries.size() == 0) {
-    printed = "getScomGroup - Did not find any scoms for this scomGroupName:";
-    printed += i_scomGroupName;
-    printed += "\n";
-    ecmdOutputError(printed.c_str());
-    return ECMD_INVALID_ARGS;
-  }
-
-  if (queryData.isChipUnitRelated) {
-    if (!queryData.isChipUnitMatch(target.chipUnitType)) {
-      printed = "getScomGroup - Provided chipUnit \"";
-      printed += target.chipUnitType;
-      printed += "\" doesn't match chipUnit returned by queryScomgroup \"";
-      printed += queryData.relatedChipUnit + "\"\n";
-      ecmdOutputError(printed.c_str());
-      return ECMD_INVALID_ARGS;
-    }
-  } else { // !scomData->isChipUnitRelated
-    if ( (target.chipUnitType != "") && (target.chipUnitTypeState !=ECMD_TARGET_FIELD_UNUSED)) {
-      printed = "getScomGroup - A chipUnit \"";
-      printed += target.chipUnitType;
-      printed += "\" was given on a non chipUnit scom address.\n";
-      ecmdOutputError(printed.c_str());
-      return ECMD_INVALID_ARGS;
-    }
-  }
-
-  rc = doScomMultiple(target, io_groupScomEntries);
-  if (rc) {
-    printed = "getScomGroup - Error occured performing doScomMultiple on ";
-    printed += ecmdWriteTarget(target);
-    printed += "\n";
-    ecmdOutputError( printed.c_str() );
-    return rc;
-  }
-
-  return rc;
-}
-#endif // ECMD_REMOVE_SCOM_FUNCTIONS
-
 /* ------------------------------------------------------------------------------------ */
 /* Below are the functions that pass straigh through to the Dll                         */
 /* Some have been moved here from ecmdClientCapiFunc.C to add additional debug messages */
@@ -784,7 +607,7 @@ uint32_t getScomGroup(const ecmdChipTarget i_target, const std::string i_scomGro
 /* enableRingCache and disableRingCache removed after v8.0 because they can now be generated - JTA 10/17/06 */
 /* disableRingCache got moved back into here so we could add the common cache flush.  This is a snapshot
  of the generated code as of 9/4/2007 - JTA */
-uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
+uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target) {
 
   uint32_t rc;
 
@@ -804,7 +627,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
      args.push_back((void*) &i_target);
      fppCallCount++;
      myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target)",args);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"ecmdDisableRingCache");
   }
 #endif
@@ -824,8 +647,8 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
       }
     }
 
-    uint32_t (*Function)(ecmdChipTarget &) = 
-      (uint32_t(*)(ecmdChipTarget &))DllFnTable[ECMD_FLUSHRINGCACHE];
+    uint32_t (*Function)(const ecmdChipTarget &) = 
+      (uint32_t(*)(const ecmdChipTarget &))DllFnTable[ECMD_FLUSHRINGCACHE];
     rc =    (*Function)(i_target);
 #endif
     if (rc) return rc;
@@ -846,8 +669,8 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
      }
   }
 
-  uint32_t (*Function)(ecmdChipTarget &) = 
-      (uint32_t(*)(ecmdChipTarget &))DllFnTable[ECMD_DISABLERINGCACHE];
+  uint32_t (*Function)(const ecmdChipTarget &) = 
+      (uint32_t(*)(const ecmdChipTarget &))DllFnTable[ECMD_DISABLERINGCACHE];
 
   rc =    (*Function)(i_target);
 
@@ -857,7 +680,7 @@ uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target) {
   if (ecmdClientDebug != 0) {
      args.push_back((void*) &rc);
      ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"ecmdDisableRingCache");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache(ecmdChipTarget & i_target)",args);
+     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t ecmdDisableRingCache(const ecmdChipTarget & i_target)",args);
    }
 #endif
 

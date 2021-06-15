@@ -50,8 +50,8 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   ecmdLooperData cuLooper;                          ///< Store internal Looper data for the chipUnit loop
   ecmdChipTarget target;                            ///< Chip target being operated on
   ecmdChipTarget cuTarget;                          ///< Current target being operated on for the chipUnit
-  std::list<ecmdScomDataHidden> queryScomData;      ///< Scom data 
-  std::list<ecmdScomDataHidden>::iterator scomData; ///< Scom data 
+  std::list<ecmdScomData> queryScomData;      ///< Scom data 
+  std::list<ecmdScomData>::iterator scomData; ///< Scom data 
   uint64_t address;                                 ///< Scom address
   ecmdDataBuffer buffer;                            ///< Container to store write data
   ecmdDataBuffer mask;                              ///< Container to store write mask
@@ -224,7 +224,7 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   while (ecmdLooperNext(target, looperData) && (!coeRc || coeMode)) {
   
     /* Now we need to find out if this is a chipUnit scom or not */
-    rc = ecmdQueryScomHidden(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
+    rc = ecmdQueryScom(target, queryScomData, address, ECMD_QUERY_DETAIL_LOW);
     if (rc) {
       printed = "cipporeputscom - Error occurred performing queryscom on ";
       printed += ecmdWriteTarget(target) + "\n";
@@ -354,7 +354,6 @@ uint32_t cipPorePutScomUser(int argc, char* argv[]) {
   return rc;
 }
 #endif //ECMD_REMOVE_SCOM_FUNCTIONS
-
 
 #ifndef ECMD_REMOVE_SPY_FUNCTIONS
 uint32_t cipPorePutSpyUser(int argc, char * argv[]) {

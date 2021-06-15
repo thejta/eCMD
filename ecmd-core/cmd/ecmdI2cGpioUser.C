@@ -233,9 +233,9 @@ uint32_t ecmdGetI2cUser(int argc, char * argv[]) {
   while ( ecmdLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) {
 
     if (argc > 5) {
-      rc = ecmdI2cReadOffsetHidden2(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data, i2cFlags);
+      rc = ecmdI2cReadOffset(target1, engineId, port, slaveAddr, busspeed , offset, fieldSize, numBytes, data, i2cFlags);
     } else {
-      rc = ecmdI2cReadHidden(target1, engineId, port, slaveAddr, busspeed, numBytes, data, i2cFlags);
+      rc = ecmdI2cRead(target1, engineId, port, slaveAddr, busspeed, numBytes, data, i2cFlags);
     }
     if (rc) { 
       if (argc > 5) {
@@ -466,9 +466,9 @@ uint32_t ecmdPutI2cUser(int argc, char * argv[]) {
   while (ecmdLooperNext(target, looperdata) && (!coeRc || coeMode)) {
 
     if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
-      rc = ecmdI2cWriteOffsetHidden2(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data, i2cFlags);
+      rc = ecmdI2cWriteOffset(target, engineId, port, slaveAddr, busspeed , offset, fieldSize, data, i2cFlags);
     } else {
-      rc = ecmdI2cWriteHidden(target, engineId, port, slaveAddr, busspeed, data, i2cFlags);
+      rc = ecmdI2cWrite(target, engineId, port, slaveAddr, busspeed, data, i2cFlags);
     }
     if (rc) {
       if (((filename != NULL) && (argc > 4)) || ((filename == NULL) && (argc > 5))) {
@@ -601,7 +601,7 @@ uint32_t ecmdI2cResetUser(int argc, char * argv[]) {
 //I2cMultiple stuff
 /******Used in ecmdI2cMultipleUser for parsting the geti2c calls*******/
 
-uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
+uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
 
@@ -714,12 +714,12 @@ uint32_t getI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o
 
 /******Used in ecmdI2cMultipleUser for parsting the puti2c calls*******/
 
-uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
+uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
   std::string inputformat = "xl";       // format of input data 
   std::string printed; 
-  
+
   char *tmpI2cFlags = ecmdParseOptionWithArgs(&argc, &argv, "-i2cflags"); 
   if ( (tmpI2cFlags != NULL) && (!ecmdIsAllHex(tmpI2cFlags)) ) {
     ecmdOutputError("puti2cMultipleParser - Non-hex characters detected in i2cflags field\n");
@@ -733,7 +733,7 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o
   if (formatPtr != NULL) {
     inputformat = formatPtr;
   }
-
+  
   o_cmd.busSpeed = ECMD_I2C_BUSSPEED_UNKNOWN; // bus speed to run i2c in khz.This is default if not specified on cmdLine, plugins will set the default 
   // get the bus speed, if it's there 
   char * busspeedstr = ecmdParseOptionWithArgs(&argc, &argv, "-busspeed");
@@ -833,7 +833,7 @@ uint32_t putI2cMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o
 
 /******Used in ecmdI2cMultipleUser for parsting the i2creset calls*******/
 
-uint32_t i2cResetMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntryHidden & o_cmd){
+uint32_t i2cResetMultipleParser(int & argc,char * argv[],ecmdI2CCmdEntry & o_cmd){
 
   uint32_t rc = ECMD_SUCCESS;
   std::string printed;
@@ -886,9 +886,9 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   ecmdChipTarget target1;               // Current target operating on-for second looper
   ecmdLooperData looperdata1;           // looper to do the real work
   int targetCount=0;                    // counts the number of targets user specified
-  std::list<ecmdI2CCmdEntryHidden> o_cmdList; // multiple command list to be processed
-  std::list<ecmdI2CCmdEntryHidden>::iterator itr; //iterator to iterate on the o_cmdList 
-  ecmdI2CCmdEntryHidden o_cmd;		// This object is passed in the parser functions for get/puti2c and i2creset
+  std::list<ecmdI2CCmdEntry> o_cmdList; // multiple command list to be processed
+  std::list<ecmdI2CCmdEntry>::iterator itr; //iterator to iterate on the o_cmdList 
+  ecmdI2CCmdEntry o_cmd;		// This object is passed in the parser functions for get/puti2c and i2creset
   char temp_buf[200];			// this will be used in sprintf
   /************************************************************************/
   /* Parse Common FLAGS here!                                             */
@@ -1129,7 +1129,7 @@ uint32_t ecmdI2cMultipleUser(int argc, char * argv[]) {
   while ( ecmdConfigLooperNext(target1, looperdata1)&& (!coeRc || coeMode)) 
   {
 
-	  rc = ecmdI2CMultipleCmdsHidden(target1,o_cmdList);
+	  rc = ecmdI2CMultipleCmds(target1,o_cmdList);
 	  if(rc){
               printed += "i2cmultiple - Error occurred performing on ecmdI2CMultipleCmds";
               printed += ecmdWriteTarget(target1) + "\n";

@@ -198,7 +198,7 @@ char * ecmdParseOptionWithArgs(int *argc, char **argv[], const char *option) {
 }
 
 
-std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen) {
+std::string ecmdGenEbcdic(const ecmdDataBuffer &i_data, int start, int bitLen) {
   std::string ret;
   std::string tempChar;
   // Conversion table

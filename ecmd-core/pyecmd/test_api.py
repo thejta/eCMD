@@ -15,7 +15,7 @@ with Ecmd(**extensions):
      #unit_id_string = unitIdToString(2)
      #clock_state = t.queryClockState("SOMECLOCK")
      t.relatedTargets("pu.c")
-     retval = t.queryFileLocationHidden2(ECMD_FILE_SCANDEF, "")
+     retval = t.queryFileLocation(ECMD_FILE_SCANDEF, "")
      for loc in retval.fileLocations:
          testval = loc.textFile + loc.hashFile + retval.version
 

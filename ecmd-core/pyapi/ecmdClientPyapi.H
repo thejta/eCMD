@@ -183,6 +183,7 @@ extension example but all extensions work the same way just replace the prefix w
     return 1
 
  # Now initialize the extension as well
+ # With the version 15 changes, this is no longer required by the user if the plugin you are using already does it.
  if (ecmd.cipInitExtension("ver1")):
     print("Fatal errors initializing CIP Extension")
     return 1

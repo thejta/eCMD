@@ -100,6 +100,14 @@ optgroup.add_argument("--cxx_r", help="The reentrant compiler to use (AIX only)\
 optgroup.add_argument("--cxxflags", help="Any CXXFLAGS to use in the build\n"
                                          "CXXFLAGS from the environment")
 
+# --firstinc
+optgroup.add_argument("--firstinc", help="Set the first include path (-I) to be defined\n"
+                                         "in CXXFLAGS and SWIGFLAGS")
+
+# --header-defines
+optgroup.add_argument("--header-defines", action='store_true',
+                      help="Rely on ecmdDefines.H to set extension defines")
+
 # --ld
 optgroup.add_argument("--ld", help="The linker to use\n"
                                    "LD from the environment")
@@ -581,6 +589,14 @@ elif ("CXXFLAGS" in os.environ):
 # Common compile flags across any OS
 CXXFLAGS += " -g -I."
 
+# If the option was given, make sure the given path is
+# at the front of the list
+SWIGFLAGS = None
+if (args.firstinc):
+    firstinc = " -I%s" % args.firstinc
+    CXXFLAGS += firstinc
+    SWIGFLAGS = firstinc
+
 # If the user passed thru extra defines, grab them
 if "DEFINES" in os.environ:
     DEFINES = os.environ["DEFINES"]
@@ -611,6 +627,11 @@ elif (TARGET_BARCH == "arm"):
 # See if REMOVE_SIM is enabled from the cmdline
 if (args.remove_sim):
     DEFINES += " -DREMOVE_SIM"
+
+# Added the extension defines if not using the header
+if (not args.header_defines):
+    for ext in sorted(EXTENSIONS.split()):
+        DEFINES += " -DECMD_" + ext.upper() + "_EXTENSION_SUPPORT"
     
 # Export everything we defined
 buildvars["DEFINES"] = DEFINES
@@ -618,6 +639,8 @@ buildvars["GPATH"] = GPATH
 buildvars["CXXFLAGS"] = CXXFLAGS
 buildvars["LDFLAGS"] = LDFLAGS
 buildvars["SLDFLAGS"] = SLDFLAGS
+if (SWIGFLAGS):
+    buildvars["SWIGFLAGS"] = SWIGFLAGS
 
 ###################################
 # Setup for creating SWIG outputs #

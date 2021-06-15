@@ -78,7 +78,7 @@ enum RingID
 
 namespace fapi2plat
 {
-    fapi2::ReturnCode getScom(ecmdChipTarget& i_target,
+    fapi2::ReturnCode getScom(const ecmdChipTarget& i_target,
                               const uint64_t i_address,
                               fapi2::buffer<uint64_t>& o_data)
     {
@@ -105,7 +105,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getScom(const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getScom");
         }
 #endif
@@ -132,8 +132,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETSCOM];
+        uint32_t (*Function)(const ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETSCOM];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
 #endif
         if (l_ecmdRc)
@@ -146,7 +146,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getScom");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getScom(const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data)",args);
         }
 #endif
 
@@ -163,7 +163,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode putScom(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data) 
+    fapi2::ReturnCode putScom(const ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data) 
     {
         fapi2::ReturnCode rc;
         uint32_t l_ecmdRc;
@@ -189,7 +189,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScom(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putScom");
         }
 #endif
@@ -216,8 +216,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  uint64_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOM];
+        uint32_t (*Function)(const ecmdChipTarget &,  uint64_t,  const ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  uint64_t,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOM];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
 #endif
         if (l_ecmdRc)
@@ -230,7 +230,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putScom");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScom(ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBufferBase & i_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScom(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data)",args);
         }
 #endif
 
@@ -245,7 +245,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data, const fapi2::buffer<uint64_t> i_mask) 
+    fapi2::ReturnCode putScomUnderMask(const ecmdChipTarget & i_target, const uint64_t i_address, const fapi2::buffer<uint64_t> i_data, const fapi2::buffer<uint64_t> i_mask) 
     {
         fapi2::ReturnCode rc;
         uint32_t l_ecmdRc;
@@ -280,7 +280,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer_mask);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address, ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putScomUnderMask");
         }
 #endif
@@ -299,8 +299,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(const ecmdChipTarget&, const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &) = 
-            (uint32_t(*)(const ecmdChipTarget&,  const uint64_t,  ecmdDataBuffer &,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
+        uint32_t (*Function)(const ecmdChipTarget&, uint64_t, const ecmdDataBuffer &,  const ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget&, uint64_t, const ecmdDataBuffer &,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTSCOMUNDERMASK];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, l_ecmd_buffer_mask);
 #endif
         if (l_ecmdRc)
@@ -313,14 +313,14 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putScomUnderMask");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScomUnderMask(ecmdChipTarget & i_target, const uint64_t i_address,  const ecmdDataBufferBase & i_data, const ecmdDataBufferBase & i_mask)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putScomUnderMask(const ecmdChipTarget & i_target, uint64_t i_address,  const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask)",args);
         }
 #endif
 
         return rc;
     }
 
-    fapi2::ReturnCode getCfamRegister(ecmdChipTarget& i_target,
+    fapi2::ReturnCode getCfamRegister(const ecmdChipTarget& i_target,
                                       const uint32_t i_address,
                                       fapi2::buffer<uint32_t>& o_data)
     {
@@ -347,7 +347,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getCfamRegister");
         }
 #endif
@@ -374,8 +374,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETCFAMREGISTER];
+        uint32_t (*Function)(const ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_GETCFAMREGISTER];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
 #endif
         if (l_ecmdRc)
@@ -388,7 +388,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getCfamRegister");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBufferBase & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & o_data)",args);
         }
 #endif
 
@@ -405,7 +405,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode putCfamRegister(ecmdChipTarget& i_target,
+    fapi2::ReturnCode putCfamRegister(const ecmdChipTarget& i_target,
                                       const uint32_t i_address,
                                       const fapi2::buffer<uint32_t> i_data)
     {
@@ -433,7 +433,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, const ecmdDataBuffer & i_data)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putCfamRegister");
         }
 #endif
@@ -460,8 +460,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  uint32_t,  ecmdDataBuffer &))DllFnTable[ECMD_PUTCFAMREGISTER];
+        uint32_t (*Function)(const ecmdChipTarget &,  uint32_t,  const ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  uint32_t,  const ecmdDataBuffer &))DllFnTable[ECMD_PUTCFAMREGISTER];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer);
 #endif
         if (l_ecmdRc)
@@ -474,7 +474,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putCfamRegister");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putCfamRegister(ecmdChipTarget & i_target, uint32_t i_address, ecmdDataBuffer & i_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putCfamRegister(const ecmdChipTarget & i_target, uint32_t i_address, const ecmdDataBuffer & i_data)",args);
         }
 #endif
 
@@ -489,7 +489,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & o_data, const uint32_t i_ringMode)
+    fapi2::ReturnCode getRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, fapi2::variable_buffer & o_data, const uint32_t i_ringMode)
     {
         fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
@@ -521,7 +521,7 @@ namespace fapi2plat
             args.push_back((void*) &i_ringMode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data, const uint32_t i_ringMode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getRing");
         }
 #endif
@@ -540,8 +540,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t ) = 
-            (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2GETRING];
+        uint32_t (*Function)(const ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t ) = 
+            (uint32_t(*)(const ecmdChipTarget&,  const scanRingId_t,  ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2GETRING];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
 #endif
         if (l_ecmdRc)
@@ -554,7 +554,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & o_data)",args);
         }
 #endif
 
@@ -567,9 +567,7 @@ namespace fapi2plat
         return rc;
     }
 
-    // Keeping this only in C code for backwards compatibility
-    // No new procedures should be calling this
-    fapi2::ReturnCode putRing(ecmdChipTarget & i_target, const RingID i_ringID, const fapi2::RingMode i_ringMode)
+    fapi2::ReturnCode putRing(const ecmdChipTarget & i_target, const RingId_t i_ringID, const fapi2::RingMode i_ringMode)
     {
         fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
@@ -599,7 +597,7 @@ namespace fapi2plat
             args.push_back((void*) &i_ringMode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(const ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putRing");
         }
 #endif
@@ -618,8 +616,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget&, const uint32_t, const uint32_t) = 
-            (uint32_t(*)(ecmdChipTarget&, const uint32_t, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID];
+        uint32_t (*Function)(const ecmdChipTarget&, const uint32_t, const uint32_t) = 
+            (uint32_t(*)(const ecmdChipTarget&, const uint32_t, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID];
         l_ecmdRc = (*Function)(i_target, i_ringID, i_ringMode);
 #endif
         if (l_ecmdRc)
@@ -632,84 +630,14 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(const ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
         }
 #endif
 
         return rc;
     }
 
-    fapi2::ReturnCode putRing(ecmdChipTarget & i_target, const RingId_t i_ringID, const fapi2::RingMode i_ringMode)
-    {
-        fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
-        uint32_t l_ecmdRc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-        if (dlHandle == NULL)
-        {
-            fprintf(stderr,"dllFapi2PutRingByID%s",ECMD_DLL_NOT_LOADED_ERROR);
-            exit(ECMD_DLL_INVALID);
-        }
-#endif
-
-        if (!fapi2Initialized)
-        {
-            fprintf(stderr,"dllFapi2PutRingByID: eCMD Extension not initialized before function called\n");
-            fprintf(stderr,"dllFapi2PutRingByID: OR eCMD fapi Extension not supported by plugin\n");
-            exit(ECMD_DLL_INVALID);
-        }
-
-#ifndef ECMD_STRIP_DEBUG
-        int myTcount;
-        std::vector< void * > args;
-        if (ecmdClientDebug != 0)
-        {
-            args.push_back((void*) &i_target);
-            args.push_back((void*) &i_ringID);
-            args.push_back((void*) &i_ringMode);
-            fppCallCount++;
-            myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putRing");
-        }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-        l_ecmdRc = dllFapi2PutRingByID(i_target, i_ringID, i_ringMode);
-#else
-        if (fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID] == NULL)
-        {
-            fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID] = (void*)dlsym(dlHandle, "dllFapi2PutRingByID");
-            if (fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID] == NULL)
-            {
-                fprintf(stderr,"dllFapi2PutRingByID%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-                ecmdDisplayDllInfo();
-                exit(ECMD_DLL_INVALID);
-            }
-        }
-
-        uint32_t (*Function)(ecmdChipTarget&, const uint32_t, const uint32_t) = 
-            (uint32_t(*)(ecmdChipTarget&, const uint32_t, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRINGBYID];
-        l_ecmdRc = (*Function)(i_target, i_ringID, i_ringMode);
-#endif
-        if (l_ecmdRc)
-        {
-            rc = (fapi2::ReturnCodes) l_ecmdRc; 
-        }
-
-#ifndef ECMD_STRIP_DEBUG
-        if (ecmdClientDebug != 0)
-        {
-            args.push_back((void*) &l_ecmdRc);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(ecmdChipTarget & i_target, const uint32_t i_ringID, const uint32_t i_ringMode)",args);
-        }
-#endif
-
-        return rc;
-    }
-
-    fapi2::ReturnCode putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, const fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
+    fapi2::ReturnCode putRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, const fapi2::variable_buffer & i_data, const uint32_t i_ringMode)
     {
         fapi2::ReturnCode rc(fapi2::FAPI2_RC_SUCCESS);
         uint32_t l_ecmdRc;
@@ -747,7 +675,7 @@ namespace fapi2plat
             args.push_back((void*) &i_ringMode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, const ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putRing");
         }
 #endif
@@ -766,8 +694,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t i_ringMode) = 
-            (uint32_t(*)(ecmdChipTarget&,  const scanRingId_t, ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRING];
+        uint32_t (*Function)(const ecmdChipTarget&,  const scanRingId_t, const ecmdDataBufferBase &, const uint32_t i_ringMode) = 
+            (uint32_t(*)(const ecmdChipTarget&,  const scanRingId_t, const ecmdDataBufferBase &, const uint32_t))fapi2DllFnTable[ECMD_FAPI2PUTRING];
         l_ecmdRc = (*Function)(i_target, i_address, l_ecmd_buffer, i_ringMode);
 #endif
         if (l_ecmdRc)
@@ -780,14 +708,14 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putRing");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(ecmdChipTarget & i_target, const scanRingId_t i_address, ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putRing(const ecmdChipTarget & i_target, const scanRingId_t i_address, const ecmdDataBufferBase & i_data, const uint32_t i_ringMode)",args);
         }
 #endif
 
         return rc;
     }
 
-    fapi2::ReturnCode getSpy(ecmdChipTarget & i_target,
+    fapi2::ReturnCode getSpy(const ecmdChipTarget & i_target,
                              const char * const i_spyId,
                              fapi2::variable_buffer& o_data)
     {
@@ -795,6 +723,7 @@ namespace fapi2plat
         uint32_t l_ecmdRc;
 
         ecmdDataBuffer l_ecmd_buffer;
+        uint32_t l_mode = 0;
 
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
@@ -812,15 +741,16 @@ namespace fapi2plat
             args.push_back((void*) &i_target);
             args.push_back((void*) &i_spyId);
             args.push_back((void*) &l_ecmd_buffer);
+            args.push_back((void*) &l_mode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpy(const ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpy");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-        l_ecmdRc = dllGetSpy(i_target, i_spyId, l_ecmd_buffer);
+        l_ecmdRc = dllGetSpy(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #else
         if (DllFnTable[ECMD_GETSPY] == NULL)
         {
@@ -833,9 +763,9 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &))DllFnTable[ECMD_GETSPY];
-        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer);
+        uint32_t (*Function)(const ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t) = 
+            (uint32_t(*)(const ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t))DllFnTable[ECMD_GETSPY];
+        l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #endif
         if (l_ecmdRc)
         {
@@ -847,7 +777,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpy");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpy(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpy(const ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
         }
 #endif
 
@@ -868,7 +798,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode putSpy(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putSpy(const ecmdChipTarget & i_target,
                              const char * const i_spyId,
                              const fapi2::variable_buffer& i_data)
     {
@@ -886,7 +816,7 @@ namespace fapi2plat
 #ifndef ECMD_STATIC_FUNCTIONS
         if (dlHandle == NULL) 
         {
-	        fprintf(stderr,"dllPutSpyHidden%s",ECMD_DLL_NOT_LOADED_ERROR);
+	        fprintf(stderr,"dllPutSpy%s",ECMD_DLL_NOT_LOADED_ERROR);
 	        exit(ECMD_DLL_INVALID);
         }
 #endif
@@ -902,27 +832,27 @@ namespace fapi2plat
             args.push_back((void*) &l_mode);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpyHidden");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpy(const ecmdChipTarget & i_target, const char * i_spyId, const ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpy");
         }
 #endif
 
 #ifdef ECMD_STATIC_FUNCTIONS
-        l_ecmdRc = dllPutSpyHidden(i_target, i_spyId, l_ecmd_buffer, l_mode);
+        l_ecmdRc = dllPutSpy(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #else
-        if (DllFnTable[ECMD_PUTSPYHIDDEN] == NULL)
+        if (DllFnTable[ECMD_PUTSPY] == NULL)
         {
-            DllFnTable[ECMD_PUTSPYHIDDEN] = (void*)dlsym(dlHandle, "dllPutSpyHidden");
-            if (DllFnTable[ECMD_PUTSPYHIDDEN] == NULL)
+            DllFnTable[ECMD_PUTSPY] = (void*)dlsym(dlHandle, "dllPutSpy");
+            if (DllFnTable[ECMD_PUTSPY] == NULL)
             {
-                fprintf(stderr,"dllPutSpyHidden%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
+                fprintf(stderr,"dllPutSpy%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
                 ecmdDisplayDllInfo();
                 exit(ECMD_DLL_INVALID);
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t) = 
-            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, uint32_t))DllFnTable[ECMD_PUTSPYHIDDEN];
+        uint32_t (*Function)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, uint32_t) = 
+            (uint32_t(*)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, uint32_t))DllFnTable[ECMD_PUTSPY];
         l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer, l_mode);
 #endif
         if (l_ecmdRc)
@@ -934,8 +864,8 @@ namespace fapi2plat
         if (ecmdClientDebug != 0)
         {
             args.push_back((void*) &l_ecmdRc);
-            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpyHidden");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyHidden(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
+            ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpy");
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpy(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & l_ecmd_buffer, uint32_t l_mode)",args);
         }
 #endif
 
@@ -950,7 +880,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode getSpyImage(ecmdChipTarget & i_target,
+    fapi2::ReturnCode getSpyImage(const ecmdChipTarget & i_target,
                                   const char * const i_spyId,
                                   fapi2::variable_buffer& o_data,
                                   const fapi2::variable_buffer& i_imageData)
@@ -985,7 +915,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t getSpyImage(const ecmdChipTarget & i_target, const char * i_spyId, const ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"getSpyImage");
         }
 #endif
@@ -1004,8 +934,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_GETSPYIMAGE];
+        uint32_t (*Function)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_GETSPYIMAGE];
         l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer_image_data, l_ecmd_buffer);
 #endif
         if (l_ecmdRc)
@@ -1018,7 +948,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"getSpyImage");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t getSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & l_ecmd_buffer_image_data, ecmdDataBuffer & l_ecmd_buffer)",args);
         }
 #endif
 
@@ -1039,7 +969,7 @@ namespace fapi2plat
         return rc;
     }
 
-    fapi2::ReturnCode putSpyImage(ecmdChipTarget & i_target,
+    fapi2::ReturnCode putSpyImage(const ecmdChipTarget & i_target,
                                   const char* const i_spyId,
                                   const fapi2::variable_buffer& i_data,
                                   fapi2::variable_buffer& o_imageData)
@@ -1080,7 +1010,7 @@ namespace fapi2plat
             args.push_back((void*) &l_ecmd_buffer_image_data);
             fppCallCount++;
             myTcount = fppCallCount;
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyId, ecmdDataBuffer & l_ecmd_buffer)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t putSpyImage(const ecmdChipTarget & i_target, const char * i_spyId, const ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_buffer_image_data)",args);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"putSpyImage");
         }
 #endif
@@ -1099,8 +1029,8 @@ namespace fapi2plat
             }
         }
 
-        uint32_t (*Function)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &) = 
-            (uint32_t(*)(ecmdChipTarget &,  const char * ,  ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_PUTSPYIMAGE];
+        uint32_t (*Function)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, ecmdDataBuffer &) = 
+            (uint32_t(*)(const ecmdChipTarget &,  const char * ,  const ecmdDataBuffer &, ecmdDataBuffer &))DllFnTable[ECMD_PUTSPYIMAGE];
         l_ecmdRc = (*Function)(i_target, i_spyId, l_ecmd_buffer, l_ecmd_buffer_image_data);
 #endif
         if (l_ecmdRc)
@@ -1113,7 +1043,7 @@ namespace fapi2plat
         {
             args.push_back((void*) &l_ecmdRc);
             ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"putSpyImage");
-            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyImage(ecmdChipTarget & i_target, const char * i_spyName, ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
+            ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t putSpyImage(const ecmdChipTarget & i_target, const char * i_spyName, const ecmdDataBuffer & l_ecmd_buffer, ecmdDataBuffer & l_ecmd_data_buffer_image_data)",args);
         }
 #endif
 

@@ -231,25 +231,11 @@ def __deepcopy__(self, memo):
     return ecmdScomDataList(self)
 %}
 }
-%template(ecmdScomDataHiddenList)    std::list<ecmdScomDataHidden>;
-%extend std::list<ecmdScomDataHidden> {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdScomDataHiddenList(self)
-%}
-}
 %template(ecmdI2CCmdEntryList)       std::list<ecmdI2CCmdEntry>;
 %extend std::list<ecmdI2CCmdEntry> {
 %pythoncode %{
 def __deepcopy__(self, memo):
     return ecmdI2CCmdEntryList(self)
-%}
-}
-%template(ecmdI2CCmdEntryHiddenList) std::list<ecmdI2CCmdEntryHidden>;
-%extend std::list<ecmdI2CCmdEntryHidden> {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdI2CCmdEntryHiddenList(self)
 %}
 }
 %template(ecmdConnectionDataList)    std::list<ecmdConnectionData>;
@@ -383,13 +369,6 @@ def __deepcopy__(self, memo):
     return ecmdScomData(self)
 %}
 }
-%copyctor ecmdScomDataHidden;
-%extend ecmdScomDataHidden {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdScomDataHidden(self)
-%}
-}
 %copyctor ecmdLataData;
 %extend ecmdLatchData {
 %pythoncode %{
@@ -453,13 +432,6 @@ def __deepcopy__(self, memo):
     return ecmdLatchQueryData(self)
 %}
 }
-%copyctor ecmdLatchQueryDataHidden;
-%extend ecmdLatchQueryDataHidden {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdLatchQueryDataHidden(self)
-%}
-}
 %copyctor ecmdProcRegisterInfo;
 %extend ecmdProcRegisterInfo {
 %pythoncode %{
@@ -486,20 +458,6 @@ def __deepcopy__(self, memo):
 %pythoncode %{
 def __deepcopy__(self, memo):
     return ecmdI2CCmdEntry(self)
-%}
-}
-%copyctor ecmdI2CCmdEntryHidden;
-%extend ecmdI2CCmdEntryHidden {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdI2CCmdEntryHidden(self)
-%}
-}
-%copyctor ecmdSimModelInfo;
-%extend ecmdSimModelInfo {
-%pythoncode %{
-def __deepcopy__(self, memo):
-    return ecmdSimModelInfo(self)
 %}
 }
 %copyctor ecmdConnectionData;

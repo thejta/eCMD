@@ -81,7 +81,7 @@ my $release;
 my $prevRelease;
 my $plugin;
 my $product;
-my $bits = 32;
+my $bits = 64;
 my $arch;
 my $temp;
 my $shortcut = 0;
@@ -383,9 +383,9 @@ sub main {
   }
 
   ##########################################################################
-  # If release was set to rel by plugin setup, change local variable
+  # If release was set by plugin setup, change local variable
   #
-  if ($ENV{"ECMD_RELEASE"} eq "rel") {
+  if ($modified{"ECMD_RELEASE"} == 1) {
     $release = $ENV{"ECMD_RELEASE"};
   }
 
@@ -419,10 +419,10 @@ sub main {
   }
 
   ##########################################################################
-  # Change shared lib path to point to release for cronus
+  # Change shared lib path to point to release
   # This is because the release may have changed from the installPath that was used
   #
-  if ((!$cleanup) && ($plugin eq "cro") && (!$singleInstall)) {
+  if (!$cleanup) {
       my $sharedLib;
       if ($arch =~ m/aix/) {
           $sharedLib = "LIBPATH";

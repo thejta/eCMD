@@ -62,7 +62,6 @@ INCLUDES := ${CAPI_INCLUDES} ${SEDC_INCLUDES}
 # *****************************************************************************
 # Define our output files
 # *****************************************************************************
-TARGET   := ecmdClientCapi.a
 SLIB     := libecmd.so
 
 # *****************************************************************************
@@ -74,21 +73,15 @@ all:
 
 generate: ${GENERATED_SOURCE} ${GENERATED_INCLUDES}
 
-build: ${TARGET} ${SLIB}
+build: ${SLIB}
 
 test:
   # Do nothing
 
 install:
-	@echo "Installing eCMD Client API to ${INSTALL_PATH}/capi/ ..."
-	@mkdir -p ${INSTALL_PATH}/capi/
-	cp ${OUTLIB}/${TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
-	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/capi/.
-	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/capi/.
-# Adding empty file for ecmd15 compatibility.  Allows it to be included from install path in either release.
-	@echo "Touching simClientCapi.H"
-	@touch ${INSTALL_PATH}/capi/simClientCapi.H
-	chmod 644 ${INSTALL_PATH}/capi/*
+	@echo "Installing eCMD Client API to ${INSTALL_PATH} ..."
+	cp ${CAPI_INCLUDES} ${INSTALL_PATH}/include/.
+	cp ${SEDC_INCLUDES_INSTALL} ${INSTALL_PATH}/include/.
 	@echo "Installing eCMD Shared Lib to ${INSTALL_PATH}/${TARGET_ARCH}/lib/ ..."
 	cp ${OUTLIB}/${SLIB} ${INSTALL_PATH}/${TARGET_ARCH}/lib/.
 
@@ -124,16 +117,9 @@ ${SLIB_SOURCE_OBJS}: ${OBJPATH}%.o : %.C ${INCLUDES} ${INT_INCLUDES}
 	${VERBOSE}${CXX} -c ${SLIB_CXXFLAGS} $< -o $@ ${DEFINES}
 
 # *****************************************************************************
-# Create the Client Archive
-# *****************************************************************************
-${TARGET}: ${CAPI_SOURCE_OBJS}
-	@echo Creating $@
-	${VERBOSE}${AR} r ${OUTLIB}/${TARGET} $^
-
-# *****************************************************************************
 # Create the Shared Library
 # *****************************************************************************
-${SLIB}: ${SLIB_SOURCE_OBJS}
+${SLIB}: ${SLIB_SOURCE_OBJS} ${CAPI_SOURCE_OBJS}
 	@echo Linking $@
 	${VERBOSE}${LD} ${SLDFLAGS} -o ${OUTLIB}/${SLIB} $^ ${ZLIB} -ldl
 

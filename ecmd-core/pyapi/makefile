@@ -34,13 +34,11 @@ INCLUDES  := ${INCLUDES} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.H ${ext}C
 SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.C ${ext}ClientPyapi.C)
 # Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
 SOURCE    := $(subst fapiClientCapi.C,,${SOURCE})
-CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
-SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
+SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/pyapi)
 
 ### Setup all of the additional objects to link
-LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_PYAPI}, ${OUTLIB}/${ext}ClientCapi.a)
 EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_PYAPI},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Set our defaults for these values, but they can be overriden by the py3api makefile
@@ -80,10 +78,6 @@ pyapi_install:
 	cp ${OUTPY}/${SO_TARGET} ${INSTALL_PATH}/${TARGET_ARCH}/python/ecmd/${PYTHON_NAME}/.
 	cp ${ECMD_CORE}/pyapi/init/__init__.py ${INSTALL_PATH}/${TARGET_ARCH}/python/ecmd/.
 	@echo " "
-
-	@echo "Creating ${TARGET_ARCH}/${PYTHON_NAME} dir and adding deprecation warning ..."
-	@mkdir -p ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}
-	cp ${ECMD_CORE}/pyapi/init/ecmd-deprecation-warning.py ${INSTALL_PATH}/${TARGET_ARCH}/${PYTHON_NAME}/ecmd.py
 
 test:
 	@echo "***** If you see python load errors this build of the python module is invalid ****"

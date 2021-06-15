@@ -307,7 +307,7 @@ uint32_t ecmdGetRingDumpUser(int argc, char * argv[]) {
     /* If this isn't a chipUnit ring we will fall into while loop and break at the end, if it is we will call run through configloopernext */
     while ((ringData->isChipUnitRelated ? ecmdLooperNext(cuTarget, cuLooper) : (oneLoop--)) && (!coeRc || coeMode)) {
 
-        rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+        rc = getRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
         if (rc) {
           printed = "getringdump - Error occurred performing getring on ";
           printed += ecmdWriteTarget(cuTarget);
@@ -545,7 +545,7 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
   ecmdDataBuffer expected;                      ///< Buffer to store output data
   ecmdChipTarget target;                        ///< Target we are operating on
   ecmdChipTarget cuTarget;                      ///< Current target being operated on for the chipUnit
-  ecmdLatchQueryDataHidden queryLatchData;      ///< Latch data 
+  ecmdLatchQueryData queryLatchData;      ///< Latch data 
   std::string printed;
   std::list<ecmdLatchEntry> latchEntry;         ///< Data returned from getLatch
   char temp[300];                               ///< Temp string buffer
@@ -752,12 +752,12 @@ uint32_t ecmdGetLatchUser(int argc, char * argv[]) {
 
     /* Now we need to find out if this is a chipUnit latch or not */
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW); 
     else 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
   
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "getlatch - Error occurred performing queryLatchInfoHidden on ";
+      printed = "getlatch - Error occurred performing queryLatchInfo on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("getlatch - Unable to find latchname in scandef file\n");
@@ -1266,7 +1266,7 @@ uint32_t ecmdGetBitsUser(int argc, char * argv[]) {
       }
       else
       {
-          rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+          rc = getRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
           if (rc) {
               printed = "getbits - Error occurred performing getring on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1634,7 +1634,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         } 
         else 
         {
-            rc = getRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_read_mode);
+            rc = getRing(cuTarget, ringName.c_str(), ringBuffer, l_read_mode);
             if (rc) {
                 printed = "putbits - Error occurred performing getring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1664,7 +1664,7 @@ uint32_t ecmdPutBitsUser(int argc, char * argv[]) {
         }
         else
         {
-            rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+            rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
             if (rc) {
                 printed = "putbits - Error occurred performing putring on ";
                 printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -1715,7 +1715,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
   std::string dataModifier = "insert";      ///< Default data Modifier (And/Or/insert)
   ecmdChipTarget target;                    ///< Current target being operated on
   ecmdChipTarget cuTarget;                  ///< Current target being operated on for the chipUnit
-  ecmdLatchQueryDataHidden queryLatchData;  ///< Latch data 
+  ecmdLatchQueryData queryLatchData;  ///< Latch data 
   bool validPosFound = false;               ///< Did the looper find anything ?
   bool validLatchFound = false;             ///< Did we find a valid latch
   std::string printed;
@@ -1910,11 +1910,11 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
     }
 
     if (ringName.length() != 0) 
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), ringName.c_str(), ECMD_QUERY_DETAIL_LOW);
     else
-      rc = ecmdQueryLatchInfoHidden(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
+      rc = ecmdQueryLatchInfo(target, queryLatchData, latchMode, latchName.c_str(), NULL, ECMD_QUERY_DETAIL_LOW); 
     if (rc == ECMD_INVALID_LATCHNAME) {
-      printed = "putlatch - Error occurred performing queryLatchInfoHidden on ";
+      printed = "putlatch - Error occurred performing queryLatchInfo on ";
       printed += ecmdWriteTarget(target) + "\n";
       ecmdOutputError( printed.c_str() );
       ecmdOutputError("putlatch - Unable to find latchname in scandef file\n");
@@ -1945,7 +1945,7 @@ uint32_t ecmdPutLatchUser(int argc, char * argv[]) {
       if (!queryLatchData.isChipUnitMatch(chipUnitType)) {
         printed = "putlatch - Provided chipUnit \"";
         printed += chipUnitType;
-        printed += "\" doesn't match chipUnit returned by queryLatchInfoHidden \"";
+        printed += "\" doesn't match chipUnit returned by queryLatchInfo \"";
         printed += queryLatchData.relatedChipUnit + "\"\n";
         ecmdOutputError(printed.c_str());
         rc = ECMD_INVALID_ARGS;
@@ -2682,7 +2682,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           {
             printed = "Saving the ring state before performing pattern testing.\n";
             ecmdOutput(printed.c_str());   
-            rc = getRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
+            rc = getRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_read_mode);
             if (rc) {
               printed = "checkrings - Error occurred performing getring on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -2794,12 +2794,12 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
                // Only do the mcast write on the first loop
                if (l_cuLoopCount == 1)
                {
-                   rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode | mcastMode);
+                   rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode | mcastMode);
                }
            }
            else
            {
-               rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
+               rc = putRing(cuTarget, ringName.c_str(), ringBuffer, l_write_mode);
            }
 
           /* If we did a broadside write, restore state */
@@ -2846,11 +2846,11 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
             ecmdOutput(printed.c_str());
             if (mcastRead)
             {
-                rc = getRingHidden(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode | mcastMode);
+                rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode | mcastMode);
             }
             else
             {
-                rc = getRingHidden(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
+                rc = getRing(cuTarget, ringName.c_str(), readRingBuffer, l_read_mode);
             }
 
             /* If we did a broadside read, restore state */
@@ -2971,7 +2971,7 @@ uint32_t ecmdCheckRingsUser(int argc, char * argv[]) {
           {
             printed = "Restoring the ring state.\n\n";
             ecmdOutput( printed.c_str() );
-            rc = putRingHidden(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode | mcastMode);
+            rc = putRing(cuTarget, ringName.c_str(), ringOrgBuffer, l_write_mode | mcastMode);
             if (rc) {
               printed = "checkrings - Error occurred performing putring on ";
               printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -3230,7 +3230,7 @@ uint32_t ecmdPutPatternUser(int argc, char * argv[]) {
         curOffset += numBitsToInsert;
       }
 
-      rc = putRingHidden(cuTarget, ringName.c_str(), ringBuffer, ringMode);
+      rc = putRing(cuTarget, ringName.c_str(), ringBuffer, ringMode);
       if (rc) {
         printed = "putpattern - Error occurred performing putring on ";
         printed += ecmdWriteTarget(cuTarget) + "\n";
@@ -3418,7 +3418,7 @@ uint32_t readScandefFile(ecmdChipTarget & target, const char* i_ringName, ecmdDa
   uint32_t ringBeginOffset = 0;
   uint32_t numRings =0;
 
-  rc = ecmdQueryFileLocationHidden2(target, ECMD_FILE_SCANDEF, l_fileLocs, l_version);
+  rc = ecmdQueryFileLocation(target, ECMD_FILE_SCANDEF, l_fileLocs, l_version);
   if (rc)
   {
       printed = "readScandefFile - Error occured locating scandef file\n";

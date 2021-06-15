@@ -91,7 +91,7 @@ if (sys.argv[1] == "doxygen"):
   extfile.write(" @brief eCMD Extension Information\n\n")
   extfile.write(" @section ext eCMD Extensions\n")
   extfile.write(" These are extensions to the core eCMD interface, not all eCMD Plugins support these extensions.<br>\n")
-  extfile.write(" To use an eCMD extension you will need to link in the appropriate library, see the example Makefiles under 'Use eCMD' for help.<br>\n\n")
+  extfile.write(" To use an eCMD extension you will need to link in the appropriate library, see the example Makefile on main page.<br>\n\n")
   extfile.write("<ul>\n")
 
   # Now loop through all the extensions and write out their includes

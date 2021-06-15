@@ -179,11 +179,6 @@ typedef ecmdSpyDataList ecmdSpyDataList;
 */
 typedef ecmdScomDataList ecmdScomDataList;
 /**
- @brief The perl version of the ecmdScomDataHidden C API std::list
- @see List
-*/
-typedef ecmdScomDataHiddenList ecmdScomDataHiddenList;
-/**
  @brief The perl version of the ecmdTraceArrayData C API std::list
  @see List
 */
@@ -243,11 +238,6 @@ typedef ecmdChipTargetList ecmdChipTargetList;
  @see List
 */
 typedef ecmdI2CCmdEntryList ecmdI2CCmdEntryList;
-/**
- @brief The perl version of the ecmdI2CCmdEntryHidden C API std::list
- @see List
-*/
-typedef ecmdI2CCmdEntryHiddenList ecmdI2CCmdEntryHiddenList;
 /**
  @brief The perl version of the ecmdDataBuffer Vector
  @see Vector

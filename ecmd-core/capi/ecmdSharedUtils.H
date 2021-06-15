@@ -106,7 +106,7 @@ void ecmdParseTokens(std::string line, const char* seperators, std::vector<std::
  * @param start Bit to start at
  * @param bitLen Number of bits
 */
-std::string ecmdGenEbcdic(ecmdDataBuffer &i_data, int start, int bitLen);
+std::string ecmdGenEbcdic(const ecmdDataBuffer &i_data, int start, int bitLen);
 
 
 /**
@@ -214,17 +214,6 @@ uint32_t ecmdReadDcard(const char *i_filename, std::list<ecmdMemoryEntry> &o_dat
  *  @retval ECMD_INVALID_ARGS if unsuccessful in finding a matching depth
  */
 uint32_t ecmdPadAndMerge(std::list<ecmdMemoryEntry> &io_data, uint32_t i_size);
-
-/**
- @brief Returns a formatted string containing the data in the given ecmdChipTarget
- @return String with formatted target data
- @param i_target ecmdChipTarget containing data to format into string
- @param i_displayMode Mode to format data
-
- TARGET DEPTH  : cage, node, slot, pos, chipUnit/core, thread
- TARGET STATES : Must be Initialized
- */
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode = ECMD_DISPLAY_TARGET_PLUGIN_MODE);
 
 /**
  @brief Returns a formatted string containing the data in the given ecmdChipTarget
