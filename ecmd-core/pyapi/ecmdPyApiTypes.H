@@ -146,8 +146,8 @@ typedef ecmdCageDataList ecmdCageDataList;
 */
 typedef stringList stringList;
 /**
- @brief The python version of the string C API std::list
- @see List
+ @brief The python version of the string C API std::vector
+ @see Vector
 */
 typedef stringVector stringVector;
 /**

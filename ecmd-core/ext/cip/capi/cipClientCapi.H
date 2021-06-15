@@ -288,7 +288,7 @@ uint32_t cipGetVr (const ecmdChipTarget & i_target, uint32_t i_vrNum, ecmdDataBu
  The return value of this function is set to the first non-zero return code found when
   retrieving multiple entries.  The entry that caused the failure in the list will also be marked with
   the same return code. That data and all subsequent entries in the list will not be fetched and the data
-  should be considered invalid.   If an entry is for an inactive thread, the function return code will not be set, 
+  should be considered invalid. If an entry is for an inactive thread, the function return code will not be set, 
   but the entry rc will be set to ECMD_INACTIVE_THREAD.  The caller should ignore that entry data and continue to 
   the next entry. <br>
 

@@ -98,11 +98,6 @@ uint32_t ecmdCheckDllVersion(const char* options) {
     abort();
   }
 
-#ifdef _AIX
-  /* clean up the machine from previous tests */
-  system("slibclean");
-#endif
-
   /* --------------------- */
   /* load DLL              */
   /* --------------------- */

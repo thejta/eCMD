@@ -54,10 +54,10 @@ Syntax: stopclocks                                   [-force] [-skip_iovalid]
 		        > stopclocks pu tp       # stops tp only
 		        > stopclocks pu sbe      # stops sbe only
 		        > stopclocks pu vitl     # stops vital only
+		        > stopclocks pu cachecore     # stops cache and core only
 		        > stopclocks pu cache    # stops cache only
 		        > stopclocks pu core     # stops core only
 		        > stopclocks pu eq       # stops eq only
-		        > stopclocks pu cachecore     # stops cache and core only
 
 			To skip the setting of the io valid bits for the X/A bus
 			use -skip_iovalid
