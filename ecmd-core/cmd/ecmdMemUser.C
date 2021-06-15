@@ -742,8 +742,8 @@ uint32_t ecmdPutMemUser(int argc, char * argv[], ECMD_DA_TYPE memMode) {
   // Get the address
   if ((memMode == ECMD_SRAM) && (channel == 1)) {
     address = 0;
-  } else if ((dcardfilename == NULL) || (dcardfilename != NULL && argv[0] != NULL)) {
-   if (!ecmdIsAllHex(argv[0])) {
+  } else if ((dcardfilename == NULL) || (dcardfilename != NULL && argv[0 + legacyModeArgOffset] != NULL)) {
+   if (!ecmdIsAllHex(argv[0 + legacyModeArgOffset])) {
      printLine = cmdlineName + " - Non-hex characters detected in address field\n";
      ecmdOutputError(printLine.c_str());
      return ECMD_INVALID_ARGS;
