@@ -32,8 +32,6 @@ VPATH    := ${VPATH}:${ECMD_CORE}/capi:${SRCPATH}:${OBJPATH}
 ### Add all of the extension information onto our variables
 INCLUDES  := ${INCLUDES} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.H ${ext}ClientPyapi.H)
 SOURCE    := ${SOURCE} $(foreach ext, ${EXT_PYAPI}, ${ext}ClientCapi.C ${ext}ClientPyapi.C)
-# Remove the fapiClientCapi.C from the build, only will use fapiClientPyapi.C which has the init extension
-SOURCE    := $(subst fapiClientCapi.C,,${SOURCE})
 CXXFLAGS  := ${CXXFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
 SWIGFLAGS := ${SWIGFLAGS} $(foreach ext, ${EXT_PYAPI},-I${EXT_${ext}_PATH}/capi -I${EXT_${ext}_PATH}/pyapi)
 VPATH     := ${VPATH}$(foreach ext, ${EXT_PYAPI},:${EXT_${ext}_PATH}/capi:${EXT_${ext}_PATH}/pyapi)
