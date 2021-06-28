@@ -1033,8 +1033,10 @@ uint32_t ecmdDeconfigUser(int argc, char * argv[]) {
       coeRc = rc;
       return rc;
     }
-    printed = ecmdWriteTarget(target) + "deconfigured.\n";
-    ecmdOutput( printed.c_str() );
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "deconfigured.\n";
+      ecmdOutput( printed.c_str() );
+    }
   }
 
   return rc;
@@ -1160,8 +1162,10 @@ uint32_t ecmdReconfigUser(int argc, char * argv[]) {
       validPosFound = true;
     }
 
-    printed = ecmdWriteTarget(target) + "configured.\n";
-    ecmdOutput( printed.c_str() );
+    if (!ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETMODE)) {
+      printed = ecmdWriteTarget(target) + "configured.\n";
+      ecmdOutput( printed.c_str() );
+    }
   }
 
   // This is an error common across all UI functions
