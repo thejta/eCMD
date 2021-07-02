@@ -471,6 +471,16 @@ constexpr void _check_valid_parent_of_generici2cslave()
 }
 
 template< fapi2::TargetType K, fapi2::TargetType T >
+constexpr void _check_valid_parent_of_mdsctlr()
+{
+    // valid parents for MDS_CTLR
+    // MDS_CTLR -> OCMB
+    static_assert(!((K == fapi2::TARGET_TYPE_MDS_CTLR) &&
+                    (T != fapi2::TARGET_TYPE_OCMB_CHIP)),
+                  "improper parent of fapi2::TARGET_TYPE_MDS_CTLR");
+}
+
+template< fapi2::TargetType K, fapi2::TargetType T >
 constexpr void _check_valid_parent_of_proc_chip()
 {
     // valid parents for PROC
@@ -886,6 +896,7 @@ constexpr void _check_valid_unicast_parent()
     fapi2plat::_check_valid_parent_of_dimm<K, T>();
     fapi2plat::_check_valid_parent_of_pmic<K, T>();
     fapi2plat::_check_valid_parent_of_generici2cslave<K, T>();
+    fapi2plat::_check_valid_parent_of_mdsctlr<K, T>();
     fapi2plat::_check_valid_parent_of_proc_chip<K, T>();
     fapi2plat::_check_valid_parent_of_membuf_chip<K, T>();
     fapi2plat::_check_valid_parent_of_ocmb_chip<K, T>();
@@ -1013,11 +1024,13 @@ constexpr void _check_ocmb_chip_valid_children()
     // OCMB -> DIMM
     // OCMB -> PMIC
     // OCMB -> GENERICI2CSLAVE
+    // OCMB -> MDS_CTLR
     static_assert(!((K == fapi2::TARGET_TYPE_OCMB_CHIP) &&
                     (T != fapi2::TARGET_TYPE_MEM_PORT) &&
                     (T != fapi2::TARGET_TYPE_DIMM) &&
                     (T != fapi2::TARGET_TYPE_PMIC) &&
-                    (T != fapi2::TARGET_TYPE_GENERICI2CSLAVE)),
+                    (T != fapi2::TARGET_TYPE_GENERICI2CSLAVE) &&
+                    (T != fapi2::TARGET_TYPE_MDS_CTLR)),
                   "improper child of fapi2::TARGET_TYPE_OCMB_CHIP");
 }
 
