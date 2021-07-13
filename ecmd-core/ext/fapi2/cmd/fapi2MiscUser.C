@@ -353,6 +353,18 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
     ecmdLooperData looperData;    ///< Store internal Looper data
     char * dumpfilename = NULL;
 
+    /* get format flag, if it's there */
+    std::string format;
+    char * formatPtr = ecmdParseOptionWithArgs(&argc, &argv, "-o");
+    if (formatPtr == NULL) {
+        format = "file";
+    } else if( strcmp(formatPtr, "x") == 0 ) {
+        // filex needed here due to how formatting is needed to be done for dump mode
+        format = "filex";
+    } else {
+        format = formatPtr;
+    }
+
     int CAGE = 1, NODE = 2, SLOT = 3, POS = 4, CHIPUNIT = 5;
     int depth = 0;                 ///< depth found from Command line parms
 
@@ -650,7 +662,7 @@ uint32_t fapi2DumpAttributeUser(int argc, char * argv[])
                 }
 
                 std::string attributeDataString;
-                rc = fapi2AttributeDataToString(*curAttr, attributeData, attributeDataString, true, "file");
+                rc = fapi2AttributeDataToString(*curAttr, attributeData, attributeDataString, true, format.c_str());
                 if (rc)
                 {
                     printed = "fapi2dumpattr - Error occured performing fapi2AttributeDataToString for ";

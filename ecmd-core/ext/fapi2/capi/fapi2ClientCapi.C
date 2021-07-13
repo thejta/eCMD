@@ -565,65 +565,6 @@ uint32_t fapi2GetAttrIdsByType(fapi2::TargetType i_targetTypes, uint32_t i_attri
   return rc;
 }
 
-uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds){
-
-  uint32_t rc;
-
-#ifndef ECMD_STATIC_FUNCTIONS
-  if (dlHandle == NULL) {
-    fprintf(stderr,"dllFapi2GetAttributeIdsByType%s",ECMD_DLL_NOT_LOADED_ERROR);
-    exit(ECMD_DLL_INVALID);
-  }
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  int myTcount;
-  std::vector< void * > args;
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &i_targetTypes);
-     args.push_back((void*) &i_attributeSources);
-     args.push_back((void*) &o_attributeIds);
-     fppCallCount++;
-     myTcount = fppCallCount;
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONIN,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds)",args);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONIN,"fapi2GetAttributeIdsByType");
-  }
-#endif
-
-#ifdef ECMD_STATIC_FUNCTIONS
-  rc = dllFapi2GetAttributeIdsByType(i_targetTypes, i_attributeSources, o_attributeIds);
-#else
-  if (fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE] == NULL) {
-     fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE] = (void*)dlsym(dlHandle, "dllFapi2GetAttributeIdsByType");
-     if (fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE] == NULL) {
-       fprintf(stderr,"dllFapi2GetAttributeIdsByType%s",ECMD_UNABLE_TO_FIND_FUNCTION_ERROR); 
-       ecmdDisplayDllInfo();
-       exit(ECMD_DLL_INVALID);
-     }
-  }
-
-  uint32_t (*Function)(uint32_t, uint32_t, std::list<fapi2::AttributeId> &) = 
-      (uint32_t(*)(uint32_t, uint32_t, std::list<fapi2::AttributeId> &))fapi2DllFnTable[ECMD_FAPI2GETATTRIBUTEIDSBYTYPE];
-  rc =    (*Function)(i_targetTypes, i_attributeSources, o_attributeIds);
-#endif
-
-#ifndef ECMD_STRIP_DEBUG
-  if (ecmdClientDebug != 0) {
-     args.push_back((void*) &rc);
-     ecmdFunctionTimer(myTcount,ECMD_TMR_FUNCTIONOUT,"fapi2GetAttributeIdsByType");
-     ecmdFunctionParmPrinter(myTcount,ECMD_FPP_FUNCTIONOUT,"uint32_t fapi2GetAttributeIdsByType(uint32_t i_targetTypes, uint32_t i_attributeSources, std::list<fapi2::AttributeId> & o_attributeIds)",args);
-   }
-#endif
-
-  if (rc && !ecmdGetGlobalVar(ECMD_GLOBALVAR_QUIETERRORMODE)) {
-    std::string errorString;
-    errorString = ecmdGetErrorMsg(rc, false, ecmdGetGlobalVar(ECMD_GLOBALVAR_CMDLINEMODE), false);
-    if (errorString.size()) ecmdOutput(errorString.c_str());
-  }
-
-  return rc;
-}
-
 void fapi2OutputError(const char* i_message) {
 
 #ifndef ECMD_STATIC_FUNCTIONS

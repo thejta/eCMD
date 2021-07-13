@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 // This can be set by the user or plugin by calling ecmdSetTargetDisplayMode
-ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_DEFAULT; // FIXME make static
+static ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_DEFAULT;
 
 //----------------------------------------------------------------------
 //  Internal Function Prototypes
@@ -30,7 +30,7 @@ ecmdTargetDisplayMode_t pluginDisplayMode = ECMD_DISPLAY_TARGET_DEFAULT; // FIXM
  * @retval The string of State enum
  * @param i_targetState State enum
  */
-std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState); // FIXME make static
+static std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState);
 
 //---------------------------------------------------------------------
 // Member Function Specifications
@@ -55,11 +55,6 @@ std::string ecmdWriteTargetState(ecmdChipTargetState_t i_targetState)
 
 void ecmdSetTargetDisplayMode(ecmdTargetDisplayMode_t i_displayMode) {
   pluginDisplayMode = i_displayMode;
-}
-
-std::string ecmdWriteTarget(ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode)
-{
-    return ecmdWriteTarget((const ecmdChipTarget &) i_target, i_displayMode);
 }
 
 std::string ecmdWriteTarget(const ecmdChipTarget & i_target, ecmdTargetDisplayMode_t i_displayMode) {

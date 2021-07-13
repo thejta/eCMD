@@ -121,10 +121,10 @@ while (<FILE>) {
 close (FILE);
 
 #find copy of fapi2PlatAttributeService.H
+my $ctepath = $ENV{CTEPATH};
+my $ecmd_release = $ENV{ECMD_RELEASE};
 if (!$servicePath) {
-  #$CTEPATH/tools/ecmd/$ECMD_RELEASE/ext/fapi2/capi
-  my $ctepath = $ENV{CTEPATH};
-  my $ecmd_release = $ENV{ECMD_RELEASE};
+  #$CTEPATH/tools/ecmd/$ECMD_RELEASE/include
   if ($DEBUG) { print "DEBUG:: ctepath = $ctepath\n"; }
   if ($DEBUG) { print "DEBUG:: ecmd_release = $ecmd_release\n"; }
   if (!$ctepath) {
@@ -135,15 +135,20 @@ if (!$servicePath) {
     print "ERROR:: environment variable ECMD_RELEASE not defined!\n";
     exit 1;
   }
-  $servicePath = "$ctepath/tools/ecmd/$ecmd_release/ext/fapi2/capi";
+  $servicePath = "$ctepath/tools/ecmd/$ecmd_release/include";
 }
 
 if ($DEBUG) { print "DEBUG:: servicePath = $servicePath\n"; }
 
 # test that servicePath exists
 if (!-d $servicePath) {
-  print "ERROR:: path $servicePath does not exist!\n";
-  exit 1;
+  # Try the old install path now
+  $servicePath = "$ctepath/tools/ecmd/$ecmd_release/ext/fapi2/capi";
+  if ($DEBUG) { print "DEBUG:: servicePath = $servicePath\n"; }
+  if (!-d $servicePath) {
+    print "ERROR:: path $servicePath does not exist!\n";
+    exit 1;
+  }
 }
 
 # test that fapi2PlatAttributeService.H is in that directory

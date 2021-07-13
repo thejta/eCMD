@@ -116,7 +116,7 @@ uint32_t decToUInt32(const char *i_decstr);
  @param i_address A base address value that can be used in formating certain data- i.e., data from memory
  @param i_endianMode The endianness with which to print the data
  */
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
+std::string ecmdWriteDataFormatted(const ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address = 0, ecmdEndianMode_t i_endianMode = ECMD_BIG_ENDIAN);
 
 /**
  @brief Print the bits header used in the output formats
@@ -136,7 +136,7 @@ std::string ecmdBitsHeader(int i_initCharOffset, int i_blockSize, int i_numCols,
 */
 uint32_t ecmdDisplayDllInfo();
 
- #if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))     
+#if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
 /**
  @brief Display the Scom data with the bit descriptions.
  @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
@@ -146,17 +146,7 @@ uint32_t ecmdDisplayDllInfo();
  @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
  @param o_strData If passed in, then we load o_strData with what is printed to the screen
  */
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
-/**
- @brief Display the Scom data with the bit descriptions.
- @retval ECMD_SUCCESS if scom lookup and display was successful, non-zero otherwise
- @param i_target target for which scom data needs to be displayed.
- @param i_scomData Contains the address, as well as additional info, needed to lookup the scom
- @param i_data buffer that holds the scom data
- @param i_format posible values -v, -vs0, -vs1 for the information that needs to be displayed
- @param o_strData If passed in, then we load o_strData with what is printed to the screen
- */
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
+uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData = NULL);
 #endif
 
 //@}
@@ -198,17 +188,6 @@ void ecmdResetExtensionInitState();
 
 #endif
 
-#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
-/**
- @brief opens the groupscomdef parses the file
- @param i_filename file to open
- @param o_total_scomGroupRecord list of scomgroups that is returned
- @param use_filepos indicate a single scomgroup wanted, the scomgroup starts at this pos
- @param uniqueFilepos use this filepos if use_filepos is true
-
- */
-uint32_t parse_groupscomdef_file(const std::string i_filename, std::list<scomGroupRecord_t> &o_total_scomGroupRecord, bool use_filepos = false, uint32_t uniqueFilepos = 0 );
-#endif
 
 /***** END INTERNAL eCMD UTILITY FUNCTIONS NOT FOR CLIENT USE ******/
 

@@ -54,6 +54,7 @@ enum SCOM_REGS {
 
 #define SCOM_ENGINE_OFFSET	0x1000
 #define P1_SLAVE_OFFSET		0x100000
+#define PX_SLAVE_OFFSET         0x80000
 
 #define DIRECT_SCOM_ADDR	0x7FFFFFFFULL
 #define FORM1_SCOM		0x1000000000000000ULL
@@ -98,11 +99,10 @@ static void adal_scom_make_status(struct scom_access *acc, unsigned long *status
 
 adal_t * adal_scom_open(const char * device, int flags)
 {
-	int rc, idx = 1;
+	int idx = 1;
 	char *str;
 	char *prev = NULL;
 	adal_scom_t *scom;
-	__u32 check;
 
 	scom = (adal_scom_t *)malloc(sizeof(*scom));
 	if (scom == NULL) {
@@ -127,12 +127,18 @@ adal_t * adal_scom_open(const char * device, int flags)
 	if (prev)
 		idx = strtol(prev + 4, NULL, 10);
 
-	if (idx > 1)
-		scom->offset = P1_SLAVE_OFFSET;
+	if (idx > 1) {
+                // need to hit into the p2,p3...p7 etc, not just p1
+                // (-2) here due to scom2 being for p1 and should be only P1_SLAVE_OFFSET
+                // scom3 would be for p2 and be the next jump (3-2) * PX_SLAVE_OFFSET
+                // Jump to p1 is not the same as jump to p2,p3,p4, etc, to this is only done for p1 and later
+		scom->offset = P1_SLAVE_OFFSET + ((idx-2) * PX_SLAVE_OFFSET);
+        }
 
-	rc = ioctl(scom->adal.fd, FSI_SCOM_CHECK, &check);
-	if (rc == 0 && (check & SCOM_CHECK_SUPPORTED))
-		scom->has_ioctl = true;
+        // removing ioctl work here as its not working properly to reset.
+	//rc = ioctl(scom->adal.fd, FSI_SCOM_CHECK, &check);
+	//if (rc == 0 && (check & SCOM_CHECK_SUPPORTED))
+	//	scom->has_ioctl = true;
 
 	return &scom->adal;
 }

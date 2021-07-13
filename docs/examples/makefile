@@ -19,9 +19,9 @@ endif
 # Check the ECMD_ARCH env var to see if we should build 32 or 64 bit
 ifeq ($(strip $(ECMD_ARCH)),)
   ifeq ($(strip $(OS)),AIX)
-    TARGET_ARCH := aix
+    TARGET_ARCH := aix64
   else
-    TARGET_ARCH := x86
+    TARGET_ARCH := x86_64
   endif
 else
   TARGET_ARCH := ${ECMD_ARCH}
@@ -32,8 +32,8 @@ CC            := /usr/bin/g++
 
 # Link the client
 ecmdclient: ecmdclient.o
-	${CC} -g -L${ECMD_PATH}/${TARGET_ARCH}/lib/ -ldl -lecmd ecmdclient.o ${ECMD_PATH}/${TARGET_ARCH}/lib/ecmdClientCapi.a ${ECMD_PATH}/${TARGET_ARCH}/lib/cmdClientCapi.a -o ecmdclient
+	${CC} -g -L${ECMD_PATH}/${TARGET_ARCH}/lib/ -ldl -lecmd -lcmd ecmdclient.o -o ecmdclient
 
 # Compile the client code
-ecmdclient.o: ecmdclient.C ${ECMD_PATH}/capi/ecmdClientCapi.H ${ECMD_PATH}/capi/ecmdStructs.H  ${ECMD_PATH}/capi/ecmdSharedUtils.H ${ECMD_PATH}/ext/cmd/capi/cmdClientCapi.H ${ECMD_PATH}/ext/cmd/capi/cmdStructs.H
-	${CC} -g -I${ECMD_PATH}/capi/ -I${ECMD_PATH}/ext/cmd/capi/  -ftemplate-depth-30 -c ecmdclient.C -o ecmdclient.o
+ecmdclient.o: ecmdclient.C ${ECMD_PATH}/include/ecmdClientCapi.H ${ECMD_PATH}/include/ecmdStructs.H  ${ECMD_PATH}/include/ecmdSharedUtils.H ${ECMD_PATH}/include/cmdClientCapi.H ${ECMD_PATH}/include/cmdStructs.H
+	${CC} -g -I${ECMD_PATH}/include/ -ftemplate-depth-30 -c ecmdclient.C -o ecmdclient.o

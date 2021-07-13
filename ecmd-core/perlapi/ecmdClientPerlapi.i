@@ -77,10 +77,8 @@
 %template(listEcmdSpyData)           std::list<ecmdSpyData>;
 %template(listEcmdSpyLatchData)      std::list<ecmdSpyLatchData>;
 %template(listEcmdScomData)          std::list<ecmdScomData>;
-%template(listEcmdScomDataHidden)    std::list<ecmdScomDataHidden>;
 %template(listEcmdFileLocation)      std::list<ecmdFileLocation>;
 %template(listEcmdI2CCmdEntry)       std::list<ecmdI2CCmdEntry>;
-%template(listEcmdI2CCmdEntryHidden) std::list<ecmdI2CCmdEntryHidden>;
 %template(listEcmdConnectionData)    std::list<ecmdConnectionData>;
 %template(listEcmdScomEntry)         std::list<ecmdScomEntry>;
 %template(listUint32_t)              std::list<uint32_t>;
@@ -103,7 +101,6 @@
 %copyctor ecmdTraceArrayData;
 %copyctor ecmdFastArrayData;
 %copyctor ecmdScomData;
-%copyctor ecmdScomDataHidden;
 %copyctor ecmdLataData;
 %copyctor ecmdScomEntry;
 %copyctor ecmdArrayEntry;
@@ -113,13 +110,10 @@
 %copyctor ecmdIndexEntry;
 %copyctor ecmdLatchEntry;
 %copyctor ecmdLatchQueryData;
-%copyctor ecmdLatchQueryDataHidden;
 %copyctor ecmdProcRegisterInfo;
 %copyctor ecmdCacheData;
 %copyctor ecmdSpyData;
 %copyctor ecmdI2CCmdEntry;
-%copyctor ecmdI2CCmdEntryHidden;
-%copyctor ecmdSimModelInfo;
 %copyctor ecmdConnectionData;
 %copyctor ecmdPnorListEntryData;
 %copyctor ecmdPnorListData;

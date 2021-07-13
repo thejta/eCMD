@@ -12,7 +12,7 @@ INT_INCLUDES := ecmdInterpreter.H ecmdExtInterpreter.H ecmdCommandUtils.H
 ### Source
 SOURCE := ecmdInterpreter.C ecmdCommandUtils.C 
 SOURCE := ${SOURCE} ecmdScomUser.C ecmdRingUser.C ecmdQueryUser.C 
-SOURCE := ${SOURCE} ecmdSpyUser.C ecmdSimUser.C ecmdArrayUser.C ecmdJtagUser.C 
+SOURCE := ${SOURCE} ecmdSpyUser.C ecmdArrayUser.C ecmdJtagUser.C 
 SOURCE := ${SOURCE} ecmdProcUser.C ecmdMemUser.C ecmdIstepUser.C ecmdMiscUser.C 
 SOURCE := ${SOURCE} ecmdVpdUser.C ecmdI2cGpioUser.C ecmdPowerUser.C ecmdPsiUser.C
 SOURCE := ${SOURCE} ecmdPnorUser.C ecmdSpiUser.C
@@ -31,8 +31,7 @@ SOURCE   := ${GENERATED_SOURCE} ${SOURCE}
 INCLUDES := ${INCLUDES} $(foreach ext, ${EXT_CMD}, ${ext}Interpreter.H ${ext}ClientCapi.H ${ext}Structs.H)
 
 ### Setup our link objs
-LINK_OBJS := ${LINK_OBJS} ${OUTLIB}/ecmdClientCapi.a
-LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a  ${OUTLIB}/${ext}ClientCapi.a)
+LINK_OBJS := ${LINK_OBJS} $(foreach ext, ${EXT_CMD}, ${OUTLIB}/${ext}CmdInterpreter.a)
 EXTLIBS   := ${EXTLIBS} ${foreach ext,${EXT_CMD},$(shell if [ -e ${OUTLIB}/lib${ext}.so ]; then echo -l${ext}; fi)}
 
 # Setup our CXXFLAGS and VPATH
@@ -40,7 +39,7 @@ VPATH  := ${VPATH}$(foreach ext, ${EXT_CMD},:${EXT_${ext}_PATH}/cmd/:${EXT_${ext
 VPATH  := ${VPATH}:${OBJPATH}:${SRCPATH}:${ECMD_CORE}/capi
 
 CXXFLAGS := ${CXXFLAGS} -I${ECMD_CORE}/capi -I${ECMD_CORE}/dll -I${SRCPATH}
-CXXFLAGS := ${CXXFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi -DECMD_$(shell echo ${ext} | tr "a-zA-Z" "A-Za-z")_EXTENSION_SUPPORT)
+CXXFLAGS := ${CXXFLAGS} $(foreach ext, ${EXT_CMD},-I${EXT_${ext}_PATH}/cmd -I${EXT_${ext}_PATH}/capi)
 
 # *****************************************************************************
 # Define our output files

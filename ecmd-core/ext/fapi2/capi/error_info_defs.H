@@ -1,6 +1,6 @@
 /* IBM_PROLOG_BEGIN_TAG                                                   */
 /* 
- * Copyright 2019 IBM International Business Machines Corp.
+ * Copyright 2021 IBM International Business Machines Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,6 +175,11 @@ enum maxTargetsPerProc : uint16_t
     MAX_OMIC_PER_PROC    =  6,  //Axone
     MAX_MCC_PER_PROC     =  8,  //Axone
     MAX_OCMB_CHIP_PER_PROC = MAX_OMI_PER_PROC,  //Axone
+    MAX_PAU_PER_PROC     = 6,
+    MAX_IOHS_PER_PROC    = 8,
+    MAX_PMIC_PER_PROC    = 64,
+    MAX_PAUC_PER_PROC    = 4,
+    MAX_GI2C_PER_PROC    = 64,
 
     INVALID_TARGET_COUNT = 0xFFFF,
     INVALID_FAPI_POS     = INVALID_TARGET_COUNT,
@@ -232,6 +237,7 @@ enum ProcedureCallout
     LVL_SUPPORT           = 1, // Call next level of support
     MEMORY_PLUGGING_ERROR = 2, // DIMM Plugging error
     BUS_CALLOUT           = 3, // Bus Called Out
+    FIND_DECONFIGURED_PART = 4, // Error caused by other deconfigurations
 };
 }
 
@@ -318,17 +324,20 @@ inline fapi2::ffdc_t getFfdcData( sbeFfdc_t& i_sbeFfdc, uint8_t i_proc_instance,
     if(l_ffdc.size() == EI_FFDC_SIZE_TARGET)
     {
 #ifdef FAPI2_ENABLE_PLATFORM_GET_TARGET
+        // target data will be in format
+        // 0:47     = target type
+        // 48:63    = instance
+
         uint64_t targetData = i_sbeFfdc.data;
         // get a fapi target for the passed in proc instance
         auto l_proc =
             getTarget<TARGET_TYPE_PROC_CHIP>(i_proc_instance);
 
-        fapi2::TargetType type = static_cast<fapi2::TargetType>(targetData >> 32);
+        fapi2::TargetType type = static_cast<fapi2::TargetType>(targetData >> 16);
 
         // sbe returns the target instance based on processor scope,
         // we will need to convert that number to system scope (FAPI_POS)
-        uint16_t instance = static_cast<uint16_t>(targetData & 0xFFFFFFFF);
-
+        uint16_t instance = static_cast<uint16_t>(targetData & 0xFFFF);
         uint16_t fapi_pos = convertSbeTargInstanceToFapiPos(type, l_proc, instance);
 
         if( fapi_pos == INVALID_FAPI_POS )

@@ -123,7 +123,7 @@ class Target(_Target):
        * Use any other value for VALID
     """
 
-    _attrs_with_state = ("cage", "node", "slot", "chipType", "pos", "chipUnitType", "core", "chipUnitNum", "thread", "unitId")
+    _attrs_with_state = ("cage", "node", "slot", "chipType", "pos", "chipUnitType", "chipUnitNum", "thread", "unitId")
 
     def __setattr__(self, name, value):
         if name in Target._attrs_with_state:
@@ -196,7 +196,7 @@ class Target(_Target):
         _rcwrap(ecmd.fapi2SetAttr(self, i_id, i_data))
 
 class Ecmd(object):
-    def __init__(self, dll="", version="ver14", args=None, **kwargs):
+    def __init__(self, dll="", version="ver14,ver15", args=None, **kwargs):
         self.dll = dll
         self.version = version
         self.args = args

@@ -40,8 +40,15 @@
 //--------------------------------------------------------------------
 //  Function Definitions                                               
 //--------------------------------------------------------------------
-/* For use by dllQueryConfig and dllQueryExist */
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled);
+
+// For use by dllQueryConfig and dllQueryExist
+uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled);
 
 //--------------------------------------------------------------------
 //  Function Definitions                                               
@@ -67,126 +74,246 @@ std::string dllSpecificParseReturnCode(uint32_t i_returnCode) {
   return ""; 
 }
 
-uint32_t dllGetRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllGetRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllGetRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRingSparse(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, ecmdDataBuffer & i_mask, uint32_t i_flags) 
+uint32_t dllPutRingSparse(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, const ecmdDataBuffer & i_mask, uint32_t i_flags) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllGetRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
+uint32_t dllGetRing(const ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & o_data, uint32_t i_mode)
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRingHidden(ecmdChipTarget & i_target, const char * i_ringName, ecmdDataBuffer & i_data, uint32_t i_mode) 
+uint32_t dllPutRing(const ecmdChipTarget & i_target, const char * i_ringName, const ecmdDataBuffer & i_data, uint32_t i_mode) 
 { 
     return ECMD_SUCCESS; 
 } 
 
-uint32_t dllPutRing (ecmdChipTarget & target, const char * ringName, ecmdDataBuffer & data) {
+uint32_t dllGetScom (const ecmdChipTarget & i_target, uint64_t i_address, ecmdDataBuffer & o_data) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllGetScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllPutScom (ecmdChipTarget & target, uint64_t address, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllGetArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
-  return ECMD_SUCCESS;
-}
-
-uint32_t dllPutArray (ecmdChipTarget & target, const char * arrayName, uint32_t * address, ecmdDataBuffer & data) {
+uint32_t dllPutScom (const ecmdChipTarget & i_target, uint64_t i_address, const ecmdDataBuffer & i_data) {
   return ECMD_SUCCESS;
 }
 
 /* ##################################################################### */
 /* Query Functions - Query Functions - Query Functions - Query Functions */
 /* ##################################################################### */
-uint32_t dllQueryConfig(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryConfig(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, false);
 }
 
-uint32_t dllQueryExist(ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
+uint32_t dllQueryExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail) {
   return queryConfigExist(i_target, o_queryData, i_detail, true);
 }
 
-uint32_t queryConfigExist(ecmdChipTarget & target, ecmdQueryData & queryData, ecmdQueryDetail_t detail, bool allowDisabled) {
+uint32_t queryConfigExist(const ecmdChipTarget & i_target, ecmdQueryData & o_queryData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
 
-  // queryConfig is a central function of any eCMD plugin.  The data from this function drives
-  // the eCMD chip loopers in the cmdline or any other eCMD program.
-  // This creates a complex set of nested structures that represents all the available targets in a system
-  // It can be filted down by the state variables of the target passed in
+  // Need to clear out the queryConfig data before pushing stuff in
+  // This is in case there is stale data in there
+  o_queryData.cageData.clear();
 
-  // This version for the stub just creates a small set of fake data
+  // From here, we will recursively work our way through all levels of hierarchy in the target
+  if (i_target.cageState == ECMD_TARGET_FIELD_VALID || i_target.cageState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistCages(i_target, o_queryData.cageData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // The stack of target data variables
-  ecmdThreadData threadData;
-  ecmdChipUnitData chipUnitData;
-  ecmdChipData chipData;
-  ecmdNodeData nodeData;
-  ecmdSlotData slotData;
+  return rc;
+}
+
+uint32_t queryConfigExistCages(const ecmdChipTarget & i_target, std::list<ecmdCageData> & o_cageData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
   ecmdCageData cageData;
 
-  /* Let's return some dummy info, we will return a proc with cores and threads */
+  // We only have 1 cage for this example, create that data
+  // Then walk down through our nodes
+  cageData.cageId = 0;
 
-  // Setup the threadData
-  threadData.threadId = 0;
+  // If the node states are set, see what nodes are in this cage
+  if (i_target.nodeState == ECMD_TARGET_FIELD_VALID || i_target.nodeState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistNodes(i_target, cageData.nodeData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Setup the chipUnitData
-  chipUnitData.chipUnitType = "core";
-  chipUnitData.chipUnitNum = 0;
-  chipUnitData.numThreads = 2;
-  chipUnitData.threadData.push_front(threadData);
+  // Save what we got from recursing down, or just being happy at this level
+  o_cageData.push_back(cageData);
 
-  // Setup the chipData
-  chipData.chipUnitData.push_front(chipUnitData);
-  chipData.chipType = "pu";
-  chipData.pos = 0;
-  slotData.chipData.push_front(chipData);
+  return rc;
+}
 
-  // Create positions 1-3 without any chipunit data
-  ecmdChipData cdReplicate;
-  cdReplicate.chipUnitData.clear();
-  cdReplicate.chipType = "pu";
-  cdReplicate.pos = 1;
-  slotData.chipData.push_back(cdReplicate);
+uint32_t queryConfigExistNodes(const ecmdChipTarget & i_target, std::list<ecmdNodeData> & o_nodeData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdNodeData nodeData;
 
-  cdReplicate.pos = 2;
-  slotData.chipData.push_back(cdReplicate);
+  // We only have 1 node for example, create that data
+  // Then walk down through our slots
+  nodeData.nodeId = 0;
 
-  cdReplicate.pos = 3;
-  slotData.chipData.push_back(cdReplicate);
+  // If the slot states are set, see what slots are in this node
+  if (i_target.slotState == ECMD_TARGET_FIELD_VALID || i_target.slotState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistSlots(i_target, nodeData.slotData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Define slot 0
+  // Save what we got from recursing down, or just being happy at this level
+  o_nodeData.push_back(nodeData);
+
+  return rc;
+}
+
+uint32_t queryConfigExistSlots(const ecmdChipTarget & i_target, std::list<ecmdSlotData> & o_slotData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdSlotData slotData;
+
+  // We only have 1 slot for example, create that data
+  // Then walk down through our chips
   slotData.slotId = 0;
 
-  // Setup the node
-  nodeData.nodeId = 0;
-  nodeData.slotData.push_front(slotData);
+  // If the chipType states are set, see what chipTypes are in this slot
+  if (i_target.chipTypeState == ECMD_TARGET_FIELD_VALID || i_target.chipTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+    rc = queryConfigExistChips(i_target, slotData.chipData, i_detail, i_allowDisabled);
+    if (rc) return rc;
+  }
 
-  // Setup the cage
-  cageData.cageId = 0;
-  cageData.nodeData.push_front(nodeData);
+  // Save what we got from recursing down, or just being happy at this level
+  o_slotData.push_back(slotData);
 
-  // Add it all to the return structs
-  queryData.cageData.push_front(cageData);
+  return rc;
+}
+
+uint32_t queryConfigExistChips(const ecmdChipTarget & i_target, std::list<ecmdChipData> & o_chipData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipData chipData;
+
+  // Create a sample with 4 positions
+  for (uint32_t pos = 0; pos < 4; pos++) {
+
+    // If posState is set to VALID, check that our values match
+    // If posState is set to WILDCARD, we don't care
+    if ((i_target.posState == ECMD_TARGET_FIELD_VALID) && (pos != i_target.pos))
+      continue;
+
+    // We passed our checks, load up our data
+    chipData.chipUnitData.clear();
+    chipData.chipType = "pu";
+    chipData.pos = pos;
+
+    // If the chipUnitType states are set, see what chipUnitTypes are in this chipType
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID ||
+        i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+
+      // Look for chipunits
+      rc = queryConfigExistChipUnits(i_target, pos, chipData.chipUnitData, i_detail, i_allowDisabled);
+      if (rc) return rc;
+    }
+
+    // Save what we got from recursing down, or just being happy at this level
+    o_chipData.push_back(chipData);
+  }
+
+  return rc;
+}
+
+uint32_t queryConfigExistChipUnits(const ecmdChipTarget & i_target, uint32_t & i_pos, std::list<ecmdChipUnitData> & o_chipUnitData, ecmdQueryDetail_t i_detail, bool i_allowDisabled)  {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdChipUnitData chipUnitData;
+
+  // Positions 2 and 3 in our example won't have chip units, so bail
+  if (i_pos == 2 || i_pos == 3) {
+    return 0;
+  }
+
+  // Dummy up data for pos 0 and 1
+  // This code would normally be much cleaner in a full featured plugin as you would be
+  // generically querying the backend to find out what was and wasn't available
+  // It would look very much like the levels up, instead we dummy up data here
+  if (i_pos == 0 || i_pos == 1) {
+    // Properly check if the ex chipunit was asked for and then create it
+    bool addExUnit = false;
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD) {
+      addExUnit = true;
+    }
+    if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID &&
+        i_target.chipUnitType == "ex") {
+      addExUnit = true;
+    }
+
+    if (addExUnit) {
+      if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_WILDCARD ||
+          i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID) {
+        for (uint32_t exNum = 0; exNum < 24; exNum++) {
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID &&
+              i_target.chipUnitNum != exNum) {
+            // Not the requested chipunitnum, skip
+            continue;
+          }
+          chipUnitData.threadData.clear();
+          chipUnitData.chipUnitType = "ex";
+          chipUnitData.chipUnitNum = exNum;
+          chipUnitData.numThreads = 4;
+
+          // If the thread states are set, see what thread are in this chipUnit
+          if (i_target.threadState == ECMD_TARGET_FIELD_VALID ||
+              i_target.threadState == ECMD_TARGET_FIELD_WILDCARD) {
+            // Look for threads
+            rc = queryConfigExistThreads(i_target, chipUnitData.threadData, i_detail, i_allowDisabled);
+            if (rc) return rc;
+          }
+
+          o_chipUnitData.push_back(chipUnitData);
+        }
+      }
+    }
+
+    // Add a second non thread level chipunit, just on p0
+    if (i_pos == 0) {
+      if (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_WILDCARD ||
+          (i_target.chipUnitTypeState == ECMD_TARGET_FIELD_VALID &&
+           i_target.chipUnitType == "phb")) {
+
+        for (uint32_t phbNum = 0; phbNum < 5; phbNum++) {
+          if (i_target.chipUnitNumState == ECMD_TARGET_FIELD_VALID &&
+              i_target.chipUnitNum != phbNum) {
+            // Not the requested chipunitnum, skip
+            continue;
+          }
+          chipUnitData.threadData.clear();
+          chipUnitData.chipUnitType = "phb";
+          chipUnitData.chipUnitNum = phbNum;
+          chipUnitData.numThreads = 0;
+
+          // No threads here, just add it
+          o_chipUnitData.push_back(chipUnitData);
+        }
+      }
+    }
+  }
   
-  return ECMD_SUCCESS;
-} 
+  return rc;
+}
 
-uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
+uint32_t queryConfigExistThreads(const ecmdChipTarget & i_target, std::list<ecmdThreadData> & o_threadData, ecmdQueryDetail_t i_detail, bool i_allowDisabled) {
+  uint32_t rc = ECMD_SUCCESS;
+  ecmdThreadData threadData;
+
+  for (uint32_t thread = 0; thread < 4; thread++) {
+    threadData.threadId = thread;
+
+    o_threadData.push_back(threadData);
+  }
+
+  return rc;
+}
+
+uint32_t dllQueryRing(const ecmdChipTarget & i_target, std::list<ecmdRingData> & o_queryData, const char * i_ringName, ecmdQueryDetail_t i_detail) {
 
   ecmdRingData ringData;
 
@@ -211,23 +338,15 @@ uint32_t dllQueryRing(ecmdChipTarget & i_target, std::list<ecmdRingData> & o_que
   return ECMD_SUCCESS;
 }
 
-uint32_t dllQueryArray(ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName) {
+uint32_t dllQueryArray(const ecmdChipTarget & target, ecmdArrayData & queryData, const char * arrayName) {
   return ECMD_SUCCESS;
 } 
 
-uint32_t dllQueryFileLocation(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::string & o_fileLocation, std::string & io_version) {
-  return ECMD_SUCCESS;
-} 
-
-uint32_t dllQueryFileLocationHidden(ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<std::pair<std::string, std::string> > & o_fileLocations, std::string & io_version) {
-  return ECMD_SUCCESS;
-} 
-
-uint32_t dllQueryFileLocationHidden2(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version) {
+uint32_t dllQueryFileLocation(const ecmdChipTarget & i_target, ecmdFileType_t i_fileType, std::list<ecmdFileLocation> & o_fileLocations, std::string & io_version) {
   o_fileLocations.push_back((ecmdFileLocation){ "bogus/file.text", "bogus/file.hash" });
   io_version = "v8";
   return ECMD_SUCCESS;
-}
+} 
 
 uint32_t dllFlushSys () {
   return ECMD_SUCCESS;
@@ -249,38 +368,38 @@ void dllOutput(const char* message) {
   printf("%s", message);
 }
 
-uint32_t dllGetChipData(ecmdChipTarget & i_target, ecmdChipData & o_data) {
+uint32_t dllGetChipData(const ecmdChipTarget & i_target, ecmdChipData & o_data) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllEnableRingCache(ecmdChipTarget & i_target) {
+uint32_t dllEnableRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllDisableRingCache(ecmdChipTarget & i_target) {
+uint32_t dllDisableRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllFlushRingCache(ecmdChipTarget & i_target) {
+uint32_t dllFlushRingCache(const ecmdChipTarget & i_target) {
   return ECMD_SUCCESS;
 }
 
-bool dllIsRingCacheEnabled(ecmdChipTarget & i_target) {
+bool dllIsRingCacheEnabled(const ecmdChipTarget & i_target) {
   return false;
 }
 
-uint32_t dllGetArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & o_data) {
+uint32_t dllGetArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, ecmdDataBuffer & o_data, uint32_t i_width) {
   return ECMD_SUCCESS;
 }
 
-uint32_t dllPutArray(ecmdChipTarget & i_target, const char * i_arrayName, ecmdDataBuffer & i_address, ecmdDataBuffer & i_data) {
+uint32_t dllPutArray(const ecmdChipTarget & i_target, const char * i_arrayName, const ecmdDataBuffer & i_address, const ecmdDataBuffer & i_data) {
   return ECMD_SUCCESS;
 }
 
 /* ################################################################# */
 /* Misc Functions - Misc Functions - Misc Functions - Misc Functions */
 /* ################################################################# */
-uint32_t dllGetScandefOrder(ecmdChipTarget & i_target, uint32_t & o_mode) {
+uint32_t dllGetScandefOrder(const ecmdChipTarget & i_target, uint32_t & o_mode) {
   uint32_t rc = ECMD_SUCCESS;
   ecmdChipData chipData;
 
@@ -299,11 +418,6 @@ void dllSetTraceMode(ecmdTraceType_t i_type, bool i_enable) {
 
 bool dllQueryTraceMode(ecmdTraceType_t i_type) {
   return false;
-}
-
-uint32_t dllTargetTranslateNormalToFused(ecmdChipTarget & i_target, uint32_t & o_core, uint32_t & o_thread) {
-  uint32_t rc = ECMD_SUCCESS;
-  return rc;
 }
 
 /* ######################################################################### */
@@ -335,7 +449,7 @@ uint32_t dllSequenceIdToTarget(uint32_t i_core_seq_num, ecmdChipTarget & io_targ
   return rc;
 }
 
-uint32_t dllTargetToSequenceId(ecmdChipTarget i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
+uint32_t dllTargetToSequenceId(const ecmdChipTarget & i_target, uint32_t & o_core_seq_num, uint32_t & o_thread_seq_num) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }
@@ -346,7 +460,7 @@ uint32_t dllGetUnitIdVersion(uint32_t & o_unitIdVersion) {
   return rc;
 }
 
-uint32_t dllQueryClockState(ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
+uint32_t dllQueryClockState(const ecmdChipTarget &i_target, const char *i_clockDomain, ecmdClockState_t &o_clockState) {
   uint32_t rc = ECMD_SUCCESS;
   return rc;
 }

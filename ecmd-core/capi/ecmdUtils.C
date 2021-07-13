@@ -91,7 +91,7 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t state);
  @param i_data Databuffer to print
  @param i_tabStop Any additional spacing that should be done in display (ie "  \t")
 */
-void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string i_tabStop);
+void printEcmdDataBuffer(std::string variableType, std::string variableName, const ecmdDataBuffer & i_data, std::string i_tabStop);
 
 void debugFunctionOuput(const char* outbuf);
 #endif
@@ -203,13 +203,15 @@ uint32_t decToUInt32(const char *decstr) {
     return decdata;
 }
 
-std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
+std::string ecmdWriteDataFormatted(const ecmdDataBuffer & i_data, std::string i_format, uint64_t i_address, ecmdEndianMode_t i_endianMode) {
   std::string printed;
   int formTagLen = i_format.length();
   ecmdFormatState_t curState = ECMD_FORMAT_NONE;
   int numCols = 0;
   bool good = true;
   bool compression = false;
+  const ecmdDataBuffer * l_pData = & i_data;
+  ecmdDataBuffer l_uncompressedData;
 
   // We have to check for the memory types before we fall into the looping below
   if (i_format.substr(0,3) == "mem") {
@@ -339,8 +341,17 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
 
   /* If compression was enabled on the buffer, and the user asked to view it, uncompress the data */
   if (compression) {
-    if (i_data.isBufferCompressed()) {
-      i_data.uncompressBuffer();
+    if (l_pData->isBufferCompressed()) {
+      // copy the data before decompressing
+      l_uncompressedData = *l_pData;
+      uint32_t l_rc = l_uncompressedData.uncompressBuffer();
+      if (l_rc) {
+        printed = "Compressed data failed to uncompress!\n";
+        ecmdOutputError(printed.c_str());
+        printed = "";
+        return printed;
+      }
+      l_pData = & l_uncompressedData;
     } else {
       printed = "Compressed data option was given on the cmdline, but data wasn't compressed!\n";
       ecmdOutputError(printed.c_str());
@@ -350,46 +361,46 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
   }
 
   if (curState == ECMD_FORMAT_X) {
-    printed = "0x" + i_data.genHexLeftStr();
+    printed = "0x" + l_pData->genHexLeftStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_XR) {
-    printed = "0xr" + i_data.genHexRightStr();
+    printed = "0xr" + l_pData->genHexRightStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_B) {
-    printed = "0b" + i_data.genBinStr();
+    printed = "0b" + l_pData->genBinStr();
     printed += "\n";
   }
   else if (curState == ECMD_FORMAT_A) {
-    if (i_data.getByteLength()>0) {
-      printed =  i_data.genAsciiStr(0, i_data.getBitLength()).substr(0,i_data.getByteLength());
+    if (l_pData->getByteLength()>0) {
+      printed =  l_pData->genAsciiStr(0, l_pData->getBitLength()).substr(0,l_pData->getByteLength());
       printed += "\n";
     }
   }
   else if (curState == ECMD_FORMAT_D) {
-    if (i_data.getBitLength() > 32) {
+    if (l_pData->getBitLength() > 32) {
       ecmdOutputError("ecmdWriteDataFormatted - Unable to generate decimal numbers for buffers bigger than 32 bits\n");
       printed = "";
       return printed;
     }
     /* Short enough, let generate this number */
     char tempstr[100];
-    uint32_t decimalData = i_data.getWord(0);
+    uint32_t decimalData = l_pData->getWord(0);
     /* Right align it */
-    decimalData >>= (32 - i_data.getBitLength());
+    decimalData >>= (32 - l_pData->getBitLength());
     /* Print it */
     sprintf(tempstr, "%d\n", decimalData);
     printed = tempstr;
   }
 #ifndef REMOVE_SIM
   else if (curState == ECMD_FORMAT_BX) {
-    if (!i_data.isXstateEnabled()) {
+    if (!l_pData->isXstateEnabled()) {
       ecmdOutputError("ecmdWriteDataFormatted - Write of X-state data required but Xstate buffer not enabled\n");
       printed = "";
       return printed;
     }
-    printed = "0b" + i_data.genXstateStr();
+    printed = "0b" + l_pData->genXstateStr();
     printed += "\n";
   }
 #endif
@@ -403,43 +414,43 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     int i=0;
     
     //if not exact word multiple
-    if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
-      numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+    if ( (l_pData->getWordLength()*4) > (l_pData->getByteLength()) ) {
+      numLastBytes = 4 - ((l_pData->getWordLength()*4) - (l_pData->getByteLength()));
     }
     // Loop through the complete 4 word blocks
-    while ((i_data.getWordLength() - wordsDone) > 3) {
+    while ((l_pData->getWordLength() - wordsDone) > 3) {
       wordsDonePrev = wordsDone;
       //last word
-      if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-        lastBytes = i_data.genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
-        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %s", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), lastBytes.c_str());
+      if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+        lastBytes = l_pData->genHexLeftStr(((wordsDone+3)*32), (numLastBytes*8));
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %s", myAddr, l_pData->getWord(wordsDone), l_pData->getWord(wordsDone+1), l_pData->getWord(wordsDone+2), lastBytes.c_str());
         i=0;
         while (i < (4-numLastBytes)) {
           strcat(tempstr, "  "); i++;
         }
       }
       else {
-        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %08X", myAddr, i_data.getWord(wordsDone), i_data.getWord(wordsDone+1), i_data.getWord(wordsDone+2), i_data.getWord(wordsDone+3));
+        sprintf(tempstr,UINT64_HEX16_FORMAT ": %08X %08X %08X %08X", myAddr, l_pData->getWord(wordsDone), l_pData->getWord(wordsDone+1), l_pData->getWord(wordsDone+2), l_pData->getWord(wordsDone+3));
       }
       printed += tempstr;
       // Text printing additions
       if (curState == ECMD_FORMAT_MEMA || curState == ECMD_FORMAT_MEME) {
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
-          if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+          if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, 128).c_str());
           }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
-          if ( (i_data.getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
+          if ( (l_pData->getWordLength() == (wordsDone+4)) && (numLastBytes != 0)) {
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (128-(8*(4-numLastBytes)))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, 128).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, 128).c_str());
           }
         }
         printed += tempstr;
@@ -449,16 +460,16 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
       wordsDone += 4;
     }
     // Done with all the 4 word blocks, see if we've got some straglers left
-    if ((i_data.getWordLength() - wordsDone) != 0) {
+    if ((l_pData->getWordLength() - wordsDone) != 0) {
       wordsDonePrev = wordsDone;
       // Print the address
       sprintf(tempstr,UINT64_HEX16_FORMAT ":", myAddr);
       printed += tempstr;
       // Now throw on the words
-      while ((uint32_t) wordsDone < i_data.getWordLength()) {
+      while ((uint32_t) wordsDone < l_pData->getWordLength()) {
         //last word
-        if ( (i_data.getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
-          lastBytes = i_data.genHexLeftStr((wordsDone*32), (numLastBytes*8));
+        if ( (l_pData->getWordLength() == (wordsDone+1)) && (numLastBytes != 0)) {
+          lastBytes = l_pData->genHexLeftStr((wordsDone*32), (numLastBytes*8));
           sprintf(tempstr," %s", lastBytes.c_str());
           i=0;
           while (i < (4-numLastBytes)) {
@@ -467,7 +478,7 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
           wordsDone++;
         }
         else {
-          sprintf(tempstr," %08X",i_data.getWord(wordsDone++));
+          sprintf(tempstr," %08X",l_pData->getWord(wordsDone++));
         }
         printed += tempstr;
       }
@@ -480,19 +491,19 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
         // ASCII
         if (curState == ECMD_FORMAT_MEMA) {
           if (numLastBytes) {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",i_data.genAsciiPrintStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+            sprintf(tempstr,"   [%s]",l_pData->genAsciiPrintStr(wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
           }
         }
         // EBCDIC
         if (curState == ECMD_FORMAT_MEME) {
           if (numLastBytes) {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (((wordsDone - wordsDonePrev)*32) - ((4-numLastBytes)*8))).c_str());
           }
           else {
-            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(i_data,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
+            sprintf(tempstr,"   [%s]",ecmdGenEbcdic(*l_pData,wordsDonePrev*32, (wordsDone - wordsDonePrev)*32).c_str());
           }
         }
         printed += tempstr;
@@ -510,38 +521,38 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     //if not exact word multiple-To be used for printing in the byte format
     /*int numLastBytes=0;
      std::string lastBytes;
-     if ( (i_data.getWordLength()*4) > (i_data.getByteLength()) ) {
-     numLastBytes = 4 - ((i_data.getWordLength()*4) - (i_data.getByteLength()));
+     if ( (l_pData->getWordLength()*4) > (l_pData->getByteLength()) ) {
+     numLastBytes = 4 - ((l_pData->getWordLength()*4) - (l_pData->getByteLength()));
      }*/
 
     // Print out the data
-    for (uint32_t x = 0; x < (i_data.getWordLength() / 2); x++) {
+    for (uint32_t x = 0; x < (l_pData->getWordLength() / 2); x++) {
       //To be used for printing in the byte format
-      /*if ( ((i_data.getWordLength()) == y+2) && (numLastBytes != 0)) {
-       lastBytes = i_data.genHexLeftStr(((y+1)*32), (numLastBytes*8));
-       sprintf(tempstr,"D %016X %08X%s\n", myAddr, i_data.getWord(y), lastBytes.c_str());
+      /*if ( ((l_pData->getWordLength()) == y+2) && (numLastBytes != 0)) {
+       lastBytes = l_pData->genHexLeftStr(((y+1)*32), (numLastBytes*8));
+       sprintf(tempstr,"D %016X %08X%s\n", myAddr, l_pData->getWord(y), lastBytes.c_str());
        }
        else {
-       sprintf(tempstr,"D %016X %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
+       sprintf(tempstr,"D %016X %08X%08X\n", myAddr, l_pData->getWord(y), l_pData->getWord(y+1));
        }
        y += 2;
        */
-      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X%08X\n", myAddr, i_data.getWord(y), i_data.getWord(y+1));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X%08X\n", myAddr, l_pData->getWord(y), l_pData->getWord(y+1));
       y += 2;
       printed += tempstr;
       myAddr += 8;
     }
 
-    if (i_data.getWordLength() % 2) {
+    if (l_pData->getWordLength() % 2) {
       //To be used for printing in the byte format
       /*if ( numLastBytes != 0) {
-       lastBytes = i_data.genHexLeftStr(((i_data.getWordLength() - 1)*32), (numLastBytes*8));
+       lastBytes = l_pData->genHexLeftStr(((l_pData->getWordLength() - 1)*32), (numLastBytes*8));
        sprintf(tempstr,"D %016X %s\n", myAddr, lastBytes.c_str());
        }
        else {
-       sprintf(tempstr,"D %016X %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+       sprintf(tempstr,"D %016X %08X00000000\n", myAddr, l_pData->getWord((l_pData->getWordLength() - 1)));
        }*/
-      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X00000000\n", myAddr, i_data.getWord((i_data.getWordLength() - 1)));
+      sprintf(tempstr,"D " UINT64_HEX16_FORMAT " %08X00000000\n", myAddr, l_pData->getWord((l_pData->getWordLength() - 1)));
       printed += tempstr;
     }
   }
@@ -553,16 +564,16 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     int blockSize = 32;
     if ((curState == ECMD_FORMAT_BN) || (curState == ECMD_FORMAT_BXN))  blockSize = 4;
     int curOffset = 0;
-    int numBlocks = i_data.getBitLength() % blockSize ? i_data.getBitLength() / blockSize + 1: i_data.getBitLength() / blockSize;
-    int dataBitLength = i_data.getBitLength();
+    int numBlocks = l_pData->getBitLength() % blockSize ? l_pData->getBitLength() / blockSize + 1: l_pData->getBitLength() / blockSize;
+    int dataBitLength = l_pData->getBitLength();
     ecmdDataBuffer rightData;
 
     /* defect 16358, for -oxrw8 data we need to right shift the whole buffer and then display */
     if (curState == ECMD_FORMAT_XRW) {
-      if (i_data.getBitLength() % 4) {
-        rightData = i_data;
-        rightData.shiftRightAndResize(4 - (i_data.getBitLength() % 4));
-        dataBitLength += 4 - (i_data.getBitLength() % 4);
+      if (l_pData->getBitLength() % 4) {
+        rightData = *l_pData;
+        rightData.shiftRightAndResize(4 - (l_pData->getBitLength() % 4));
+        dataBitLength += 4 - (l_pData->getBitLength() % 4);
       } else {
         /* There are no odd bits, so to save us time just treat as left aligned */
         curState = ECMD_FORMAT_XW;
@@ -582,18 +593,18 @@ std::string ecmdWriteDataFormatted(ecmdDataBuffer & i_data, std::string i_format
     for (int i = 0; i < numBlocks; i++) {
 
       if (curState == ECMD_FORMAT_XW) {
-        printed += i_data.genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed += l_pData->genHexLeftStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
       else if (curState == ECMD_FORMAT_XRW) {
         printed += rightData.genHexRightStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 #ifndef REMOVE_SIM
       else if ((curState == ECMD_FORMAT_BX) || (curState == ECMD_FORMAT_BXN) || (curState == ECMD_FORMAT_BXW))  {
-        printed +=  i_data.genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed +=  l_pData->genXstateStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 #endif
       else {
-        printed += i_data.genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
+        printed += l_pData->genBinStr(curOffset, blockSize < (dataBitLength - curOffset) ? blockSize : (dataBitLength - curOffset));
       }
 
       colCount++;
@@ -704,55 +715,10 @@ uint32_t ecmdDisplayDllInfo() {
     return rc;
   }
   ecmdOutput("================================================\n");
-  printed = "Dll Type         : ";
-  if (info.dllType == ECMD_DLL_STUB)
-    printed += "Stub\n";
-  else if (info.dllType == ECMD_DLL_STUB)
-    printed += "Stub\n";
-  else if (info.dllType == ECMD_DLL_CRONUS)
-    printed += "Cronus\n";
-  else if (info.dllType == ECMD_DLL_IPSERIES)
-    printed += "IP-Series\n";
-  else if (info.dllType == ECMD_DLL_ZSERIES)
-    printed += "Z-Series\n";
-  else if (info.dllType == ECMD_DLL_SCAND)
-    printed += "ScanD\n";
-  else if (info.dllType == ECMD_DLL_BML)
-    printed += "BML\n";
-  else if (info.dllType == ECMD_DLL_MAMBO)
-    printed += "MAMBO\n";
-  else if (info.dllType == ECMD_DLL_RISCWATCH)
-    printed += "RiscWatch\n";
-  else if (info.dllType == ECMD_DLL_LINUXHOSTTOOL)
-    printed += "Linux Host Tool\n";
-  else if (info.dllType == ECMD_DLL_PDBG)
-    printed += "pdbg\n";
-  else 
-    printed += "Unknown\n";
+  printed = "Dll Type         : " + info.dllType + "\n";
   ecmdOutput(printed.c_str());
 
-  printed = "Dll Product      : ";
-  if (info.dllProduct == ECMD_DLL_PRODUCT_ECLIPZ) {
-    printed += "Eclipz\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_APOLLO) {
-    printed += "Apollo\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHON) {
-    printed += "Gryphon\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P8S1) {
-    printed += "P8/S1\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_ZGRYPHONP) {
-    printed += "Artemis (zGr+)\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_STRADALE) {
-    printed += "Stradale\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_OPENPOWER) {
-    printed += "OpenPower\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P9) {
-    printed += "P9\n";
-  } else if (info.dllProduct == ECMD_DLL_PRODUCT_P10) {
-    printed += "P10\n";
-  } else {
-    printed += "Unknown\n";
-  }
+  printed = "Dll Product      : " + info.dllProduct + "\n";
   ecmdOutput(printed.c_str());
 
   printed = "Dll Product Type : ";
@@ -776,171 +742,7 @@ uint32_t ecmdDisplayDllInfo() {
 }
 
 #if !(defined (ECMD_REMOVE_SEDC_SUPPORT) || defined (ECMD_REMOVE_SCOM_FUNCTIONS))
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomData & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
-  uint32_t rc = ECMD_SUCCESS;
-  std::list<ecmdFileLocation> l_fileLocs;    ///< List of scomdefs - second of pair isn't used for scomdefs
-  sedcScomdefEntry scomEntry;                ///< Returns a class containing the scomdef entry read from the file
-  unsigned int runtimeFlags=0;                    ///< Directives on how to parse
-  bool verboseFlag = false;
-  bool verboseBitsSetFlag = false;              ///< Print Bit description only if bit/s are set
-  bool verboseBitsClearFlag = false;            ///< Print Bit description only if No bits are set
-  std::string printed;                          ///< Output data
-  std::vector<std::string> errMsgs;             ///< Any error messages to go with a array that was marked invalid
-  std::string l_version = "default";
-
-  if ((std::string)i_format == "-v") {
-    verboseFlag = true;
-  }
-  if ((std::string)i_format == "-vs0") {
-    verboseBitsClearFlag = true;
-  }
-  if ((std::string)i_format == "-vs1") {
-    verboseBitsSetFlag = true;
-  }
-  rc = ecmdQueryFileLocationHidden2(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
-  if (rc) {
-    printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
-    ecmdOutputWarning(printed.c_str());
-    return rc;
-  }
-  std::ifstream scomdefFile;
-  for (std::list<ecmdFileLocation>::const_iterator l_fileLoc = l_fileLocs.begin(); l_fileLoc != l_fileLocs.end(); l_fileLoc++)
-  {
-      rc = ECMD_SUCCESS;
-      scomdefFile.open(l_fileLoc->textFile.c_str());
-      if(scomdefFile.fail()) {
-          printed = "ecmdDisplayScomData - Error occured opening scomdef file: " + l_fileLoc->textFile + "\nSkipping -v parsing\n";
-          ecmdOutputWarning(printed.c_str());
-          rc = ECMD_UNABLE_TO_OPEN_SCOMDEF;
-          return rc;
-      }
-      rc = readScomDefFile(i_scomData.address, scomdefFile);
-      if ((rc == ECMD_SCOMADDRESS_NOT_FOUND) && (i_target.chipUnitType != "") && (i_target.chipUnitTypeState ==  ECMD_TARGET_FIELD_VALID)) {
-          uint64_t modifiedScomAddress = 0;
-          rc = ecmdCreateChipUnitScomAddress(i_target, i_scomData.address, modifiedScomAddress);
-          if (rc) {
-              ecmdOutputWarning("Unable to convert the address into right chip unit address\n");
-              return rc;
-          }
-          scomdefFile.clear();
-          scomdefFile.seekg(0, std::ios::beg);
-          rc = readScomDefFile(modifiedScomAddress, scomdefFile);
-      }
-      if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-          scomdefFile.close();
-      }
-      // Found the address, don't need to look in any other scomdefs
-      else
-      {
-          break;
-      }
-  }
-  // One more check outside of the loop to make sure we found something
-  if (rc == ECMD_SCOMADDRESS_NOT_FOUND) {
-      ecmdOutputWarning("Unable to find Scom Address in the Scomdef file\n");
-      ecmdOutputWarning("ecmdDisplayScomData - Scom Address not found. Skipping -v parsing\n");
-      return rc;
-  }
-
-  sedcScomdefParser(scomEntry, scomdefFile, errMsgs, runtimeFlags);
-
-  std::list< std::string >::iterator descIt;
-  std::list<sedcScomdefDefLine>::iterator definIt;
-  std::list< std::string >::iterator bitDetIt;
-  char bitDesc[400], bitDesc2[500];
-
-  sprintf(bitDesc,"Name       : %20s%s\nDesc       : %20s", " ",scomEntry.name.c_str()," ");  
-  ecmdOutput(bitDesc);
-  if (o_strData != NULL) {
-    *o_strData += bitDesc;
-  }
-
-  for (descIt = scomEntry.description.begin(); descIt != scomEntry.description.end(); descIt++) {
-    ecmdOutput(descIt->c_str());
-    if (o_strData != NULL) {
-      *o_strData += *descIt;
-    }
-  }
-
-  printed = "\n";
-  ecmdOutput(printed.c_str());
-  if (o_strData != NULL) {
-    *o_strData += printed;
-  }
-
-  // We need these variable below to abstract some stuff for LE support
-  uint32_t beStart, length;
-
-  //Print Bits description
-  for (definIt = scomEntry.definition.begin(); definIt != scomEntry.definition.end(); definIt++) {
-    // Set our pivots for LE converstion in the BE buffer
-    if (i_scomData.endianMode == ECMD_LITTLE_ENDIAN) {
-      // minus 1 because you don't want the length, you want the last bit position and then flip
-      beStart = (i_scomData.length - 1) - definIt->lhsNum;
-      /* If we have rhs, the length is negative so flip it */
-      if (definIt->rhsNum != -1) {
-        length = definIt->length * -1;
-        // We also have to add two to the length because it's messed up by the EDC parser which doesn't do little endian
-        // example
-        // 31-4 = 27 + 1 = 28, to get the real length.  EDC does this on little endian data
-        // 4-31 = -27 + 1 = -26
-        // The mult * -1 above gave us 26, but we are still missing 2.
-        length += 2;
-      } else {
-        length = definIt->length;
-      }
-    } else { // Big Endian
-      beStart = definIt->lhsNum;
-      length = definIt->length;
-    }
-    if (verboseFlag || (verboseBitsSetFlag && i_data.getNumBitsSet(beStart, length)) ||
-        (verboseBitsClearFlag && (!i_data.getNumBitsSet(beStart, length)))) {
-
-      if(definIt->rhsNum == -1) {
-        sprintf(bitDesc, "Bit(%d)", definIt->lhsNum);
-      }
-      else {
-        sprintf(bitDesc, "Bit(%d:%d)", definIt->lhsNum,definIt->rhsNum);
-      }
-      sprintf(bitDesc2, "%-10s : ",bitDesc);
-      ecmdOutput(bitDesc2);
-      if (o_strData != NULL) {
-        *o_strData += bitDesc2;
-      }
-
-      if (length <= 8) {
-        std::string binstr = i_data.genBinStr(beStart, length);
-        sprintf(bitDesc, "0b%-16s  %s\n",binstr.c_str(),definIt->dialName.c_str());
-      }
-      else {
-        std::string hexLeftStr = i_data.genHexLeftStr(beStart, length);
-        sprintf(bitDesc, "0x%-16s  %s\n",hexLeftStr.c_str(),definIt->dialName.c_str());
-      }
-      ecmdOutput(bitDesc);
-      if (o_strData != NULL) {
-        *o_strData += bitDesc;
-      }
-      std::string bitDescStr;
-      for (bitDetIt = definIt->detail.begin(); bitDetIt != definIt->detail.end(); bitDetIt++) {
-        sprintf(bitDesc, "%32s ", " ");
-        //Would print the entire string no matter how long it is
-        bitDescStr = (std::string)bitDesc + *bitDetIt;
-        ecmdOutput(bitDescStr.c_str());
-        if (o_strData != NULL) {
-          *o_strData += bitDescStr;
-        }
-        bitDescStr = "\n";// Doing the newline separately cos there maybe control characters at the end of Desc
-        ecmdOutput(bitDescStr.c_str());
-        if (o_strData != NULL) {
-          *o_strData += bitDescStr;
-        }       
-
-      }//end for
-    }//end if 
-  }// end for
-  return rc;
-}
-uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_scomData, ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
+uint32_t ecmdDisplayScomData(const ecmdChipTarget & i_target, const ecmdScomData & i_scomData, const ecmdDataBuffer & i_data, const char* i_format, std::string *o_strData) {
   uint32_t rc = ECMD_SUCCESS;
   std::list<ecmdFileLocation> l_fileLocs;       ///< List of scomdefs - hashFile isn't used for scomdefs
   std::string scomdefFileStr;                   ///< Full Path to the Scomdef file
@@ -962,7 +764,7 @@ uint32_t ecmdDisplayScomData(ecmdChipTarget & i_target, ecmdScomDataHidden & i_s
   if ((std::string)i_format == "-vs1") {
     verboseBitsSetFlag = true;
   }
-  rc = ecmdQueryFileLocationHidden2(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
+  rc = ecmdQueryFileLocation(i_target, ECMD_FILE_SCOMDATA, l_fileLocs, l_version);
   if (rc) {
     printed = "ecmdDisplayScomData - Error occured locating scomdef file \nSkipping -v parsing\n";
     ecmdOutputWarning(printed.c_str());
@@ -1649,7 +1451,13 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
         }
         debugFunctionOuput(tempIntStr);
 
-        sprintf(tempIntStr,"%s\t \t \t value : std::string relatedChipUnit  = %s\n",frontFPPTxt, entit->relatedChipUnit.c_str()); debugFunctionOuput(tempIntStr);
+        char *pstr = tempIntStr + sprintf(tempIntStr, "%s\t \t \t value : std::string relatedChipUnit  =", frontFPPTxt);
+        std::list<std::string>::iterator relatedChipUnitIter;
+        for (relatedChipUnitIter = entit->relatedChipUnit.begin(); relatedChipUnitIter != entit->relatedChipUnit.end(); relatedChipUnitIter++) {
+          pstr += sprintf(pstr, "%s %s", tempIntStr, relatedChipUnitIter->c_str());
+        }
+        pstr += sprintf(pstr, "%s\n", tempIntStr);
+        debugFunctionOuput(tempIntStr);
 
         sprintf(tempIntStr,"%s\t \t \t value : std::string    clockDomain  = %s\n",frontFPPTxt, entit->clockDomain.c_str());
         debugFunctionOuput(tempIntStr);
@@ -2188,7 +1996,6 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
 
       ecmdDllInfo* dummy = (ecmdDllInfo*)(args[looper]);
 
-
       printed = frontFPPTxt;
       printed += "\t type : ";
       printed += variableType;
@@ -2196,35 +2003,12 @@ void ecmdFunctionParmPrinter(int tCount, efppInOut_t inOut, const char * fprotot
       printed += variableName[0];
       printed += "\n";
       printed += frontFPPTxt;
-      printed += "\t \t value : ecmdDllType_t         dllType = ";
-
-      if (dummy->dllType == ECMD_DLL_STUB)
-        printed += "Stub\n";
-      else if (dummy->dllType == ECMD_DLL_CRONUS)
-        printed += "Cronus\n";
-      else if (dummy->dllType == ECMD_DLL_IPSERIES)
-        printed += "IP-Series\n";
-      else if (dummy->dllType == ECMD_DLL_ZSERIES)
-        printed += "Z-Series\n";
-      else if (dummy->dllType == ECMD_DLL_SCAND)
-        printed += "ScanD\n";
-      else if (dummy->dllType == ECMD_DLL_LINUXHOSTTOOL)
-        printed += "Linux Host Tool\n";
-      else 
-        printed += "Unknown\n";
-
+      printed += "\t \t value : ecmdDllType_t         dllType = " + dummy->dllType + "\n";
       debugFunctionOuput(printed.c_str());
-
 
       printed = frontFPPTxt;
-      printed += "\t \t value : ecmdDllProduct_t      dllProduct = ";
-
-      if (dummy->dllProduct == ECMD_DLL_PRODUCT_ECLIPZ)
-        printed += "Eclipz\n";
-      else
-        printed += "Unknown\n";
+      printed += "\t \t value : ecmdDllProduct_t      dllProduct = " + dummy->dllProduct + "\n";
       debugFunctionOuput(printed.c_str());
-
 
       printed = frontFPPTxt;
       printed += "\t \t value : ecmdDllEnv_t          dllEnv = ";
@@ -2302,7 +2086,7 @@ std::string printEcmdChipTargetState_t(ecmdChipTargetState_t i_state) {
 #endif
 
 #ifndef ECMD_STRIP_DEBUG
-void printEcmdDataBuffer(std::string variableType, std::string variableName, ecmdDataBuffer & i_data, std::string tabStop) {
+void printEcmdDataBuffer(std::string variableType, std::string variableName, const ecmdDataBuffer & i_data, std::string tabStop) {
   std::string printed;
   char tempIntStr[180];
   int dataLooper;
@@ -2505,168 +2289,11 @@ void ecmdRegisterExtensionInitState(bool* i_initState) {
 */
 void ecmdResetExtensionInitState() {
   for (std::list<bool*>::iterator ptrit = g_initPtrs.begin(); ptrit != g_initPtrs.end(); ptrit ++) {
-    *(*ptrit) = false;
+      *(*ptrit) = false;
+      // Now erase the pointer from the list to avoid seg faults when unloading the dll more than once without loading again.
+      // There could be cases where the initialized extensions have gone out of scope and no longer have a 
+      // valid bool in the list.  If accessed in this situation, it causes a seg fault.
+      ptrit = g_initPtrs.erase(ptrit);
+      --ptrit;
   }
 }
-
-#ifndef ECMD_REMOVE_SCOM_FUNCTIONS
-/**
- @brief opens the groupscomdef parses the file
- @param i_filename file to open
- @param o_total_scomGroupRecord list of scomgroups that is returned
- @param use_filepos indicate a single scomgroup wanted, the scomgroup starts at this pos
- @param uniqueFilepos use this filepos if use_filepos is true
-
- */
-uint32_t parse_groupscomdef_file(const std::string i_filename, std::list<scomGroupRecord_t> &o_total_scomGroupRecord, bool use_filepos, uint32_t uniqueFilepos ){
-  uint32_t rc = 0;
-  std::list<uint64_t>::iterator iterListOfAddrs;
-  scomGroupRecord_t local_scomGroupRecord;
-  char buf[300];
-
-  bool doneReadingFile = false;
-  std::vector<std::string> variableTokens;
-  std::string line;
-  uint32_t line_count = 0;
-  uint32_t getcurrentfilepos = 0;
-  uint32_t total_addrs_in_group = 0;
-  ecmdScomGroupParseStage current_stage = PARSED_UNDEFINED;
-
-
-  std::ifstream scomgroupFile;
-  scomgroupFile.open(i_filename.c_str());
-  if (scomgroupFile.fail()) {
-    sprintf(buf,"parse_groupscomdef_file - Unable to open scomgroup file: %s\n", i_filename.c_str());
-    ecmdOutputError(buf);
-    return ECMD_UNKNOWN_FILE;
-  }
-  if (use_filepos) {
-    scomgroupFile.seekg(uniqueFilepos);
-  }
-
-
-  while (!doneReadingFile){
-    if (scomgroupFile.eof()){
-      doneReadingFile = true;
-      //check the stage
-    } else if ((use_filepos) && (current_stage == PARSED_GROUP_DONE) ) {
-      doneReadingFile = true;
-    } else {
-      getcurrentfilepos = scomgroupFile.tellg();
-
-      getline(scomgroupFile,line,'\n'); line_count++;
-      if ( (line[0] == '#') || (line.size() == 0) ){
-        continue;
-      }
-
-      if ( line.substr(0,4) == "Name" ) {
-        if ((current_stage != PARSED_UNDEFINED) && (current_stage != PARSED_GROUP_DONE)) {
-          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
-          ecmdOutputError(buf);
-          return ECMD_FAILURE;
-        } else {
-          ecmdParseTokens(line, " \t=", variableTokens);
-          if (variableTokens.size() < 2) {
-            sprintf(buf,"parse_groupscomdef_file Did Not find a valid scomgroup after Name on line:%d\n", line_count);
-            ecmdOutputError(buf);
-            return ECMD_FAILURE;
-          } else {
-            local_scomGroupRecord.scomGroup_name = variableTokens[1].c_str();
-            transform(local_scomGroupRecord.scomGroup_name.begin(), local_scomGroupRecord.scomGroup_name.end(), local_scomGroupRecord.scomGroup_name.begin(), (int(*)(int)) toupper);
-            local_scomGroupRecord.lineNumofName = line_count;
-            local_scomGroupRecord.filepos = getcurrentfilepos;
-          }
-        }
-        current_stage = PARSED_NAME;
-      } else if ( line.substr(0,8) == "ChipUnit" ) {
-        if (current_stage != PARSED_NAME) {
-          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
-          ecmdOutputError(buf);
-          return ECMD_FAILURE;
-        } else {
-          ecmdParseTokens(line, " \t=", variableTokens);
-          if (variableTokens.size() < 2) {
-            sprintf(buf,"parse_groupscomdef_file Did Not find a chipUnit after ChipUnit on line:%d\n", line_count);
-            ecmdOutputError(buf);
-            return ECMD_FAILURE;
-          } else {
-            local_scomGroupRecord.scomGroup_chipUnit = variableTokens[1].c_str();
-          }
-        }
-        current_stage = PARSED_CHIPUNIT;
-      } else if ( line.substr(0,4) == "Size" ) {
-        if (current_stage != PARSED_CHIPUNIT) {
-          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
-          ecmdOutputError(buf);
-          return ECMD_FAILURE;
-        } else {
-          ecmdParseTokens(line, " \t=", variableTokens);
-          if (variableTokens.size() < 2) {
-            sprintf(buf,"parse_groupscomdef_file Did Not find a number after Size on line:%d\n", line_count);
-            ecmdOutputError(buf);
-            return ECMD_FAILURE;
-          } else {
-            total_addrs_in_group = atoi(variableTokens[1].c_str());
-          }
-        }
-        current_stage = PARSED_SIZE;
-      } else if ( line.substr(0,2) == "0x" ) {
-        if ( (current_stage != PARSED_SIZE) && (current_stage != PARSED_ADDR)) {
-          sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, make sure the scomgroupdef is in proper order Name, ChipUnit, Size, 0x<addresses>\n", line_count);
-          ecmdOutputError(buf);
-          return ECMD_FAILURE;
-        } else {
-          ecmdParseTokens(line, " x#", variableTokens);
-          if (variableTokens.size() < 2) {
-            sprintf(buf,"parse_groupscomdef_file Invalid addr line on line:%d\n", line_count);
-            ecmdOutputError(buf);
-            return ECMD_FAILURE;
-          } else if (variableTokens[1].size()*4 > 64) {
-            sprintf(buf,"parse_groupscomdef_file Addr bigger than 64bits on line:%d\n", line_count);
-            ecmdOutputError(buf);
-            return ECMD_FAILURE;
-          } else {
-            ecmdDataBuffer tmp_buffer(64);
-            rc = tmp_buffer.insertFromHexRight(variableTokens[1].c_str(), (64 - (variableTokens[1].size()*4)) );
-            if (rc) {
-              sprintf(buf,"parse_groupscomdef_file Non Hex addr found on line:%d\n", line_count);
-              ecmdOutputError(buf);
-              return ECMD_FAILURE;
-            }
-            local_scomGroupRecord.scomGroup_listOfAddrs.push_back(tmp_buffer.getDoubleWord(0));
-            local_scomGroupRecord.scomGroup_indexOfAddr.push_back(local_scomGroupRecord.scomGroup_indexOfAddr.size());
-          }
-        }
-        current_stage = PARSED_ADDR;
-        if ( local_scomGroupRecord.scomGroup_listOfAddrs.size() == total_addrs_in_group) {
-          //printf("parsed group done, size:%d\n", total_addrs_in_group); 
-          //push it onto total_scomGroupRecord
-          //clear out the local_scom_group
-          o_total_scomGroupRecord.push_back(local_scomGroupRecord);
-          local_scomGroupRecord.scomGroup_listOfAddrs.clear();
-          local_scomGroupRecord.scomGroup_indexOfAddr.clear();
-          local_scomGroupRecord.scomGroup_chipUnit = "";
-          local_scomGroupRecord.scomGroup_name = "";
-          local_scomGroupRecord.lineNumofName = 0;
-          local_scomGroupRecord.filepos = 0;
-          total_addrs_in_group = 0;
-
-          current_stage = PARSED_GROUP_DONE;
-        }
-      } else {
-        sprintf(buf,"parse_groupscomdef_file Unexpected line found at line:%d, should be blank or a comment\n", line_count);
-        ecmdOutputError(buf);
-        return ECMD_FAILURE;
-      }
-    } // end else not end of file
-  }// end while
-
-  scomgroupFile.close();
-  if (current_stage != PARSED_GROUP_DONE) {
-    sprintf(buf,"parse_groupscomdef_file scomgroupdef ended with an incomplete group, make sure it has a complete Name, ChipUnit, Size, 0x<addresses>\n");
-    ecmdOutputError(buf);
-    return ECMD_FAILURE;
-  }
-  return rc;
-}
-#endif

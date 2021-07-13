@@ -90,7 +90,7 @@ print("\n\n")
 testNum = 0
 
 testNum+=1; print("dll %02d) Load the plugin" % testNum)
-rc = ecmd.ecmdLoadDll(os.environ['ECMD_DLL_FILE'], "ver13,ver14")
+rc = ecmd.ecmdLoadDll(os.environ['ECMD_DLL_FILE'], "ver14,ver15")
 if (rc):
     print("ERROR: problem on dll load")
 
@@ -143,12 +143,14 @@ if (rc):
 else:
     print("Unit Id Version: %08x" % unitIdVer)
 
-# Pulling this test for now
-# It breaks builds where ring support isn't included, so some smarts would need to be put into it
-# JTA 11/11/2014
-if (0):
+if (1):
     testNum+=1; print("dll %02d) Query Ring Info" % testNum)
     tgt = ecmd.ecmdChipTarget()
+    tgt.chipType = 'pu'
+    tgt.cage = tgt.node = tgt.pos = tgt.slot = 0
+    tgt.chipTypeState = ecmd.ECMD_TARGET_FIELD_VALID
+    tgt.cageState = tgt.nodeState = tgt.posState = tgt.slotState = ecmd.ECMD_TARGET_FIELD_VALID
+
     ringInfo = ecmd.ecmdRingDataList()
     rc = ecmd.ecmdQueryRing(tgt, ringInfo)
     print("size: %d" % ringInfo.size())
